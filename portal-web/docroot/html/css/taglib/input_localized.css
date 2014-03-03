@@ -11,6 +11,11 @@
 
 	.input-localized-content {
 		margin-left: 6px;
+		white-space: normal;
+
+		table td {
+			display: inline-block;
+		}
 	}
 
 	&.input-localized-editor .input-localized-content {
