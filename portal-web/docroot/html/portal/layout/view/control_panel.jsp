@@ -98,6 +98,15 @@ request.setAttribute("control_panel.jsp-ppid", ppid);
 			<div class="<%= panelCategory %>">
 				<c:if test="<%= showControlPanelMenu %>">
 					<%@ include file="/html/portal/layout/view/control_panel_nav_main.jspf" %>
+
+					<aui:script use="liferay-tabs-responsive">
+						new Liferay.TabsResponsive(
+							{
+								tabsList: A.one('.control-panel-bar-secondary'),
+								delay: 100
+							}
+						);
+					</aui:script>
 				</c:if>
 
 				<div class="<%= panelBodyCssClass %>">

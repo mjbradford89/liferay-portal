@@ -713,6 +713,12 @@
 							'aui-io-request'
 						]
 					},
+					'liferay-tabs-responsive': {
+						path: 'tabs_responsive.js',
+						requires: [
+							'aui-base'
+						]
+					},
 					'liferay-toggler-interaction': {
 						path: 'toggler_interaction.js',
 						requires: [

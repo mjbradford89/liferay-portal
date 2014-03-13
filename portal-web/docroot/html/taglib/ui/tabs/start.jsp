@@ -86,7 +86,20 @@ String onClick = GetterUtil.getString((String)request.getAttribute("liferay-ui:t
 // Type
 
 String type = GetterUtil.getString((String)request.getAttribute("liferay-ui:tabs:type"), "tabs");
+
+//Random Namespace
+
+String randomNamespace = PortalUtil.generateRandomKey(request, "taglib_ui_tabs_start");
 %>
+
+<aui:script use="liferay-tabs-responsive">
+	new Liferay.TabsResponsive(
+		{
+			tabsList: A.one('#<%= randomNamespace + "-" + type %>'),
+			delay: 100
+		}
+	);
+</aui:script>
 
 <c:if test="<%= names.length > 0 %>">
 
@@ -105,7 +118,7 @@ String type = GetterUtil.getString((String)request.getAttribute("liferay-ui:tabs
 		<c:otherwise>
 			<input name="<%= namespace %><%= param %>TabsScroll" type="hidden" />
 
-			<ul class="nav nav-<%= type %>">
+			<ul class="nav nav-<%= type %>" id="<%= randomNamespace + "-" + type %>">
 		</c:otherwise>
 	</c:choose>
 
