@@ -269,9 +269,9 @@ AUI.add(
 					_instanceablePortletFeedback: function (portletId) {
 						var instance = this;
 
-						var addedMessage = A.one('#addedMessage');
+						var addedMessage = instance.byId('addedMessage');
 
-						var addedMessagePortlet = addedMessage.one('#portletName');
+						var addedMessagePortlet = instance.byId('portletName');
 
 						var portletNameNode = A.one('[data-portlet-id=' + portletId + ']');
 
