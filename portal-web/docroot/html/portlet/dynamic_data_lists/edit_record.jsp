@@ -290,13 +290,15 @@ if (translating) {
 			document.<portlet:namespace />fm.<portlet:namespace />workflowAction.value = <%= WorkflowConstants.ACTION_PUBLISH %>;
 		}
 	}
+</aui:script>
 
-	if(!<%= translating %>) {
+<aui:script use="aui-base">
+	if (!<%= translating %>) {
 		Liferay.provide(
 			window,
 			'<portlet:namespace />postProcessTranslation',
 			function(languageId) {
-				var translationItem = AUI().one('.lfr-translation-manager-translation-item #<portlet:namespace />' + languageId);
+				var translationItem = A.one('.lfr-translation-manager-translation-item #<portlet:namespace />' + languageId);
 
 				if (translationItem) {
 					translationItem.ancestor('li').hide();
