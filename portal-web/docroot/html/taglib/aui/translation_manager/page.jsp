@@ -152,7 +152,7 @@
 						}
 					).render();
 
-					translationManager.once(
+					translationManager.on(
 						'addAvailableLocale',
 						function(event) {
 							A.one(<portlet:namespace />translationsMessage).show();
