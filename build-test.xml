@@ -29,6 +29,9 @@
 
 	<propertycopy from="liferay.portal.${liferay.portal.branch}.bundle" name="liferay.portal.bundle" />
 
+	<propertycopy from="mobile.device.resolution[${mobile.device.type}]" name="mobile.device.resolution" />
+	<propertycopy from="mobile.device.user.agent[${mobile.device.type}]" name="mobile.device.user.agent" />
+
 	<propertycopy from="operating.system.${operating.system.type}.version" name="operating.system.version" />
 
 	<property name="plink.executable" location="${project.dir}/tools/putty/plink.exe" />
@@ -427,7 +430,20 @@ create database lportal2 character set utf8;</echo>
 		<record-env-operating-system />
 		<record-testray-components />
 
-		<property name="file.properties">
+		<property name="test.case.properties">
+			<![CDATA[
+				<properties>
+					<property name="testray.component.names" value="${testray.component.names}" />
+					<property name="testray.main.component.name" value="${testray.main.component.name}" />
+					<property name="testray.testcase.description" value="${testray.testcase.description}" />
+					<property name="testray.testcase.name" value="${testray.testcase.name}" />
+					<property name="testray.testcase.priority" value="${testray.testcase.priority}" />
+					<property name="testray.testcase.product.edition" value="${testray.testcase.product.edition}" />
+				</properties>
+			]]>
+		</property>
+
+		<property name="test.suite.properties">
 			<![CDATA[
 				<environments>
 					<environment type="Application Server" option="${env.option.app.server}" />
@@ -453,8 +469,6 @@ create database lportal2 character set utf8;</echo>
 					<property name="operating.system.version" value="${operating.system.version}" />
 					<property name="testray.build.name" value="${testray.build.name}" />
 					<property name="testray.build.type" value="${testray.build.type}" />
-					<property name="testray.component.names" value="${testray.component.names}" />
-					<property name="testray.main.component.name" value="${testray.main.component.name}" />
 					<property name="testray.product.type" value="${testray.product.type}" />
 					<property name="testray.product.version" value="${testray.product.version}" />
 					<property name="testray.project.name" value="${testray.project.name}" />
@@ -482,21 +496,21 @@ create database lportal2 character set utf8;</echo>
 				<replaceregexp
 					file="@{file.name}"
 					flags="g"
-					match="\s*\&lt;properties\&gt;"
+					match="\s*\&lt;/?propert[^\n^\r]*[\n\r]"
 					replace=""
 				/>
 
 				<replaceregexp
 					file="@{file.name}"
 					flags="g"
-					match="\s*\&lt;property[^\n^\r]*[\n\r]"
-					replace=""
+					match="(\s*\&lt;testcase[^/]*)/&gt;"
+					replace="\1&gt;${line.separator}&lt;/testcase&gt;"
 				/>
 
 				<replaceregexp
 					file="@{file.name}"
-					match="&lt;/properties&gt;"
-					replace="${file.properties}"
+					match="&lt;testcase[^&gt;]*&gt;"
+					replace="${test.suite.properties}\0${test.case.properties}"
 				/>
 
 				<replaceregexp
@@ -1110,6 +1124,75 @@ create database lportal2 character set utf8;</echo>
 		<echo file="${basedir}/test.run.properties">${test.properties.expanded}</echo>
 	</target>
 
+	<target name="merge-jenkins-test-results">
+		<property name="jenkins.test.results.dir" value="${env.JENKINS_HOME}/userContent/jobs/${env.BUILD_FLOW_JOB_NAME}/${env.BUILD_FLOW_BUILD_NUMBER}/test-results" />
+
+		<property name="jenkins.results.xml.suite.file" value="${jenkins.test.results.dir}/test-suite/TESTS-${env.BUILD_FLOW_JOB_NAME}_${env.BUILD_FLOW_BUILD_NUMBER}.xml" />
+
+		<copy flatten="true" todir="${jenkins.test.results.dir}">
+			<fileset dir="${env.JENKINS_HOME}/userContent/jobs/" erroronmissingdir="false">
+				<include name="**/TEST-${env.BUILD_FLOW_JOB_NAME}_${env.BUILD_FLOW_BUILD_NUMBER}_*.xml" />
+			</fileset>
+		</copy>
+
+		<first id="first">
+			<fileset dir="${jenkins.test.results.dir}" includes="*.xml" />
+		</first>
+
+		<loadfile property="jenkins.results.xml.suite.file.header" srcfile="${toString:first}" />
+
+		<propertyregex
+			input="${jenkins.results.xml.suite.file.header}"
+			override="true"
+			property="jenkins.results.xml.suite.file.header"
+			regexp="&lt;testcase[\s\S.]*"
+			replace=""
+		/>
+
+		<propertyregex
+			input="${jenkins.results.xml.suite.file.header}"
+			override="true"
+			property="jenkins.results.xml.suite.file.header"
+			regexp="&lt;testsuite.*\n"
+			replace="&lt;testsuite&gt;${line.separator}"
+		/>
+
+		<echo file="${jenkins.results.xml.suite.file}">${jenkins.results.xml.suite.file.header}</echo>
+
+		<for param="jenkins.results.xml.file">
+			<path>
+				<fileset dir="${jenkins.test.results.dir}">
+					<include name="*.xml" />
+				</fileset>
+			</path>
+			<sequential>
+				<var name="jenkins.results.xml.suite.file.body" unset="true" />
+
+				<loadfile property="jenkins.results.xml.suite.file.body" srcfile="@{jenkins.results.xml.file}" />
+
+				<propertyregex
+					input="${jenkins.results.xml.suite.file.body}"
+					override="true"
+					property="jenkins.results.xml.suite.file.body"
+					regexp="&lt;\?xml[\s\S.]*&lt;testcase"
+					replace="&lt;testcase"
+				/>
+
+				<propertyregex
+					input="${jenkins.results.xml.suite.file.body}"
+					override="true"
+					property="jenkins.results.xml.suite.file.body"
+					regexp="&lt;/testcase&gt;[\s\S.]*"
+					replace="&lt;/testcase&gt;${line.separator}"
+				/>
+
+				<echo append="true" file="${jenkins.results.xml.suite.file}">${jenkins.results.xml.suite.file.body}</echo>
+			</sequential>
+		</for>
+
+		<echo append="true" file="${jenkins.results.xml.suite.file}">&lt;/testsuite&gt;</echo>
+	</target>
+
 	<target name="merge-test-results">
 		<mkdir dir="test-results" />
 
@@ -1710,6 +1793,17 @@ tck.url=true</echo>
 			<then>
 				<echo file="portal-web/test/test-portal-web-ext.properties" append="true">
 					theme.ids=${legacy.theme.ids}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<equals arg1="${mobile.device.enabled}" arg2="true" />
+			<then>
+				<echo file="portal-web/test/test-portal-web-ext.properties" append="true">
+					mobile.device.enabled=${mobile.device.enabled}
+					mobile.device.resolution=${mobile.device.resolution}
+					mobile.device.user.agent=${mobile.device.user.agent}
 				</echo>
 			</then>
 		</if>
@@ -2489,6 +2583,33 @@ custom.sql.function.isnotnull=CONVERT(VARCHAR,?) IS NOT NULL</echo>
 						<copy
 							file="portal-web/test-results/functional/report.html"
 							tofile="report.html"
+						/>
+					</then>
+				</if>
+
+				<antcall target="build-test-results-xml" />
+
+				<first id="first">
+					<fileset dir="portal-web/test-results/functional/" includes="TEST-com.liferay.portalweb2.*.xml" />
+				</first>
+
+				<property name="jenkins.results.xml.file" value="${toString:first}" />
+
+				<if>
+					<available file="${jenkins.results.xml.file}" />
+					<then>
+						<if>
+							<not>
+								<isset property="test.class" />
+							</not>
+							<then>
+								<property name="test.class" value="${test.simple.class.name}#${test.method.name}" />
+							</then>
+						</if>
+
+						<copy
+							file="${jenkins.results.xml.file}"
+							tofile="test-results/TEST-${env.BUILD_FLOW_JOB_NAME}_${env.BUILD_FLOW_BUILD_NUMBER}_${test.class}.xml"
 						/>
 					</then>
 				</if>

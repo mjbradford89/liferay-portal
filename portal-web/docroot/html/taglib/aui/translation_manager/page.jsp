@@ -21,9 +21,14 @@
 		<label class="lfr-translation-manager-default-locale-label" for="<portlet:namespace />defaultLanguageId"><liferay-ui:message key="web-content-default-language" />:</label>
 
 		<span class="lfr-translation-manager-default-locale-text lfr-translation-manager-translation lfr-translation-manager-translation-editing">
-			<img src='<%= HtmlUtil.escapeAttribute(themeDisplay.getPathThemeImages() + "/language/" + defaultLanguageId + ".png") %>' />
 
-			<%= LocaleUtil.fromLanguageId(defaultLanguageId).getDisplayName(locale) %>
+			<%
+			Locale defaultLocale = LocaleUtil.fromLanguageId(defaultLanguageId);
+			%>
+
+			<img alt="<%= defaultLocale.getDisplayName(locale) %>" src='<%= HtmlUtil.escapeAttribute(themeDisplay.getPathThemeImages() + "/language/" + defaultLanguageId + ".png") %>' />
+
+			<%= defaultLocale.getDisplayName(locale) %>
 		</span>
 
 		<select class="hide lfr-translation-manager-default-locale">
@@ -61,6 +66,7 @@
 
 						<liferay-ui:icon
 							cssClass="lfr-translation-manager-translation-item"
+							id="<%= LocaleUtil.toLanguageId(locales[i]) %>"
 							image='<%= "../language/" + LocaleUtil.toLanguageId(locales[i]) %>'
 							lang="<%= LocaleUtil.toLanguageId(locales[i]) %>"
 							message="<%= locales[i].getDisplayName(locale) %>"
@@ -73,6 +79,10 @@
 
 				</liferay-ui:icon-menu>
 			</span>
+
+			<div class="alert alert-info hide" id="<portlet:namespace />translationsMessage">
+				<liferay-ui:message key="the-changes-in-your-translations-will-be-available-once-the-content-is-published" />
+			</div>
 
 			<c:if test="<%= availableLocales.length > 1 %>">
 				<div class="lfr-translation-manager-available-translations">
@@ -88,7 +98,7 @@
 						%>
 
 							<span class="lfr-translation-manager-translation" locale="<%= availableLocales[i] %>">
-								<img src="<%= themeDisplay.getPathThemeImages() %>/language/<%= LocaleUtil.toLanguageId(availableLocales[i]) %>.png">
+								<img alt="<%= availableLocales[i].getDisplayName(locale) %>" src="<%= themeDisplay.getPathThemeImages() %>/language/<%= LocaleUtil.toLanguageId(availableLocales[i]) %>.png">
 
 								<%= availableLocales[i].getDisplayName(locale) %>
 
@@ -141,6 +151,13 @@
 							srcNode: '#<%= namespace + id %> .lfr-translation-manager-content'
 						}
 					).render();
+
+					translationManager.on(
+						'addAvailableLocale',
+						function(event) {
+							A.one(<portlet:namespace />translationsMessage).show();
+						}
+					);
 				}
 
 				return translationManager;

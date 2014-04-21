@@ -89,8 +89,15 @@ public class JournalArticleIndexer extends BaseIndexer {
 	public static final String PORTLET_ID = PortletKeys.JOURNAL;
 
 	public JournalArticleIndexer() {
+		setDefaultSelectedFieldNames(
+			Field.ARTICLE_ID, Field.COMPANY_ID, Field.DEFAULT_LANGUAGE_ID,
+			Field.ENTRY_CLASS_NAME, Field.ENTRY_CLASS_PK, Field.GROUP_ID,
+			Field.VERSION, Field.UID);
+		setDefaultSelectedLocalizedFieldNames(
+			Field.CONTENT, Field.DESCRIPTION, Field.TITLE);
 		setFilterSearch(true);
 		setPermissionAware(true);
+		setSelectAllLocales(true);
 	}
 
 	@Override
@@ -137,7 +144,8 @@ public class JournalArticleIndexer extends BaseIndexer {
 			Field.CLASS_NAME_ID);
 
 		if ((classNameId != null) && (classNameId.longValue() != 0)) {
-			contextQuery.addRequiredTerm("classNameId", classNameId.toString());
+			contextQuery.addRequiredTerm(
+				Field.CLASS_NAME_ID, classNameId.toString());
 		}
 
 		addStatus(contextQuery, searchContext);
@@ -211,6 +219,7 @@ public class JournalArticleIndexer extends BaseIndexer {
 			BooleanQuery searchQuery, SearchContext searchContext)
 		throws Exception {
 
+		addSearchTerm(searchQuery, searchContext, Field.ARTICLE_ID, false);
 		addSearchTerm(searchQuery, searchContext, Field.CLASS_PK, false);
 		addSearchLocalizedTerm(
 			searchQuery, searchContext, Field.CONTENT, false);
@@ -220,8 +229,6 @@ public class JournalArticleIndexer extends BaseIndexer {
 		addSearchLocalizedTerm(searchQuery, searchContext, Field.TITLE, false);
 		addSearchTerm(searchQuery, searchContext, Field.TYPE, false);
 		addSearchTerm(searchQuery, searchContext, Field.USER_NAME, false);
-
-		addSearchTerm(searchQuery, searchContext, "articleId", false);
 
 		LinkedHashMap<String, Object> params =
 			(LinkedHashMap<String, Object>)searchContext.getAttribute("params");
@@ -362,12 +369,6 @@ public class JournalArticleIndexer extends BaseIndexer {
 		}
 
 		document.addKeyword(Field.FOLDER_ID, article.getFolderId());
-		document.addKeyword(Field.LAYOUT_UUID, article.getLayoutUuid());
-		document.addKeyword(
-			Field.TREE_PATH,
-			StringUtil.split(article.getTreePath(), CharPool.SLASH));
-		document.addKeyword(Field.TYPE, article.getType());
-		document.addKeyword(Field.VERSION, article.getVersion());
 
 		String articleId = article.getArticleId();
 
@@ -375,7 +376,15 @@ public class JournalArticleIndexer extends BaseIndexer {
 			articleId = TrashUtil.getOriginalTitle(articleId);
 		}
 
-		document.addKeyword("articleId", articleId);
+		document.addKeyword(Field.ARTICLE_ID, articleId);
+
+		document.addKeyword(Field.LAYOUT_UUID, article.getLayoutUuid());
+		document.addKeyword(
+			Field.TREE_PATH,
+			StringUtil.split(article.getTreePath(), CharPool.SLASH));
+		document.addKeyword(Field.TYPE, article.getType());
+		document.addKeyword(Field.VERSION, article.getVersion());
+
 		document.addKeyword("ddmStructureKey", article.getStructureId());
 		document.addKeyword("ddmTemplateKey", article.getTemplateId());
 		document.addDate("displayDate", article.getDisplayDate());
@@ -437,8 +446,8 @@ public class JournalArticleIndexer extends BaseIndexer {
 		String content = getDDMContentSummary(
 			document, snippetLocale, portletRequest, portletResponse);
 
+		String articleId = document.get(Field.ARTICLE_ID);
 		String groupId = document.get(Field.GROUP_ID);
-		String articleId = document.get("articleId");
 		String version = document.get(Field.VERSION);
 
 		portletURL.setParameter("struts_action", "/journal/edit_article");
@@ -569,8 +578,8 @@ public class JournalArticleIndexer extends BaseIndexer {
 		}
 
 		try {
+			String articleId = document.get(Field.ARTICLE_ID);
 			long groupId = GetterUtil.getLong(document.get(Field.GROUP_ID));
-			String articleId = document.get("articleId");
 			double version = GetterUtil.getDouble(document.get(Field.VERSION));
 			PortletRequestModel portletRequestModel = new PortletRequestModel(
 				portletRequest, portletResponse);

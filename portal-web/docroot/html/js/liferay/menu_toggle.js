@@ -3,13 +3,18 @@ AUI.add(
 	function(A) {
 		var Lang = A.Lang;
 
-		var	NAME = 'menutoggle';
+		var NAME = 'menutoggle';
 
 		var MenuToggle = A.Component.create(
 			{
 				ATTRS: {
 					content: {
 						validator: '_validateContent'
+					},
+
+					open: {
+						validator: Lang.isBoolean,
+						value: false
 					},
 
 					toggle: {
@@ -100,24 +105,25 @@ AUI.add(
 						var instance = this;
 
 						instance._content.toggleClass('open', force);
+
+						instance.set('open', force);
 					},
 
 					_toggleMenu: function(event, target) {
 						var instance = this;
 
+						var open = !instance.get('open');
 						var toggle = instance.get('toggle');
 						var toggleTouch = instance.get('toggleTouch');
 
 						var handleId = instance._handleId;
 
-						instance._toggleContent();
-
-						var menuOpen = instance._content.item(0).hasClass('open');
+						instance._toggleContent(open);
 
 						if (!toggle) {
 							var handle = Liferay.Data[handleId];
 
-							if (menuOpen && !handle) {
+							if (open && !handle) {
 								handle = target.on(
 									instance._getEventOutside(event),
 									function(event) {

@@ -1,4 +1,6 @@
 <definition component-name="portal-web-forms-and-data-lists">
+	<property name="testray.main.component.name" value="Web Forms and Data Lists" />
+
 	<var name="pageName" value="Dynamic Data List Display Page" />
 	<var name="portletName" value="Dynamic Data List Display" />
 
@@ -359,7 +361,7 @@
 			<var name="portletName" value="${pageName}" />
 		</execute>
 
-		<execute macro="DDLList#deletePGViaDDLDislay">
+		<execute macro="DDLList#deletePGViaDDLDisplay">
 			<var name="ddlListName" value="${ddlListName}" />
 		</execute>
 	</command>
