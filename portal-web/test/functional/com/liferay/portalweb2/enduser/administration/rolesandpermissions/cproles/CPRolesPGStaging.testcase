@@ -1,4 +1,6 @@
 <definition component-name="portal-permissions">
+	<property name="testray.main.component.name" value="Permissions" />
+
 	<var name="siteName" value="Site Name" />
 
 	<set-up>
@@ -386,7 +388,7 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="Staging#publishToLiveNowPG" />
+		<execute macro="Staging#publishToLiveNow" />
 
 		<execute macro="User#logoutUserPG" />
 
@@ -474,7 +476,7 @@
 			<var name="siteURL" value="true" />
 		</execute>
 
-		<execute macro="Staging#publishToLiveNowPG" />
+		<execute macro="Staging#publishToLiveNow" />
 
 		<execute macro="User#logoutUserPG" />
 

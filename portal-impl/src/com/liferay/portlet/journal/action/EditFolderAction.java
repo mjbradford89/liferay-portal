@@ -28,6 +28,7 @@ import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.assetpublisher.util.AssetPublisherUtil;
 import com.liferay.portlet.journal.DuplicateFolderNameException;
 import com.liferay.portlet.journal.FolderNameException;
+import com.liferay.portlet.journal.InvalidDDMStructureException;
 import com.liferay.portlet.journal.NoSuchFolderException;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalFolder;
@@ -89,7 +90,8 @@ public class EditFolderAction extends PortletAction {
 				setForward(actionRequest, "portlet.journal.error");
 			}
 			else if (e instanceof DuplicateFolderNameException ||
-					 e instanceof FolderNameException) {
+					 e instanceof FolderNameException ||
+					 e instanceof InvalidDDMStructureException) {
 
 				SessionErrors.add(actionRequest, e.getClass());
 			}
@@ -216,9 +218,16 @@ public class EditFolderAction extends PortletAction {
 
 			// Update folder
 
+			long[] ddmStructureIds = StringUtil.split(
+				ParamUtil.getString(
+					actionRequest, "ddmStructuresSearchContainerPrimaryKeys"),
+				0L);
+			boolean overrideDDMStructures = ParamUtil.getBoolean(
+				actionRequest, "overrideDDMStructures");
+
 			JournalFolderServiceUtil.updateFolder(
-				folderId, parentFolderId, name, description,
-				mergeWithParentFolder, serviceContext);
+				folderId, parentFolderId, name, description, ddmStructureIds,
+				overrideDDMStructures, mergeWithParentFolder, serviceContext);
 		}
 	}
 

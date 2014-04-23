@@ -174,6 +174,15 @@ else {
 	<aui:input name="preview" type="hidden" />
 	<aui:input name="workflowAction" type="hidden" value="<%= String.valueOf(WorkflowConstants.ACTION_SAVE_DRAFT) %>" />
 
+	<liferay-ui:error exception="<%= AntivirusScannerException.class %>">
+
+		<%
+		AntivirusScannerException ase = (AntivirusScannerException)errorException;
+		%>
+
+		<liferay-ui:message key="<%= ase.getMessageKey() %>" />
+	</liferay-ui:error>
+
 	<liferay-ui:error exception="<%= CaptchaMaxChallengesException.class %>" message="maximum-number-of-captcha-attempts-exceeded" />
 	<liferay-ui:error exception="<%= CaptchaTextException.class %>" message="text-verification-failed" />
 	<liferay-ui:error exception="<%= DuplicateFileException.class %>" message="please-enter-a-unique-document-name" />
@@ -342,7 +351,7 @@ else {
 									/>
 								</span>
 
-								<aui:input cssClass="hide" label="" name='<%= "msgFile" + (i + 1) %>' size="70" type="file" />
+								<aui:input cssClass="hide" hideLabel="<%= true %>" label="message-attachment" name='<%= "msgFile" + (i + 1) %>' size="70" type="file" />
 
 								<liferay-ui:icon-delete
 									id='<%= "removeExisting" + (i + 1) %>'
@@ -387,7 +396,7 @@ else {
 				%>
 
 					<div>
-						<aui:input label="" name='<%= "msgFile" + i %>' size="70" type="file" />
+						<aui:input hideLabel="<%= true %>" label="message-attachment" name='<%= "msgFile" + i %>' size="70" type="file" />
 					</div>
 
 				<%

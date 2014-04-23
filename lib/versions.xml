@@ -186,7 +186,7 @@
 	</library>
 	<library>
 		<file-name>lib/development/ecj.jar</file-name>
-		<version>3.6.0</version>
+		<version>4.3.2</version>
 		<project-name>Eclipse JDT Core Batch Compiler</project-name>
 		<project-url>http://www.eclipse.org/jdt/core/index.php</project-url>
 		<licenses>
@@ -1005,7 +1005,7 @@
 	</library>
 	<library>
 		<file-name>lib/portal/aspectj-rt.jar</file-name>
-		<version>1.6.12</version>
+		<version>1.8.0</version>
 		<project-name>AspectJ</project-name>
 		<project-url>http://www.eclipse.org/aspectj</project-url>
 		<licenses>
@@ -1017,7 +1017,7 @@
 	</library>
 	<library>
 		<file-name>lib/portal/aspectj-weaver.jar</file-name>
-		<version>1.6.12</version>
+		<version>1.8.0</version>
 		<project-name>AspectJ</project-name>
 		<project-url>http://www.eclipse.org/aspectj</project-url>
 		<licenses>
@@ -1243,7 +1243,7 @@
 		</licenses>
 	</library>
 	<library>
-		<file-name>lib/portal/cglib.jar</file-name>
+		<file-name>lib/portal/cglib-nodep.jar</file-name>
 		<version>2.2</version>
 		<project-name>Code Generation Library</project-name>
 		<project-url>http://cglib.sourceforge.net</project-url>

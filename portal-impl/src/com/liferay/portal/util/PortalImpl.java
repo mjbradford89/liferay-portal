@@ -92,8 +92,10 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.QName;
+import com.liferay.portal.language.LanguageResources;
 import com.liferay.portal.model.AuditedModel;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.ClassName;
@@ -1832,7 +1834,7 @@ public class PortalImpl implements Portal {
 	public long[] getCurrentAndAncestorSiteGroupIds(long groupId)
 		throws PortalException, SystemException {
 
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new UniqueList<Group>();
 
 		Group siteGroup = doGetCurrentSiteGroup(groupId);
 
@@ -4743,6 +4745,11 @@ public class PortalImpl implements Portal {
 	}
 
 	@Override
+	public ResourceBundle getResourceBundle(Locale locale) {
+		return LanguageResources.getResourceBundle(locale);
+	}
+
+	@Override
 	public long getScopeGroupId(HttpServletRequest request)
 		throws PortalException, SystemException {
 
@@ -4981,7 +4988,7 @@ public class PortalImpl implements Portal {
 			long companyId, long groupId, long userId)
 		throws PortalException, SystemException {
 
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new UniqueList<Group>();
 
 		Group siteGroup = doGetCurrentSiteGroup(groupId);
 
@@ -6848,6 +6855,25 @@ public class PortalImpl implements Portal {
 	}
 
 	@Override
+	public String resetPortletParameters(String url, String portletId) {
+		if (Validator.isNull(url) || Validator.isNull(portletId)) {
+			return url;
+		}
+
+		String portletNamespace = getPortletNamespace(portletId);
+
+		Map<String, String[]> parameterMap = HttpUtil.getParameterMap(url);
+
+		for (String name : parameterMap.keySet()) {
+			if (name.startsWith(portletNamespace)) {
+				url = HttpUtil.removeParameter(url, name);
+			}
+		}
+
+		return url;
+	}
+
+	@Override
 	public void sendError(
 			Exception e, ActionRequest actionRequest,
 			ActionResponse actionResponse)
@@ -6953,50 +6979,44 @@ public class PortalImpl implements Portal {
 			}
 		}
 
-		HttpSession session = PortalSessionThreadLocal.getHttpSession();
-
-		if (session == null) {
-			session = request.getSession();
-		}
-
-		ServletContext servletContext = session.getServletContext();
-
-		String redirect = PATH_MAIN + "/portal/status";
+		String redirect = null;
 
 		if ((e instanceof NoSuchGroupException) &&
 			Validator.isNotNull(
 				PropsValues.SITES_FRIENDLY_URL_PAGE_NOT_FOUND)) {
 
-			response.setStatus(status);
-
 			redirect = PropsValues.SITES_FRIENDLY_URL_PAGE_NOT_FOUND;
-
-			RequestDispatcher requestDispatcher =
-				servletContext.getRequestDispatcher(redirect);
-
-			if (requestDispatcher != null) {
-				requestDispatcher.forward(request, response);
-			}
 		}
 		else if ((e instanceof NoSuchLayoutException) &&
 				 Validator.isNotNull(
 					PropsValues.LAYOUT_FRIENDLY_URL_PAGE_NOT_FOUND)) {
 
-			response.setStatus(status);
-
 			redirect = PropsValues.LAYOUT_FRIENDLY_URL_PAGE_NOT_FOUND;
-
-			RequestDispatcher requestDispatcher =
-				servletContext.getRequestDispatcher(redirect);
-
-			if (requestDispatcher != null) {
-				requestDispatcher.forward(request, response);
-			}
 		}
 		else if (PropsValues.LAYOUT_SHOW_HTTP_STATUS) {
+			redirect = PATH_MAIN + "/portal/status";
+		}
+
+		if (Validator.equals(redirect, request.getRequestURI())) {
+			if (_log.isWarnEnabled()) {
+				_log.warn("Unable to redirect to missing URI: " + redirect);
+			}
+
+			redirect = null;
+		}
+
+		if (Validator.isNotNull(redirect)) {
+			HttpSession session = PortalSessionThreadLocal.getHttpSession();
+
+			if (session == null) {
+				session = request.getSession();
+			}
+
 			response.setStatus(status);
 
 			SessionErrors.add(session, e.getClass(), e);
+
+			ServletContext servletContext = session.getServletContext();
 
 			RequestDispatcher requestDispatcher =
 				servletContext.getRequestDispatcher(redirect);
@@ -7623,7 +7643,7 @@ public class PortalImpl implements Portal {
 			long groupId, boolean checkContentSharingWithChildrenEnabled)
 		throws PortalException, SystemException {
 
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new UniqueList<Group>();
 
 		long siteGroupId = getSiteGroupId(groupId);
 
@@ -8361,6 +8381,7 @@ public class PortalImpl implements Portal {
 	 * @deprecated As of 7.0.0, replaced by {@link
 	 *             #_portalServerInetSocketAddress}
 	 */
+	@Deprecated
 	private final AtomicInteger _portalPort = new AtomicInteger(-1);
 
 	/**
