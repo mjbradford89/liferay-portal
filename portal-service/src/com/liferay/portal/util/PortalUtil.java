@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -728,6 +729,12 @@ public class PortalUtil {
 		throws PortalException, SystemException {
 
 		return getPortal().getCurrentAndAncestorSiteGroupIds(groupId);
+	}
+
+	public static List<Group> getCurrentAndAncestorSiteGroups(long groupId)
+		throws PortalException, SystemException {
+
+		return getPortal().getCurrentAndAncestorSiteGroups(groupId);
 	}
 
 	public static String getCurrentCompleteURL(HttpServletRequest request) {
@@ -1678,6 +1685,10 @@ public class PortalUtil {
 		return getPortal().getRelativeHomeURL(request);
 	}
 
+	public static ResourceBundle getResourceBundle(Locale locale) {
+		return getPortal().getResourceBundle(locale);
+	}
+
 	public static long getScopeGroupId(HttpServletRequest request)
 		throws PortalException, SystemException {
 
@@ -2266,6 +2277,10 @@ public class PortalUtil {
 
 		return getPortal().
 			resetPortletAddDefaultResourceCheckWhitelistActions();
+	}
+
+	public static String resetPortletParameters(String url, String portletId) {
+		return getPortal().resetPortletParameters(url, portletId);
 	}
 
 	/**

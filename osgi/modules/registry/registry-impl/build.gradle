@@ -9,4 +9,4 @@ dependencies {
 	compile project(':registry-api')
 }
 
-project.ext.deployDir = project.hasProperty('osgiLibDir') ? project.osgiLibDir + "/core" : null
+project.ext.deployDir = project.hasProperty('liferayHome') ? project.liferayHome + "/osgi/core" : null

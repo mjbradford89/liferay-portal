@@ -117,7 +117,7 @@ catch (NoSuchArticleException nsae) {
 					<c:if test="<%= tableIteratorObj.isSmallImage() %>">
 						<br />
 
-						<img border="0" hspace="0" src="<%= Validator.isNotNull(tableIteratorObj.getSmallImageURL()) ? HtmlUtil.escapeHREF(tableIteratorObj.getSmallImageURL()) : themeDisplay.getPathImage() + "/journal/template?img_id=" + tableIteratorObj.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(tableIteratorObj.getSmallImageId()) %>" vspace="0" />
+						<img alt="" border="0" hspace="0" src="<%= Validator.isNotNull(tableIteratorObj.getSmallImageURL()) ? HtmlUtil.escapeHREF(tableIteratorObj.getSmallImageURL()) : themeDisplay.getPathImage() + "/journal/template?img_id=" + tableIteratorObj.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(tableIteratorObj.getSmallImageId()) %>" vspace="0" />
 					</c:if>
 				</liferay-ui:table-iterator>
 
@@ -234,9 +234,7 @@ catch (NoSuchArticleException nsae) {
 	<aui:input name="preferences--ddmTemplateKey--" type="hidden" value="<%= ddmTemplateKey %>" />
 
 	<aui:fieldset>
-		<aui:field-wrapper label="portlet-id">
-			<liferay-ui:input-resource url="<%= portletResource %>" />
-		</aui:field-wrapper>
+		<aui:input name="portletId" type="resource" value="<%= portletResource %>" />
 	</aui:fieldset>
 
 	<aui:fieldset>
@@ -250,11 +248,7 @@ catch (NoSuchArticleException nsae) {
 			for (String conversion : conversions) {
 			%>
 
-				<label class="checkbox inline">
-					<input <%= ArrayUtil.contains(extensions, conversion) ? "checked": "" %> <%= openOfficeServerEnabled ? "" : "disabled" %> name="<portlet:namespace />extensions" type="checkbox" value="<%= conversion %>" />
-
-					<%= StringUtil.toUpperCase(conversion) %>
-				</label>
+				<aui:input checked="<%= ArrayUtil.contains(extensions, conversion) %>" disabled="<%= !openOfficeServerEnabled %>" id='<%= "extensions" + conversion %>' includeHiddenField="<%= false %>" inlineField="<%= true %>" label="<%= StringUtil.toUpperCase(conversion) %>" name="extensions" type="checkbox" value="<%= conversion %>" />
 
 			<%
 			}

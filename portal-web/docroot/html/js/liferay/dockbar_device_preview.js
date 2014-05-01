@@ -352,10 +352,11 @@ AUI.add(
 					_onResize: function(event) {
 						var instance = this;
 
+						var target = event.target;
 						var eventInfo = event.info;
 
-						var offsetHeight = eventInfo.offsetHeight;
-						var offsetWidth = eventInfo.offsetWidth;
+						var offsetHeight = eventInfo.offsetHeight - target.totalHSurrounding;
+						var offsetWidth = eventInfo.offsetWidth - target.totalVSurrounding;
 
 						var inputHeight = instance.get(STR_INPUT_HEIGHT);
 
