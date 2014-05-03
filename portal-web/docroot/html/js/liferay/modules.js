@@ -12,6 +12,10 @@
 
 	var SUPPORTS_INPUT_SELECTION = ((typeof INPUT_EL.selectionStart === 'number') && (typeof INPUT_EL.selectionEnd === 'number'));
 
+	var testTouch = function(A) {
+		return A.UA.touch;
+	};
+
 	window.YUI_config = {
 		base: PATH_JAVASCRIPT + '/aui/',
 		combine: COMBINE,
@@ -58,6 +62,15 @@
 					},
 					'liferay-app-view-move': {
 						path: 'app_view_move.js',
+						plugins: {
+							'liferay-app-view-move-touch': {
+								condition: {
+									name: 'liferay-app-view-move-touch',
+									test: testTouch,
+									trigger: 'liferay-app-view-move'
+								}
+							}
+						},
 						requires: [
 							'aui-base',
 							'dd-constrain',
@@ -68,6 +81,12 @@
 							'liferay-history-manager',
 							'liferay-portlet-base',
 							'liferay-util-list-fields'
+						]
+					},
+					'liferay-app-view-move-touch': {
+						path: 'app_view_move_touch.js',
+						requires: [
+							'aui-base'
 						]
 					},
 					'liferay-app-view-paginator': {
@@ -237,7 +256,7 @@
 							'aui-io-request',
 							'event-mouseenter',
 							'liferay-dockbar',
-							'liferay-dockbar-add-content-content-preview',
+							'liferay-dockbar-add-content-preview',
 							'liferay-dockbar-add-content-search',
 							'liferay-portlet-base'
 						]
@@ -424,9 +443,7 @@
 							'liferay-input-move-boxes-touch': {
 								condition: {
 									name: 'liferay-input-move-boxes-touch',
-									test: function(A) {
-										return A.UA.touch;
-									},
+									test: testTouch,
 									trigger: 'liferay-input-move-boxes'
 								}
 							}
@@ -513,12 +530,21 @@
 							'aui-node'
 						]
 					},
+					'liferay-menu-filter': {
+						path: 'menu_filter.js',
+						requires: [
+							'autocomplete-base',
+							'autocomplete-filters',
+							'autocomplete-highlighters'
+						]
+					},
 					'liferay-menu-toggle': {
 						path: 'menu_toggle.js',
 						requires: [
 							'aui-node',
 							'event-move',
 							'event-outside',
+							'liferay-menu-filter',
 							'liferay-store'
 						]
 					},
@@ -535,13 +561,15 @@
 							'liferay-navigation-touch': {
 								condition: {
 									name: 'liferay-navigation-touch',
-									test: function(A) {
-										return A.UA.touch;
-									},
+									test: testTouch,
 									trigger: 'liferay-navigation'
 								}
 							}
-						}
+						},
+						requires: [
+							'aui-component',
+							'event-mouseenter'
+						]
 					},
 					'liferay-navigation-interaction': {
 						path: 'navigation_interaction.js',
@@ -549,9 +577,7 @@
 							'liferay-navigation-interaction-touch': {
 								condition: {
 									name: 'liferay-navigation-interaction-touch',
-									test: function(A) {
-										return A.UA.touch;
-									},
+									test: testTouch,
 									trigger: 'liferay-navigation-interaction'
 								}
 							}

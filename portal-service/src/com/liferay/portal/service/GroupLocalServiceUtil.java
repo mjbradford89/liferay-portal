@@ -216,6 +216,11 @@ public class GroupLocalServiceUtil {
 		return getService().getGroup(groupId);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getActionableDynamicQuery();
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -1061,6 +1066,14 @@ public class GroupLocalServiceUtil {
 		getService().enableStaging(groupId);
 	}
 
+	/**
+	* Returns the company's group.
+	*
+	* @param companyId the primary key of the company
+	* @return the company's group, or <code>null</code> if a matching group
+	could not be found
+	* @throws SystemException if a system exception occurred
+	*/
 	public static com.liferay.portal.model.Group fetchCompanyGroup(
 		long companyId)
 		throws com.liferay.portal.kernel.exception.SystemException {
@@ -1098,6 +1111,16 @@ public class GroupLocalServiceUtil {
 		return getService().fetchGroup(companyId, name);
 	}
 
+	/**
+	* Returns the default user's personal site group.
+	*
+	* @param companyId the primary key of the company
+	* @return the default user's personal site group, or <code>null</code> if a
+	matching group could not be found
+	* @throws PortalException if a default user for the company could not be
+	found
+	* @throws SystemException if a system exception occurred
+	*/
 	public static com.liferay.portal.model.Group fetchUserPersonalSiteGroup(
 		long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -1674,6 +1697,15 @@ public class GroupLocalServiceUtil {
 		return getService().getUserOrganizationsGroups(userId, start, end);
 	}
 
+	/**
+	* Returns the default user's personal site group.
+	*
+	* @param companyId the primary key of the company
+	* @return the default user's personal site group
+	* @throws PortalException if a matching group or default user for the
+	company could not be found
+	* @throws SystemException if a system exception occurred
+	*/
 	public static com.liferay.portal.model.Group getUserPersonalSiteGroup(
 		long companyId)
 		throws com.liferay.portal.kernel.exception.PortalException,

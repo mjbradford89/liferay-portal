@@ -1,4 +1,6 @@
 <definition component-name="portal-wcm">
+	<property name="testray.main.component.name" value="WCM" />
+
 	<var name="pageName" value="Web Content Display Page" />
 	<var name="portletName" value="Web Content Display" />
 
@@ -308,7 +310,7 @@
 		</execute>
 
 		<execute macro="WebContent#addTranslationPGViaWCD">
-			<var name="languageKey" value="${languageKey}" />
+			<var name="lowercaseLanguageCode" value="zh" />
 			<var name="webContentTranslationContent" value="${webContentTranslationContent}" />
 			<var name="webContentTranslationLanguage" value="${webContentTranslationLanguage}" />
 			<var name="webContentTranslationTitle" value="${webContentTranslationTitle}" />
@@ -478,7 +480,7 @@
 		</execute>
 
 		<execute macro="WebContent#addTranslationPGViaWCD">
-			<var name="languageKey" value="${languageKey}" />
+			<var name="lowercaseLanguageCode" value="zh" />
 			<var name="webContentTranslationContent" value="${webContentTranslationContent}" />
 			<var name="webContentTranslationLanguage" value="${webContentTranslationLanguage}" />
 			<var name="webContentTranslationTitle" value="${webContentTranslationTitle}" />

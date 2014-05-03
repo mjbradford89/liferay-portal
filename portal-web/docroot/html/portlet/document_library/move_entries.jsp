@@ -117,9 +117,14 @@ for (DLFileShortcut curFileShortcut : fileShortcuts) {
 
 				<%
 				for (Folder folder : validMoveFolders) {
+					AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(DLFolder.class.getName());
+
+					AssetRenderer assetRenderer = assetRendererFactory.getAssetRenderer(folder.getFolderId());
 				%>
 
 					<li class="move-folder">
+						<i class="<%= assetRenderer.getIconCssClass() %>"></i>
+
 						<span class="folder-title">
 							<%= HtmlUtil.escape(folder.getName()) %>
 						</span>
@@ -143,9 +148,14 @@ for (DLFileShortcut curFileShortcut : fileShortcuts) {
 
 				<%
 				for (Folder folder : invalidMoveFolders) {
+					AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(DLFolder.class.getName());
+
+					AssetRenderer assetRenderer = assetRendererFactory.getAssetRenderer(folder.getFolderId());
 				%>
 
-					<li class="move-error move-folder">
+					<li class="icon-warning-sign move-error move-folder">
+						<i class="<%= assetRenderer.getIconCssClass() %>"></i>
+
 						<span class="folder-title">
 							<%= HtmlUtil.escape(folder.getName()) %>
 						</span>
@@ -182,9 +192,14 @@ for (DLFileShortcut curFileShortcut : fileShortcuts) {
 
 				<%
 				for (FileEntry validMoveFileEntry : validMoveFileEntries) {
+					AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(DLFileEntry.class.getName());
+
+					AssetRenderer assetRenderer = assetRendererFactory.getAssetRenderer(validMoveFileEntry.getFileEntryId());
 				%>
 
 					<li class="move-file">
+						<i class="<%= assetRenderer.getIconCssClass() %>"></i>
+
 						<span class="file-title" title="<%= HtmlUtil.escapeAttribute(validMoveFileEntry.getTitle()) %>">
 							<%= HtmlUtil.escape(validMoveFileEntry.getTitle()) %>
 						</span>
@@ -208,10 +223,16 @@ for (DLFileShortcut curFileShortcut : fileShortcuts) {
 
 				<%
 				for (FileEntry invalidMoveFileEntry : invalidMoveFileEntries) {
+					AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(DLFileEntry.class.getName());
+
+					AssetRenderer assetRenderer = assetRendererFactory.getAssetRenderer(invalidMoveFileEntry.getFileEntryId());
+
 					Lock lock = invalidMoveFileEntry.getLock();
 				%>
 
-					<li class="move-error move-file">
+					<li class="icon-warning-sign move-error move-file">
+						<i class="<%= assetRenderer.getIconCssClass() %>"></i>
+
 						<span class="file-title" title="<%= HtmlUtil.escapeAttribute(invalidMoveFileEntry.getTitle()) %>">
 							<%= HtmlUtil.escape(invalidMoveFileEntry.getTitle()) %>
 						</span>
@@ -313,13 +334,11 @@ for (DLFileShortcut curFileShortcut : fileShortcuts) {
 		}
 		%>
 
-		<aui:field-wrapper label="new-folder">
-			<div class="input-append">
-				<liferay-ui:input-resource id="folderName" label="new-folder" url="<%= folderName %>" />
+		<div class="control-group">
+			<aui:input label="new-folder" name="folderName" type="resource" value="<%= folderName %>" />
 
-				<aui:button name="selectFolderButton" value="select" />
-			</div>
-		</aui:field-wrapper>
+			<aui:button name="selectFolderButton" value="select" />
+		</div>
 
 		<aui:button-row>
 			<aui:button type="submit" value="move" />

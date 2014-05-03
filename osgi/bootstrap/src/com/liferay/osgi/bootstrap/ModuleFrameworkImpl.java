@@ -342,6 +342,12 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			_checkPermission();
 		}
 
+		if (_isFragmentBundle(bundle) ||
+			((bundle.getState() & Bundle.ACTIVE) == Bundle.ACTIVE)) {
+
+			return;
+		}
+
 		try {
 			bundle.start(options);
 		}
@@ -378,10 +384,6 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 		List<FrameworkFactory> frameworkFactories = ServiceLoader.load(
 			FrameworkFactory.class, serviceLoaderCondition);
-
-		if (frameworkFactories.isEmpty()) {
-			return;
-		}
 
 		FrameworkFactory frameworkFactory = frameworkFactories.get(0);
 
@@ -916,7 +918,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			Bundle bundle = (Bundle)addBundle(
 				initialBundleURL.toString(), inputStream, false);
 
-			if (bundle == null) {
+			if ((bundle == null) || _isFragmentBundle(bundle)) {
 				return;
 			}
 
@@ -949,6 +951,18 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		finally {
 			StreamUtil.cleanUp(inputStream);
 		}
+	}
+
+	private boolean _isFragmentBundle(Bundle bundle) {
+		Dictionary<String, String> headers = bundle.getHeaders();
+
+		String fragmentHost = headers.get(Constants.FRAGMENT_HOST);
+
+		if (fragmentHost == null) {
+			return false;
+		}
+
+		return true;
 	}
 
 	private void _processURL(

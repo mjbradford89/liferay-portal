@@ -93,6 +93,24 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return _firstSourceMismatchException;
 	}
 
+	protected void checkEmptyCollection(
+		String line, String fileName, int lineCount) {
+
+		// LPS-46028
+
+		Matcher matcher = emptyCollectionPattern.matcher(line);
+
+		if (matcher.find()) {
+			String collectionType = TextFormatter.format(
+				matcher.group(1), TextFormatter.J);
+
+			processErrorMessage(
+				fileName,
+				"Use Collections.empty" + collectionType + "(): " + fileName +
+					" " + lineCount);
+		}
+	}
+
 	protected void checkIfClauseParentheses(
 		String ifClause, String fileName, int lineCount) {
 
@@ -274,6 +292,19 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 							StringPool.SPACE + fileName);
 				}
 			}
+		}
+	}
+
+	protected void checkStandardLibs(
+		String line, String fileName, int lineCount) {
+
+		// LPS-46445
+
+		if (mainReleaseVersion.equals(MAIN_RELEASE_LATEST_VERSION) &&
+			line.contains("ListUtil.fromArray(")) {
+
+			processErrorMessage(
+				fileName, "Use Arrays.asList: " + fileName + " " + lineCount);
 		}
 	}
 
@@ -720,12 +751,21 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected String[] getLanguageKeys(Matcher matcher) {
-		if (matcher.groupCount() > 0) {
+		int groupCount = matcher.groupCount();
+
+		if (groupCount == 1) {
 			String languageKey = matcher.group(1);
 
 			if (Validator.isNotNull(languageKey)) {
 				return new String[] {languageKey};
 			}
+		}
+		else if (groupCount == 2) {
+			String languageKey = matcher.group(2);
+
+			languageKey = TextFormatter.format(languageKey, TextFormatter.P);
+
+			return new String[] {languageKey};
 		}
 
 		StringBundler sb = new StringBundler();
@@ -1132,6 +1172,8 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 	protected static final String MAIN_RELEASE_VERSION_7_0_0 = "7.0.0";
 
+	protected static Pattern emptyCollectionPattern = Pattern.compile(
+		"Collections\\.EMPTY_(LIST|MAP|SET)");
 	protected static FileImpl fileUtil = FileImpl.getInstance();
 	protected static Pattern languageKeyPattern = Pattern.compile(
 		"LanguageUtil.(?:get|format)\\([^;%]+|Liferay.Language.get\\('([^']+)");

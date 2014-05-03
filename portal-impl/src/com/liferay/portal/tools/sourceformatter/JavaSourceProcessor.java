@@ -839,6 +839,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			fileNames = getPluginJavaFiles();
 		}
 
+		_hibernateSQLQueryExclusions = getExclusionsProperties(
+			"source_formatter_hibernate_sql_query_exclusions.properties");
 		_javaTermSortExclusions = getExclusionsProperties(
 			"source_formatter_javaterm_sort_exclusions.properties");
 		_lineLengthExclusions = getExclusionsProperties(
@@ -1123,6 +1125,11 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					"instead of LocaleUtil.getDefault(): " + fileName);
 		}
 
+		// LPS-46017
+
+		newContent = StringUtil.replace(
+			newContent, " static interface ", " interface ");
+
 		String oldContent = newContent;
 
 		while (true) {
@@ -1257,7 +1264,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 			// LPS-42599
 
-			if (line.contains("= session.createSQLQuery(") &&
+			if (!isExcluded(_hibernateSQLQueryExclusions, fileName) &&
+				line.contains("= session.createSQLQuery(") &&
 				content.contains("com.liferay.portal.kernel.dao.orm.Session")) {
 
 				line = StringUtil.replace(
@@ -1278,7 +1286,18 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					line, ".getMessage()", StringPool.BLANK);
 			}
 
+			// LPS-45492
+
+			if (trimmedLine.contains("StopWatch stopWatch = null;")) {
+				processErrorMessage(
+					fileName,
+					"Do not set stopwatch to null: " + fileName + " " +
+						lineCount);
+			}
+
 			checkStringBundler(trimmedLine, fileName, lineCount);
+
+			checkEmptyCollection(trimmedLine, fileName, lineCount);
 
 			if (trimmedLine.startsWith("* @deprecated") &&
 				mainReleaseVersion.equals(MAIN_RELEASE_LATEST_VERSION)) {
@@ -1313,6 +1332,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			}
 
 			checkInefficientStringMethods(line, fileName, lineCount);
+
+			checkStandardLibs(line, fileName, lineCount);
 
 			if (trimmedLine.startsWith(StringPool.EQUAL)) {
 				processErrorMessage(
@@ -2002,38 +2023,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 		String trimmedPreviousLine = StringUtil.trimLeading(previousLine);
 
-		int previousLineLength = getLineLength(previousLine);
-
-		if (line.startsWith("// ") && trimmedPreviousLine.startsWith("// ")) {
-			String linePart = line.substring(3);
-
-			if (!linePart.startsWith("PLACEHOLDER") &&
-				!linePart.startsWith(StringPool.OPEN_BRACKET)) {
-
-				int pos = linePart.indexOf(StringPool.SPACE);
-
-				if (pos == -1) {
-					pos = linePart.length();
-				}
-
-				if ((previousLineLength + pos) < 80) {
-					if (linePart.contains(StringPool.SPACE)) {
-						return new Tuple(
-							previousLine + StringPool.SPACE,
-							linePart.substring(0, pos + 1), true);
-					}
-					else {
-						return new Tuple(
-							previousLine + StringPool.SPACE + linePart);
-					}
-				}
-			}
-
-			return null;
-		}
-		else if (line.startsWith("// ") ||
-				 trimmedPreviousLine.startsWith("// ")) {
-
+		if (line.startsWith("// ") || trimmedPreviousLine.startsWith("// ")) {
 			return null;
 		}
 
@@ -2054,6 +2044,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 
 			return new Tuple(previousLine + StringPool.SPACE, linePart, true);
 		}
+
+		int previousLineLength = getLineLength(previousLine);
 
 		if ((line.length() + previousLineLength) < 80) {
 			if (trimmedPreviousLine.startsWith("for ") &&
@@ -2871,6 +2863,7 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	private Pattern _catchExceptionPattern = Pattern.compile(
 		"\n(\t+)catch \\((.+Exception) (.+)\\) \\{\n");
 	private boolean _checkUnprocessedExceptions;
+	private Properties _hibernateSQLQueryExclusions;
 	private Pattern _incorrectCloseCurlyBracePattern = Pattern.compile(
 		"\n\n(\t+)}\n");
 	private Pattern _incorrectLineBreakPattern = Pattern.compile(

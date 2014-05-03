@@ -185,7 +185,7 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 			<div class="journal-article-wrapper-content">
 				<c:if test="<%= Validator.isNull(toLanguageId) %>">
 					<c:if test="<%= (article != null) && !article.isNew() %>">
-						<aui:workflow-status id="<%= String.valueOf(article.getArticleId()) %>" status="<%= article.getStatus() %>" version="<%= String.valueOf(article.getVersion()) %>" />
+						<aui:workflow-status id="<%= String.valueOf(article.getArticleId()) %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= article.getStatus() %>" version="<%= String.valueOf(article.getVersion()) %>" />
 
 						<liferay-util:include page="/html/portlet/journal/article_toolbar.jsp" />
 					</c:if>
@@ -213,10 +213,14 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 					boolean approved = false;
 					boolean pending = false;
 
+					long inheritedWorkflowDDMStructuresFolderId = JournalFolderLocalServiceUtil.getInheritedWorkflowFolderId(folderId);
+
+					boolean workflowEnabled = WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), groupId, JournalFolder.class.getName(), folderId, ddmStructure.getStructureId()) || WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), groupId, JournalFolder.class.getName(), inheritedWorkflowDDMStructuresFolderId, JournalArticleConstants.DDM_STRUCTURE_ID_ALL);
+
 					if ((article != null) && (version > 0)) {
 						approved = article.isApproved();
 
-						if (WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), scopeGroupId, JournalArticle.class.getName())) {
+						 if (workflowEnabled) {
 							pending = article.isPending();
 						}
 					}
@@ -254,7 +258,7 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 
 						String publishButtonLabel = "publish";
 
-						if (WorkflowDefinitionLinkLocalServiceUtil.hasWorkflowDefinitionLink(themeDisplay.getCompanyId(), groupId, JournalArticle.class.getName())) {
+						if (workflowEnabled) {
 							publishButtonLabel = "submit-for-publication";
 						}
 
@@ -266,11 +270,11 @@ request.setAttribute("edit_article.jsp-toLanguageId", toLanguageId);
 						<c:choose>
 							<c:when test="<%= Validator.isNull(toLanguageId) %>">
 								<c:if test="<%= hasSavePermission %>">
+									<aui:button disabled="<%= pending %>" name="publishButton" onClick='<%= renderResponse.getNamespace() + "publishArticle()" %>' type="submit" value="<%= publishButtonLabel %>" />
+
 									<c:if test="<%= classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT %>">
 										<aui:button name="saveButton" onClick='<%= renderResponse.getNamespace() + "saveArticle()" %>' primary="<%= false %>" type="submit" value="<%= saveButtonLabel %>" />
 									</c:if>
-
-									<aui:button disabled="<%= pending %>" name="publishButton" onClick='<%= renderResponse.getNamespace() + "publishArticle()" %>' type="submit" value="<%= publishButtonLabel %>" />
 								</c:if>
 							</c:when>
 							<c:otherwise>

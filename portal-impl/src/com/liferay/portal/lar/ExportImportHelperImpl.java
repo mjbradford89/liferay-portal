@@ -91,9 +91,9 @@ import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.LayoutServiceUtil;
 import com.liferay.portal.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
+import com.liferay.portal.service.SystemEventLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.persistence.OrganizationUtil;
-import com.liferay.portal.service.persistence.SystemEventActionableDynamicQuery;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PortletKeys;
@@ -766,67 +766,18 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		throws PortalException, SystemException {
 
 		ActionableDynamicQuery actionableDynamicQuery =
-			new SystemEventActionableDynamicQuery() {
+			SystemEventLocalServiceUtil.getActionableDynamicQuery();
 
-			protected void addCreateDateProperty(DynamicQuery dynamicQuery) {
-				if (!portletDataContext.hasDateRange()) {
-					return;
+		actionableDynamicQuery.setAddCriteriaMethod(
+			new ActionableDynamicQuery.AddCriteriaMethod() {
+
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					doAddCriteria(
+						portletDataContext, stagedModelType, dynamicQuery);
 				}
 
-				Property createDateProperty = PropertyFactoryUtil.forName(
-					"createDate");
-
-				Date startDate = portletDataContext.getStartDate();
-
-				dynamicQuery.add(createDateProperty.ge(startDate));
-
-				Date endDate = portletDataContext.getEndDate();
-
-				dynamicQuery.add(createDateProperty.le(endDate));
-			}
-
-			@Override
-			protected void addCriteria(DynamicQuery dynamicQuery) {
-				Disjunction disjunction = RestrictionsFactoryUtil.disjunction();
-
-				Property groupIdProperty = PropertyFactoryUtil.forName(
-					"groupId");
-
-				disjunction.add(groupIdProperty.eq(0L));
-				disjunction.add(
-					groupIdProperty.eq(portletDataContext.getScopeGroupId()));
-
-				dynamicQuery.add(disjunction);
-
-				Property classNameIdProperty = PropertyFactoryUtil.forName(
-					"classNameId");
-
-				dynamicQuery.add(
-					classNameIdProperty.eq(stagedModelType.getClassNameId()));
-
-				if (stagedModelType.getReferrerClassNameId() >= 0) {
-					Property referrerClassNameIdProperty =
-						PropertyFactoryUtil.forName("referrerClassNameId");
-
-					dynamicQuery.add(
-						referrerClassNameIdProperty.eq(
-							stagedModelType.getReferrerClassNameId()));
-				}
-
-				Property typeProperty = PropertyFactoryUtil.forName("type");
-
-				dynamicQuery.add(
-					typeProperty.eq(SystemEventConstants.TYPE_DELETE));
-
-				addCreateDateProperty(dynamicQuery);
-			}
-
-			@Override
-			protected void performAction(Object object) {
-			}
-
-		};
-
+			});
 		actionableDynamicQuery.setCompanyId(portletDataContext.getCompanyId());
 
 		return actionableDynamicQuery.performCount();
@@ -1271,11 +1222,11 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 						"Unable to get layout with ID " + layoutId +
 							" in group " + portletDataContext.getScopeGroupId();
 
-					if (_log.isWarnEnabled()) {
-						_log.warn(message);
+					if (_log.isDebugEnabled()) {
+						_log.debug(message, e);
 					}
 					else {
-						_log.debug(message, e);
+						_log.warn(message);
 					}
 				}
 			}
@@ -1516,7 +1467,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		Matcher matcher = _importLinksToLayoutPattern.matcher(content);
 
 		while (matcher.find()) {
-			long oldGroupId = GetterUtil.getLong(matcher.group(6));
+			long oldGroupId = GetterUtil.getLong(matcher.group(7));
 
 			long newGroupId = oldGroupId;
 
@@ -1528,8 +1479,8 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 
 			boolean privateLayout = type.startsWith("private");
 
-			String layoutUuid = matcher.group(3);
-			String friendlyURL = matcher.group(4);
+			String layoutUuid = matcher.group(4);
+			String friendlyURL = matcher.group(5);
 
 			try {
 				Layout layout =
@@ -1572,11 +1523,11 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 						"Unable to get layout in group " +
 							portletDataContext.getScopeGroupId();
 
-					if (_log.isWarnEnabled()) {
-						_log.warn(message);
+					if (_log.isDebugEnabled()) {
+						_log.debug(message, se);
 					}
 					else {
-						_log.debug(message, se);
+						_log.warn(message);
 					}
 				}
 			}
@@ -1816,6 +1767,24 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		}
 	}
 
+	protected void addCreateDateProperty(
+		PortletDataContext portletDataContext, DynamicQuery dynamicQuery) {
+
+		if (!portletDataContext.hasDateRange()) {
+			return;
+		}
+
+		Property createDateProperty = PropertyFactoryUtil.forName("createDate");
+
+		Date startDate = portletDataContext.getStartDate();
+
+		dynamicQuery.add(createDateProperty.ge(startDate));
+
+		Date endDate = portletDataContext.getEndDate();
+
+		dynamicQuery.add(createDateProperty.le(endDate));
+	}
+
 	protected void deleteTimestampParameters(StringBuilder sb, int beginPos) {
 		beginPos = sb.indexOf(StringPool.CLOSE_BRACKET, beginPos);
 
@@ -1837,6 +1806,42 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		urlParams = HttpUtil.removeParameter(urlParams, "t");
 
 		sb.replace(beginPos + 1, endPos, urlParams);
+	}
+
+	protected void doAddCriteria(
+		PortletDataContext portletDataContext, StagedModelType stagedModelType,
+		DynamicQuery dynamicQuery) {
+
+		Disjunction disjunction = RestrictionsFactoryUtil.disjunction();
+
+		Property groupIdProperty = PropertyFactoryUtil.forName("groupId");
+
+		disjunction.add(groupIdProperty.eq(0L));
+		disjunction.add(
+			groupIdProperty.eq(portletDataContext.getScopeGroupId()));
+
+		dynamicQuery.add(disjunction);
+
+		Property classNameIdProperty = PropertyFactoryUtil.forName(
+			"classNameId");
+
+		dynamicQuery.add(
+			classNameIdProperty.eq(stagedModelType.getClassNameId()));
+
+		if (stagedModelType.getReferrerClassNameId() >= 0) {
+			Property referrerClassNameIdProperty = PropertyFactoryUtil.forName(
+				"referrerClassNameId");
+
+			dynamicQuery.add(
+				referrerClassNameIdProperty.eq(
+					stagedModelType.getReferrerClassNameId()));
+		}
+
+		Property typeProperty = PropertyFactoryUtil.forName("type");
+
+		dynamicQuery.add(typeProperty.eq(SystemEventConstants.TYPE_DELETE));
+
+		addCreateDateProperty(portletDataContext, dynamicQuery);
 	}
 
 	protected Map<String, String[]> getDLReferenceParameters(
@@ -2306,10 +2311,11 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		ExportImportHelperImpl.class);
 
 	private Pattern _exportLinksToLayoutPattern = Pattern.compile(
-		"\\[([\\d]+)@(public|private)(@([\\d]+))?\\]");
+		"\\[([\\d]+)@(private(-group|-user)?|public)(@([\\d]+))?\\]");
 	private Pattern _importLinksToLayoutPattern = Pattern.compile(
-		"\\[([\\d]+)@(public|private)@(\\p{XDigit}{8}\\-(?:\\p{XDigit}{4}\\-)" +
-			"{3}\\p{XDigit}{12})@([a-z0-9./_-]*)(@([\\d]+))?\\]");
+		"\\[([\\d]+)@(private(-group|-user)?|public)@(\\p{XDigit}{8}\\-" +
+			"(?:\\p{XDigit}{4}\\-){3}\\p{XDigit}{12})@([a-z0-9./_-]*)" +
+				"(@([\\d]+))?\\]");
 
 	private class ManifestSummaryElementProcessor implements ElementProcessor {
 
