@@ -15,6 +15,7 @@
 package com.liferay.portlet.asset.service.impl;
 
 import com.liferay.portal.kernel.cache.ThreadLocalCachable;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
@@ -27,6 +28,7 @@ import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackRegistryUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -39,6 +41,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelHintsUtil;
 import com.liferay.portal.model.ResourceConstants;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portlet.asset.AssetCategoryNameException;
@@ -49,6 +52,7 @@ import com.liferay.portlet.asset.model.AssetCategoryProperty;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.service.base.AssetCategoryLocalServiceBaseImpl;
 import com.liferay.portlet.asset.util.AssetCategoryUtil;
+import com.liferay.portlet.asset.util.comparator.AssetCategoryLeftCategoryIdComparator;
 
 import java.io.Serializable;
 
@@ -216,6 +220,7 @@ public class AssetCategoryLocalServiceImpl
 
 	@Indexable(type = IndexableType.DELETE)
 	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public AssetCategory deleteCategory(AssetCategory category)
 		throws PortalException, SystemException {
 
@@ -237,15 +242,13 @@ public class AssetCategoryLocalServiceImpl
 		throws PortalException, SystemException {
 
 		List<AssetCategory> categories =
-			assetCategoryPersistence.findByVocabularyId(vocabularyId);
+			assetCategoryPersistence.findByP_V(
+				AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID, vocabularyId,
+				QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+				new AssetCategoryLeftCategoryIdComparator(false));
 
 		for (AssetCategory category : categories) {
-			if (category.getParentCategoryId() ==
-					AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID) {
-
-				assetCategoryLocalService.deleteCategory(
-					category.getCategoryId());
-			}
+			deleteCategory(category.getCategoryId());
 		}
 	}
 
@@ -359,7 +362,16 @@ public class AssetCategoryLocalServiceImpl
 	public List<Long> getSubcategoryIds(long parentCategoryId)
 		throws SystemException {
 
-		return assetCategoryFinder.findByG_L(parentCategoryId);
+		AssetCategory parentAssetCategory =
+			assetCategoryPersistence.fetchByPrimaryKey(parentCategoryId);
+
+		if (parentAssetCategory == null) {
+			return Collections.emptyList();
+		}
+
+		return ListUtil.toList(
+			assetCategoryPersistence.getDescendants(parentAssetCategory),
+			AssetCategory.CATEGORY_ID_ACCESSOR);
 	}
 
 	@Override

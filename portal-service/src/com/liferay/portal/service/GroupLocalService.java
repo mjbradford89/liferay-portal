@@ -196,6 +196,10 @@ public interface GroupLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException;
+
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
@@ -893,6 +897,14 @@ public interface GroupLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
+	/**
+	* Returns the company's group.
+	*
+	* @param companyId the primary key of the company
+	* @return the company's group, or <code>null</code> if a matching group
+	could not be found
+	* @throws SystemException if a system exception occurred
+	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.Group fetchCompanyGroup(long companyId)
 		throws com.liferay.portal.kernel.exception.SystemException;
@@ -926,6 +938,16 @@ public interface GroupLocalService extends BaseLocalService,
 		java.lang.String name)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
+	/**
+	* Returns the default user's personal site group.
+	*
+	* @param companyId the primary key of the company
+	* @return the default user's personal site group, or <code>null</code> if a
+	matching group could not be found
+	* @throws PortalException if a default user for the company could not be
+	found
+	* @throws SystemException if a system exception occurred
+	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.Group fetchUserPersonalSiteGroup(
 		long companyId)
@@ -1183,10 +1205,19 @@ public interface GroupLocalService extends BaseLocalService,
 	inclusive)
 	* @return the range of matching groups
 	* @throws SystemException if a system exception occurred
+	* @deprecated As of 6.2.0, replaced by {@link #getLayoutsGroups(long, long,
+	boolean, int, int, OrderByComparator)}
 	*/
+	@Deprecated
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public java.util.List<com.liferay.portal.model.Group> getLayoutsGroups(
 		long companyId, long parentGroupId, boolean site, int start, int end)
+		throws com.liferay.portal.kernel.exception.SystemException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public java.util.List<com.liferay.portal.model.Group> getLayoutsGroups(
+		long companyId, long parentGroupId, boolean site, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator obc)
 		throws com.liferay.portal.kernel.exception.SystemException;
 
 	/**
@@ -1462,6 +1493,15 @@ public interface GroupLocalService extends BaseLocalService,
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
+	/**
+	* Returns the default user's personal site group.
+	*
+	* @param companyId the primary key of the company
+	* @return the default user's personal site group
+	* @throws PortalException if a matching group or default user for the
+	company could not be found
+	* @throws SystemException if a system exception occurred
+	*/
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public com.liferay.portal.model.Group getUserPersonalSiteGroup(
 		long companyId)

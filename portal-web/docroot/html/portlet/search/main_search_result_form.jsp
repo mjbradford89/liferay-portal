@@ -100,7 +100,7 @@ Summary summary = null;
 if (indexer != null) {
 	String snippet = document.get(Field.SNIPPET);
 
-	summary = indexer.getSummary(document, locale, snippet, viewFullContentURL, renderRequest, renderResponse);
+	summary = indexer.getSummary(document, snippet, viewFullContentURL, renderRequest, renderResponse);
 }
 else if (assetRenderer != null) {
 	summary = new Summary(locale, assetRenderer.getTitle(locale), assetRenderer.getSearchSummary(locale), viewFullContentURL);
@@ -128,11 +128,7 @@ if (summary != null) {
 		</span>
 
 		<span class="asset-entry-title">
-			<a href="<%= viewURL %>">
-				<c:if test="<%= assetRenderer != null %>">
-					<img alt="" src="<%= assetRenderer.getIconPath(renderRequest) %>" />
-				</c:if>
-
+			<a class="<%= (assetRenderer != null) ? assetRenderer.getIconCssClass() : StringPool.BLANK %>" href="<%= viewURL %>">
 				<%= summary.getHighlightedTitle() %>
 			</a>
 
@@ -206,7 +202,7 @@ if (summary != null) {
 
 							PortletURL categoryURL = PortletURLUtil.clone(portletURL, renderResponse);
 
-							categoryURL.setParameter(Field.ASSET_CATEGORY_TITLES, assetCategory.getTitle(LocaleUtil.getDefault()));
+							categoryURL.setParameter(Field.ASSET_CATEGORY_IDS, String.valueOf(assetCategory.getCategoryId()));
 						%>
 
 							<c:if test="<%= i == 0 %>">
