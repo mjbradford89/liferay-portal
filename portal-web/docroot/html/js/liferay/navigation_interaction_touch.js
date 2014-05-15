@@ -15,24 +15,61 @@ AUI.add(
 
 					var menuOpen = menuNew.hasClass(STR_OPEN);
 
-					if (menuOpen) {
-						Liferay.fire('hideNavigationMenu', mapHover);
-					}
-					else {
+					var handleId = menuNew.attr('id') + 'Handle';
+
+					var handle = Liferay.Data[handleId];
+
+					if (!menuOpen) {
 						Liferay.fire('showNavigationMenu', mapHover);
 
-						if ((menuOld && menuOld.hasClass(STR_OPEN)) && (menuOld != menuNew)) {
-							menuOld.removeClass(STR_OPEN);
-							menuOld.removeClass('hover');
+						handle = menuNew.on(
+							['clickoutside', 'touchstartoutside'],
+							function() {
+								Liferay.fire(
+									'hideNavigationMenu',
+									{
+										menu: menuNew
+									}
+								);
+
+								Liferay.Data[handleId] = null;
+
+								handle.detach();
+							}
+						);
+					}
+					else {
+						Liferay.fire('hideNavigationMenu', mapHover);
+
+						if (handle) {
+							handle.detach();
+
+							handle = null;
 						}
 					}
+
+					Liferay.Data[handleId] = handle;
 				},
 
 				_initChildMenuHandlers: function(navigation) {
 					var instance = this;
 
 					if (navigation) {
-						navigation.delegate(['click', 'touchstart'], instance._onTouchClick, '> li > a', instance);
+						A.Event.defineOutside('touchstart');
+
+						navigation.delegate('tap', instance._onTouchClick, '.lfr-nav-child-toggle', instance);
+
+						var android = A.UA.android;
+
+						if (android && android < 4.4) {
+							navigation.delegate(
+								'click',
+								function(event) {
+									event.preventDefault();
+								},
+								'.lfr-nav-child-toggle'
+							);
+						}
 					}
 				},
 
@@ -41,11 +78,9 @@ AUI.add(
 				_onTouchClick: function(event) {
 					var instance = this;
 
-					var target = event.target;
-
 					var menuNew = event.currentTarget.ancestor(instance._directChildLi);
 
-					if (menuNew.one('.child-menu') && target.ancestor('.lfr-nav-child-toggle', true, '.lfr-nav-item')) {
+					if (menuNew.one('.child-menu')) {
 						event.preventDefault();
 
 						instance._handleShowNavigationMenu(menuNew, instance.MAP_HOVER.menu, event);
@@ -57,6 +92,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['event-touch', 'liferay-navigation-interaction']
+		requires: ['event-tap', 'event-touch', 'liferay-navigation-interaction']
 	}
 );

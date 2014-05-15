@@ -230,6 +230,17 @@ public class LayoutLocalServiceUtil {
 		return getService().getLayout(plid);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getActionableDynamicQuery();
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getExportActionableDynamicQuery(portletDataContext);
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -708,6 +719,42 @@ public class LayoutLocalServiceUtil {
 			parameterMap, startDate, endDate);
 	}
 
+	public static long exportLayoutsAsFileInBackground(long userId,
+		com.liferay.portal.model.ExportImportConfiguration exportImportConfiguration)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .exportLayoutsAsFileInBackground(userId,
+			exportImportConfiguration);
+	}
+
+	public static long exportLayoutsAsFileInBackground(long userId,
+		long exportImportConfigurationId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .exportLayoutsAsFileInBackground(userId,
+			exportImportConfigurationId);
+	}
+
+	public static long exportLayoutsAsFileInBackground(long userId,
+		java.lang.String taskName, long groupId, boolean privateLayout,
+		long[] layoutIds,
+		java.util.Map<java.lang.String, java.lang.String[]> parameterMap,
+		java.util.Date startDate, java.util.Date endDate)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .exportLayoutsAsFileInBackground(userId, taskName, groupId,
+			privateLayout, layoutIds, parameterMap, startDate, endDate);
+	}
+
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link
+	#exportLayoutsAsFileInBackground(long, String, long, boolean,
+	long[], Map, Date, Date)}
+	*/
+	@Deprecated
 	public static long exportLayoutsAsFileInBackground(long userId,
 		java.lang.String taskName, long groupId, boolean privateLayout,
 		long[] layoutIds,
@@ -1493,6 +1540,7 @@ public class LayoutLocalServiceUtil {
 	/**
 	* Updates the friendly URL of the layout.
 	*
+	* @param userId the primary key of the user
 	* @param plid the primary key of the layout
 	* @param friendlyURL the friendly URL to be assigned
 	* @param languageId the primary key of the language
@@ -1501,6 +1549,29 @@ public class LayoutLocalServiceUtil {
 	not be found
 	* @throws SystemException if a system exception occurred
 	*/
+	public static com.liferay.portal.model.Layout updateFriendlyURL(
+		long userId, long plid, java.lang.String friendlyURL,
+		java.lang.String languageId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .updateFriendlyURL(userId, plid, friendlyURL, languageId);
+	}
+
+	/**
+	* Updates the friendly URL of the layout.
+	*
+	* @param plid the primary key of the layout
+	* @param friendlyURL the friendly URL to be assigned
+	* @param languageId the primary key of the language
+	* @return the updated layout
+	* @throws PortalException if a group or layout with the primary key
+	could not be found
+	* @throws SystemException if a system exception occurred
+	* @deprecated As of 7.0.0, replaced by {@link #updateFriendlyURL(long,
+	long, String, String)}
+	*/
+	@Deprecated
 	public static com.liferay.portal.model.Layout updateFriendlyURL(long plid,
 		java.lang.String friendlyURL, java.lang.String languageId)
 		throws com.liferay.portal.kernel.exception.PortalException,

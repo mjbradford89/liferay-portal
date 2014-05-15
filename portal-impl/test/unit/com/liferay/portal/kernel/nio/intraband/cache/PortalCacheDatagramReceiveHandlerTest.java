@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.nio.intraband.MockRegistrationReference;
 import com.liferay.portal.kernel.nio.intraband.PortalExecutorManagerUtilAdvice;
 import com.liferay.portal.kernel.nio.intraband.SystemDataType;
 import com.liferay.portal.kernel.test.CodeCoverageAssertor;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.test.AdviseWith;
 import com.liferay.portal.test.AspectJMockingNewClassLoaderJUnitTestRunner;
@@ -421,8 +422,9 @@ public class PortalCacheDatagramReceiveHandlerTest {
 
 			int ordinal = newPortalCacheActionTypes.length - 1;
 
-			newPortalCacheActionTypes[ordinal] = ReflectionUtil.newEnumElement(
-				PortalCacheActionType.class, "MOCK_VALUE", ordinal);
+			newPortalCacheActionTypes[ordinal] =
+				ReflectionTestUtil.newEnumElement(
+					PortalCacheActionType.class, "MOCK_VALUE", ordinal);
 
 			return newPortalCacheActionTypes;
 		}
@@ -460,7 +462,7 @@ public class PortalCacheDatagramReceiveHandlerTest {
 
 	private MockIntraband _mockIntraband = new MockIntraband();
 	private MockPortalCacheManager _mockPortalCacheManager =
-		new MockPortalCacheManager();;
+		new MockPortalCacheManager();
 	private MockRegistrationReference _mockRegistrationReference =
 		new MockRegistrationReference(_mockIntraband);
 	private SystemDataType _portalCacheSystemDataType =

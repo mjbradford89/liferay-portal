@@ -360,7 +360,7 @@
 
 				while (length--) {
 					var attr = attrs[length];
-					var name = attr.nodeName;
+					var name = attr.nodeName.toLowerCase();
 					var value = attr.nodeValue;
 
 					if (isGetterString) {
@@ -390,6 +390,20 @@
 			var columnId = str.replace(/layout-column_/, '');
 
 			return columnId;
+		},
+
+		getGeolocation: function(callback) {
+			if (callback && navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(
+					function(position) {
+						callback.call(
+							this,
+							position.coords.latitude,
+							position.coords.longitude
+						);
+					}
+				);
+			}
 		},
 
 		getOpener: function() {
@@ -692,7 +706,8 @@
 		},
 
 		textareaTabs: function(event) {
-			var el = event.currentTarget.getDOM();
+			var currentTarget = event.currentTarget;
+			var el = currentTarget.getDOM();
 			var pressedKey = event.keyCode;
 
 			if (event.isKey('TAB')) {
@@ -718,6 +733,32 @@
 				}
 
 				el.scrollTop = oldscroll;
+
+				return false;
+			}
+			else if (event.isKey('ESC')) {
+				event.stopPropagation();
+
+				var tabbableList = A.all('a, button, input, textarea');
+
+				var index = tabbableList.indexOf(currentTarget);
+
+				var escapeNode = tabbableList.item(index + 1);
+
+				if (!escapeNode) {
+					var formAncestor = currentTarget.ancestor('form');
+
+					if (formAncestor) {
+						var formTabbables = formAncestor.all('a, button, input, textarea');
+
+						escapeNode = formTabbables.last();
+					}
+					else {
+						escapeNode = A.getBody();
+					}
+				}
+
+				escapeNode.focus();
 
 				return false;
 			}
@@ -1401,6 +1442,8 @@
 			ddmURL.setParameter('classPK', config.classPK);
 			ddmURL.setParameter('eventName', config.eventName);
 			ddmURL.setParameter('groupId', config.groupId);
+			ddmURL.setParameter('mode', config.mode);
+			ddmURL.setParameter('portletResourceNamespace', config.portletResourceNamespace);
 
 			if ('refererPortletName' in config) {
 				ddmURL.setParameter('refererPortletName', config.refererPortletName);
@@ -1412,8 +1455,12 @@
 
 			ddmURL.setParameter('scopeTitle', config.title);
 
-			if ('showGlobalScope' in config) {
-				ddmURL.setParameter('showGlobalScope', config.showGlobalScope);
+			if ('showAncestorScopes' in config) {
+				ddmURL.setParameter('showAncestorScopes', config.showAncestorScopes);
+			}
+
+			if ('showBackURL' in config) {
+				ddmURL.setParameter('showBackURL', config.showBackURL);
 			}
 
 			if ('showHeader' in config) {
@@ -1427,6 +1474,8 @@
 			if ('showToolbar' in config) {
 				ddmURL.setParameter('showToolbar', config.showToolbar);
 			}
+
+			ddmURL.setParameter('structureAvailableFields', config.structureAvailableFields);
 
 			if (config.struts_action) {
 				ddmURL.setParameter('struts_action', config.struts_action);

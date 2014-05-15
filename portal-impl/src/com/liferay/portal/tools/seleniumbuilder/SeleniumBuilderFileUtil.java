@@ -570,6 +570,10 @@ public class SeleniumBuilderFileUtil {
 					"' has an invalid component name '" + string2 + "' in " +
 						suffix);
 		}
+		else if (errorCode == 3002) {
+			throw new IllegalArgumentException(
+				prefix + "Missing property '" + string1 + "' for " + suffix);
+		}
 		else {
 			throw new IllegalArgumentException(prefix + suffix);
 		}
@@ -1516,12 +1520,36 @@ public class SeleniumBuilderFileUtil {
 
 		List<Attribute> attributes = propertyElement.attributes();
 
+		String propertyName = propertyElement.attributeValue("name");
+
+		if (propertyName.equals("ignore.errors")) {
+			String propertyDelimiter = propertyElement.attributeValue(
+				"delimiter");
+
+			if (Validator.isNull(propertyDelimiter)) {
+				throwValidationException(
+					1006, fileName, propertyElement, "delimiter");
+			}
+
+			String propertyValue = propertyElement.attributeValue("value");
+
+			if (Validator.isNull(propertyValue)) {
+				throwValidationException(
+					1006, fileName, propertyElement, "value");
+			}
+		}
+
 		for (Attribute attribute : attributes) {
 			String attributeName = attribute.getName();
 
-			if (attributeName.equals("line-number") ||
-				attributeName.equals("name") ||
-				attributeName.equals("value")) {
+			if (attributeName.equals("delimiter") &&
+				propertyName.equals("ignore.errors")) {
+
+				continue;
+			}
+			else if (attributeName.equals("line-number") ||
+					 attributeName.equals("name") ||
+					 attributeName.equals("value")) {
 
 				continue;
 			}
@@ -1732,6 +1760,47 @@ public class SeleniumBuilderFileUtil {
 				}
 			}
 		}
+
+		elements = rootElement.elements("property");
+
+		boolean rootTestrayMainComponentNameFound = false;
+
+		for (Element element : elements) {
+			String name = element.attributeValue("name");
+
+			if (name.equals("testray.main.component.name")) {
+				rootTestrayMainComponentNameFound = true;
+
+				break;
+			}
+		}
+
+		if (!rootTestrayMainComponentNameFound) {
+			elements = rootElement.elements("command");
+
+			for (Element element : elements) {
+				List<Element> propertyElements = getAllChildElements(
+					element, "property");
+
+				boolean commandTestrayMainComponentNameFound = false;
+
+				for (Element propertyElement : propertyElements) {
+					String propertyName = propertyElement.attributeValue(
+						"name");
+
+					if (propertyName.equals("testray.main.component.name")) {
+						commandTestrayMainComponentNameFound = true;
+
+						break;
+					}
+				}
+
+				if (!commandTestrayMainComponentNameFound) {
+					throwValidationException(
+						3002, fileName, element, "testray.main.component.name");
+				}
+			}
+		}
 	}
 
 	protected void validateVarElement(String fileName, Element element) {
@@ -1884,7 +1953,8 @@ public class SeleniumBuilderFileUtil {
 
 	private static List<String> _allowedNullAttributes = ListUtil.fromArray(
 		new String[] {
-			"arg1", "arg2", "message", "string", "substring", "value"
+			"arg1", "arg2", "delimiter", "message", "string", "substring",
+			"value"
 		});
 	private static List<String> _allowedVarAttributes = ListUtil.fromArray(
 		new String[] {
@@ -1900,10 +1970,10 @@ public class SeleniumBuilderFileUtil {
 	private static List<String> _reservedTags = ListUtil.fromArray(
 		new String[] {
 			"and", "case", "command", "condition", "contains", "default",
-			"definition", "description", "echo", "else", "elseif", "equals",
-			"execute", "fail", "for", "if", "isset", "not", "or", "property",
-			"set-up", "take-screenshot", "td", "tear-down", "then", "tr",
-			"while", "var"
+			"definition", "delimiter", "description", "echo", "else", "elseif",
+			"equals", "execute", "fail", "for", "if", "isset", "not", "or",
+			"property", "set-up", "take-screenshot", "td", "tear-down", "then",
+			"tr", "while", "var"
 		});
 	private static List<String> _testrayAvailableComponentNames;
 

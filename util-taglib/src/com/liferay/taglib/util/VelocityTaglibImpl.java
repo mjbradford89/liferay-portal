@@ -46,7 +46,6 @@ import com.liferay.taglib.portletext.IconRefreshTag;
 import com.liferay.taglib.portletext.RuntimeTag;
 import com.liferay.taglib.security.DoAsURLTag;
 import com.liferay.taglib.security.PermissionsURLTag;
-import com.liferay.taglib.staging.MenuTag;
 import com.liferay.taglib.theme.LayoutIconTag;
 import com.liferay.taglib.theme.MetaTagsTag;
 import com.liferay.taglib.theme.WrapPortletTag;
@@ -720,7 +719,8 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 
 	@Override
 	public void language(
-			String formName, String formAction, String name, int displayStyle)
+			String formName, String formAction, String name,
+			String displayStyle)
 		throws Exception {
 
 		LanguageTag languageTag = new LanguageTag();
@@ -738,7 +738,7 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 	@Override
 	public void language(
 			String formName, String formAction, String name,
-			String[] languageIds, int displayStyle)
+			String[] languageIds, String displayStyle)
 		throws Exception {
 
 		LanguageTag languageTag = new LanguageTag();
@@ -1184,20 +1184,11 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #stagingMenu}
+	 * @deprecated As of 7.0.0, with no direct replacement
 	 */
+	@Deprecated
 	@Override
 	public void staging() throws Exception {
-		stagingMenu();
-	}
-
-	@Override
-	public void stagingMenu() throws Exception {
-		MenuTag menuTag = new MenuTag();
-
-		setUp(menuTag);
-
-		menuTag.runTag();
 	}
 
 	@Override

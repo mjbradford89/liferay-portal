@@ -32,6 +32,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.TempFileUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.ExportImportConfiguration;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
@@ -456,6 +457,57 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 			endDate);
 	}
 
+	@Override
+	public long exportLayoutsAsFileInBackground(
+			ExportImportConfiguration exportImportConfiguration)
+		throws PortalException, SystemException {
+
+		GroupPermissionUtil.check(
+			getPermissionChecker(), exportImportConfiguration.getGroupId(),
+			ActionKeys.EXPORT_IMPORT_LAYOUTS);
+
+		return layoutLocalService.exportLayoutsAsFileInBackground(
+			getUserId(), exportImportConfiguration);
+	}
+
+	@Override
+	public long exportLayoutsAsFileInBackground(
+			long exportImportConfigurationId)
+		throws PortalException, SystemException {
+
+		ExportImportConfiguration exportImportConfiguration =
+			exportImportConfigurationLocalService.getExportImportConfiguration(
+				exportImportConfigurationId);
+
+		GroupPermissionUtil.check(
+			getPermissionChecker(), exportImportConfiguration.getGroupId(),
+			ActionKeys.EXPORT_IMPORT_LAYOUTS);
+
+		return layoutLocalService.exportLayoutsAsFileInBackground(
+			getUserId(), exportImportConfigurationId);
+	}
+
+	@Override
+	public long exportLayoutsAsFileInBackground(
+			String taskName, long groupId, boolean privateLayout,
+			long[] layoutIds, Map<String, String[]> parameterMap,
+			Date startDate, Date endDate)
+		throws PortalException, SystemException {
+
+		GroupPermissionUtil.check(
+			getPermissionChecker(), groupId, ActionKeys.EXPORT_IMPORT_LAYOUTS);
+
+		return layoutLocalService.exportLayoutsAsFileInBackground(
+			getUserId(), taskName, groupId, privateLayout, layoutIds,
+			parameterMap, startDate, endDate);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #exportLayoutsAsFileInBackground(String, long, boolean,
+	 *             long[], Map, Date, Date)}
+	 */
+	@Deprecated
 	@Override
 	public long exportLayoutsAsFileInBackground(
 			String taskName, long groupId, boolean privateLayout,
@@ -1202,7 +1254,8 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 				getUserId(), sourceGroupId, trigger.getJobName(), description,
 				ExportImportConfigurationConstants.
 					TYPE_SCHEDULED_PUBLISH_LAYOUT_LOCAL,
-				settingsMap, new ServiceContext());
+				settingsMap, WorkflowConstants.STATUS_DRAFT,
+				new ServiceContext());
 
 		SchedulerEngineHelperUtil.schedule(
 			trigger, StorageType.PERSISTED, description,
@@ -1320,7 +1373,8 @@ public class LayoutServiceImpl extends LayoutServiceBaseImpl {
 				getUserId(), sourceGroupId, trigger.getJobName(), description,
 				ExportImportConfigurationConstants.
 					TYPE_SCHEDULED_PUBLISH_LAYOUT_REMOTE,
-				settingsMap, new ServiceContext());
+				settingsMap, WorkflowConstants.STATUS_DRAFT,
+				new ServiceContext());
 
 		SchedulerEngineHelperUtil.schedule(
 			trigger, StorageType.PERSISTED, description,

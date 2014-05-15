@@ -220,6 +220,17 @@ public class OrganizationLocalServiceUtil {
 		return getService().getOrganization(organizationId);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getActionableDynamicQuery();
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getExportActionableDynamicQuery(portletDataContext);
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -759,6 +770,13 @@ public class OrganizationLocalServiceUtil {
 		long companyId, java.lang.String name)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().fetchOrganization(companyId, name);
+	}
+
+	public static java.util.List<com.liferay.portal.model.Organization> getGroupUserOrganizations(
+		long groupId, long userId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getGroupUserOrganizations(groupId, userId);
 	}
 
 	public static java.util.List<com.liferay.portal.model.Organization> getNoAssetOrganizations()

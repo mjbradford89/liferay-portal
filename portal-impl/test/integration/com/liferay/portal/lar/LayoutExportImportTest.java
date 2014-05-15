@@ -14,14 +14,20 @@
 
 package com.liferay.portal.lar;
 
+import com.liferay.portal.LARTypeException;
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.lar.PortletDataHandlerKeys;
 import com.liferay.portal.kernel.staging.StagingConstants;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.model.Company;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
+import com.liferay.portal.model.LayoutPrototype;
+import com.liferay.portal.model.LayoutSetPrototype;
 import com.liferay.portal.model.Portlet;
+import com.liferay.portal.service.CompanyLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextThreadLocal;
@@ -103,6 +109,91 @@ public class LayoutExportImportTest extends BaseExportImportTestCase {
 	}
 
 	@Test
+	@Transactional
+	public void testExportImportCompanyGroupInvalidLARType() throws Exception {
+
+		// Import a layout set to a company layout set
+
+		Group originalImportedGroup = importedGroup;
+		Group originalGroup = group;
+
+		Company company = CompanyLocalServiceUtil.getCompany(
+			TestPropsValues.getCompanyId());
+
+		importedGroup = company.getGroup();
+
+		long[] layoutIds = new long[0];
+
+		try {
+			exportImportLayouts(layoutIds, getImportParameterMap());
+
+			Assert.fail();
+		}
+		catch (LARTypeException lte) {
+		}
+		finally {
+			importedGroup = originalImportedGroup;
+		}
+
+		// Import a company layout set to a layout set
+
+		group = company.getGroup();
+		importedGroup = originalGroup;
+
+		try {
+			exportImportLayouts(layoutIds, getImportParameterMap());
+
+			Assert.fail();
+		}
+		catch (LARTypeException lte) {
+		}
+		finally {
+			importedGroup = originalImportedGroup;
+			group = originalGroup;
+		}
+	}
+
+	@Test
+	@Transactional
+	public void testExportImportLayoutPrototypeInvalidLARType()
+		throws Exception {
+
+		// Import a layout prototype to a layout set
+
+		LayoutPrototype layoutPrototype = LayoutTestUtil.addLayoutPrototype(
+			ServiceTestUtil.randomString());
+
+		group = layoutPrototype.getGroup();
+		importedGroup = GroupTestUtil.addGroup();
+
+		long[] layoutIds = new long[0];
+
+		try {
+			exportImportLayouts(layoutIds, getImportParameterMap());
+
+			Assert.fail();
+		}
+		catch (LARTypeException lte) {
+		}
+
+		// Import a layout prototype to a layout set pototype
+
+		LayoutSetPrototype layoutSetPrototype =
+			LayoutTestUtil.addLayoutSetPrototype(
+				ServiceTestUtil.randomString());
+
+		importedGroup = layoutSetPrototype.getGroup();
+
+		try {
+			exportImportLayouts(layoutIds, getImportParameterMap());
+
+			Assert.fail();
+		}
+		catch (LARTypeException lte) {
+		}
+	}
+
+	@Test
 	public void testExportImportLayouts() throws Exception {
 		LayoutTestUtil.addLayout(
 			group.getGroupId(), ServiceTestUtil.randomString());
@@ -114,6 +205,84 @@ public class LayoutExportImportTest extends BaseExportImportTestCase {
 		Assert.assertEquals(
 			LayoutLocalServiceUtil.getLayoutsCount(group, false),
 			LayoutLocalServiceUtil.getLayoutsCount(importedGroup, false));
+	}
+
+	@Test
+	@Transactional
+	public void testExportImportLayoutSetInvalidLARType() throws Exception {
+
+		// Import a layout set to a layout prototype
+
+		LayoutPrototype layoutPrototype = LayoutTestUtil.addLayoutPrototype(
+			ServiceTestUtil.randomString());
+
+		importedGroup = layoutPrototype.getGroup();
+
+		long[] layoutIds = new long[0];
+
+		try {
+			exportImportLayouts(layoutIds, getImportParameterMap());
+
+			Assert.fail();
+		}
+		catch (LARTypeException lte) {
+		}
+
+		// Import a layout set to a layout set prototype
+
+		LayoutSetPrototype layoutSetPrototype =
+			LayoutTestUtil.addLayoutSetPrototype(
+				ServiceTestUtil.randomString());
+
+		importedGroup = layoutSetPrototype.getGroup();
+
+		try {
+			exportImportLayouts(layoutIds, getImportParameterMap());
+
+			Assert.fail();
+		}
+		catch (LARTypeException lte) {
+		}
+	}
+
+	@Test
+	@Transactional
+	public void testExportImportLayoutSetPrototypeInvalidLARType()
+		throws Exception {
+
+		// Import a layout set prototype to a layout set
+
+		LayoutSetPrototype layoutSetPrototype =
+			LayoutTestUtil.addLayoutSetPrototype(
+				ServiceTestUtil.randomString());
+
+		group = layoutSetPrototype.getGroup();
+		importedGroup = GroupTestUtil.addGroup();
+
+		long[] layoutIds = new long[0];
+
+		try {
+			exportImportLayouts(layoutIds, getImportParameterMap());
+
+			Assert.fail();
+		}
+		catch (LARTypeException lte) {
+		}
+
+		// Import a layout set prototype to a layout prototyope
+
+		LayoutPrototype layoutPrototype = LayoutTestUtil.addLayoutPrototype(
+			ServiceTestUtil.randomString());
+
+		importedGroup = layoutPrototype.getGroup();
+
+		try {
+			exportImportLayouts(layoutIds, getImportParameterMap());
+
+			Assert.fail();
+		}
+		catch (LARTypeException lte) {
+		}
 	}
 
 	@Test
@@ -163,35 +332,37 @@ public class LayoutExportImportTest extends BaseExportImportTestCase {
 			group.getGroupId(), "layoutA");
 
 		layoutA = LayoutLocalServiceUtil.updateFriendlyURL(
-			layoutA.getPlid(), "/layoutA-de", "de");
+			layoutA.getUserId(), layoutA.getPlid(), "/layoutA-de", "de");
 
 		Layout layoutB = LayoutTestUtil.addLayout(
 			group.getGroupId(), "layoutB");
 
 		layoutB = LayoutLocalServiceUtil.updateFriendlyURL(
-			layoutB.getPlid(), "/layoutB-de", "de");
+			layoutB.getUserId(), layoutB.getPlid(), "/layoutB-de", "de");
 
 		long[] layoutIds = {layoutA.getLayoutId(), layoutB.getLayoutId()};
 
 		exportImportLayouts(layoutIds, getImportParameterMap());
 
 		layoutA = LayoutLocalServiceUtil.updateFriendlyURL(
-			layoutA.getPlid(), "/temp", defaultLanguageId);
+			layoutA.getUserId(), layoutA.getPlid(), "/temp", defaultLanguageId);
 
 		layoutA = LayoutLocalServiceUtil.updateFriendlyURL(
-			layoutA.getPlid(), "/temp-de", "de");
+			layoutA.getUserId(), layoutA.getPlid(), "/temp-de", "de");
 
 		layoutB = LayoutLocalServiceUtil.updateFriendlyURL(
-			layoutB.getPlid(), "/layoutA", defaultLanguageId);
+			layoutB.getUserId(), layoutB.getPlid(), "/layoutA",
+			defaultLanguageId);
 
 		LayoutLocalServiceUtil.updateFriendlyURL(
-			layoutB.getPlid(), "/layoutA-de", "de");
+			layoutB.getUserId(), layoutB.getPlid(), "/layoutA-de", "de");
 
 		layoutA = LayoutLocalServiceUtil.updateFriendlyURL(
-			layoutA.getPlid(), "/layoutB", defaultLanguageId);
+			layoutA.getUserId(), layoutA.getPlid(), "/layoutB",
+			defaultLanguageId);
 
 		LayoutLocalServiceUtil.updateFriendlyURL(
-			layoutA.getPlid(), "/layoutB-de", "de");
+			layoutA.getUserId(), layoutA.getPlid(), "/layoutB-de", "de");
 
 		exportImportLayouts(layoutIds, getImportParameterMap());
 	}
