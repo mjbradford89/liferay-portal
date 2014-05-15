@@ -665,6 +665,8 @@ public class LiferaySeleniumHelper {
 			Validator.equals(
 				TestPropsValues.LIFERAY_PORTAL_BUNDLE, "6.2.10.3") ||
 			Validator.equals(
+				TestPropsValues.LIFERAY_PORTAL_BUNDLE, "6.2.10.4") ||
+			Validator.equals(
 				TestPropsValues.LIFERAY_PORTAL_BRANCH, "ee-6.2.10")) {
 
 			if (line.contains(
@@ -718,6 +720,10 @@ public class LiferaySeleniumHelper {
 		LiferaySelenium liferaySelenium, String locator) {
 
 		return !liferaySelenium.isVisible(locator);
+	}
+
+	public static boolean isTCatEnabled() {
+		return TestPropsValues.TCAT_ENABLED;
 	}
 
 	public static boolean isTextNotPresent(
@@ -808,6 +814,8 @@ public class LiferaySeleniumHelper {
 			liferaySelenium.getProjectDirName() +
 			liferaySelenium.getSikuliImagesDirName() + image);
 
+		liferaySelenium.pause("1000");
+
 		_screen.type(value);
 	}
 
@@ -819,6 +827,22 @@ public class LiferaySeleniumHelper {
 			liferaySelenium, image,
 			liferaySelenium.getProjectDirName() +
 				liferaySelenium.getDependenciesDirName() + value);
+
+		_screen.type(Key.ENTER);
+	}
+
+	public static void sikuliUploadTCatFile(
+			LiferaySelenium liferaySelenium, String image, String value)
+		throws Exception {
+
+		String tCatAdminFileName =
+			TestPropsValues.TCAT_ADMIN_REPOSITORY + "/" + value;
+
+		if (OSDetector.isWindows()) {
+			tCatAdminFileName = tCatAdminFileName.replace("/", "\\");
+		}
+
+		sikuliType(liferaySelenium, image, tCatAdminFileName);
 
 		_screen.type(Key.ENTER);
 	}

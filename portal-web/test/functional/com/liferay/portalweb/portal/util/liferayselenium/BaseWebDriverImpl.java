@@ -67,7 +67,18 @@ public abstract class BaseWebDriverImpl
 
 		WebDriver.Window window = options.window();
 
-		window.setSize(new Dimension(1065, 1250));
+		int x = 1065;
+		int y = 1250;
+
+		if (TestPropsValues.MOBILE_DEVICE_ENABLED) {
+			String[] screenResolution = StringUtil.split(
+				TestPropsValues.MOBILE_DEVICE_RESOLUTION, "x");
+
+			x = GetterUtil.getInteger(screenResolution[0]);
+			y = GetterUtil.getInteger(screenResolution[1]);
+		}
+
+		window.setSize(new Dimension(x, y));
 
 		webDriver.get(browserURL);
 	}
@@ -528,6 +539,11 @@ public abstract class BaseWebDriverImpl
 	}
 
 	@Override
+	public boolean isTCatEnabled() {
+		return LiferaySeleniumHelper.isTCatEnabled();
+	}
+
+	@Override
 	public boolean isText(String locator, String value) {
 		return value.equals(getText(locator, "1"));
 	}
@@ -707,6 +723,13 @@ public abstract class BaseWebDriverImpl
 		throws Exception {
 
 		LiferaySeleniumHelper.sikuliUploadCommonFile(this, image, value);
+	}
+
+	@Override
+	public void sikuliUploadTCatFile(String image, String value)
+		throws Exception {
+
+		LiferaySeleniumHelper.sikuliUploadTCatFile(this, image, value);
 	}
 
 	@Override

@@ -82,10 +82,25 @@ public class PluginsEnvironmentBuilder {
 		for (String fileName : directoryScanner.getIncludedFiles()) {
 			String content = _fileUtil.read(dirName + "/" + fileName);
 
-			boolean osgiProject = content.contains(
-				"<import file=\"../../build-common-osgi-plugin.xml\" />");
-			boolean sharedProject = content.contains(
-				"<import file=\"../build-common-shared.xml\" />");
+			boolean osgiProject = false;
+
+			if (content.contains(
+					"<import file=\"../../build-common-osgi-plugin.xml\" />") ||
+				content.contains(
+					"../tools/sdk/build-common-osgi-plugin.xml\" />")) {
+
+				osgiProject = true;
+			}
+
+			boolean sharedProject = false;
+
+			if (content.contains(
+					"<import file=\"../build-common-shared.xml\" />") ||
+				content.contains(
+					"../tools/sdk/build-common-shared.xml\" />")) {
+
+				sharedProject = true;
+			}
 
 			List<String> dependencyJars = Collections.emptyList();
 
@@ -381,6 +396,7 @@ public class PluginsEnvironmentBuilder {
 			}
 		}
 		else {
+			globalJars.add("portal-settings-shared.jar");
 			globalJars.add("portlet.jar");
 
 			portalJars.addAll(dependencyJars);
@@ -451,8 +467,9 @@ public class PluginsEnvironmentBuilder {
 			addClasspathEntry(
 				sb, "/portal/lib/development/powermock-mockito.jar");
 			addClasspathEntry(sb, "/portal/lib/development/spring-test.jar");
-			addClasspathEntry(sb, "/portal/lib/portal/commons-io.jar");
-			addClasspathEntry(sb, "/portal/lib/portal/commons-lang.jar");
+
+			portalJars.add("commons-io.jar");
+			portalJars.add("commons-lang.jar");
 		}
 
 		addClasspathEntry(sb, "/portal/lib/development/activation.jar");
@@ -470,6 +487,8 @@ public class PluginsEnvironmentBuilder {
 		for (String jar : globalJars) {
 			addClasspathEntry(sb, "/portal/lib/global/" + jar, attributes);
 		}
+
+		Collections.sort(portalJars);
 
 		for (String jar : portalJars) {
 			if (!jar.equals("util-slf4j.jar")) {
