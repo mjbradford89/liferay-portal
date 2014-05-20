@@ -17,15 +17,17 @@ AUI.add(
 					_serviceCallbackFn: function(obj, xHR, event) {
 						var instance = this;
 
-						instance.fire(
-							'data',
-							A.mix(
-								{
-									data: obj
-								},
-								event
-							)
-						);
+						// A.when(obj).then(function() {
+							instance.fire(
+								'data',
+								A.mix(
+									{
+										data: obj
+									},
+									event
+								)
+							);
+						// });
 					}
 				}
 			}
