@@ -392,7 +392,7 @@ String signature = ParamUtil.getString(request, "signature");
 			</aui:form>
 		</div>
 
-		<aui:script use="aui-io,aui-template-deprecated,querystring-parse">
+		<aui:script use="aui-io,aui-template-deprecated,liferay-service,querystring-parse">
 			var REGEX_QUERY_STRING = new RegExp('([^?=&]+)(?:=([^&]*))?', 'g');
 
 			var form = A.one('#execute');
@@ -451,11 +451,16 @@ String signature = ParamUtil.getString(request, "signature");
 
 					var formEl = form.getDOM();
 
-					Liferay.Service(
-						'<%= invocationPath %>',
-						formEl,
-						function(obj) {
-							serviceOutput.html(A.JSON.stringify(obj, null, 2));
+					Liferay.Service('<%= invocationPath %>', formEl).then(
+						function(promisedValue) {
+							serviceOutput.html(promisedValue);
+
+							output.removeClass('loading-results');
+
+							location.hash = '#serviceResults';
+						},
+						function(reason) {
+							serviceOutput.html(reason);
 
 							output.removeClass('loading-results');
 

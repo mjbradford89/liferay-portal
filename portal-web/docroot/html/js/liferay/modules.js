@@ -697,6 +697,15 @@
 							'event-mouseenter'
 						]
 					},
+					'liferay-service': {
+						path: 'service.js',
+						requires: [
+							'aui-io-request',
+							'io',
+							'json',
+							'promise'
+						]
+					},
 					'liferay-service-datasource': {
 						path: 'service_datasource.js',
 						requires: [
