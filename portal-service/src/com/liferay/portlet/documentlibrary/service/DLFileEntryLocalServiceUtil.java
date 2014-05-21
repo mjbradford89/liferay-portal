@@ -232,6 +232,17 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().getDLFileEntry(fileEntryId);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getActionableDynamicQuery();
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getExportActionableDynamicQuery(portletDataContext);
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -541,6 +552,7 @@ public class DLFileEntryLocalServiceUtil {
 			increment);
 	}
 
+	@Deprecated
 	public static java.io.InputStream getFileAsStream(long userId,
 		long fileEntryId, java.lang.String version)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -548,6 +560,7 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().getFileAsStream(userId, fileEntryId, version);
 	}
 
+	@Deprecated
 	public static java.io.InputStream getFileAsStream(long userId,
 		long fileEntryId, java.lang.String version, boolean incrementCounter)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -557,6 +570,7 @@ public class DLFileEntryLocalServiceUtil {
 			incrementCounter);
 	}
 
+	@Deprecated
 	public static java.io.InputStream getFileAsStream(long userId,
 		long fileEntryId, java.lang.String version, boolean incrementCounter,
 		int increment)
@@ -565,6 +579,30 @@ public class DLFileEntryLocalServiceUtil {
 		return getService()
 				   .getFileAsStream(userId, fileEntryId, version,
 			incrementCounter, increment);
+	}
+
+	public static java.io.InputStream getFileAsStream(long fileEntryId,
+		java.lang.String version)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getFileAsStream(fileEntryId, version);
+	}
+
+	public static java.io.InputStream getFileAsStream(long fileEntryId,
+		java.lang.String version, boolean incrementCounter)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .getFileAsStream(fileEntryId, version, incrementCounter);
+	}
+
+	public static java.io.InputStream getFileAsStream(long fileEntryId,
+		java.lang.String version, boolean incrementCounter, int increment)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .getFileAsStream(fileEntryId, version, incrementCounter,
+			increment);
 	}
 
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getFileEntries(
@@ -845,13 +883,13 @@ public class DLFileEntryLocalServiceUtil {
 
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry updateStatus(
 		long userId, long fileVersionId, int status,
-		java.util.Map<java.lang.String, java.io.Serializable> workflowContext,
-		com.liferay.portal.service.ServiceContext serviceContext)
+		com.liferay.portal.service.ServiceContext serviceContext,
+		java.util.Map<java.lang.String, java.io.Serializable> workflowContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService()
-				   .updateStatus(userId, fileVersionId, status,
-			workflowContext, serviceContext);
+				   .updateStatus(userId, fileVersionId, status, serviceContext,
+			workflowContext);
 	}
 
 	public static boolean verifyFileEntryCheckOut(long fileEntryId,

@@ -104,8 +104,7 @@
 				function(A) {
 					new A.ButtonSearchCancel(
 						{
-							trigger: 'input[type=password], input[type=search], input.clearable, input.search-query',
-							zIndex: Liferay.zIndex.WINDOW + 100
+							trigger: 'input[type=password], input[type=search], input.clearable, input.search-query'
 						}
 					);
 				}
@@ -360,7 +359,7 @@
 
 				while (length--) {
 					var attr = attrs[length];
-					var name = attr.nodeName;
+					var name = attr.nodeName.toLowerCase();
 					var value = attr.nodeValue;
 
 					if (isGetterString) {
@@ -390,6 +389,20 @@
 			var columnId = str.replace(/layout-column_/, '');
 
 			return columnId;
+		},
+
+		getGeolocation: function(callback) {
+			if (callback && navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(
+					function(position) {
+						callback.call(
+							this,
+							position.coords.latitude,
+							position.coords.longitude
+						);
+					}
+				);
+			}
 		},
 
 		getOpener: function() {
@@ -1401,6 +1414,8 @@
 			ddmURL.setParameter('classPK', config.classPK);
 			ddmURL.setParameter('eventName', config.eventName);
 			ddmURL.setParameter('groupId', config.groupId);
+			ddmURL.setParameter('mode', config.mode);
+			ddmURL.setParameter('portletResourceNamespace', config.portletResourceNamespace);
 
 			if ('refererPortletName' in config) {
 				ddmURL.setParameter('refererPortletName', config.refererPortletName);
@@ -1412,8 +1427,12 @@
 
 			ddmURL.setParameter('scopeTitle', config.title);
 
-			if ('showGlobalScope' in config) {
-				ddmURL.setParameter('showGlobalScope', config.showGlobalScope);
+			if ('showAncestorScopes' in config) {
+				ddmURL.setParameter('showAncestorScopes', config.showAncestorScopes);
+			}
+
+			if ('showBackURL' in config) {
+				ddmURL.setParameter('showBackURL', config.showBackURL);
 			}
 
 			if ('showHeader' in config) {
@@ -1427,6 +1446,8 @@
 			if ('showToolbar' in config) {
 				ddmURL.setParameter('showToolbar', config.showToolbar);
 			}
+
+			ddmURL.setParameter('structureAvailableFields', config.structureAvailableFields);
 
 			if (config.struts_action) {
 				ddmURL.setParameter('struts_action', config.struts_action);
@@ -1972,37 +1993,32 @@
 				);
 
 				trigger.on(
-					'gesturemovestart',
+					'tap',
 					function(event) {
-						event.currentTarget.once(
-							'gesturemoveend',
-							function(event) {
-								if (icon) {
-									icon.toggleClass(iconVisibleClass);
-									icon.toggleClass(iconHiddenClass);
-								}
+						if (icon) {
+							icon.toggleClass(iconVisibleClass);
+							icon.toggleClass(iconHiddenClass);
+						}
 
-								docBody.toggleClass(visibleClass);
-								docBody.toggleClass(hiddenClass);
+						docBody.toggleClass(visibleClass);
+						docBody.toggleClass(hiddenClass);
 
-								Liferay._editControlsState = (docBody.hasClass(visibleClass) ? 'visible' : 'hidden');
+						Liferay._editControlsState = (docBody.hasClass(visibleClass) ? 'visible' : 'hidden');
 
-								Liferay.Store('liferay_toggle_controls', Liferay._editControlsState);
+						Liferay.Store('liferay_toggle_controls', Liferay._editControlsState);
 
-								Liferay.fire(
-									'toggleControls',
-									{
-										enabled: (Liferay._editControlsState === 'visible'),
-										src: 'ui'
-									}
-								);
+						Liferay.fire(
+							'toggleControls',
+							{
+								enabled: (Liferay._editControlsState === 'visible'),
+								src: 'ui'
 							}
 						);
 					}
 				);
 			}
 		},
-		['event-move', 'liferay-store']
+		['event-tap', 'liferay-store']
 	);
 
 	Liferay.provide(

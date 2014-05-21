@@ -41,36 +41,27 @@
 	<property file="${project.dir}/sql/sql.${env.HOSTNAME}.properties" />
 	<property file="${project.dir}/sql/sql.properties" />
 
-	<property name="liferay.home" value="${app.server.parent.dir}" />
-
 	<path id="lib.classpath">
 		<fileset dir="${project.dir}/lib/development" includes="*.jar" />
 		<fileset dir="${project.dir}/lib/global" includes="*.jar" />
 		<fileset dir="${project.dir}/lib/portal" includes="*.jar" />
-		<fileset dir="${project.dir}/osgi/lib/common/core" includes="*.jar" />
-		<fileset dir="${project.dir}/osgi/lib/common/portal" includes="org.phidias.compile.jar" />
 	</path>
 
 	<path id="project.classpath">
 		<pathelement path="${classpath}" />
-		<pathelement path="${project.dir}/osgi/modules/registry/registry-api/build/classes/main" />
 		<path refid="lib.classpath" />
 	</path>
 
 	<path id="test.classpath">
-		<pathelement path="test-classes/${test.type}" />
 		<pathelement path="${classpath}" />
-		<pathelement path="${imported.classpath}" />
-		<pathelement path="${project.dir}/osgi/modules/registry/registry-api/build/classes/main" />
+		<pathelement path="test-classes/${test.type}" />
 		<fileset dir="${project.dir}/lib/development" includes="*.jar" excludes="jalopy.jar,jetty*.jar,tomcat*.jar" />
 		<fileset dir="${project.dir}/lib/global" includes="*.jar" />
 		<fileset dir="${project.dir}/lib/portal" includes="*.jar" excludes="ant.jar" />
-		<fileset dir="${project.dir}/osgi/lib/common/core" includes="*.jar" />
 	</path>
 
 	<path id="web.classpath">
-		<pathelement location="${project.dir}/portal-service/classes" />
-		<pathelement path="${project.dir}/osgi/modules/registry/registry-api/build/classes/main" />
+		<pathelement path="${classpath}" />
 		<fileset dir="${project.dir}/lib/development" includes="jsp-api.jar,mail.jar,servlet-api.jar" />
 		<fileset dir="${project.dir}/lib/global" includes="*.jar" />
 		<fileset dir="${project.dir}/lib/portal" includes="bnd.jar" />
@@ -85,6 +76,7 @@
 	<typedef classpathref="lib.classpath" resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" />
 	<taskdef classpathref="lib.classpath" resource="tasks.properties" />
 
+	<taskdef classname="com.liferay.ant.bnd.BaselineJarTask" classpathref="lib.classpath" name="baseline-jar" />
 	<taskdef classname="com.tonicsystems.jarjar.JarJarTask" classpath="${project.dir}/lib/development/jarjar.jar" name="jarjar" />
 	<taskdef classname="com.oopsconsultancy.xmltask.ant.XmlTask" classpath="${project.dir}/lib/development/xmltask.jar" name="xmltask" />
 
@@ -217,6 +209,8 @@
 			<var name="temp.app.server.version" unset="true" />
 		</sequential>
 	</for>
+
+	<property name="liferay.home" value="${app.server.parent.dir}" />
 
 	<basename file="${basedir}" property="basedir.name" />
 
@@ -485,6 +479,28 @@ Please set the environment variable ANT_OPTS to the recommended value of
 		</then>
 	</if>
 
+	<macrodef name="ant-execute">
+		<attribute default="build.xml" name="ant.build.file" />
+		<attribute name="ant.dir" />
+		<attribute name="ant.target" />
+
+		<sequential>
+			<if>
+				<os family="unix" />
+				<then>
+					<exec dir="@{ant.dir}" executable="${ant.home}/bin/ant" failonerror="true">
+						<arg line="-f @{ant.build.file} @{ant.target}" />
+					</exec>
+				</then>
+				<else>
+					<exec dir="@{ant.dir}" executable="${ant.home}/bin/ant.bat" failonerror="true">
+						<arg line="-f @{ant.build.file} @{ant.target}" />
+					</exec>
+				</else>
+			</if>
+		</sequential>
+	</macrodef>
+
 	<macrodef name="baseline-jar-macro">
 		<attribute name="bndRootFile" />
 		<attribute name="file" />
@@ -493,26 +509,6 @@ Please set the environment variable ANT_OPTS to the recommended value of
 		<attribute name="sourcePath" />
 
 		<sequential>
-			<trycatch>
-				<try>
-					<taskdef
-						classname="com.liferay.portal.ant.bnd.BaselineJarTask"
-						classpathref="project.classpath"
-						name="baseline-jar"
-					/>
-				</try>
-				<catch>
-					<ant antfile="${project.dir}/portal-service/build.xml" target="compile" inheritAll="false" />
-					<ant antfile="${project.dir}/util-java/build.xml" target="compile" inheritAll="false" />
-
-					<taskdef
-						classname="com.liferay.portal.ant.bnd.BaselineJarTask"
-						classpathref="project.classpath"
-						name="baseline-jar"
-					/>
-				</catch>
-			</trycatch>
-
 			<manifest-helper />
 
 			<bndexpand propertyfile="@{bndRootFile}" />
@@ -608,10 +604,20 @@ Please set the environment variable ANT_OPTS to the recommended value of
 									<available file="@{fix.pack.dir}/${fix.pack.requirement.file.name}" />
 								</not>
 								<then>
-									<get
-										dest="@{fix.pack.dir}"
-										src="http://mirrors/files.liferay.com/private/ee/fix-packs/${fix.pack.portal.version}/${fix.pack.requirement.type}/${fix.pack.requirement.file.name}"
-									/>
+									<trycatch>
+										<try>
+											<get
+												dest="@{fix.pack.dir}"
+												src="http://mirrors/files.liferay.com/private/ee/fix-packs/${fix.pack.portal.version}/${fix.pack.requirement.type}/${fix.pack.requirement.file.name}"
+											/>
+										</try>
+										<catch>
+											<get
+												dest="@{fix.pack.dir}"
+												src="http://mirrors/files.liferay.com/private/ee/fix-packs/incubation/${fix.pack.requirement.file.name}"
+											/>
+										</catch>
+									</trycatch>
 
 									<check-fix-pack-requirements
 										fix.pack.dir="@{fix.pack.dir}"
@@ -776,28 +782,6 @@ Please set the environment variable ANT_OPTS to the recommended value of
 		</sequential>
 	</macrodef>
 
-	<macrodef name="gradle-execute">
-		<attribute name="gradleModuleDir" default="" />
-		<attribute name="gradleTask" />
-		<attribute name="gradleTaskArgs" default="-Dorg.gradle.project.globalLibDir=${app.server.lib.global.dir} -Dorg.gradle.project.osgiLibDir=${portal-impl.classes.dir}/com/liferay/portal/deploy/dependencies/osgi -Dorg.gradle.project.portalLibDir=${app.server.lib.portal.dir}" />
-
-		<sequential>
-			<if>
-				<os family="unix" />
-				<then>
-					<exec append="true" dir="${project.dir}/osgi/modules@{gradleModuleDir}" executable="${project.dir}/tools/gradle/gradlew">
-						<arg line="--daemon -q @{gradleTask} @{gradleTaskArgs}" />
-					</exec>
-				</then>
-				<else>
-					<exec append="true" dir="${project.dir}/osgi/modules@{gradleModuleDir}" executable="${project.dir}/tools/gradle/gradlew.bat">
-						<arg line="--daemon -q @{gradleTask} @{gradleTaskArgs}" />
-					</exec>
-				</else>
-			</if>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="manifest-helper">
 		<attribute name="analyze" default="false" />
 
@@ -805,7 +789,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 			<trycatch>
 				<try>
 					<taskdef
-						classname="com.liferay.portal.ant.ManifestHelperTask"
+						classname="com.liferay.util.ant.ManifestHelperTask"
 						classpathref="project.classpath"
 						name="liferay-manifest-helper"
 					/>
@@ -815,7 +799,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 					<ant antfile="${project.dir}/util-java/build.xml" target="compile" inheritAll="false" />
 
 					<taskdef
-						classname="com.liferay.portal.ant.ManifestHelperTask"
+						classname="com.liferay.util.ant.ManifestHelperTask"
 						classpathref="project.classpath"
 						name="liferay-manifest-helper"
 					/>
@@ -838,7 +822,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 			<trycatch>
 				<try>
 					<taskdef
-						classname="com.liferay.portal.ant.bnd.ReleaseToRepoTask"
+						classname="com.liferay.util.ant.bnd.ReleaseToRepoTask"
 						classpathref="project.classpath"
 						name="release-to-repo"
 					/>
@@ -848,7 +832,7 @@ Please set the environment variable ANT_OPTS to the recommended value of
 					<ant antfile="${project.dir}/util-java/build.xml" target="compile" inheritAll="false" />
 
 					<taskdef
-						classname="com.liferay.portal.ant.bnd.ReleaseToRepoTask"
+						classname="com.liferay.util.ant.bnd.ReleaseToRepoTask"
 						classpathref="project.classpath"
 						name="release-to-repo"
 					/>

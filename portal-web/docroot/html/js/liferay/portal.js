@@ -1,4 +1,8 @@
 ;(function(A, Liferay) {
+	if (!Liferay.namespace) {
+		Liferay.namespace = A.namespace;
+	}
+
 	var Tabs = Liferay.namespace('Portal.Tabs');
 	var ToolTip = Liferay.namespace('Portal.ToolTip');
 

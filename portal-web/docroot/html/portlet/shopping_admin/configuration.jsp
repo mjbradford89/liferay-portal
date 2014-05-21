@@ -158,7 +158,7 @@ shoppingSettings = ShoppingUtil.getShoppingSettings(themeDisplay.getSiteGroupId(
 						and over
 					</c:if>
 
-					<aui:input label="" maxlength="6" name='<%= "shipping" + i %>' size="6" type="text" value="<%= GetterUtil.getString(shoppingSettings.getShipping()[i]) %>" />
+					<aui:input label="" maxlength="6" name='<%= "shipping" + i %>' size="6" title="shipping" type="text" value="<%= GetterUtil.getString(shoppingSettings.getShipping()[i]) %>" />
 
 					<%
 					}
@@ -199,7 +199,7 @@ shoppingSettings = ShoppingUtil.getShoppingSettings(themeDisplay.getSiteGroupId(
 						and over
 					</c:if>
 
-					<aui:input label="" maxlength="6" name='<%= "insurance" + i %>' size="6" type="text" value="<%= GetterUtil.getString(shoppingSettings.getInsurance()[i]) %>" />
+					<aui:input label="" maxlength="6" name='<%= "insurance" + i %>' size="6" title="insurance" type="text" value="<%= GetterUtil.getString(shoppingSettings.getInsurance()[i]) %>" />
 
 					<%
 					}
@@ -223,21 +223,21 @@ shoppingSettings = ShoppingUtil.getShoppingSettings(themeDisplay.getSiteGroupId(
 
 		<liferay-ui:section>
 			<liferay-ui:email-notification-settings
-				emailBody="<%= shoppingSettings.getEmailOrderConfirmationBody() %>"
+				emailBody="<%= shoppingSettings.getEmailOrderConfirmationBodyXml() %>"
 				emailDefinitionTerms="<%= emailDefinitionTerms %>"
 				emailEnabled="<%= shoppingSettings.getEmailOrderConfirmationEnabled() %>"
 				emailParam="emailOrderConfirmation"
-				emailSubject="<%= shoppingSettings.getEmailOrderConfirmationSubject() %>"
+				emailSubject="<%= shoppingSettings.getEmailOrderConfirmationSubjectXml() %>"
 			/>
 		</liferay-ui:section>
 
 		<liferay-ui:section>
 			<liferay-ui:email-notification-settings
-				emailBody="<%= shoppingSettings.getEmailOrderShippingBody() %>"
+				emailBody="<%= shoppingSettings.getEmailOrderShippingBodyXml() %>"
 				emailDefinitionTerms="<%= emailDefinitionTerms %>"
 				emailEnabled="<%= shoppingSettings.getEmailOrderShippingEnabled() %>"
 				emailParam="emailOrderShipping"
-				emailSubject="<%= shoppingSettings.getEmailOrderShippingSubject() %>"
+				emailSubject="<%= shoppingSettings.getEmailOrderShippingSubjectXml() %>"
 			/>
 		</liferay-ui:section>
 	</liferay-ui:tabs>
