@@ -221,6 +221,11 @@ public class ExportImportHelperUtil {
 			portletRequest, targetGroupId);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #getManifestSummary(PortletDataContext)}
+	 */
+	@Deprecated
 	public static ManifestSummary getManifestSummary(
 			long userId, long groupId, Map<String, String[]> parameterMap,
 			File file)
@@ -237,6 +242,13 @@ public class ExportImportHelperUtil {
 
 		return getExportImportHelper().getManifestSummary(
 			userId, groupId, parameterMap, fileEntry);
+	}
+
+	public static ManifestSummary getManifestSummary(
+			PortletDataContext portletDataContext)
+		throws Exception {
+
+		return getExportImportHelper().getManifestSummary(portletDataContext);
 	}
 
 	public static List<Layout> getMissingParentLayouts(
@@ -264,6 +276,14 @@ public class ExportImportHelperUtil {
 			groupId, userId, folderName);
 	}
 
+	public static UserIdStrategy getUserIdStrategy(
+			long userId, String userIdStrategy)
+		throws PortalException, SystemException {
+
+		return getExportImportHelper().getUserIdStrategy(
+			userId, userIdStrategy);
+	}
+
 	public static boolean isReferenceWithinExportScope(
 		PortletDataContext portletDataContext, StagedModel stagedModel) {
 
@@ -271,6 +291,12 @@ public class ExportImportHelperUtil {
 			portletDataContext, stagedModel);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #replaceExportContentReferences(PortletDataContext,
+	 *             StagedModel, String, boolean)}
+	 */
+	@Deprecated
 	public static String replaceExportContentReferences(
 			PortletDataContext portletDataContext,
 			StagedModel entityStagedModel, Element entityElement,
@@ -282,6 +308,23 @@ public class ExportImportHelperUtil {
 			exportReferencedContent);
 	}
 
+	public static String replaceExportContentReferences(
+			PortletDataContext portletDataContext,
+			StagedModel entityStagedModel, String content,
+			boolean exportReferencedContent)
+		throws Exception {
+
+		return getExportImportHelper().replaceExportContentReferences(
+			portletDataContext, entityStagedModel, content,
+			exportReferencedContent);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #replaceExportDLReferences(PortletDataContext, StagedModel,
+	 *             String, boolean)}
+	 */
+	@Deprecated
 	public static String replaceExportDLReferences(
 			PortletDataContext portletDataContext,
 			StagedModel entityStagedModel, Element entityElement,
@@ -293,6 +336,30 @@ public class ExportImportHelperUtil {
 			exportReferencedContent);
 	}
 
+	public static String replaceExportDLReferences(
+			PortletDataContext portletDataContext,
+			StagedModel entityStagedModel, String content,
+			boolean exportReferencedContent)
+		throws Exception {
+
+		return getExportImportHelper().replaceExportDLReferences(
+			portletDataContext, entityStagedModel, content,
+			exportReferencedContent);
+	}
+
+	public static String replaceExportLayoutReferences(
+			PortletDataContext portletDataContext, String content)
+		throws Exception {
+
+		return getExportImportHelper().replaceExportLayoutReferences(
+			portletDataContext, content);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #replaceExportLayoutReferences(PortletDataContext, String)}
+	 */
+	@Deprecated
 	public static String replaceExportLayoutReferences(
 			PortletDataContext portletDataContext, String content,
 			boolean exportReferencedContent)
@@ -302,6 +369,12 @@ public class ExportImportHelperUtil {
 			portletDataContext, content, exportReferencedContent);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #replaceExportLinksToLayouts(PortletDataContext, StagedModel,
+	 *             String)}
+	 */
+	@Deprecated
 	public static String replaceExportLinksToLayouts(
 			PortletDataContext portletDataContext,
 			StagedModel entityStagedModel, Element entityElement,
@@ -313,10 +386,19 @@ public class ExportImportHelperUtil {
 			exportReferencedContent);
 	}
 
+	public static String replaceExportLinksToLayouts(
+			PortletDataContext portletDataContext,
+			StagedModel entityStagedModel, String content)
+		throws Exception {
+
+		return getExportImportHelper().replaceExportLinksToLayouts(
+			portletDataContext, entityStagedModel, content);
+	}
+
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
 	 *             #replaceImportContentReferences(PortletDataContext,
-	 *             StagedModel, Element, String, boolean)}
+	 *             StagedModel, String)}
 	 */
 	@Deprecated
 	public static String replaceImportContentReferences(
@@ -331,19 +413,17 @@ public class ExportImportHelperUtil {
 
 	public static String replaceImportContentReferences(
 			PortletDataContext portletDataContext,
-			StagedModel entityStagedModel, Element entityElement,
-			String content, boolean importReferencedContent)
+			StagedModel entityStagedModel, String content)
 		throws Exception {
 
 		return getExportImportHelper().replaceImportContentReferences(
-			portletDataContext, entityStagedModel, entityElement, content,
-			importReferencedContent);
+			portletDataContext, entityStagedModel, content);
 	}
 
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
 	 *             #replaceImportDLReferences(PortletDataContext, StagedModel,
-	 *             String, boolean)}
+	 *             String)}
 	 */
 	@Deprecated
 	public static String replaceImportDLReferences(
@@ -358,15 +438,26 @@ public class ExportImportHelperUtil {
 
 	public static String replaceImportDLReferences(
 			PortletDataContext portletDataContext,
-			StagedModel entityStagedModel, String content,
-			boolean importReferencedContent)
+			StagedModel entityStagedModel, String content)
 		throws Exception {
 
 		return getExportImportHelper().replaceImportDLReferences(
-			portletDataContext, entityStagedModel, content,
-			importReferencedContent);
+			portletDataContext, entityStagedModel, content);
 	}
 
+	public static String replaceImportLayoutReferences(
+			PortletDataContext portletDataContext, String content)
+		throws Exception {
+
+		return getExportImportHelper().replaceImportLayoutReferences(
+			portletDataContext, content);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #replaceImportLayoutReferences(PortletDataContext, String)}
+	 */
+	@Deprecated
 	public static String replaceImportLayoutReferences(
 			PortletDataContext portletDataContext, String content,
 			boolean importReferencedContent)
@@ -376,6 +467,19 @@ public class ExportImportHelperUtil {
 			portletDataContext, content, importReferencedContent);
 	}
 
+	public static String replaceImportLinksToLayouts(
+			PortletDataContext portletDataContext, String content)
+		throws Exception {
+
+		return getExportImportHelper().replaceImportLinksToLayouts(
+			portletDataContext, content);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #replaceImportLinksToLayouts(PortletDataContext, String)}
+	 */
+	@Deprecated
 	public static String replaceImportLinksToLayouts(
 			PortletDataContext portletDataContext, String content,
 			boolean importReferencedContent)
@@ -421,6 +525,19 @@ public class ExportImportHelperUtil {
 			portletDataContext, portletPreferences, key, clazz, companyGroupId);
 	}
 
+	public static MissingReferences validateMissingReferences(
+			final PortletDataContext portletDataContext)
+		throws Exception {
+
+		return getExportImportHelper().validateMissingReferences(
+			portletDataContext);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             #validateMissingReferences(PortletDataContext)}
+	 */
+	@Deprecated
 	public static MissingReferences validateMissingReferences(
 			long userId, long groupId, Map<String, String[]> parameterMap,
 			File file)

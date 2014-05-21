@@ -14,9 +14,12 @@
 
 package com.liferay.portlet.messageboards.action;
 
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.SettingsConfigurationAction;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.settings.Settings;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
@@ -25,7 +28,6 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.settings.Settings;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portal.util.WebKeys;
 import com.liferay.portlet.messageboards.MBSettings;
@@ -39,7 +41,6 @@ import java.util.TreeMap;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletConfig;
-import javax.portlet.PortletRequest;
 
 /**
  * @author Brian Wing Shun Chan
@@ -47,49 +48,26 @@ import javax.portlet.PortletRequest;
 public class ConfigurationActionImpl extends SettingsConfigurationAction {
 
 	@Override
-	public void postProcess(
-		long companyId, PortletRequest portletRequest, Settings settings) {
-
-		MBSettings mbSettings = new MBSettings(settings);
-
-		removeDefaultValue(
-			portletRequest, settings, "emailFromAddress",
-			mbSettings.getEmailFromAddress());
-		removeDefaultValue(
-			portletRequest, settings, "emailFromName",
-			mbSettings.getEmailFromName());
-
-		String languageId = LocaleUtil.toLanguageId(
-			LocaleUtil.getSiteDefault());
-
-		removeDefaultValue(
-			portletRequest, settings, "emailMessageAddedBody_" + languageId,
-			mbSettings.getEmailMessageAddedBody());
-		removeDefaultValue(
-			portletRequest, settings, "emailMessageAddedSubject_" + languageId,
-			mbSettings.getEmailMessageAddedSubject());
-		removeDefaultValue(
-			portletRequest, settings, "emailMessageUpdatedBody_" + languageId,
-			mbSettings.getEmailMessageUpdatedBody());
-		removeDefaultValue(
-			portletRequest, settings,
-			"emailMessageUpdatedSubject_" + languageId,
-			mbSettings.getEmailMessageUpdatedSubject());
-	}
-
-	@Override
 	public void processAction(
 			PortletConfig portletConfig, ActionRequest actionRequest,
 			ActionResponse actionResponse)
 		throws Exception {
 
-		validateEmail(actionRequest, "emailMessageAdded", true);
-		validateEmail(actionRequest, "emailMessageUpdated", true);
+		validateEmail(actionRequest, "emailMessageAdded");
+		validateEmail(actionRequest, "emailMessageUpdated");
 		validateEmailFrom(actionRequest);
+
 		updateThreadPriorities(actionRequest);
 		updateUserRanks(actionRequest);
 
 		super.processAction(portletConfig, actionRequest, actionResponse);
+	}
+
+	@Override
+	protected Settings getSettings(ActionRequest actionRequest)
+		throws PortalException, SystemException {
+
+		return new MBSettings(super.getSettings(actionRequest));
 	}
 
 	protected boolean isValidUserRank(String rank) {

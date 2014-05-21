@@ -16,14 +16,15 @@ package com.liferay.portal.kernel.search;
 
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchPaginationUtil;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Time;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Tina Tian
@@ -35,16 +36,17 @@ public abstract class BaseSearchResultPermissionFilter
 	public Hits search(SearchContext searchContext) throws SearchException {
 		QueryConfig queryConfig = searchContext.getQueryConfig();
 
-		String[] selectedFieldNames = queryConfig.getSelectedFieldNames();
+		if (!queryConfig.isAllFieldsSelected()) {
+			Set<String> selectedFieldNameSet = SetUtil.fromArray(
+				queryConfig.getSelectedFieldNames());
 
-		if (ArrayUtil.isNotEmpty(selectedFieldNames) &&
-			(selectedFieldNames.length == 1) &&
-			selectedFieldNames[0].equals(Field.ANY)) {
+			for (String selectedFieldName : _PERMISSION_SELECTED_FIELD_NAMES) {
+				selectedFieldNameSet.add(selectedFieldName);
+			}
 
-			selectedFieldNames = ArrayUtil.append(
-				selectedFieldNames, _PERMISSION_SELECTED_FIELD_NAMES);
-
-			queryConfig.setSelectedFieldNames(selectedFieldNames);
+			queryConfig.setSelectedFieldNames(
+				selectedFieldNameSet.toArray(
+					new String[selectedFieldNameSet.size()]));
 		}
 
 		int end = searchContext.getEnd();

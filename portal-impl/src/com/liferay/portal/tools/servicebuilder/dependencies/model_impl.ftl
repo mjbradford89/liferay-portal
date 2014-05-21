@@ -734,6 +734,34 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		</#if>
 	</#if>
 
+	<#if entity.isHierarchicalTree()>
+		public long getNestedSetsTreeNodeLeft() {
+			return _left${pkColumn.methodName};
+		}
+
+		public long getNestedSetsTreeNodeRight() {
+			return _right${pkColumn.methodName};
+		}
+
+		public long getNestedSetsTreeNodeScopeId() {
+			<#if entity.hasColumn("groupId")>
+				<#assign scopeColumn = entity.getColumn("groupId")>
+			<#else>
+				<#assign scopeColumn = entity.getColumn("companyId")>
+			</#if>
+
+			return _${scopeColumn.name};
+		}
+
+		public void setNestedSetsTreeNodeLeft(long nestedSetsTreeNodeLeft) {
+			_left${pkColumn.methodName} = nestedSetsTreeNodeLeft;
+		}
+
+		public void setNestedSetsTreeNodeRight(long nestedSetsTreeNodeRight) {
+			_right${pkColumn.methodName} = nestedSetsTreeNodeRight;
+		}
+	</#if>
+
 	<#if entity.isStagedModel()>
 		@Override
 		public StagedModelType getStagedModelType() {
@@ -856,6 +884,21 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 			return false;
 		}
+
+		@Override
+		public boolean isInTrashImplicitly() throws SystemException {
+			if (!isInTrash()) {
+				return false;
+			}
+
+			TrashEntry trashEntry = TrashEntryLocalServiceUtil.fetchEntry(getModelClassName(), getTrashEntryClassPK());
+
+			if (trashEntry != null) {
+				return false;
+			}
+
+			return true;
+		}
 	</#if>
 
 	<#if entity.isWorkflowEnabled()>
@@ -977,7 +1020,7 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 		}
 	</#if>
 
-	<#if entity.hasLocalizedColumn()>
+	<#if entity.isLocalizedModel()>
 		@Override
 		public String[] getAvailableLanguageIds() {
 			Set<String> availableLanguageIds = new TreeSet<String>();
@@ -1018,7 +1061,13 @@ public class ${entity.name}ModelImpl extends BaseModelImpl<${entity.name}> imple
 
 		@Override
 		public void prepareLocalizedFieldsForImport() throws LocaleException {
-			prepareLocalizedFieldsForImport (null);
+			Locale defaultLocale = LocaleUtil.fromLanguageId(getDefaultLanguageId());
+
+			Locale[] availableLocales = LocaleUtil.fromLanguageIds(getAvailableLanguageIds());
+
+			Locale defaultImportLocale = LocalizationUtil.getDefaultImportLocale(${entity.name}.class.getName(), getPrimaryKey(), defaultLocale, availableLocales);
+
+			prepareLocalizedFieldsForImport(defaultImportLocale);
 		}
 
 		@Override

@@ -351,6 +351,23 @@ public class DDMStructureServiceSoap {
 		}
 	}
 
+	public static com.liferay.portlet.dynamicdatamapping.model.DDMStructureSoap[] getJournalFolderStructures(
+		long[] groupIds, long journalFolderId, int restrictionType)
+		throws RemoteException {
+		try {
+			java.util.List<com.liferay.portlet.dynamicdatamapping.model.DDMStructure> returnValue =
+				DDMStructureServiceUtil.getJournalFolderStructures(groupIds,
+					journalFolderId, restrictionType);
+
+			return com.liferay.portlet.dynamicdatamapping.model.DDMStructureSoap.toSoapModels(returnValue);
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new RemoteException(e.getMessage());
+		}
+	}
+
 	/**
 	* Returns the structure with the ID.
 	*
@@ -411,7 +428,7 @@ public class DDMStructureServiceSoap {
 	*
 	* <p>
 	* This method first searches in the group. If the structure is still not
-	* found and <code>includeGlobalStructures</code> is set to
+	* found and <code>includeAncestorStructures</code> is set to
 	* <code>true</code>, this method searches the global group.
 	* </p>
 	*
@@ -419,7 +436,7 @@ public class DDMStructureServiceSoap {
 	* @param classNameId the primary key of the class name for the structure's
 	related model
 	* @param structureKey the unique string identifying the structure
-	* @param includeGlobalStructures whether to include the global scope in
+	* @param includeAncestorStructures whether to include the global scope in
 	the search
 	* @return the matching structure
 	* @throws PortalException if the user did not have permission to view the
@@ -428,11 +445,11 @@ public class DDMStructureServiceSoap {
 	*/
 	public static com.liferay.portlet.dynamicdatamapping.model.DDMStructureSoap getStructure(
 		long groupId, long classNameId, java.lang.String structureKey,
-		boolean includeGlobalStructures) throws RemoteException {
+		boolean includeAncestorStructures) throws RemoteException {
 		try {
 			com.liferay.portlet.dynamicdatamapping.model.DDMStructure returnValue =
 				DDMStructureServiceUtil.getStructure(groupId, classNameId,
-					structureKey, includeGlobalStructures);
+					structureKey, includeAncestorStructures);
 
 			return com.liferay.portlet.dynamicdatamapping.model.DDMStructureSoap.toSoapModel(returnValue);
 		}
@@ -489,6 +506,17 @@ public class DDMStructureServiceSoap {
 		}
 	}
 
+	/**
+	* Returns all the structures matching the groups and class name ID that the
+	* user has permission to view.
+	*
+	* @param groupIds the primary keys of the groups
+	* @param classNameId the primary key of the class name for the structure's
+	related model
+	* @return the structures matching the groups and class name ID that the
+	user has permission to view
+	* @throws SystemException if a system exception occurred
+	*/
 	public static com.liferay.portlet.dynamicdatamapping.model.DDMStructureSoap[] getStructures(
 		long[] groupIds, long classNameId) throws RemoteException {
 		try {

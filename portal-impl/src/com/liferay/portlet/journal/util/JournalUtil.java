@@ -14,6 +14,7 @@
 
 package com.liferay.portlet.journal.util;
 
+import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.diff.DiffHtmlUtil;
@@ -137,7 +138,7 @@ public class JournalUtil {
 	public static final int MAX_STACK_SIZE = 20;
 
 	public static final String[] SELECTED_FIELD_NAMES =
-		{Field.COMPANY_ID, Field.GROUP_ID, Field.UID, "articleId"};
+		{Field.ARTICLE_ID, Field.COMPANY_ID, Field.GROUP_ID, Field.UID};
 
 	public static void addAllReservedEls(
 		Element rootElement, Map<String, String> tokens, JournalArticle article,
@@ -571,8 +572,8 @@ public class JournalUtil {
 			documents.size());
 
 		for (com.liferay.portal.kernel.search.Document document : documents) {
+			String articleId = document.get(Field.ARTICLE_ID);
 			long groupId = GetterUtil.getLong(document.get(Field.GROUP_ID));
-			String articleId = document.get("articleId");
 
 			JournalArticle article =
 				JournalArticleLocalServiceUtil.fetchLatestArticle(
@@ -1032,6 +1033,19 @@ public class JournalUtil {
 		return recentDDMTemplates;
 	}
 
+	public static int getRestrictionType(long folderId) throws SystemException {
+		int restrictionType = JournalFolderConstants.RESTRICTION_TYPE_INHERIT;
+
+		JournalFolder folder = JournalFolderLocalServiceUtil.fetchFolder(
+			folderId);
+
+		if (folder != null) {
+			restrictionType = folder.getRestrictionType();
+		}
+
+		return restrictionType;
+	}
+
 	public static long[] getStructureClassPKs(
 			long[] groupIds, String structureId)
 		throws SystemException {
@@ -1245,6 +1259,59 @@ public class JournalUtil {
 		return curContent;
 	}
 
+	public static String prepareLocalizedContentForImport(
+			String content, Locale defaultImportLocale)
+		throws LocaleException {
+
+		try {
+			Document oldDocument = SAXReaderUtil.read(content);
+
+			Document newDocument = SAXReaderUtil.read(content);
+
+			Element newRootElement = newDocument.getRootElement();
+
+			Attribute availableLocalesAttribute = newRootElement.attribute(
+				"available-locales");
+
+			String defaultImportLanguageId = LocaleUtil.toLanguageId(
+				defaultImportLocale);
+
+			if (!StringUtil.contains(
+					availableLocalesAttribute.getValue(),
+					defaultImportLanguageId)) {
+
+				availableLocalesAttribute.setValue(
+					availableLocalesAttribute.getValue() + StringPool.COMMA +
+						defaultImportLanguageId);
+
+				_mergeArticleContentUpdate(
+					oldDocument, newRootElement,
+					LocaleUtil.toLanguageId(defaultImportLocale));
+
+				content = DDMXMLUtil.formatXML(newDocument);
+			}
+
+			Attribute defaultLocaleAttribute = newRootElement.attribute(
+				"default-locale");
+
+			Locale defaultContentLocale = LocaleUtil.fromLanguageId(
+				defaultLocaleAttribute.getValue());
+
+			if (!LocaleUtil.equals(defaultContentLocale, defaultImportLocale)) {
+				defaultLocaleAttribute.setValue(defaultImportLanguageId);
+
+				content = DDMXMLUtil.formatXML(newDocument);
+			}
+		}
+		catch (Exception e) {
+			throw new LocaleException(
+				LocaleException.TYPE_CONTENT,
+				"The locale " + defaultImportLocale + " is not available");
+		}
+
+		return content;
+	}
+
 	public static String removeArticleLocale(
 		Document document, String content, String languageId) {
 
@@ -1448,6 +1515,10 @@ public class JournalUtil {
 
 	private static Element _getElementByInstanceId(
 		Document document, String instanceId) {
+
+		if (Validator.isNull(instanceId)) {
+			return null;
+		}
 
 		XPath xPathSelector = SAXReaderUtil.createXPath(
 			"//dynamic-element[@instance-id=" +

@@ -128,11 +128,6 @@ AUI.add(
 
 						var eventHandles = instance._eventHandles;
 
-						eventHandles.push(
-							instance._closePanelButton.on(STR_CLICK, instance._closePanel, instance),
-							instance._devicePreviewContainer.delegate(STR_CLICK, instance._onDeviceClick, SELECTOR_DEVICE_ITEM, instance)
-						);
-
 						var resizeHandle = A.getWin().on(
 							'resize',
 							function(event) {
@@ -142,6 +137,12 @@ AUI.add(
 									resizeHandle.detach();
 								}
 							}
+						);
+
+						eventHandles.push(
+							instance._closePanelButton.on(STR_CLICK, instance._closePanel, instance),
+							instance._devicePreviewContainer.delegate(STR_CLICK, instance._onDeviceClick, SELECTOR_DEVICE_ITEM, instance),
+							resizeHandle
 						);
 
 						var inputWidth = instance.get(STR_INPUT_WIDTH);
@@ -227,6 +228,9 @@ AUI.add(
 
 						var devicePreviewNode = instance._devicePreviewNode;
 
+						var height = dialogAttrs.size.height;
+						var width = dialogAttrs.size.width;
+
 						if (!dialog) {
 							var dialogConfig = {
 								align: {
@@ -235,9 +239,9 @@ AUI.add(
 								},
 								autoSizeNode: devicePreviewNode,
 								constrain: devicePreviewNode,
-								height: dialogAttrs.size.height,
+								height: height,
 								render: devicePreviewNode,
-								width: dialogAttrs.size.width
+								width: width
 							};
 
 							Liferay.Util.openWindow(
@@ -308,6 +312,13 @@ AUI.add(
 							}
 
 							dialog.setAttrs(dialogAttrs);
+
+							dialog.iframe.node.setStyles(
+								{
+									height: height,
+									width: width
+								}
+							);
 
 							dialog.show();
 						}
@@ -427,11 +438,19 @@ AUI.add(
 					_onSizeInput: function(event) {
 						var instance = this;
 
+						var inputHeight = instance.get(STR_INPUT_HEIGHT).val();
+						var inputWidth = instance.get(STR_INPUT_WIDTH).val();
+
+						var height = Lang.toInt(inputHeight);
+						var width = Lang.toInt(inputWidth);
+
+						var dialog = Liferay.Util.getWindow(instance._dialogId);
+
 						instance._openDeviceDialog(
 							{
-								height: Lang.toInt(instance.get(STR_INPUT_HEIGHT).val()),
+								height: height,
 								resizable: true,
-								width: Lang.toInt(instance.get(STR_INPUT_WIDTH).val())
+								width: width
 							}
 						);
 					}

@@ -18,9 +18,18 @@
 			</else>
 		</if>
 
-		<execute action="SOTasksTask#assertClick" locator-key1="COMMENT_ADD_BUTTON" value1="Add Comment" />
+		<if>
+			<condition action="SOTasksTask#isElementPresent" locator-key1="COMMENT_BE_THE_FIRST_LINK" />
+			<then>
+				<execute action="SOTasksTask#assertClick" locator-key1="COMMENT_BE_THE_FIRST_LINK" value1="Be the first." />
+			</then>
+			<else>
+				<execute action="SOTasksTask#assertClick" locator-key1="COMMENT_ADD_COMMENT_LINK" value1="Add Comment" />
+			</else>
+		</if>
+
 		<execute action="SOTasksTask#type" locator-key1="COMMENT_FIELD" value1="${taskComment}" />
-		<execute action="SOTasksTask#click" locator-key1="COMMENT_POST_BUTTON" />
+		<execute action="SOTasksTask#click" locator-key1="COMMENT_SUBMIT_BUTTON" />
 		<execute action="SOTasksTask#assertTextEquals" locator-key1="COMMENT_BODY" value1="${taskComment}" />
 	</command>
 
@@ -256,6 +265,7 @@
 
 		<execute action="SOTasksTask#assertTextEquals" locator-key1="COMMENT_BODY" value1="${taskComment}" />
 		<execute action="SOTasksTask#assertClick" locator-key1="COMMENT_DELETE_LINK" value1="Delete" />
+		<execute action="SOTasksTask#confirm" locator-key1="CONFIRMATION" value1="Are you sure you want to delete the selected comment?" />
 		<execute action="SOTasksTask#assertElementNotPresent" locator-key1="COMMENT_BODY" />
 		<execute action="SOTasksTask#assertTextNotPresent" value1="${taskComment}" />
 
@@ -341,8 +351,8 @@
 
 		<execute action="SOTasksTask#assertTextEquals" locator-key1="COMMENT_BODY" value1="${taskComment}" />
 		<execute action="SOTasksTask#assertClick" locator-key1="COMMENT_EDIT_LINK" value1="Edit" />
-		<execute action="SOTasksTask#type" locator-key1="COMMENT_FIELD" value1="${taskCommentEdit}" />
-		<execute action="SOTasksTask#click" locator-key1="COMMENT_POST_BUTTON" />
+		<execute action="SOTasksTask#type" locator-key1="COMMENT_EDIT_FIELD" value1="${taskCommentEdit}" />
+		<execute action="SOTasksTask#click" locator-key1="COMMENT_PUBLISH_BUTTON" />
 		<execute action="SOTasksTask#assertTextEquals" locator-key1="COMMENT_BODY" value1="${taskCommentEdit}" />
 	</command>
 
@@ -420,7 +430,7 @@
 	</command>
 
 	<command name="resolveTask">
-		<var name="currentUser" path="Dockbar" locator-key="USER_NAME" />
+		<var locator-key="USER_NAME" name="currentUser" path="Dockbar" />
 		<var name="key_taskDescription" value="${taskDescription}" />
 
 		<execute action="SOTasks#assertClick" locator-key1="ASSIGNED_TO_ME_LINK" value1="Assigned to Me" />
@@ -489,7 +499,9 @@
 	</command>
 
 	<command name="viewTask">
-		<var name="currentUser" path="Dockbar" locator-key="USER_NAME" />
+		<var name="key_taskDescription" value="${taskDescription}" />
+
+		<var locator-key="USER_NAME" name="currentUser" path="Dockbar" />
 
 		<execute action="SOTasks#assertClick" locator-key1="ASSIGNED_TO_ME_LINK" value1="Assigned to Me" />
 
@@ -514,8 +526,6 @@
 				</if>
 
 				<execute action="SOTasks#assertTextEquals" locator-key1="TASK_REPORTER" value1="Reporter: ${taskReporter}" />
-
-				<var name="key_taskDescription" value="${taskDescription}" />
 
 				<if>
 					<equals arg1="${taskPriority}" arg2="High" />
@@ -567,8 +577,6 @@
 				</if>
 
 				<execute action="SOTasks#assertTextEquals" locator-key1="TASK_ASSIGNEE" value1="Assignee: ${taskAssignee}" />
-
-				<var name="key_taskDescription" value="${taskDescription}" />
 
 				<if>
 					<equals arg1="${taskPriority}" arg2="High" />

@@ -31,11 +31,13 @@ import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TreeModelFinder;
@@ -53,6 +55,7 @@ import com.liferay.portal.model.Region;
 import com.liferay.portal.model.ResourceConstants;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
+import com.liferay.portal.model.SystemEventConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroupRole;
 import com.liferay.portal.model.impl.OrganizationImpl;
@@ -409,7 +412,7 @@ public class OrganizationLocalServiceImpl
 		Organization organization = organizationPersistence.findByPrimaryKey(
 			organizationId);
 
-		return deleteOrganization(organization);
+		return organizationLocalService.deleteOrganization(organization);
 	}
 
 	/**
@@ -423,6 +426,7 @@ public class OrganizationLocalServiceImpl
 	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public Organization deleteOrganization(Organization organization)
 		throws PortalException, SystemException {
 
@@ -511,6 +515,43 @@ public class OrganizationLocalServiceImpl
 		throws SystemException {
 
 		return organizationPersistence.fetchByC_N(companyId, name);
+	}
+
+	@Override
+	public List<Organization> getGroupUserOrganizations(
+			long groupId, long userId)
+		throws PortalException, SystemException {
+
+		List<Long> groupOrganizationIds =
+			groupPersistence.getOrganizationPrimaryKeys(groupId);
+
+		if (groupOrganizationIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<Long> userOrganizationIds =
+			userPersistence.getOrganizationPrimaryKeys(userId);
+
+		if (userOrganizationIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		Set<Long> organizationIds = SetUtil.intersect(
+			groupOrganizationIds, userOrganizationIds);
+
+		if (organizationIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<Organization> organizations = new ArrayList<Organization>(
+			organizationIds.size());
+
+		for (Long organizationId : organizationIds) {
+			organizations.add(
+				organizationPersistence.findByPrimaryKey(organizationId));
+		}
+
+		return organizations;
 	}
 
 	@Override

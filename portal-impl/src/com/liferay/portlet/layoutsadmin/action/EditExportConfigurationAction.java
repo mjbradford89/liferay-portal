@@ -25,13 +25,17 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.BackgroundTask;
 import com.liferay.portal.model.ExportImportConfiguration;
 import com.liferay.portal.model.TrashedModel;
 import com.liferay.portal.security.auth.PrincipalException;
+import com.liferay.portal.service.BackgroundTaskLocalServiceUtil;
 import com.liferay.portal.service.ExportImportConfigurationServiceUtil;
+import com.liferay.portal.service.LayoutServiceUtil;
 import com.liferay.portal.struts.PortletAction;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.sites.action.ActionUtil;
@@ -80,12 +84,18 @@ public class EditExportConfigurationAction extends PortletAction {
 			else if (cmd.equals(Constants.DELETE)) {
 				deleteExportImportConfiguration(actionRequest, false);
 			}
+			else if (cmd.equals(Constants.EXPORT)) {
+				long exportImportConfigurationId = ParamUtil.getLong(
+					actionRequest, "exportImportConfigurationId");
+
+				LayoutServiceUtil.exportLayoutsAsFileInBackground(
+					exportImportConfigurationId);
+			}
 			else if (cmd.equals(Constants.MOVE_TO_TRASH)) {
 				deleteExportImportConfiguration(actionRequest, true);
 			}
-			else if (cmd.equals(Constants.EXPORT)) {
-				ExportImportConfigurationHelper.
-					exportLayoutsByExportImportConfiguration(actionRequest);
+			else if (cmd.equals(Constants.RELAUNCH)) {
+				relaunchExportLayoutConfiguration(actionRequest);
 			}
 			else if (Validator.isNull(cmd)) {
 				addSessionMessages(actionRequest);
@@ -219,6 +229,26 @@ public class EditExportConfigurationAction extends PortletAction {
 
 			hideDefaultSuccessMessage(actionRequest);
 		}
+	}
+
+	protected void relaunchExportLayoutConfiguration(
+			ActionRequest actionRequest)
+		throws Exception {
+
+		long backgroundTaskId = ParamUtil.getLong(
+			actionRequest, "backgroundTaskId");
+
+		BackgroundTask backgroundTask =
+			BackgroundTaskLocalServiceUtil.getBackgroundTask(backgroundTaskId);
+
+		Map<String, Serializable> taskContextMap =
+			backgroundTask.getTaskContextMap();
+
+		long exportImportConfigurationId = MapUtil.getLong(
+			taskContextMap, "exportImportConfigurationId");
+
+		LayoutServiceUtil.exportLayoutsAsFileInBackground(
+			exportImportConfigurationId);
 	}
 
 	protected ExportImportConfiguration updateExportConfiguration(
