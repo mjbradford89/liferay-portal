@@ -220,20 +220,20 @@ if (layout != null) {
 					taskExecutorClassName: '<%= LayoutStagingBackgroundTaskExecutor.class.getName() %>',
 					completed: false
 				}
-			).then(function(obj) {
-					var incomplete = obj > 0;
+			).then(function(result) {
+				var incomplete = result > 0;
 
-					if (stagingLink) {
-						stagingLink.toggle(!incomplete);
-					}
+				if (stagingLink) {
+					stagingLink.toggle(!incomplete);
+				}
 
-					if (warningMessage) {
-						warningMessage.toggle(incomplete);
-					}
+				if (warningMessage) {
+					warningMessage.toggle(incomplete);
+				}
 
-					if (incomplete) {
-						setTimeout(checkBackgroundTasks, 5000);
-					}
+				if (incomplete) {
+					setTimeout(checkBackgroundTasks, 5000);
+				}
 			});
 		};
 

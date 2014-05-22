@@ -970,18 +970,18 @@ AUI.add(
 								start: start
 							}
 						).then(function(result) {
-								var total = result.total;
+							var total = result.total;
 
-								instance._restartSearch = false;
+							instance._restartSearch = false;
 
-								pagination.set('total', Math.ceil(total / tagsPerPage));
-								pagination.set('visible', (total > tagsPerPage));
+							pagination.set('total', Math.ceil(total / tagsPerPage));
+							pagination.set('visible', (total > tagsPerPage));
 
-								pagination.setState(result);
+							pagination.setState(result);
 
-								if (callback) {
-									callback.apply(instance, arguments);
-								}
+							if (callback) {
+								callback.apply(instance, arguments);
+							}
 						});
 					},
 

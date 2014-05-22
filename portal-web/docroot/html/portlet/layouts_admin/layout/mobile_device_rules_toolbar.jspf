@@ -48,8 +48,8 @@
 						}
 					)
 				}
-			).then(function(response, xhr) {
-					<portlet:namespace />updateRuleGroupInstances();
+			).then(function(result) {
+				<portlet:namespace />updateRuleGroupInstances();
 			});
 		},
 		['aui-loading-mask-deprecated', 'liferay-service']
@@ -75,8 +75,8 @@
 						}
 					)
 				}
-			).then(function(response, xhr) {
-					<portlet:namespace />updateRuleGroupInstances();
+			).then(function(result) {
+				<portlet:namespace />updateRuleGroupInstances();
 			});
 		},
 		['aui-loading-mask-deprecated', 'liferay-service']
