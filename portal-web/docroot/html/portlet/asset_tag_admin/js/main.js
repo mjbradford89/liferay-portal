@@ -549,9 +549,8 @@ AUI.add(
 										'/assettag/delete-tags',
 										{
 											tagIds: checkedItemsIds
-										},
-										A.bind('_processActionResult', instance)
-									);
+										}
+									).then(A.bind('_processActionResult', instance));
 								}
 							}
 						}
@@ -567,9 +566,8 @@ AUI.add(
 							'/assettag/delete-tag',
 							{
 								tagId: tagId
-							},
-							callback
-						);
+							}
+						).then(callback);
 					},
 
 					_displayTagData: function() {
@@ -970,8 +968,8 @@ AUI.add(
 								groupId: themeDisplay.getSiteGroupId(),
 								name: instance._tagsSearch.get('query'),
 								start: start
-							},
-							function(result) {
+							}
+						).then(function(result) {
 								var total = result.total;
 
 								instance._restartSearch = false;
@@ -984,8 +982,7 @@ AUI.add(
 								if (callback) {
 									callback.apply(instance, arguments);
 								}
-							}
-						);
+						});
 					},
 
 					_initializeTagPanelAdd: function(callback) {
@@ -1234,9 +1231,8 @@ AUI.add(
 								fromTagIds: fromIds,
 								overrideProperties: overrideProperties,
 								toTagId: toId
-							},
-							callback
-						);
+							}
+						).then(callback);
 					},
 
 					_mergeTag: function(fromId, toId, callback) {
@@ -1246,9 +1242,8 @@ AUI.add(
 								fromTagId: fromId,
 								overrideProperties: true,
 								toTagId: toId
-							},
-							callback
-						);
+							}
+						).then(callback);
 					},
 
 					_onDeleteTag: function(event) {
