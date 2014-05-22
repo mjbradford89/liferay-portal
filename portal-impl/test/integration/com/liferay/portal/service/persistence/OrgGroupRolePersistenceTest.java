@@ -23,15 +23,17 @@ import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.OrgGroupRole;
-import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -49,6 +51,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class OrgGroupRolePersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<OrgGroupRole> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -70,12 +81,16 @@ public class OrgGroupRolePersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<OrgGroupRole> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		OrgGroupRolePK pk = new OrgGroupRolePK(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong());
+		OrgGroupRolePK pk = new OrgGroupRolePK(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
 		OrgGroupRole orgGroupRole = _persistence.create(pk);
 
@@ -102,12 +117,12 @@ public class OrgGroupRolePersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		OrgGroupRolePK pk = new OrgGroupRolePK(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong());
+		OrgGroupRolePK pk = new OrgGroupRolePK(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
 		OrgGroupRole newOrgGroupRole = _persistence.create(pk);
 
-		newOrgGroupRole.setMvccVersion(ServiceTestUtil.nextLong());
+		newOrgGroupRole.setMvccVersion(RandomTestUtil.nextLong());
 
 		_persistence.update(newOrgGroupRole);
 
@@ -126,7 +141,7 @@ public class OrgGroupRolePersistenceTest {
 	@Test
 	public void testCountByGroupId() {
 		try {
-			_persistence.countByGroupId(ServiceTestUtil.nextLong());
+			_persistence.countByGroupId(RandomTestUtil.nextLong());
 
 			_persistence.countByGroupId(0L);
 		}
@@ -138,7 +153,7 @@ public class OrgGroupRolePersistenceTest {
 	@Test
 	public void testCountByRoleId() {
 		try {
-			_persistence.countByRoleId(ServiceTestUtil.nextLong());
+			_persistence.countByRoleId(RandomTestUtil.nextLong());
 
 			_persistence.countByRoleId(0L);
 		}
@@ -158,8 +173,8 @@ public class OrgGroupRolePersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		OrgGroupRolePK pk = new OrgGroupRolePK(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong());
+		OrgGroupRolePK pk = new OrgGroupRolePK(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -182,8 +197,8 @@ public class OrgGroupRolePersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		OrgGroupRolePK pk = new OrgGroupRolePK(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong());
+		OrgGroupRolePK pk = new OrgGroupRolePK(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
 		OrgGroupRole missingOrgGroupRole = _persistence.fetchByPrimaryKey(pk);
 
@@ -220,11 +235,11 @@ public class OrgGroupRolePersistenceTest {
 				OrgGroupRole.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("id.organizationId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("id.groupId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("id.roleId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<OrgGroupRole> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -265,7 +280,7 @@ public class OrgGroupRolePersistenceTest {
 				"id.organizationId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("id.organizationId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -273,12 +288,12 @@ public class OrgGroupRolePersistenceTest {
 	}
 
 	protected OrgGroupRole addOrgGroupRole() throws Exception {
-		OrgGroupRolePK pk = new OrgGroupRolePK(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextLong());
+		OrgGroupRolePK pk = new OrgGroupRolePK(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextLong());
 
 		OrgGroupRole orgGroupRole = _persistence.create(pk);
 
-		orgGroupRole.setMvccVersion(ServiceTestUtil.nextLong());
+		orgGroupRole.setMvccVersion(RandomTestUtil.nextLong());
 
 		_persistence.update(orgGroupRole);
 
@@ -286,6 +301,7 @@ public class OrgGroupRolePersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(OrgGroupRolePersistenceTest.class);
+	private ModelListener<OrgGroupRole>[] _modelListeners;
 	private OrgGroupRolePersistence _persistence = (OrgGroupRolePersistence)PortalBeanLocatorUtil.locate(OrgGroupRolePersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

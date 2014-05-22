@@ -35,7 +35,7 @@ import com.liferay.portal.test.EnvironmentExecutionTestListener;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.util.test.TestPropsValues;
 
 import java.lang.reflect.Field;
 
@@ -337,7 +337,7 @@ public class JAASTest extends MainServletExecutionTestListener {
 			MockServletConfig mockServletConfig = new MockServletConfig(
 				mockServletContext);
 
-			MainServlet mainServlet = new MainServlet();
+			mainServlet = new MainServlet();
 
 			try {
 				mainServlet.init(mockServletConfig);

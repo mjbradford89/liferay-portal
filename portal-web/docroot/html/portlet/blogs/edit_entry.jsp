@@ -59,6 +59,19 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 	<liferay-ui:error exception="<%= EntryContentException.class %>" message="please-enter-valid-content" />
 	<liferay-ui:error exception="<%= EntryTitleException.class %>" message="please-enter-a-valid-title" />
 
+	<liferay-ui:error exception="<%= FileSizeException.class %>">
+
+		<%
+		long fileMaxSize = PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE);
+
+		if (fileMaxSize == 0) {
+			fileMaxSize = PrefsPropsUtil.getLong(PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE);
+		}
+		%>
+
+		<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(fileMaxSize, locale) %>" key="please-enter-a-file-with-a-valid-file-size-no-larger-than-x" translateArguments="<%= false %>" />
+	</liferay-ui:error>
+
 	<liferay-ui:asset-categories-error />
 
 	<liferay-ui:asset-tags-error />
@@ -122,19 +135,21 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 			<aui:input label="trackbacks-to-send" name="trackbacks" />
 
 			<c:if test="<%= (entry != null) && Validator.isNotNull(entry.getTrackbacks()) %>">
-				<aui:field-wrapper name="trackbacks-already-sent">
+				<aui:fieldset label="trackbacks-already-sent">
 
 					<%
+					int i = 0;
+
 					for (String trackback : StringUtil.split(entry.getTrackbacks())) {
 					%>
 
-						<liferay-ui:input-resource url="<%= trackback %>" /><br />
+						<aui:input label="" name='<%= "trackback" + (i++) %>' title="" type="resource" value="<%= trackback %>" />
 
 					<%
 					}
 					%>
 
-				</aui:field-wrapper>
+				</aui:fieldset>
 			</c:if>
 		</c:if>
 
@@ -179,7 +194,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 						<aui:row>
 							<c:if test="<%= smallImage && (entry != null) %>">
 								<aui:col width="<%= 50 %>">
-									<img alt="<liferay-ui:message key="preview" />" class="lfr-blogs-small-image-preview" src="<%= Validator.isNotNull(entry.getSmallImageURL()) ? entry.getSmallImageURL() : themeDisplay.getPathImage() + "/template?img_id=" + entry.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(entry.getSmallImageId()) %>" />
+									<img alt="<%= HtmlUtil.escapeAttribute(LanguageUtil.get(pageContext, "preview")) %>" class="lfr-blogs-small-image-preview" src="<%= Validator.isNotNull(entry.getSmallImageURL()) ? entry.getSmallImageURL() : themeDisplay.getPathImage() + "/template?img_id=" + entry.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(entry.getSmallImageId()) %>" />
 								</aui:col>
 							</c:if>
 
@@ -187,13 +202,13 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 								<aui:fieldset>
 									<aui:input cssClass="lfr-blogs-small-image-type" inlineField="<%= true %>" label="small-image-url" name="type" type="radio" />
 
-									<aui:input cssClass="lfr-blogs-small-image-value" inlineField="<%= true %>" label="" name="smallImageURL" />
+									<aui:input cssClass="lfr-blogs-small-image-value" inlineField="<%= true %>" label="" name="smallImageURL" title="small-image-url" />
 								</aui:fieldset>
 
 								<aui:fieldset>
 									<aui:input cssClass="lfr-blogs-small-image-type" inlineField="<%= true %>" label="small-image" name="type" type="radio" />
 
-									<aui:input cssClass="lfr-blogs-small-image-value" inlineField="<%= true %>" label="" name="smallFile" type="file" />
+									<aui:input cssClass="lfr-blogs-small-image-value" inlineField="<%= true %>" label="" name="smallFile" title="small-image-file" type="file" />
 								</aui:fieldset>
 							</aui:col>
 						</aui:row>
@@ -284,13 +299,13 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 	}
 
 	function <portlet:namespace />initEditor() {
-		return "<%= UnicodeFormatter.toString(content) %>";
+		return '<%= UnicodeFormatter.toString(content) %>';
 	}
 
 	function <portlet:namespace />previewEntry() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (entry == null) ? Constants.ADD : Constants.UPDATE %>";
-		document.<portlet:namespace />fm.<portlet:namespace />preview.value = "true";
-		document.<portlet:namespace />fm.<portlet:namespace />workflowAction.value = "<%= WorkflowConstants.ACTION_SAVE_DRAFT %>";
+		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= (entry == null) ? Constants.ADD : Constants.UPDATE %>';
+		document.<portlet:namespace />fm.<portlet:namespace />preview.value = 'true';
+		document.<portlet:namespace />fm.<portlet:namespace />workflowAction.value = '<%= WorkflowConstants.ACTION_SAVE_DRAFT %>';
 
 		if (window.<portlet:namespace />editor) {
 			document.<portlet:namespace />fm.<portlet:namespace />content.value = window.<portlet:namespace />editor.getHTML();
@@ -359,7 +374,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 					url,
 					{
 						data: data,
-						dataType: 'json',
+						dataType: 'JSON',
 						on: {
 							failure: function() {
 								if (saveStatus) {
@@ -421,7 +436,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 			else {
 				<portlet:namespace />clearSaveDraftIntervalId();
 
-				document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = "<%= (entry == null) ? Constants.ADD : Constants.UPDATE %>";
+				document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= (entry == null) ? Constants.ADD : Constants.UPDATE %>';
 				document.<portlet:namespace />fm.<portlet:namespace />content.value = content;
 
 				if (draft) {

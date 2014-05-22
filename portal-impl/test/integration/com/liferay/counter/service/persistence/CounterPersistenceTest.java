@@ -28,14 +28,16 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -53,6 +55,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class CounterPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<Counter> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -74,11 +85,15 @@ public class CounterPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<Counter> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		String pk = ServiceTestUtil.randomString();
+		String pk = RandomTestUtil.randomString();
 
 		Counter counter = _persistence.create(pk);
 
@@ -105,11 +120,11 @@ public class CounterPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		String pk = ServiceTestUtil.randomString();
+		String pk = RandomTestUtil.randomString();
 
 		Counter newCounter = _persistence.create(pk);
 
-		newCounter.setCurrentId(ServiceTestUtil.nextLong());
+		newCounter.setCurrentId(RandomTestUtil.nextLong());
 
 		_persistence.update(newCounter);
 
@@ -131,7 +146,7 @@ public class CounterPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		String pk = ServiceTestUtil.randomString();
+		String pk = RandomTestUtil.randomString();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -169,7 +184,7 @@ public class CounterPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		String pk = ServiceTestUtil.randomString();
+		String pk = RandomTestUtil.randomString();
 
 		Counter missingCounter = _persistence.fetchByPrimaryKey(pk);
 
@@ -201,7 +216,7 @@ public class CounterPersistenceTest {
 				Counter.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("name",
-				ServiceTestUtil.randomString()));
+				RandomTestUtil.randomString()));
 
 		List<Counter> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -240,7 +255,7 @@ public class CounterPersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("name"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("name",
-				new Object[] { ServiceTestUtil.randomString() }));
+				new Object[] { RandomTestUtil.randomString() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -248,11 +263,11 @@ public class CounterPersistenceTest {
 	}
 
 	protected Counter addCounter() throws Exception {
-		String pk = ServiceTestUtil.randomString();
+		String pk = RandomTestUtil.randomString();
 
 		Counter counter = _persistence.create(pk);
 
-		counter.setCurrentId(ServiceTestUtil.nextLong());
+		counter.setCurrentId(RandomTestUtil.nextLong());
 
 		_persistence.update(counter);
 
@@ -260,6 +275,7 @@ public class CounterPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(CounterPersistenceTest.class);
+	private ModelListener<Counter>[] _modelListeners;
 	private CounterPersistence _persistence = (CounterPersistence)PortalBeanLocatorUtil.locate(CounterPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

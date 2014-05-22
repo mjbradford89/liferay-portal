@@ -226,8 +226,23 @@
 		border-color: #BBB;
 	}
 
+	.organization-type {
+		font-size: 0.8em;
+	}
+
+	.subsites-count {
+		font-size: 0.85em;
+		margin-top: 0.3em;
+	}
+
 	.export-configuration-user-column {
+		text-align: center;
+		vertical-align: middle;
 		width: 30px;
+
+		.avatar {
+			width: 30px;
+		}
 	}
 
 	.process-list {
@@ -273,7 +288,13 @@
 		}
 
 		.background-task-user-column {
+			text-align: center;
+			vertical-align: middle;
 			width: 30px;
+
+			.avatar {
+				width: 30px;
+			}
 		}
 	}
 }

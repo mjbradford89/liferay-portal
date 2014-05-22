@@ -30,19 +30,22 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.asset.NoSuchVocabularyException;
 import com.liferay.portlet.asset.model.AssetVocabulary;
 import com.liferay.portlet.asset.model.impl.AssetVocabularyModelImpl;
+import com.liferay.portlet.asset.service.AssetVocabularyLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -60,6 +63,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class AssetVocabularyPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<AssetVocabulary> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -81,11 +93,15 @@ public class AssetVocabularyPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<AssetVocabulary> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetVocabulary assetVocabulary = _persistence.create(pk);
 
@@ -112,31 +128,31 @@ public class AssetVocabularyPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetVocabulary newAssetVocabulary = _persistence.create(pk);
 
-		newAssetVocabulary.setUuid(ServiceTestUtil.randomString());
+		newAssetVocabulary.setUuid(RandomTestUtil.randomString());
 
-		newAssetVocabulary.setGroupId(ServiceTestUtil.nextLong());
+		newAssetVocabulary.setGroupId(RandomTestUtil.nextLong());
 
-		newAssetVocabulary.setCompanyId(ServiceTestUtil.nextLong());
+		newAssetVocabulary.setCompanyId(RandomTestUtil.nextLong());
 
-		newAssetVocabulary.setUserId(ServiceTestUtil.nextLong());
+		newAssetVocabulary.setUserId(RandomTestUtil.nextLong());
 
-		newAssetVocabulary.setUserName(ServiceTestUtil.randomString());
+		newAssetVocabulary.setUserName(RandomTestUtil.randomString());
 
-		newAssetVocabulary.setCreateDate(ServiceTestUtil.nextDate());
+		newAssetVocabulary.setCreateDate(RandomTestUtil.nextDate());
 
-		newAssetVocabulary.setModifiedDate(ServiceTestUtil.nextDate());
+		newAssetVocabulary.setModifiedDate(RandomTestUtil.nextDate());
 
-		newAssetVocabulary.setName(ServiceTestUtil.randomString());
+		newAssetVocabulary.setName(RandomTestUtil.randomString());
 
-		newAssetVocabulary.setTitle(ServiceTestUtil.randomString());
+		newAssetVocabulary.setTitle(RandomTestUtil.randomString());
 
-		newAssetVocabulary.setDescription(ServiceTestUtil.randomString());
+		newAssetVocabulary.setDescription(RandomTestUtil.randomString());
 
-		newAssetVocabulary.setSettings(ServiceTestUtil.randomString());
+		newAssetVocabulary.setSettings(RandomTestUtil.randomString());
 
 		_persistence.update(newAssetVocabulary);
 
@@ -188,7 +204,7 @@ public class AssetVocabularyPersistenceTest {
 	public void testCountByUUID_G() {
 		try {
 			_persistence.countByUUID_G(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUUID_G(StringPool.NULL, 0L);
 
@@ -203,7 +219,7 @@ public class AssetVocabularyPersistenceTest {
 	public void testCountByUuid_C() {
 		try {
 			_persistence.countByUuid_C(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUuid_C(StringPool.NULL, 0L);
 
@@ -217,7 +233,7 @@ public class AssetVocabularyPersistenceTest {
 	@Test
 	public void testCountByGroupId() {
 		try {
-			_persistence.countByGroupId(ServiceTestUtil.nextLong());
+			_persistence.countByGroupId(RandomTestUtil.nextLong());
 
 			_persistence.countByGroupId(0L);
 		}
@@ -229,9 +245,7 @@ public class AssetVocabularyPersistenceTest {
 	@Test
 	public void testCountByGroupIdArrayable() {
 		try {
-			_persistence.countByGroupId(new long[] {
-					ServiceTestUtil.nextLong(), 0L
-				});
+			_persistence.countByGroupId(new long[] { RandomTestUtil.nextLong(), 0L });
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -241,7 +255,7 @@ public class AssetVocabularyPersistenceTest {
 	@Test
 	public void testCountByCompanyId() {
 		try {
-			_persistence.countByCompanyId(ServiceTestUtil.nextLong());
+			_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
 			_persistence.countByCompanyId(0L);
 		}
@@ -253,7 +267,7 @@ public class AssetVocabularyPersistenceTest {
 	@Test
 	public void testCountByG_N() {
 		try {
-			_persistence.countByG_N(ServiceTestUtil.nextLong(), StringPool.BLANK);
+			_persistence.countByG_N(RandomTestUtil.nextLong(), StringPool.BLANK);
 
 			_persistence.countByG_N(0L, StringPool.NULL);
 
@@ -267,7 +281,7 @@ public class AssetVocabularyPersistenceTest {
 	@Test
 	public void testCountByG_LikeN() {
 		try {
-			_persistence.countByG_LikeN(ServiceTestUtil.nextLong(),
+			_persistence.countByG_LikeN(RandomTestUtil.nextLong(),
 				StringPool.BLANK);
 
 			_persistence.countByG_LikeN(0L, StringPool.NULL);
@@ -290,7 +304,7 @@ public class AssetVocabularyPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -343,7 +357,7 @@ public class AssetVocabularyPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetVocabulary missingAssetVocabulary = _persistence.fetchByPrimaryKey(pk);
 
@@ -354,16 +368,18 @@ public class AssetVocabularyPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new AssetVocabularyActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = AssetVocabularyLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					AssetVocabulary assetVocabulary = (AssetVocabulary)object;
 
 					Assert.assertNotNull(assetVocabulary);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -396,7 +412,7 @@ public class AssetVocabularyPersistenceTest {
 				AssetVocabulary.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("vocabularyId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<AssetVocabulary> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -437,7 +453,7 @@ public class AssetVocabularyPersistenceTest {
 				"vocabularyId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("vocabularyId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -470,31 +486,31 @@ public class AssetVocabularyPersistenceTest {
 	}
 
 	protected AssetVocabulary addAssetVocabulary() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetVocabulary assetVocabulary = _persistence.create(pk);
 
-		assetVocabulary.setUuid(ServiceTestUtil.randomString());
+		assetVocabulary.setUuid(RandomTestUtil.randomString());
 
-		assetVocabulary.setGroupId(ServiceTestUtil.nextLong());
+		assetVocabulary.setGroupId(RandomTestUtil.nextLong());
 
-		assetVocabulary.setCompanyId(ServiceTestUtil.nextLong());
+		assetVocabulary.setCompanyId(RandomTestUtil.nextLong());
 
-		assetVocabulary.setUserId(ServiceTestUtil.nextLong());
+		assetVocabulary.setUserId(RandomTestUtil.nextLong());
 
-		assetVocabulary.setUserName(ServiceTestUtil.randomString());
+		assetVocabulary.setUserName(RandomTestUtil.randomString());
 
-		assetVocabulary.setCreateDate(ServiceTestUtil.nextDate());
+		assetVocabulary.setCreateDate(RandomTestUtil.nextDate());
 
-		assetVocabulary.setModifiedDate(ServiceTestUtil.nextDate());
+		assetVocabulary.setModifiedDate(RandomTestUtil.nextDate());
 
-		assetVocabulary.setName(ServiceTestUtil.randomString());
+		assetVocabulary.setName(RandomTestUtil.randomString());
 
-		assetVocabulary.setTitle(ServiceTestUtil.randomString());
+		assetVocabulary.setTitle(RandomTestUtil.randomString());
 
-		assetVocabulary.setDescription(ServiceTestUtil.randomString());
+		assetVocabulary.setDescription(RandomTestUtil.randomString());
 
-		assetVocabulary.setSettings(ServiceTestUtil.randomString());
+		assetVocabulary.setSettings(RandomTestUtil.randomString());
 
 		_persistence.update(assetVocabulary);
 
@@ -502,6 +518,7 @@ public class AssetVocabularyPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(AssetVocabularyPersistenceTest.class);
+	private ModelListener<AssetVocabulary>[] _modelListeners;
 	private AssetVocabularyPersistence _persistence = (AssetVocabularyPersistence)PortalBeanLocatorUtil.locate(AssetVocabularyPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

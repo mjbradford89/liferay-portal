@@ -30,17 +30,20 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.Portlet;
 import com.liferay.portal.model.impl.PortletModelImpl;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -58,6 +61,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class PortletPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<Portlet> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -79,11 +91,15 @@ public class PortletPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<Portlet> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Portlet portlet = _persistence.create(pk);
 
@@ -110,19 +126,19 @@ public class PortletPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Portlet newPortlet = _persistence.create(pk);
 
-		newPortlet.setMvccVersion(ServiceTestUtil.nextLong());
+		newPortlet.setMvccVersion(RandomTestUtil.nextLong());
 
-		newPortlet.setCompanyId(ServiceTestUtil.nextLong());
+		newPortlet.setCompanyId(RandomTestUtil.nextLong());
 
-		newPortlet.setPortletId(ServiceTestUtil.randomString());
+		newPortlet.setPortletId(RandomTestUtil.randomString());
 
-		newPortlet.setRoles(ServiceTestUtil.randomString());
+		newPortlet.setRoles(RandomTestUtil.randomString());
 
-		newPortlet.setActive(ServiceTestUtil.randomBoolean());
+		newPortlet.setActive(RandomTestUtil.randomBoolean());
 
 		_persistence.update(newPortlet);
 
@@ -142,7 +158,7 @@ public class PortletPersistenceTest {
 	@Test
 	public void testCountByCompanyId() {
 		try {
-			_persistence.countByCompanyId(ServiceTestUtil.nextLong());
+			_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
 			_persistence.countByCompanyId(0L);
 		}
@@ -154,7 +170,7 @@ public class PortletPersistenceTest {
 	@Test
 	public void testCountByC_P() {
 		try {
-			_persistence.countByC_P(ServiceTestUtil.nextLong(), StringPool.BLANK);
+			_persistence.countByC_P(RandomTestUtil.nextLong(), StringPool.BLANK);
 
 			_persistence.countByC_P(0L, StringPool.NULL);
 
@@ -176,7 +192,7 @@ public class PortletPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -215,7 +231,7 @@ public class PortletPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Portlet missingPortlet = _persistence.fetchByPrimaryKey(pk);
 
@@ -226,16 +242,18 @@ public class PortletPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new PortletActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = PortletLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					Portlet portlet = (Portlet)object;
 
 					Assert.assertNotNull(portlet);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -267,7 +285,7 @@ public class PortletPersistenceTest {
 				Portlet.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("id",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<Portlet> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -305,7 +323,7 @@ public class PortletPersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("id"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("id",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -332,19 +350,19 @@ public class PortletPersistenceTest {
 	}
 
 	protected Portlet addPortlet() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Portlet portlet = _persistence.create(pk);
 
-		portlet.setMvccVersion(ServiceTestUtil.nextLong());
+		portlet.setMvccVersion(RandomTestUtil.nextLong());
 
-		portlet.setCompanyId(ServiceTestUtil.nextLong());
+		portlet.setCompanyId(RandomTestUtil.nextLong());
 
-		portlet.setPortletId(ServiceTestUtil.randomString());
+		portlet.setPortletId(RandomTestUtil.randomString());
 
-		portlet.setRoles(ServiceTestUtil.randomString());
+		portlet.setRoles(RandomTestUtil.randomString());
 
-		portlet.setActive(ServiceTestUtil.randomBoolean());
+		portlet.setActive(RandomTestUtil.randomBoolean());
 
 		_persistence.update(portlet);
 
@@ -352,6 +370,7 @@ public class PortletPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(PortletPersistenceTest.class);
+	private ModelListener<Portlet>[] _modelListeners;
 	private PortletPersistence _persistence = (PortletPersistence)PortalBeanLocatorUtil.locate(PortletPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

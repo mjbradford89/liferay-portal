@@ -30,15 +30,18 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.UserTracker;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.service.UserTrackerLocalServiceUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -56,6 +59,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class UserTrackerPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<UserTracker> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -77,11 +89,15 @@ public class UserTrackerPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<UserTracker> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserTracker userTracker = _persistence.create(pk);
 
@@ -108,25 +124,25 @@ public class UserTrackerPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserTracker newUserTracker = _persistence.create(pk);
 
-		newUserTracker.setMvccVersion(ServiceTestUtil.nextLong());
+		newUserTracker.setMvccVersion(RandomTestUtil.nextLong());
 
-		newUserTracker.setCompanyId(ServiceTestUtil.nextLong());
+		newUserTracker.setCompanyId(RandomTestUtil.nextLong());
 
-		newUserTracker.setUserId(ServiceTestUtil.nextLong());
+		newUserTracker.setUserId(RandomTestUtil.nextLong());
 
-		newUserTracker.setModifiedDate(ServiceTestUtil.nextDate());
+		newUserTracker.setModifiedDate(RandomTestUtil.nextDate());
 
-		newUserTracker.setSessionId(ServiceTestUtil.randomString());
+		newUserTracker.setSessionId(RandomTestUtil.randomString());
 
-		newUserTracker.setRemoteAddr(ServiceTestUtil.randomString());
+		newUserTracker.setRemoteAddr(RandomTestUtil.randomString());
 
-		newUserTracker.setRemoteHost(ServiceTestUtil.randomString());
+		newUserTracker.setRemoteHost(RandomTestUtil.randomString());
 
-		newUserTracker.setUserAgent(ServiceTestUtil.randomString());
+		newUserTracker.setUserAgent(RandomTestUtil.randomString());
 
 		_persistence.update(newUserTracker);
 
@@ -156,7 +172,7 @@ public class UserTrackerPersistenceTest {
 	@Test
 	public void testCountByCompanyId() {
 		try {
-			_persistence.countByCompanyId(ServiceTestUtil.nextLong());
+			_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
 			_persistence.countByCompanyId(0L);
 		}
@@ -168,7 +184,7 @@ public class UserTrackerPersistenceTest {
 	@Test
 	public void testCountByUserId() {
 		try {
-			_persistence.countByUserId(ServiceTestUtil.nextLong());
+			_persistence.countByUserId(RandomTestUtil.nextLong());
 
 			_persistence.countByUserId(0L);
 		}
@@ -202,7 +218,7 @@ public class UserTrackerPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -243,7 +259,7 @@ public class UserTrackerPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserTracker missingUserTracker = _persistence.fetchByPrimaryKey(pk);
 
@@ -254,16 +270,18 @@ public class UserTrackerPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new UserTrackerActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = UserTrackerLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					UserTracker userTracker = (UserTracker)object;
 
 					Assert.assertNotNull(userTracker);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -296,7 +314,7 @@ public class UserTrackerPersistenceTest {
 				UserTracker.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("userTrackerId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<UserTracker> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -337,7 +355,7 @@ public class UserTrackerPersistenceTest {
 				"userTrackerId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("userTrackerId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -345,25 +363,25 @@ public class UserTrackerPersistenceTest {
 	}
 
 	protected UserTracker addUserTracker() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserTracker userTracker = _persistence.create(pk);
 
-		userTracker.setMvccVersion(ServiceTestUtil.nextLong());
+		userTracker.setMvccVersion(RandomTestUtil.nextLong());
 
-		userTracker.setCompanyId(ServiceTestUtil.nextLong());
+		userTracker.setCompanyId(RandomTestUtil.nextLong());
 
-		userTracker.setUserId(ServiceTestUtil.nextLong());
+		userTracker.setUserId(RandomTestUtil.nextLong());
 
-		userTracker.setModifiedDate(ServiceTestUtil.nextDate());
+		userTracker.setModifiedDate(RandomTestUtil.nextDate());
 
-		userTracker.setSessionId(ServiceTestUtil.randomString());
+		userTracker.setSessionId(RandomTestUtil.randomString());
 
-		userTracker.setRemoteAddr(ServiceTestUtil.randomString());
+		userTracker.setRemoteAddr(RandomTestUtil.randomString());
 
-		userTracker.setRemoteHost(ServiceTestUtil.randomString());
+		userTracker.setRemoteHost(RandomTestUtil.randomString());
 
-		userTracker.setUserAgent(ServiceTestUtil.randomString());
+		userTracker.setUserAgent(RandomTestUtil.randomString());
 
 		_persistence.update(userTracker);
 
@@ -371,6 +389,7 @@ public class UserTrackerPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(UserTrackerPersistenceTest.class);
+	private ModelListener<UserTracker>[] _modelListeners;
 	private UserTrackerPersistence _persistence = (UserTrackerPersistence)PortalBeanLocatorUtil.locate(UserTrackerPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

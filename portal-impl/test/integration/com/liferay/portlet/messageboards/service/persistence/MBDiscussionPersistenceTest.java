@@ -30,19 +30,22 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.messageboards.NoSuchDiscussionException;
 import com.liferay.portlet.messageboards.model.MBDiscussion;
 import com.liferay.portlet.messageboards.model.impl.MBDiscussionModelImpl;
+import com.liferay.portlet.messageboards.service.MBDiscussionLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -60,6 +63,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class MBDiscussionPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<MBDiscussion> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -81,11 +93,15 @@ public class MBDiscussionPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<MBDiscussion> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		MBDiscussion mbDiscussion = _persistence.create(pk);
 
@@ -112,29 +128,29 @@ public class MBDiscussionPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		MBDiscussion newMBDiscussion = _persistence.create(pk);
 
-		newMBDiscussion.setUuid(ServiceTestUtil.randomString());
+		newMBDiscussion.setUuid(RandomTestUtil.randomString());
 
-		newMBDiscussion.setGroupId(ServiceTestUtil.nextLong());
+		newMBDiscussion.setGroupId(RandomTestUtil.nextLong());
 
-		newMBDiscussion.setCompanyId(ServiceTestUtil.nextLong());
+		newMBDiscussion.setCompanyId(RandomTestUtil.nextLong());
 
-		newMBDiscussion.setUserId(ServiceTestUtil.nextLong());
+		newMBDiscussion.setUserId(RandomTestUtil.nextLong());
 
-		newMBDiscussion.setUserName(ServiceTestUtil.randomString());
+		newMBDiscussion.setUserName(RandomTestUtil.randomString());
 
-		newMBDiscussion.setCreateDate(ServiceTestUtil.nextDate());
+		newMBDiscussion.setCreateDate(RandomTestUtil.nextDate());
 
-		newMBDiscussion.setModifiedDate(ServiceTestUtil.nextDate());
+		newMBDiscussion.setModifiedDate(RandomTestUtil.nextDate());
 
-		newMBDiscussion.setClassNameId(ServiceTestUtil.nextLong());
+		newMBDiscussion.setClassNameId(RandomTestUtil.nextLong());
 
-		newMBDiscussion.setClassPK(ServiceTestUtil.nextLong());
+		newMBDiscussion.setClassPK(RandomTestUtil.nextLong());
 
-		newMBDiscussion.setThreadId(ServiceTestUtil.nextLong());
+		newMBDiscussion.setThreadId(RandomTestUtil.nextLong());
 
 		_persistence.update(newMBDiscussion);
 
@@ -184,7 +200,7 @@ public class MBDiscussionPersistenceTest {
 	public void testCountByUUID_G() {
 		try {
 			_persistence.countByUUID_G(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUUID_G(StringPool.NULL, 0L);
 
@@ -199,7 +215,7 @@ public class MBDiscussionPersistenceTest {
 	public void testCountByUuid_C() {
 		try {
 			_persistence.countByUuid_C(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUuid_C(StringPool.NULL, 0L);
 
@@ -213,7 +229,7 @@ public class MBDiscussionPersistenceTest {
 	@Test
 	public void testCountByClassNameId() {
 		try {
-			_persistence.countByClassNameId(ServiceTestUtil.nextLong());
+			_persistence.countByClassNameId(RandomTestUtil.nextLong());
 
 			_persistence.countByClassNameId(0L);
 		}
@@ -225,7 +241,7 @@ public class MBDiscussionPersistenceTest {
 	@Test
 	public void testCountByThreadId() {
 		try {
-			_persistence.countByThreadId(ServiceTestUtil.nextLong());
+			_persistence.countByThreadId(RandomTestUtil.nextLong());
 
 			_persistence.countByThreadId(0L);
 		}
@@ -237,8 +253,8 @@ public class MBDiscussionPersistenceTest {
 	@Test
 	public void testCountByC_C() {
 		try {
-			_persistence.countByC_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByC_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByC_C(0L, 0L);
 		}
@@ -258,7 +274,7 @@ public class MBDiscussionPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -300,7 +316,7 @@ public class MBDiscussionPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		MBDiscussion missingMBDiscussion = _persistence.fetchByPrimaryKey(pk);
 
@@ -311,16 +327,18 @@ public class MBDiscussionPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new MBDiscussionActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = MBDiscussionLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					MBDiscussion mbDiscussion = (MBDiscussion)object;
 
 					Assert.assertNotNull(mbDiscussion);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -353,7 +371,7 @@ public class MBDiscussionPersistenceTest {
 				MBDiscussion.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("discussionId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<MBDiscussion> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -394,7 +412,7 @@ public class MBDiscussionPersistenceTest {
 				"discussionId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("discussionId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -429,29 +447,29 @@ public class MBDiscussionPersistenceTest {
 	}
 
 	protected MBDiscussion addMBDiscussion() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		MBDiscussion mbDiscussion = _persistence.create(pk);
 
-		mbDiscussion.setUuid(ServiceTestUtil.randomString());
+		mbDiscussion.setUuid(RandomTestUtil.randomString());
 
-		mbDiscussion.setGroupId(ServiceTestUtil.nextLong());
+		mbDiscussion.setGroupId(RandomTestUtil.nextLong());
 
-		mbDiscussion.setCompanyId(ServiceTestUtil.nextLong());
+		mbDiscussion.setCompanyId(RandomTestUtil.nextLong());
 
-		mbDiscussion.setUserId(ServiceTestUtil.nextLong());
+		mbDiscussion.setUserId(RandomTestUtil.nextLong());
 
-		mbDiscussion.setUserName(ServiceTestUtil.randomString());
+		mbDiscussion.setUserName(RandomTestUtil.randomString());
 
-		mbDiscussion.setCreateDate(ServiceTestUtil.nextDate());
+		mbDiscussion.setCreateDate(RandomTestUtil.nextDate());
 
-		mbDiscussion.setModifiedDate(ServiceTestUtil.nextDate());
+		mbDiscussion.setModifiedDate(RandomTestUtil.nextDate());
 
-		mbDiscussion.setClassNameId(ServiceTestUtil.nextLong());
+		mbDiscussion.setClassNameId(RandomTestUtil.nextLong());
 
-		mbDiscussion.setClassPK(ServiceTestUtil.nextLong());
+		mbDiscussion.setClassPK(RandomTestUtil.nextLong());
 
-		mbDiscussion.setThreadId(ServiceTestUtil.nextLong());
+		mbDiscussion.setThreadId(RandomTestUtil.nextLong());
 
 		_persistence.update(mbDiscussion);
 
@@ -459,6 +477,7 @@ public class MBDiscussionPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(MBDiscussionPersistenceTest.class);
+	private ModelListener<MBDiscussion>[] _modelListeners;
 	private MBDiscussionPersistence _persistence = (MBDiscussionPersistence)PortalBeanLocatorUtil.locate(MBDiscussionPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

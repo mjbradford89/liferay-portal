@@ -413,14 +413,15 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 
 	@Override
 	public void language(
-			String formName, String formAction, String name, int displayStyle)
+			String formName, String formAction, String name,
+			String displayStyle)
 		throws Exception {
 	}
 
 	@Override
 	public void language(
 			String formName, String formAction, String name,
-			String[] languageIds, int displayStyle)
+			String[] languageIds, String displayStyle)
 		throws Exception {
 	}
 
@@ -641,14 +642,11 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 	}
 
 	/**
-	 * @deprecated As of 7.0.0, replaced by {@link #stagingMenu}
+	 * @deprecated As of 7.0.0, with no direct replacement
 	 */
+	@Deprecated
 	@Override
 	public void staging() throws Exception {
-	}
-
-	@Override
-	public void stagingMenu() throws Exception {
 	}
 
 	@Override

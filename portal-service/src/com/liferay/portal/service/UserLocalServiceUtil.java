@@ -216,6 +216,17 @@ public class UserLocalServiceUtil {
 		return getService().getUser(userId);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getActionableDynamicQuery();
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getExportActionableDynamicQuery(portletDataContext);
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -2611,6 +2622,33 @@ public class UserLocalServiceUtil {
 		return getService()
 				   .searchCount(companyId, firstName, middleName, lastName,
 			screenName, emailAddress, status, params, andSearch);
+	}
+
+	public static java.util.List<com.liferay.portal.model.User> searchSocial(
+		long userId, int[] socialRelationTypes, java.lang.String keywords,
+		int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .searchSocial(userId, socialRelationTypes, keywords, start,
+			end);
+	}
+
+	public static java.util.List<com.liferay.portal.model.User> searchSocial(
+		long companyId, long[] groupIds, java.lang.String keywords, int start,
+		int end) throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .searchSocial(companyId, groupIds, keywords, start, end);
+	}
+
+	public static java.util.List<com.liferay.portal.model.User> searchSocial(
+		long[] groupIds, long userId, int[] socialRelationTypes,
+		java.lang.String keywords, int start, int end)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .searchSocial(groupIds, userId, socialRelationTypes,
+			keywords, start, end);
 	}
 
 	public static com.liferay.portal.kernel.search.BaseModelSearchResult<com.liferay.portal.model.User> searchUsers(

@@ -29,19 +29,22 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.social.NoSuchActivityAchievementException;
 import com.liferay.portlet.social.model.SocialActivityAchievement;
 import com.liferay.portlet.social.model.impl.SocialActivityAchievementModelImpl;
+import com.liferay.portlet.social.service.SocialActivityAchievementLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -59,6 +62,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class SocialActivityAchievementPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<SocialActivityAchievement> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -80,11 +92,15 @@ public class SocialActivityAchievementPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<SocialActivityAchievement> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialActivityAchievement socialActivityAchievement = _persistence.create(pk);
 
@@ -111,21 +127,21 @@ public class SocialActivityAchievementPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialActivityAchievement newSocialActivityAchievement = _persistence.create(pk);
 
-		newSocialActivityAchievement.setGroupId(ServiceTestUtil.nextLong());
+		newSocialActivityAchievement.setGroupId(RandomTestUtil.nextLong());
 
-		newSocialActivityAchievement.setCompanyId(ServiceTestUtil.nextLong());
+		newSocialActivityAchievement.setCompanyId(RandomTestUtil.nextLong());
 
-		newSocialActivityAchievement.setUserId(ServiceTestUtil.nextLong());
+		newSocialActivityAchievement.setUserId(RandomTestUtil.nextLong());
 
-		newSocialActivityAchievement.setCreateDate(ServiceTestUtil.nextLong());
+		newSocialActivityAchievement.setCreateDate(RandomTestUtil.nextLong());
 
-		newSocialActivityAchievement.setName(ServiceTestUtil.randomString());
+		newSocialActivityAchievement.setName(RandomTestUtil.randomString());
 
-		newSocialActivityAchievement.setFirstInGroup(ServiceTestUtil.randomBoolean());
+		newSocialActivityAchievement.setFirstInGroup(RandomTestUtil.randomBoolean());
 
 		_persistence.update(newSocialActivityAchievement);
 
@@ -150,7 +166,7 @@ public class SocialActivityAchievementPersistenceTest {
 	@Test
 	public void testCountByGroupId() {
 		try {
-			_persistence.countByGroupId(ServiceTestUtil.nextLong());
+			_persistence.countByGroupId(RandomTestUtil.nextLong());
 
 			_persistence.countByGroupId(0L);
 		}
@@ -162,8 +178,8 @@ public class SocialActivityAchievementPersistenceTest {
 	@Test
 	public void testCountByG_U() {
 		try {
-			_persistence.countByG_U(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByG_U(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByG_U(0L, 0L);
 		}
@@ -175,7 +191,7 @@ public class SocialActivityAchievementPersistenceTest {
 	@Test
 	public void testCountByG_N() {
 		try {
-			_persistence.countByG_N(ServiceTestUtil.nextLong(), StringPool.BLANK);
+			_persistence.countByG_N(RandomTestUtil.nextLong(), StringPool.BLANK);
 
 			_persistence.countByG_N(0L, StringPool.NULL);
 
@@ -189,10 +205,10 @@ public class SocialActivityAchievementPersistenceTest {
 	@Test
 	public void testCountByG_F() {
 		try {
-			_persistence.countByG_F(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.randomBoolean());
+			_persistence.countByG_F(RandomTestUtil.nextLong(),
+				RandomTestUtil.randomBoolean());
 
-			_persistence.countByG_F(0L, ServiceTestUtil.randomBoolean());
+			_persistence.countByG_F(0L, RandomTestUtil.randomBoolean());
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -202,8 +218,8 @@ public class SocialActivityAchievementPersistenceTest {
 	@Test
 	public void testCountByG_U_N() {
 		try {
-			_persistence.countByG_U_N(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), StringPool.BLANK);
+			_persistence.countByG_U_N(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), StringPool.BLANK);
 
 			_persistence.countByG_U_N(0L, 0L, StringPool.NULL);
 
@@ -217,10 +233,10 @@ public class SocialActivityAchievementPersistenceTest {
 	@Test
 	public void testCountByG_U_F() {
 		try {
-			_persistence.countByG_U_F(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.randomBoolean());
+			_persistence.countByG_U_F(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.randomBoolean());
 
-			_persistence.countByG_U_F(0L, 0L, ServiceTestUtil.randomBoolean());
+			_persistence.countByG_U_F(0L, 0L, RandomTestUtil.randomBoolean());
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -239,7 +255,7 @@ public class SocialActivityAchievementPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -281,7 +297,7 @@ public class SocialActivityAchievementPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialActivityAchievement missingSocialActivityAchievement = _persistence.fetchByPrimaryKey(pk);
 
@@ -292,16 +308,18 @@ public class SocialActivityAchievementPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new SocialActivityAchievementActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = SocialActivityAchievementLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					SocialActivityAchievement socialActivityAchievement = (SocialActivityAchievement)object;
 
 					Assert.assertNotNull(socialActivityAchievement);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -335,7 +353,7 @@ public class SocialActivityAchievementPersistenceTest {
 				SocialActivityAchievement.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("activityAchievementId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<SocialActivityAchievement> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -377,7 +395,7 @@ public class SocialActivityAchievementPersistenceTest {
 				"activityAchievementId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("activityAchievementId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -408,21 +426,21 @@ public class SocialActivityAchievementPersistenceTest {
 
 	protected SocialActivityAchievement addSocialActivityAchievement()
 		throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		SocialActivityAchievement socialActivityAchievement = _persistence.create(pk);
 
-		socialActivityAchievement.setGroupId(ServiceTestUtil.nextLong());
+		socialActivityAchievement.setGroupId(RandomTestUtil.nextLong());
 
-		socialActivityAchievement.setCompanyId(ServiceTestUtil.nextLong());
+		socialActivityAchievement.setCompanyId(RandomTestUtil.nextLong());
 
-		socialActivityAchievement.setUserId(ServiceTestUtil.nextLong());
+		socialActivityAchievement.setUserId(RandomTestUtil.nextLong());
 
-		socialActivityAchievement.setCreateDate(ServiceTestUtil.nextLong());
+		socialActivityAchievement.setCreateDate(RandomTestUtil.nextLong());
 
-		socialActivityAchievement.setName(ServiceTestUtil.randomString());
+		socialActivityAchievement.setName(RandomTestUtil.randomString());
 
-		socialActivityAchievement.setFirstInGroup(ServiceTestUtil.randomBoolean());
+		socialActivityAchievement.setFirstInGroup(RandomTestUtil.randomBoolean());
 
 		_persistence.update(socialActivityAchievement);
 
@@ -430,6 +448,7 @@ public class SocialActivityAchievementPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(SocialActivityAchievementPersistenceTest.class);
+	private ModelListener<SocialActivityAchievement>[] _modelListeners;
 	private SocialActivityAchievementPersistence _persistence = (SocialActivityAchievementPersistence)PortalBeanLocatorUtil.locate(SocialActivityAchievementPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

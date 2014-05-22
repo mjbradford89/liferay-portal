@@ -20,7 +20,8 @@ import com.liferay.portal.kernel.util.StringUtil;
 /**
  * @author Brian Wing Shun Chan
  */
-public class TestPropsValues extends com.liferay.portal.util.TestPropsValues {
+public class TestPropsValues
+	extends com.liferay.portal.util.test.TestPropsValues {
 
 	public static final String BROWSER_COMMANDS_DIR_NAME = TestPropsUtil.get(
 		"browser.commands.dir");
@@ -56,6 +57,15 @@ public class TestPropsValues extends com.liferay.portal.util.TestPropsValues {
 	public static final String LIFERAY_PORTAL_BUNDLE = TestPropsUtil.get(
 		"liferay.portal.bundle");
 
+	public static final boolean MOBILE_DEVICE_ENABLED = GetterUtil.getBoolean(
+		TestPropsUtil.get("mobile.device.enabled"));
+
+	public static final String MOBILE_DEVICE_RESOLUTION = TestPropsUtil.get(
+		"mobile.device.resolution");
+
+	public static final String MOBILE_DEVICE_USER_AGENT = TestPropsUtil.get(
+		"mobile.device.user.agent");
+
 	public static final String OUTPUT_DIR_NAME = TestPropsUtil.get(
 		"output.dir");
 
@@ -81,6 +91,12 @@ public class TestPropsValues extends com.liferay.portal.util.TestPropsValues {
 
 	public static final int SELENIUM_PORT = GetterUtil.getInteger(
 		TestPropsUtil.get("selenium.port"));
+
+	public static final String TCAT_ADMIN_REPOSITORY = TestPropsUtil.get(
+		"tcat.admin.repository");
+
+	public static final boolean TCAT_ENABLED = GetterUtil.getBoolean(
+		TestPropsUtil.get("tcat.enabled"));
 
 	public static final boolean TEAR_DOWN_BEFORE_TEST = GetterUtil.getBoolean(
 		TestPropsUtil.get("tear.down.before.test"));

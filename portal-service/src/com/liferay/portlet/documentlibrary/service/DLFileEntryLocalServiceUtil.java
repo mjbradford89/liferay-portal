@@ -232,6 +232,17 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().getDLFileEntry(fileEntryId);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getActionableDynamicQuery();
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getExportActionableDynamicQuery(portletDataContext);
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -524,6 +535,11 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().getExtraSettingsFileEntriesCount();
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getFile(long, String,
+	boolean)}
+	*/
+	@Deprecated
 	public static java.io.File getFile(long userId, long fileEntryId,
 		java.lang.String version, boolean incrementCounter)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -532,6 +548,11 @@ public class DLFileEntryLocalServiceUtil {
 				   .getFile(userId, fileEntryId, version, incrementCounter);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getFile(long, String,
+	boolean, int)}
+	*/
+	@Deprecated
 	public static java.io.File getFile(long userId, long fileEntryId,
 		java.lang.String version, boolean incrementCounter, int increment)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -541,6 +562,26 @@ public class DLFileEntryLocalServiceUtil {
 			increment);
 	}
 
+	public static java.io.File getFile(long fileEntryId,
+		java.lang.String version, boolean incrementCounter)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getFile(fileEntryId, version, incrementCounter);
+	}
+
+	public static java.io.File getFile(long fileEntryId,
+		java.lang.String version, boolean incrementCounter, int increment)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .getFile(fileEntryId, version, incrementCounter, increment);
+	}
+
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getFileAsStream(long,
+	String)}
+	*/
+	@Deprecated
 	public static java.io.InputStream getFileAsStream(long userId,
 		long fileEntryId, java.lang.String version)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -548,6 +589,11 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().getFileAsStream(userId, fileEntryId, version);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getFileAsStream(long,
+	String, boolean)}
+	*/
+	@Deprecated
 	public static java.io.InputStream getFileAsStream(long userId,
 		long fileEntryId, java.lang.String version, boolean incrementCounter)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -557,6 +603,11 @@ public class DLFileEntryLocalServiceUtil {
 			incrementCounter);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getFileAsStream(long,
+	String, boolean, int)}
+	*/
+	@Deprecated
 	public static java.io.InputStream getFileAsStream(long userId,
 		long fileEntryId, java.lang.String version, boolean incrementCounter,
 		int increment)
@@ -565,6 +616,30 @@ public class DLFileEntryLocalServiceUtil {
 		return getService()
 				   .getFileAsStream(userId, fileEntryId, version,
 			incrementCounter, increment);
+	}
+
+	public static java.io.InputStream getFileAsStream(long fileEntryId,
+		java.lang.String version)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService().getFileAsStream(fileEntryId, version);
+	}
+
+	public static java.io.InputStream getFileAsStream(long fileEntryId,
+		java.lang.String version, boolean incrementCounter)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .getFileAsStream(fileEntryId, version, incrementCounter);
+	}
+
+	public static java.io.InputStream getFileAsStream(long fileEntryId,
+		java.lang.String version, boolean incrementCounter, int increment)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .getFileAsStream(fileEntryId, version, incrementCounter,
+			increment);
 	}
 
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getFileEntries(
@@ -718,6 +793,15 @@ public class DLFileEntryLocalServiceUtil {
 		return getService().getGroupFileEntries(groupId, userId, start, end, obc);
 	}
 
+	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getGroupFileEntries(
+		long groupId, long userId, long rootFolderId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator obc)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService()
+				   .getGroupFileEntries(groupId, userId, rootFolderId, start,
+			end, obc);
+	}
+
 	public static int getGroupFileEntriesCount(long groupId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().getGroupFileEntriesCount(groupId);
@@ -845,13 +929,13 @@ public class DLFileEntryLocalServiceUtil {
 
 	public static com.liferay.portlet.documentlibrary.model.DLFileEntry updateStatus(
 		long userId, long fileVersionId, int status,
-		java.util.Map<java.lang.String, java.io.Serializable> workflowContext,
-		com.liferay.portal.service.ServiceContext serviceContext)
+		com.liferay.portal.service.ServiceContext serviceContext,
+		java.util.Map<java.lang.String, java.io.Serializable> workflowContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return getService()
-				   .updateStatus(userId, fileVersionId, status,
-			workflowContext, serviceContext);
+				   .updateStatus(userId, fileVersionId, status, serviceContext,
+			workflowContext);
 	}
 
 	public static boolean verifyFileEntryCheckOut(long fileEntryId,

@@ -97,6 +97,10 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 
+	public void deleteRepositoryFileEntries(long repositoryId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException;
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public void getFileAsStream(long userId,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
@@ -295,8 +299,8 @@ public interface DLAppHelperLocalService extends BaseLocalService {
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
 		com.liferay.portal.kernel.repository.model.FileVersion latestFileVersion,
 		int oldStatus, int newStatus,
-		java.util.Map<java.lang.String, java.io.Serializable> workflowContext,
-		com.liferay.portal.service.ServiceContext serviceContext)
+		com.liferay.portal.service.ServiceContext serviceContext,
+		java.util.Map<java.lang.String, java.io.Serializable> workflowContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException;
 }

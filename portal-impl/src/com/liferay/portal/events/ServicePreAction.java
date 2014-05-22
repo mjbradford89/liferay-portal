@@ -330,7 +330,20 @@ public class ServicePreAction extends Action {
 
 		if (plid > 0) {
 			layout = LayoutLocalServiceUtil.getLayout(plid);
+		}
+		else {
+			long groupId = ParamUtil.getLong(request, "groupId");
+			boolean privateLayout = ParamUtil.getBoolean(
+				request, "privateLayout");
+			long layoutId = ParamUtil.getLong(request, "layoutId");
 
+			if ((groupId > 0) && (layoutId > 0)) {
+				layout = LayoutLocalServiceUtil.getLayout(
+					groupId, privateLayout, layoutId);
+			}
+		}
+
+		if (layout != null) {
 			long sourceGroupId = ParamUtil.getLong(request, "p_v_l_s_g_id");
 
 			if ((sourceGroupId > 0) && (sourceGroupId != layout.getGroupId())) {
@@ -346,17 +359,6 @@ public class ServicePreAction extends Action {
 				else {
 					viewableSourceGroup = false;
 				}
-			}
-		}
-		else {
-			long groupId = ParamUtil.getLong(request, "groupId");
-			boolean privateLayout = ParamUtil.getBoolean(
-				request, "privateLayout");
-			long layoutId = ParamUtil.getLong(request, "layoutId");
-
-			if ((groupId > 0) && (layoutId > 0)) {
-				layout = LayoutLocalServiceUtil.getLayout(
-					groupId, privateLayout, layoutId);
 			}
 		}
 
@@ -667,11 +669,13 @@ public class ServicePreAction extends Action {
 
 		long siteGroupId = 0;
 
-		if (layout.isTypeControlPanel()) {
-			siteGroupId = PortalUtil.getSiteGroupId(scopeGroupId);
-		}
-		else {
-			siteGroupId = PortalUtil.getSiteGroupId(layout.getGroupId());
+		if (layout != null) {
+			if (layout.isTypeControlPanel()) {
+				siteGroupId = PortalUtil.getSiteGroupId(scopeGroupId);
+			}
+			else {
+				siteGroupId = PortalUtil.getSiteGroupId(layout.getGroupId());
+			}
 		}
 
 		// Theme and color scheme
@@ -1301,84 +1305,6 @@ public class ServicePreAction extends Action {
 			PortletRequest.RENDER_PHASE);
 
 		themeDisplay.setURLUpdateManager(updateManagerURL);
-
-		// Control Panel redirects
-
-		if (group.isControlPanel() && Validator.isNotNull(ppid)) {
-			boolean switchGroup = ParamUtil.getBoolean(request, "switchGroup");
-
-			if (switchGroup &&
-				!PortletPermissionUtil.hasControlPanelAccessPermission(
-					permissionChecker, scopeGroupId, ppid)) {
-
-				String redirect = HttpUtil.removeParameter(
-					currentURL, "p_p_id");
-
-				response.sendRedirect(redirect);
-			}
-		}
-		else if (group.isControlPanel() && Validator.isNull(ppid)) {
-			if (controlPanelCategory.startsWith(
-					PortletCategoryKeys.CURRENT_SITE)) {
-
-				if (controlPanelCategory.indexOf(StringPool.PERIOD) == -1) {
-					controlPanelCategory = StringUtil.replace(
-						controlPanelCategory, PortletCategoryKeys.CURRENT_SITE,
-						PortletCategoryKeys.SITE_ADMINISTRATION);
-				}
-				else {
-					controlPanelCategory = StringUtil.replace(
-						controlPanelCategory,
-						PortletCategoryKeys.CURRENT_SITE + StringPool.PERIOD,
-						PortletCategoryKeys.SITE_ADMINISTRATION);
-				}
-			}
-
-			if (controlPanelCategory.equals(
-					PortletCategoryKeys.SITE_ADMINISTRATION)) {
-
-				Portlet firstPortlet =
-					PortalUtil.getFirstSiteAdministrationPortlet(themeDisplay);
-
-				String redirect = HttpUtil.setParameter(
-					currentURL, "p_p_id", firstPortlet.getPortletId());
-
-				response.sendRedirect(
-					PortalUtil.getAbsoluteURL(request, redirect));
-			}
-			else {
-				List<Portlet> portlets = PortalUtil.getControlPanelPortlets(
-					controlPanelCategory, themeDisplay);
-
-				Portlet firstPortlet = null;
-
-				for (Portlet portlet : portlets) {
-					if (PortletPermissionUtil.hasControlPanelAccessPermission(
-							permissionChecker, scopeGroupId, portlet)) {
-
-						firstPortlet = portlet;
-
-						break;
-					}
-				}
-
-				if ((firstPortlet == null) &&
-					controlPanelCategory.startsWith(
-						PortletCategoryKeys.SITE_ADMINISTRATION)) {
-
-					firstPortlet = PortalUtil.getFirstSiteAdministrationPortlet(
-						themeDisplay);
-				}
-
-				if (firstPortlet != null) {
-					String redirect = HttpUtil.setParameter(
-						currentURL, "p_p_id", firstPortlet.getPortletId());
-
-					response.sendRedirect(
-						PortalUtil.getAbsoluteURL(request, redirect));
-				}
-			}
-		}
 
 		return themeDisplay;
 	}
@@ -2098,6 +2024,127 @@ public class ServicePreAction extends Action {
 		return layouts;
 	}
 
+	protected void processControlPanelRedirects(
+			HttpServletRequest request, HttpServletResponse response)
+		throws Exception {
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		ThemeDisplay themeDisplay = (ThemeDisplay)request.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		Layout layout = themeDisplay.getLayout();
+
+		if ((layout == null) || !layout.isTypeControlPanel()) {
+			return;
+		}
+
+		String controlPanelCategory = themeDisplay.getControlPanelCategory();
+		String currentURL = themeDisplay.getURLCurrent();
+		String ppid = themeDisplay.getPpid();
+		long scopeGroupId = themeDisplay.getScopeGroupId();
+
+		if (Validator.isNotNull(ppid)) {
+			boolean switchGroup = ParamUtil.getBoolean(request, "switchGroup");
+
+			if (switchGroup &&
+				!PortletPermissionUtil.hasControlPanelAccessPermission(
+					permissionChecker, scopeGroupId, ppid)) {
+
+				String redirect = HttpUtil.removeParameter(
+					currentURL, "p_p_id");
+
+				response.sendRedirect(redirect);
+			}
+		}
+		else {
+			if (Validator.isNull(controlPanelCategory)) {
+				Map<String, List<Portlet>> categoriesMap =
+					PortalUtil.getControlPanelCategoriesMap(request);
+
+				if (categoriesMap.size() == 1) {
+					for (String curCategory : categoriesMap.keySet()) {
+						List<Portlet> categoryPortlets = categoriesMap.get(
+							curCategory);
+
+						if (categoryPortlets.size() == 1) {
+							Portlet firstPortlet = categoryPortlets.get(0);
+
+							PortletURL redirectURL =
+								PortalUtil.getSiteAdministrationURL(
+									request, themeDisplay,
+									firstPortlet.getPortletId());
+
+							response.sendRedirect(redirectURL.toString());
+						}
+					}
+				}
+			}
+
+			if (controlPanelCategory.startsWith(
+					PortletCategoryKeys.CURRENT_SITE)) {
+
+				if (controlPanelCategory.indexOf(StringPool.PERIOD) == -1) {
+					controlPanelCategory = StringUtil.replace(
+						controlPanelCategory, PortletCategoryKeys.CURRENT_SITE,
+						PortletCategoryKeys.SITE_ADMINISTRATION);
+				}
+				else {
+					controlPanelCategory = StringUtil.replace(
+						controlPanelCategory,
+						PortletCategoryKeys.CURRENT_SITE + StringPool.PERIOD,
+						PortletCategoryKeys.SITE_ADMINISTRATION);
+				}
+			}
+
+			if (controlPanelCategory.equals(
+					PortletCategoryKeys.SITE_ADMINISTRATION)) {
+
+				Portlet firstPortlet =
+					PortalUtil.getFirstSiteAdministrationPortlet(themeDisplay);
+
+				String redirect = HttpUtil.setParameter(
+					currentURL, "p_p_id", firstPortlet.getPortletId());
+
+				response.sendRedirect(
+					PortalUtil.getAbsoluteURL(request, redirect));
+			}
+			else {
+				List<Portlet> portlets = PortalUtil.getControlPanelPortlets(
+					controlPanelCategory, themeDisplay);
+
+				Portlet firstPortlet = null;
+
+				for (Portlet portlet : portlets) {
+					if (PortletPermissionUtil.hasControlPanelAccessPermission(
+							permissionChecker, scopeGroupId, portlet)) {
+
+						firstPortlet = portlet;
+
+						break;
+					}
+				}
+
+				if ((firstPortlet == null) &&
+					controlPanelCategory.startsWith(
+						PortletCategoryKeys.SITE_ADMINISTRATION)) {
+
+					firstPortlet = PortalUtil.getFirstSiteAdministrationPortlet(
+						themeDisplay);
+				}
+
+				if (firstPortlet != null) {
+					String redirect = HttpUtil.setParameter(
+						currentURL, "p_p_id", firstPortlet.getPortletId());
+
+					response.sendRedirect(
+						PortalUtil.getAbsoluteURL(request, redirect));
+				}
+			}
+		}
+	}
+
 	protected void rememberVisitedGroupIds(
 		HttpServletRequest request, long currentGroupId) {
 
@@ -2151,6 +2198,10 @@ public class ServicePreAction extends Action {
 		}
 
 		request.setAttribute(WebKeys.THEME_DISPLAY, themeDisplay);
+
+		// Control panel redirects
+
+		processControlPanelRedirects(request, response);
 
 		// Service context
 

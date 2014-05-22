@@ -28,19 +28,22 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.expando.NoSuchRowException;
 import com.liferay.portlet.expando.model.ExpandoRow;
 import com.liferay.portlet.expando.model.impl.ExpandoRowModelImpl;
+import com.liferay.portlet.expando.service.ExpandoRowLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -58,6 +61,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class ExpandoRowPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<ExpandoRow> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -79,11 +91,15 @@ public class ExpandoRowPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<ExpandoRow> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		ExpandoRow expandoRow = _persistence.create(pk);
 
@@ -110,17 +126,17 @@ public class ExpandoRowPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		ExpandoRow newExpandoRow = _persistence.create(pk);
 
-		newExpandoRow.setCompanyId(ServiceTestUtil.nextLong());
+		newExpandoRow.setCompanyId(RandomTestUtil.nextLong());
 
-		newExpandoRow.setModifiedDate(ServiceTestUtil.nextDate());
+		newExpandoRow.setModifiedDate(RandomTestUtil.nextDate());
 
-		newExpandoRow.setTableId(ServiceTestUtil.nextLong());
+		newExpandoRow.setTableId(RandomTestUtil.nextLong());
 
-		newExpandoRow.setClassPK(ServiceTestUtil.nextLong());
+		newExpandoRow.setClassPK(RandomTestUtil.nextLong());
 
 		_persistence.update(newExpandoRow);
 
@@ -142,7 +158,7 @@ public class ExpandoRowPersistenceTest {
 	@Test
 	public void testCountByTableId() {
 		try {
-			_persistence.countByTableId(ServiceTestUtil.nextLong());
+			_persistence.countByTableId(RandomTestUtil.nextLong());
 
 			_persistence.countByTableId(0L);
 		}
@@ -154,7 +170,7 @@ public class ExpandoRowPersistenceTest {
 	@Test
 	public void testCountByClassPK() {
 		try {
-			_persistence.countByClassPK(ServiceTestUtil.nextLong());
+			_persistence.countByClassPK(RandomTestUtil.nextLong());
 
 			_persistence.countByClassPK(0L);
 		}
@@ -166,8 +182,8 @@ public class ExpandoRowPersistenceTest {
 	@Test
 	public void testCountByT_C() {
 		try {
-			_persistence.countByT_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByT_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByT_C(0L, 0L);
 		}
@@ -187,7 +203,7 @@ public class ExpandoRowPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -226,7 +242,7 @@ public class ExpandoRowPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		ExpandoRow missingExpandoRow = _persistence.fetchByPrimaryKey(pk);
 
@@ -237,16 +253,18 @@ public class ExpandoRowPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new ExpandoRowActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = ExpandoRowLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					ExpandoRow expandoRow = (ExpandoRow)object;
 
 					Assert.assertNotNull(expandoRow);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -279,7 +297,7 @@ public class ExpandoRowPersistenceTest {
 				ExpandoRow.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("rowId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<ExpandoRow> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -318,7 +336,7 @@ public class ExpandoRowPersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("rowId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("rowId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -344,17 +362,17 @@ public class ExpandoRowPersistenceTest {
 	}
 
 	protected ExpandoRow addExpandoRow() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		ExpandoRow expandoRow = _persistence.create(pk);
 
-		expandoRow.setCompanyId(ServiceTestUtil.nextLong());
+		expandoRow.setCompanyId(RandomTestUtil.nextLong());
 
-		expandoRow.setModifiedDate(ServiceTestUtil.nextDate());
+		expandoRow.setModifiedDate(RandomTestUtil.nextDate());
 
-		expandoRow.setTableId(ServiceTestUtil.nextLong());
+		expandoRow.setTableId(RandomTestUtil.nextLong());
 
-		expandoRow.setClassPK(ServiceTestUtil.nextLong());
+		expandoRow.setClassPK(RandomTestUtil.nextLong());
 
 		_persistence.update(expandoRow);
 
@@ -362,6 +380,7 @@ public class ExpandoRowPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(ExpandoRowPersistenceTest.class);
+	private ModelListener<ExpandoRow>[] _modelListeners;
 	private ExpandoRowPersistence _persistence = (ExpandoRowPersistence)PortalBeanLocatorUtil.locate(ExpandoRowPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

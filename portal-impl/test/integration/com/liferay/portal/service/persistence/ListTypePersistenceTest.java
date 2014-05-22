@@ -28,14 +28,16 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.model.ListType;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -53,6 +55,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class ListTypePersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<ListType> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -74,11 +85,15 @@ public class ListTypePersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<ListType> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		int pk = ServiceTestUtil.nextInt();
+		int pk = RandomTestUtil.nextInt();
 
 		ListType listType = _persistence.create(pk);
 
@@ -105,15 +120,15 @@ public class ListTypePersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		int pk = ServiceTestUtil.nextInt();
+		int pk = RandomTestUtil.nextInt();
 
 		ListType newListType = _persistence.create(pk);
 
-		newListType.setMvccVersion(ServiceTestUtil.nextLong());
+		newListType.setMvccVersion(RandomTestUtil.nextLong());
 
-		newListType.setName(ServiceTestUtil.randomString());
+		newListType.setName(RandomTestUtil.randomString());
 
-		newListType.setType(ServiceTestUtil.randomString());
+		newListType.setType(RandomTestUtil.randomString());
 
 		_persistence.update(newListType);
 
@@ -152,7 +167,7 @@ public class ListTypePersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		int pk = ServiceTestUtil.nextInt();
+		int pk = RandomTestUtil.nextInt();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -190,7 +205,7 @@ public class ListTypePersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		int pk = ServiceTestUtil.nextInt();
+		int pk = RandomTestUtil.nextInt();
 
 		ListType missingListType = _persistence.fetchByPrimaryKey(pk);
 
@@ -223,7 +238,7 @@ public class ListTypePersistenceTest {
 				ListType.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("listTypeId",
-				ServiceTestUtil.nextInt()));
+				RandomTestUtil.nextInt()));
 
 		List<ListType> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -262,7 +277,7 @@ public class ListTypePersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("listTypeId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("listTypeId",
-				new Object[] { ServiceTestUtil.nextInt() }));
+				new Object[] { RandomTestUtil.nextInt() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -270,15 +285,15 @@ public class ListTypePersistenceTest {
 	}
 
 	protected ListType addListType() throws Exception {
-		int pk = ServiceTestUtil.nextInt();
+		int pk = RandomTestUtil.nextInt();
 
 		ListType listType = _persistence.create(pk);
 
-		listType.setMvccVersion(ServiceTestUtil.nextLong());
+		listType.setMvccVersion(RandomTestUtil.nextLong());
 
-		listType.setName(ServiceTestUtil.randomString());
+		listType.setName(RandomTestUtil.randomString());
 
-		listType.setType(ServiceTestUtil.randomString());
+		listType.setType(RandomTestUtil.randomString());
 
 		_persistence.update(listType);
 
@@ -286,6 +301,7 @@ public class ListTypePersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(ListTypePersistenceTest.class);
+	private ModelListener<ListType>[] _modelListeners;
 	private ListTypePersistence _persistence = (ListTypePersistence)PortalBeanLocatorUtil.locate(ListTypePersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

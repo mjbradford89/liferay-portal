@@ -55,7 +55,6 @@ import com.liferay.portal.kernel.util.TreePathUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Image;
 import com.liferay.portal.model.Lock;
@@ -117,6 +116,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -402,9 +402,9 @@ public class DLFileEntryLocalServiceImpl
 		if ((serviceContext.getWorkflowAction() ==
 				WorkflowConstants.ACTION_PUBLISH) && !keepFileVersionLabel) {
 
-			startWorkflowInstance(
-				userId, serviceContext, latestDLFileVersion,
-				DLSyncConstants.EVENT_UPDATE);
+			DLUtil.startWorkflowInstance(
+				userId, latestDLFileVersion, DLSyncConstants.EVENT_UPDATE,
+				serviceContext);
 		}
 
 		unlockFileEntry(fileEntryId);
@@ -688,9 +688,6 @@ public class DLFileEntryLocalServiceImpl
 				if (includeTrashedEntries ||
 					!dlFileEntry.isInTrashExplicitly()) {
 
-					dlAppHelperLocalService.deleteFileEntry(
-						new LiferayFileEntry(dlFileEntry));
-
 					dlFileEntryLocalService.deleteFileEntry(dlFileEntry);
 				}
 			}
@@ -932,19 +929,46 @@ public class DLFileEntryLocalServiceImpl
 		return dlFileEntryFinder.countByExtraSettings();
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getFile(long, String,
+	 *             boolean)}
+	 */
+	@Deprecated
 	@Override
 	public File getFile(
 			long userId, long fileEntryId, String version,
 			boolean incrementCounter)
 		throws PortalException, SystemException {
 
-		return getFile(userId, fileEntryId, version, incrementCounter, 1);
+		return getFile(fileEntryId, version, incrementCounter, 1);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getFile(long, String,
+	 *             boolean, int)}
+	 */
+	@Deprecated
 	@Override
 	public File getFile(
 			long userId, long fileEntryId, String version,
 			boolean incrementCounter, int increment)
+		throws PortalException, SystemException {
+
+		return getFile(fileEntryId, version, incrementCounter, increment);
+	}
+
+	@Override
+	public File getFile(
+			long fileEntryId, String version, boolean incrementCounter)
+		throws PortalException, SystemException {
+
+		return getFile(fileEntryId, version, incrementCounter, 1);
+	}
+
+	@Override
+	public File getFile(
+			long fileEntryId, String version, boolean incrementCounter,
+			int increment)
 		throws PortalException, SystemException {
 
 		DLFileEntry dlFileEntry = dlFileEntryPersistence.findByPrimaryKey(
@@ -954,37 +978,73 @@ public class DLFileEntryLocalServiceImpl
 			dlFileEntryLocalService.incrementViewCounter(
 				dlFileEntry, increment);
 		}
-
-		dlAppHelperLocalService.getFileAsStream(
-			userId, new LiferayFileEntry(dlFileEntry), incrementCounter);
 
 		return DLStoreUtil.getFile(
 			dlFileEntry.getCompanyId(), dlFileEntry.getDataRepositoryId(),
 			dlFileEntry.getName(), version);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getFileAsStream(long,
+	 *             String)}
+	 */
+	@Deprecated
 	@Override
 	public InputStream getFileAsStream(
 			long userId, long fileEntryId, String version)
 		throws PortalException, SystemException {
 
-		return getFileAsStream(userId, fileEntryId, version, true, 1);
+		return getFileAsStream(fileEntryId, version, true, 1);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getFileAsStream(long,
+	 *             String, boolean)}
+	 */
+	@Deprecated
 	@Override
 	public InputStream getFileAsStream(
 			long userId, long fileEntryId, String version,
 			boolean incrementCounter)
 		throws PortalException, SystemException {
 
-		return getFileAsStream(
-			userId, fileEntryId, version, incrementCounter, 1);
+		return getFileAsStream(fileEntryId, version, incrementCounter, 1);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #getFileAsStream(long,
+	 *             String, boolean, int)}
+	 */
+	@Deprecated
 	@Override
 	public InputStream getFileAsStream(
 			long userId, long fileEntryId, String version,
 			boolean incrementCounter, int increment)
+		throws PortalException, SystemException {
+
+		return getFileAsStream(
+			fileEntryId, version, incrementCounter, increment);
+	}
+
+	@Override
+	public InputStream getFileAsStream(long fileEntryId, String version)
+		throws PortalException, SystemException {
+
+		return getFileAsStream(fileEntryId, version, true, 1);
+	}
+
+	@Override
+	public InputStream getFileAsStream(
+			long fileEntryId, String version, boolean incrementCounter)
+		throws PortalException, SystemException {
+
+		return getFileAsStream(fileEntryId, version, incrementCounter, 1);
+	}
+
+	@Override
+	public InputStream getFileAsStream(
+			long fileEntryId, String version, boolean incrementCounter,
+			int increment)
 		throws PortalException, SystemException {
 
 		DLFileEntry dlFileEntry = dlFileEntryPersistence.findByPrimaryKey(
@@ -994,9 +1054,6 @@ public class DLFileEntryLocalServiceImpl
 			dlFileEntryLocalService.incrementViewCounter(
 				dlFileEntry, increment);
 		}
-
-		dlAppHelperLocalService.getFileAsStream(
-			userId, new LiferayFileEntry(dlFileEntry), incrementCounter);
 
 		return DLStoreUtil.getFileAsStream(
 			dlFileEntry.getCompanyId(), dlFileEntry.getDataRepositoryId(),
@@ -1232,6 +1289,32 @@ public class DLFileEntryLocalServiceImpl
 	}
 
 	@Override
+	public List<DLFileEntry> getGroupFileEntries(
+			long groupId, long userId, long rootFolderId, int start, int end,
+			OrderByComparator obc)
+		throws SystemException {
+
+		List<Long> folderIds = dlFolderLocalService.getFolderIds(
+			groupId, rootFolderId);
+
+		if (folderIds.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		QueryDefinition queryDefinition = new QueryDefinition(
+			WorkflowConstants.STATUS_ANY, start, end, obc);
+
+		if (userId <= 0) {
+			return dlFileEntryFinder.findByG_F(
+				groupId, folderIds, queryDefinition);
+		}
+		else {
+			return dlFileEntryFinder.findByG_U_F(
+				groupId, userId, folderIds, queryDefinition);
+		}
+	}
+
+	@Override
 	public int getGroupFileEntriesCount(long groupId) throws SystemException {
 		return dlFileEntryPersistence.countByGroupId(groupId);
 	}
@@ -1363,9 +1446,6 @@ public class DLFileEntryLocalServiceImpl
 		try {
 			DLFileEntry dlFileEntry = moveFileEntryImpl(
 				userId, fileEntryId, newFolderId, serviceContext);
-
-			dlAppHelperLocalService.moveFileEntry(
-				new LiferayFileEntry(dlFileEntry));
 
 			return dlFileEntryTypeLocalService.updateFileEntryFileEntryType(
 				dlFileEntry, serviceContext);
@@ -1587,8 +1667,8 @@ public class DLFileEntryLocalServiceImpl
 	@Override
 	public DLFileEntry updateStatus(
 			long userId, long fileVersionId, int status,
-			Map<String, Serializable> workflowContext,
-			ServiceContext serviceContext)
+			ServiceContext serviceContext,
+			Map<String, Serializable> workflowContext)
 		throws PortalException, SystemException {
 
 		// File version
@@ -1671,7 +1751,7 @@ public class DLFileEntryLocalServiceImpl
 		dlAppHelperLocalService.updateStatus(
 			userId, new LiferayFileEntry(dlFileEntry),
 			new LiferayFileVersion(dlFileVersion), oldStatus, status,
-			workflowContext, serviceContext);
+			serviceContext, workflowContext);
 
 		// Indexer
 
@@ -2198,22 +2278,6 @@ public class DLFileEntryLocalServiceImpl
 		unlockFileEntry(dlFileEntry.getFileEntryId());
 	}
 
-	protected void startWorkflowInstance(
-			long userId, ServiceContext serviceContext,
-			DLFileVersion dlFileVersion, String syncEventType)
-		throws PortalException, SystemException {
-
-		Map<String, Serializable> workflowContext =
-			new HashMap<String, Serializable>();
-
-		workflowContext.put("event", syncEventType);
-
-		WorkflowHandlerRegistryUtil.startWorkflowInstance(
-			dlFileVersion.getCompanyId(), dlFileVersion.getGroupId(), userId,
-			DLFileEntry.class.getName(), dlFileVersion.getFileVersionId(),
-			dlFileVersion, serviceContext, workflowContext);
-	}
-
 	protected DLFileEntry updateFileEntry(
 			long userId, long fileEntryId, String sourceFileName,
 			String extension, String mimeType, String title, String description,
@@ -2357,8 +2421,8 @@ public class DLFileEntryLocalServiceImpl
 					syncEvent = DLSyncConstants.EVENT_ADD;
 				}
 
-				startWorkflowInstance(
-					userId, serviceContext, dlFileVersion, syncEvent);
+				DLUtil.startWorkflowInstance(
+					userId, dlFileVersion, syncEvent, serviceContext);
 			}
 		}
 		catch (PortalException pe) {

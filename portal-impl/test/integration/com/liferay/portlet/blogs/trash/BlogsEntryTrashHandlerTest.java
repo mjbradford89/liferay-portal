@@ -24,12 +24,15 @@ import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
 import com.liferay.portlet.trash.BaseTrashHandlerTestCase;
 
 import java.io.InputStream;
+import java.io.Serializable;
+
+import java.util.HashMap;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -206,7 +209,8 @@ public class BlogsEntryTrashHandlerTest extends BaseTrashHandlerTestCase {
 		if (approved) {
 			entry = BlogsEntryLocalServiceUtil.updateStatus(
 				TestPropsValues.getUserId(), entry.getEntryId(),
-				WorkflowConstants.STATUS_APPROVED, serviceContext);
+				WorkflowConstants.STATUS_APPROVED, serviceContext,
+				new HashMap<String, Serializable>());
 		}
 
 		return entry;

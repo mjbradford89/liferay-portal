@@ -30,17 +30,20 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.PortletPreferences;
 import com.liferay.portal.model.impl.PortletPreferencesModelImpl;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -58,6 +61,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class PortletPreferencesPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<PortletPreferences> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -79,11 +91,15 @@ public class PortletPreferencesPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<PortletPreferences> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		PortletPreferences portletPreferences = _persistence.create(pk);
 
@@ -110,21 +126,21 @@ public class PortletPreferencesPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		PortletPreferences newPortletPreferences = _persistence.create(pk);
 
-		newPortletPreferences.setMvccVersion(ServiceTestUtil.nextLong());
+		newPortletPreferences.setMvccVersion(RandomTestUtil.nextLong());
 
-		newPortletPreferences.setOwnerId(ServiceTestUtil.nextLong());
+		newPortletPreferences.setOwnerId(RandomTestUtil.nextLong());
 
-		newPortletPreferences.setOwnerType(ServiceTestUtil.nextInt());
+		newPortletPreferences.setOwnerType(RandomTestUtil.nextInt());
 
-		newPortletPreferences.setPlid(ServiceTestUtil.nextLong());
+		newPortletPreferences.setPlid(RandomTestUtil.nextLong());
 
-		newPortletPreferences.setPortletId(ServiceTestUtil.randomString());
+		newPortletPreferences.setPortletId(RandomTestUtil.randomString());
 
-		newPortletPreferences.setPreferences(ServiceTestUtil.randomString());
+		newPortletPreferences.setPreferences(RandomTestUtil.randomString());
 
 		_persistence.update(newPortletPreferences);
 
@@ -149,7 +165,7 @@ public class PortletPreferencesPersistenceTest {
 	@Test
 	public void testCountByPlid() {
 		try {
-			_persistence.countByPlid(ServiceTestUtil.nextLong());
+			_persistence.countByPlid(RandomTestUtil.nextLong());
 
 			_persistence.countByPlid(0L);
 		}
@@ -175,7 +191,7 @@ public class PortletPreferencesPersistenceTest {
 	@Test
 	public void testCountByO_P() {
 		try {
-			_persistence.countByO_P(ServiceTestUtil.nextInt(), StringPool.BLANK);
+			_persistence.countByO_P(RandomTestUtil.nextInt(), StringPool.BLANK);
 
 			_persistence.countByO_P(0, StringPool.NULL);
 
@@ -189,7 +205,7 @@ public class PortletPreferencesPersistenceTest {
 	@Test
 	public void testCountByP_P() {
 		try {
-			_persistence.countByP_P(ServiceTestUtil.nextLong(), StringPool.BLANK);
+			_persistence.countByP_P(RandomTestUtil.nextLong(), StringPool.BLANK);
 
 			_persistence.countByP_P(0L, StringPool.NULL);
 
@@ -203,8 +219,8 @@ public class PortletPreferencesPersistenceTest {
 	@Test
 	public void testCountByO_O_P() {
 		try {
-			_persistence.countByO_O_P(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt(), ServiceTestUtil.nextLong());
+			_persistence.countByO_O_P(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt(), RandomTestUtil.nextLong());
 
 			_persistence.countByO_O_P(0L, 0, 0L);
 		}
@@ -216,8 +232,8 @@ public class PortletPreferencesPersistenceTest {
 	@Test
 	public void testCountByO_O_PI() {
 		try {
-			_persistence.countByO_O_PI(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt(), StringPool.BLANK);
+			_persistence.countByO_O_PI(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt(), StringPool.BLANK);
 
 			_persistence.countByO_O_PI(0L, 0, StringPool.NULL);
 
@@ -231,8 +247,8 @@ public class PortletPreferencesPersistenceTest {
 	@Test
 	public void testCountByO_P_P() {
 		try {
-			_persistence.countByO_P_P(ServiceTestUtil.nextInt(),
-				ServiceTestUtil.nextLong(), StringPool.BLANK);
+			_persistence.countByO_P_P(RandomTestUtil.nextInt(),
+				RandomTestUtil.nextLong(), StringPool.BLANK);
 
 			_persistence.countByO_P_P(0, 0L, StringPool.NULL);
 
@@ -246,8 +262,8 @@ public class PortletPreferencesPersistenceTest {
 	@Test
 	public void testCountByO_O_P_P() {
 		try {
-			_persistence.countByO_O_P_P(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt(), ServiceTestUtil.nextLong(),
+			_persistence.countByO_O_P_P(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt(), RandomTestUtil.nextLong(),
 				StringPool.BLANK);
 
 			_persistence.countByO_O_P_P(0L, 0, 0L, StringPool.NULL);
@@ -270,7 +286,7 @@ public class PortletPreferencesPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -311,7 +327,7 @@ public class PortletPreferencesPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		PortletPreferences missingPortletPreferences = _persistence.fetchByPrimaryKey(pk);
 
@@ -322,16 +338,18 @@ public class PortletPreferencesPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new PortletPreferencesActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = PortletPreferencesLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					PortletPreferences portletPreferences = (PortletPreferences)object;
 
 					Assert.assertNotNull(portletPreferences);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -364,7 +382,7 @@ public class PortletPreferencesPersistenceTest {
 				PortletPreferences.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("portletPreferencesId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<PortletPreferences> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -406,7 +424,7 @@ public class PortletPreferencesPersistenceTest {
 				"portletPreferencesId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("portletPreferencesId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -438,21 +456,21 @@ public class PortletPreferencesPersistenceTest {
 
 	protected PortletPreferences addPortletPreferences()
 		throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		PortletPreferences portletPreferences = _persistence.create(pk);
 
-		portletPreferences.setMvccVersion(ServiceTestUtil.nextLong());
+		portletPreferences.setMvccVersion(RandomTestUtil.nextLong());
 
-		portletPreferences.setOwnerId(ServiceTestUtil.nextLong());
+		portletPreferences.setOwnerId(RandomTestUtil.nextLong());
 
-		portletPreferences.setOwnerType(ServiceTestUtil.nextInt());
+		portletPreferences.setOwnerType(RandomTestUtil.nextInt());
 
-		portletPreferences.setPlid(ServiceTestUtil.nextLong());
+		portletPreferences.setPlid(RandomTestUtil.nextLong());
 
-		portletPreferences.setPortletId(ServiceTestUtil.randomString());
+		portletPreferences.setPortletId(RandomTestUtil.randomString());
 
-		portletPreferences.setPreferences(ServiceTestUtil.randomString());
+		portletPreferences.setPreferences(RandomTestUtil.randomString());
 
 		_persistence.update(portletPreferences);
 
@@ -460,6 +478,7 @@ public class PortletPreferencesPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(PortletPreferencesPersistenceTest.class);
+	private ModelListener<PortletPreferences>[] _modelListeners;
 	private PortletPreferencesPersistence _persistence = (PortletPreferencesPersistence)PortalBeanLocatorUtil.locate(PortletPreferencesPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

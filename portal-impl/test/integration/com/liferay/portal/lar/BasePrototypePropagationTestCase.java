@@ -23,14 +23,15 @@ import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutPrototype;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.ServiceContextThreadLocal;
-import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.persistence.CompanyUtil;
-import com.liferay.portal.util.GroupTestUtil;
-import com.liferay.portal.util.LayoutTestUtil;
 import com.liferay.portal.util.PortletKeys;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.util.test.GroupTestUtil;
+import com.liferay.portal.util.test.LayoutTestUtil;
+import com.liferay.portal.util.test.RandomTestUtil;
+import com.liferay.portal.util.test.ServiceContextTestUtil;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.journal.model.JournalArticle;
-import com.liferay.portlet.journal.util.JournalTestUtil;
+import com.liferay.portlet.journal.util.test.JournalTestUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +52,7 @@ public abstract class BasePrototypePropagationTestCase {
 		FinderCacheUtil.clearCache();
 
 		ServiceContextThreadLocal.pushServiceContext(
-			ServiceTestUtil.getServiceContext());
+			ServiceContextTestUtil.getServiceContext());
 
 		// Group
 
@@ -69,7 +70,7 @@ public abstract class BasePrototypePropagationTestCase {
 		// Layout prototype
 
 		layoutPrototype = LayoutTestUtil.addLayoutPrototype(
-			ServiceTestUtil.randomString());
+			RandomTestUtil.randomString());
 
 		layoutPrototypeLayout = layoutPrototype.getLayout();
 
@@ -192,26 +193,22 @@ public abstract class BasePrototypePropagationTestCase {
 
 		setLinkEnabled(linkEnabled);
 
-		PortletPreferences layoutSetPrototypePortletPreferences =
-			LayoutTestUtil.getPortletPreferences(
-				prototypeLayout, journalContentPortletId);
-
 		MergeLayoutPrototypesThreadLocal.clearMergeComplete();
 
-		layoutSetPrototypePortletPreferences.setValue(
-			"articleId", StringPool.BLANK);
+		Map<String, String> portletPreferencesMap =
+			new HashMap<String, String>();
 
-		layoutSetPrototypePortletPreferences.setValue(
+		portletPreferencesMap.put("articleId", StringPool.BLANK);
+		portletPreferencesMap.put(
 			"showAvailableLocales", Boolean.FALSE.toString());
 
 		if (globalScope) {
-			layoutSetPrototypePortletPreferences.setValue(
-				"groupId", String.valueOf(globalGroupId));
-			layoutSetPrototypePortletPreferences.setValue(
-				"lfrScopeType", "company");
+			portletPreferencesMap.put("groupId", String.valueOf(globalGroupId));
+			portletPreferencesMap.put("lfrScopeType", "company");
 		}
 
-		layoutSetPrototypePortletPreferences.store();
+		LayoutTestUtil.updateLayoutPortletPreferences(
+			prototypeLayout, journalContentPortletId, portletPreferencesMap);
 
 		layout = propagateChanges(layout);
 

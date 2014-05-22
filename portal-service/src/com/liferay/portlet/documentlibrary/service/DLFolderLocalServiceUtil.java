@@ -232,6 +232,17 @@ public class DLFolderLocalServiceUtil {
 		return getService().getDLFolder(folderId);
 	}
 
+	public static com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getActionableDynamicQuery();
+	}
+
+	public static com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getExportActionableDynamicQuery(portletDataContext);
+	}
+
 	public static com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -633,6 +644,12 @@ public class DLFolderLocalServiceUtil {
 	public static long getFolderId(long companyId, long folderId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return getService().getFolderId(companyId, folderId);
+	}
+
+	public static java.util.List<java.lang.Long> getFolderIds(long groupId,
+		long parentFolderId)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getService().getFolderIds(groupId, parentFolderId);
 	}
 
 	public static java.util.List<com.liferay.portlet.documentlibrary.model.DLFolder> getFolders(

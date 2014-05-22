@@ -28,12 +28,13 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.dynamicdatalists.NoSuchRecordVersionException;
 import com.liferay.portlet.dynamicdatalists.model.DDLRecordVersion;
@@ -41,6 +42,7 @@ import com.liferay.portlet.dynamicdatalists.model.impl.DDLRecordVersionModelImpl
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -58,6 +60,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class DDLRecordVersionPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<DDLRecordVersion> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -79,11 +90,15 @@ public class DDLRecordVersionPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<DDLRecordVersion> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DDLRecordVersion ddlRecordVersion = _persistence.create(pk);
 
@@ -110,37 +125,37 @@ public class DDLRecordVersionPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DDLRecordVersion newDDLRecordVersion = _persistence.create(pk);
 
-		newDDLRecordVersion.setGroupId(ServiceTestUtil.nextLong());
+		newDDLRecordVersion.setGroupId(RandomTestUtil.nextLong());
 
-		newDDLRecordVersion.setCompanyId(ServiceTestUtil.nextLong());
+		newDDLRecordVersion.setCompanyId(RandomTestUtil.nextLong());
 
-		newDDLRecordVersion.setUserId(ServiceTestUtil.nextLong());
+		newDDLRecordVersion.setUserId(RandomTestUtil.nextLong());
 
-		newDDLRecordVersion.setUserName(ServiceTestUtil.randomString());
+		newDDLRecordVersion.setUserName(RandomTestUtil.randomString());
 
-		newDDLRecordVersion.setCreateDate(ServiceTestUtil.nextDate());
+		newDDLRecordVersion.setCreateDate(RandomTestUtil.nextDate());
 
-		newDDLRecordVersion.setDDMStorageId(ServiceTestUtil.nextLong());
+		newDDLRecordVersion.setDDMStorageId(RandomTestUtil.nextLong());
 
-		newDDLRecordVersion.setRecordSetId(ServiceTestUtil.nextLong());
+		newDDLRecordVersion.setRecordSetId(RandomTestUtil.nextLong());
 
-		newDDLRecordVersion.setRecordId(ServiceTestUtil.nextLong());
+		newDDLRecordVersion.setRecordId(RandomTestUtil.nextLong());
 
-		newDDLRecordVersion.setVersion(ServiceTestUtil.randomString());
+		newDDLRecordVersion.setVersion(RandomTestUtil.randomString());
 
-		newDDLRecordVersion.setDisplayIndex(ServiceTestUtil.nextInt());
+		newDDLRecordVersion.setDisplayIndex(RandomTestUtil.nextInt());
 
-		newDDLRecordVersion.setStatus(ServiceTestUtil.nextInt());
+		newDDLRecordVersion.setStatus(RandomTestUtil.nextInt());
 
-		newDDLRecordVersion.setStatusByUserId(ServiceTestUtil.nextLong());
+		newDDLRecordVersion.setStatusByUserId(RandomTestUtil.nextLong());
 
-		newDDLRecordVersion.setStatusByUserName(ServiceTestUtil.randomString());
+		newDDLRecordVersion.setStatusByUserName(RandomTestUtil.randomString());
 
-		newDDLRecordVersion.setStatusDate(ServiceTestUtil.nextDate());
+		newDDLRecordVersion.setStatusDate(RandomTestUtil.nextDate());
 
 		_persistence.update(newDDLRecordVersion);
 
@@ -183,7 +198,7 @@ public class DDLRecordVersionPersistenceTest {
 	@Test
 	public void testCountByRecordId() {
 		try {
-			_persistence.countByRecordId(ServiceTestUtil.nextLong());
+			_persistence.countByRecordId(RandomTestUtil.nextLong());
 
 			_persistence.countByRecordId(0L);
 		}
@@ -195,7 +210,7 @@ public class DDLRecordVersionPersistenceTest {
 	@Test
 	public void testCountByR_V() {
 		try {
-			_persistence.countByR_V(ServiceTestUtil.nextLong(), StringPool.BLANK);
+			_persistence.countByR_V(RandomTestUtil.nextLong(), StringPool.BLANK);
 
 			_persistence.countByR_V(0L, StringPool.NULL);
 
@@ -209,8 +224,8 @@ public class DDLRecordVersionPersistenceTest {
 	@Test
 	public void testCountByR_S() {
 		try {
-			_persistence.countByR_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByR_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt());
 
 			_persistence.countByR_S(0L, 0);
 		}
@@ -230,7 +245,7 @@ public class DDLRecordVersionPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -273,7 +288,7 @@ public class DDLRecordVersionPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DDLRecordVersion missingDDLRecordVersion = _persistence.fetchByPrimaryKey(pk);
 
@@ -306,7 +321,7 @@ public class DDLRecordVersionPersistenceTest {
 				DDLRecordVersion.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("recordVersionId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<DDLRecordVersion> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -347,7 +362,7 @@ public class DDLRecordVersionPersistenceTest {
 				"recordVersionId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("recordVersionId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -374,37 +389,37 @@ public class DDLRecordVersionPersistenceTest {
 	}
 
 	protected DDLRecordVersion addDDLRecordVersion() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DDLRecordVersion ddlRecordVersion = _persistence.create(pk);
 
-		ddlRecordVersion.setGroupId(ServiceTestUtil.nextLong());
+		ddlRecordVersion.setGroupId(RandomTestUtil.nextLong());
 
-		ddlRecordVersion.setCompanyId(ServiceTestUtil.nextLong());
+		ddlRecordVersion.setCompanyId(RandomTestUtil.nextLong());
 
-		ddlRecordVersion.setUserId(ServiceTestUtil.nextLong());
+		ddlRecordVersion.setUserId(RandomTestUtil.nextLong());
 
-		ddlRecordVersion.setUserName(ServiceTestUtil.randomString());
+		ddlRecordVersion.setUserName(RandomTestUtil.randomString());
 
-		ddlRecordVersion.setCreateDate(ServiceTestUtil.nextDate());
+		ddlRecordVersion.setCreateDate(RandomTestUtil.nextDate());
 
-		ddlRecordVersion.setDDMStorageId(ServiceTestUtil.nextLong());
+		ddlRecordVersion.setDDMStorageId(RandomTestUtil.nextLong());
 
-		ddlRecordVersion.setRecordSetId(ServiceTestUtil.nextLong());
+		ddlRecordVersion.setRecordSetId(RandomTestUtil.nextLong());
 
-		ddlRecordVersion.setRecordId(ServiceTestUtil.nextLong());
+		ddlRecordVersion.setRecordId(RandomTestUtil.nextLong());
 
-		ddlRecordVersion.setVersion(ServiceTestUtil.randomString());
+		ddlRecordVersion.setVersion(RandomTestUtil.randomString());
 
-		ddlRecordVersion.setDisplayIndex(ServiceTestUtil.nextInt());
+		ddlRecordVersion.setDisplayIndex(RandomTestUtil.nextInt());
 
-		ddlRecordVersion.setStatus(ServiceTestUtil.nextInt());
+		ddlRecordVersion.setStatus(RandomTestUtil.nextInt());
 
-		ddlRecordVersion.setStatusByUserId(ServiceTestUtil.nextLong());
+		ddlRecordVersion.setStatusByUserId(RandomTestUtil.nextLong());
 
-		ddlRecordVersion.setStatusByUserName(ServiceTestUtil.randomString());
+		ddlRecordVersion.setStatusByUserName(RandomTestUtil.randomString());
 
-		ddlRecordVersion.setStatusDate(ServiceTestUtil.nextDate());
+		ddlRecordVersion.setStatusDate(RandomTestUtil.nextDate());
 
 		_persistence.update(ddlRecordVersion);
 
@@ -412,6 +427,7 @@ public class DDLRecordVersionPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(DDLRecordVersionPersistenceTest.class);
+	private ModelListener<DDLRecordVersion>[] _modelListeners;
 	private DDLRecordVersionPersistence _persistence = (DDLRecordVersionPersistence)PortalBeanLocatorUtil.locate(DDLRecordVersionPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

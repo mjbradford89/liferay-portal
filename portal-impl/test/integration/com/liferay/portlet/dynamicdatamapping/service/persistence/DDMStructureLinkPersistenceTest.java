@@ -27,19 +27,22 @@ import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.dynamicdatamapping.NoSuchStructureLinkException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructureLink;
 import com.liferay.portlet.dynamicdatamapping.model.impl.DDMStructureLinkModelImpl;
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -57,6 +60,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class DDMStructureLinkPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<DDMStructureLink> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -78,11 +90,15 @@ public class DDMStructureLinkPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<DDMStructureLink> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DDMStructureLink ddmStructureLink = _persistence.create(pk);
 
@@ -109,15 +125,15 @@ public class DDMStructureLinkPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DDMStructureLink newDDMStructureLink = _persistence.create(pk);
 
-		newDDMStructureLink.setClassNameId(ServiceTestUtil.nextLong());
+		newDDMStructureLink.setClassNameId(RandomTestUtil.nextLong());
 
-		newDDMStructureLink.setClassPK(ServiceTestUtil.nextLong());
+		newDDMStructureLink.setClassPK(RandomTestUtil.nextLong());
 
-		newDDMStructureLink.setStructureId(ServiceTestUtil.nextLong());
+		newDDMStructureLink.setStructureId(RandomTestUtil.nextLong());
 
 		_persistence.update(newDDMStructureLink);
 
@@ -136,7 +152,7 @@ public class DDMStructureLinkPersistenceTest {
 	@Test
 	public void testCountByClassNameId() {
 		try {
-			_persistence.countByClassNameId(ServiceTestUtil.nextLong());
+			_persistence.countByClassNameId(RandomTestUtil.nextLong());
 
 			_persistence.countByClassNameId(0L);
 		}
@@ -148,7 +164,7 @@ public class DDMStructureLinkPersistenceTest {
 	@Test
 	public void testCountByClassPK() {
 		try {
-			_persistence.countByClassPK(ServiceTestUtil.nextLong());
+			_persistence.countByClassPK(RandomTestUtil.nextLong());
 
 			_persistence.countByClassPK(0L);
 		}
@@ -160,7 +176,7 @@ public class DDMStructureLinkPersistenceTest {
 	@Test
 	public void testCountByStructureId() {
 		try {
-			_persistence.countByStructureId(ServiceTestUtil.nextLong());
+			_persistence.countByStructureId(RandomTestUtil.nextLong());
 
 			_persistence.countByStructureId(0L);
 		}
@@ -180,7 +196,7 @@ public class DDMStructureLinkPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -220,7 +236,7 @@ public class DDMStructureLinkPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DDMStructureLink missingDDMStructureLink = _persistence.fetchByPrimaryKey(pk);
 
@@ -231,16 +247,18 @@ public class DDMStructureLinkPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new DDMStructureLinkActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = DDMStructureLinkLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					DDMStructureLink ddmStructureLink = (DDMStructureLink)object;
 
 					Assert.assertNotNull(ddmStructureLink);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -273,7 +291,7 @@ public class DDMStructureLinkPersistenceTest {
 				DDMStructureLink.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("structureLinkId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<DDMStructureLink> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -314,7 +332,7 @@ public class DDMStructureLinkPersistenceTest {
 				"structureLinkId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("structureLinkId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -338,15 +356,15 @@ public class DDMStructureLinkPersistenceTest {
 	}
 
 	protected DDMStructureLink addDDMStructureLink() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		DDMStructureLink ddmStructureLink = _persistence.create(pk);
 
-		ddmStructureLink.setClassNameId(ServiceTestUtil.nextLong());
+		ddmStructureLink.setClassNameId(RandomTestUtil.nextLong());
 
-		ddmStructureLink.setClassPK(ServiceTestUtil.nextLong());
+		ddmStructureLink.setClassPK(RandomTestUtil.nextLong());
 
-		ddmStructureLink.setStructureId(ServiceTestUtil.nextLong());
+		ddmStructureLink.setStructureId(RandomTestUtil.nextLong());
 
 		_persistence.update(ddmStructureLink);
 
@@ -354,6 +372,7 @@ public class DDMStructureLinkPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(DDMStructureLinkPersistenceTest.class);
+	private ModelListener<DDMStructureLink>[] _modelListeners;
 	private DDMStructureLinkPersistence _persistence = (DDMStructureLinkPersistence)PortalBeanLocatorUtil.locate(DDMStructureLinkPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

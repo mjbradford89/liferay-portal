@@ -27,19 +27,22 @@ import com.liferay.portal.kernel.test.ExecutionTestListeners;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.asset.NoSuchTagStatsException;
 import com.liferay.portlet.asset.model.AssetTagStats;
 import com.liferay.portlet.asset.model.impl.AssetTagStatsModelImpl;
+import com.liferay.portlet.asset.service.AssetTagStatsLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -57,6 +60,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class AssetTagStatsPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<AssetTagStats> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -78,11 +90,15 @@ public class AssetTagStatsPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<AssetTagStats> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetTagStats assetTagStats = _persistence.create(pk);
 
@@ -109,15 +125,15 @@ public class AssetTagStatsPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetTagStats newAssetTagStats = _persistence.create(pk);
 
-		newAssetTagStats.setTagId(ServiceTestUtil.nextLong());
+		newAssetTagStats.setTagId(RandomTestUtil.nextLong());
 
-		newAssetTagStats.setClassNameId(ServiceTestUtil.nextLong());
+		newAssetTagStats.setClassNameId(RandomTestUtil.nextLong());
 
-		newAssetTagStats.setAssetCount(ServiceTestUtil.nextInt());
+		newAssetTagStats.setAssetCount(RandomTestUtil.nextInt());
 
 		_persistence.update(newAssetTagStats);
 
@@ -136,7 +152,7 @@ public class AssetTagStatsPersistenceTest {
 	@Test
 	public void testCountByTagId() {
 		try {
-			_persistence.countByTagId(ServiceTestUtil.nextLong());
+			_persistence.countByTagId(RandomTestUtil.nextLong());
 
 			_persistence.countByTagId(0L);
 		}
@@ -148,7 +164,7 @@ public class AssetTagStatsPersistenceTest {
 	@Test
 	public void testCountByClassNameId() {
 		try {
-			_persistence.countByClassNameId(ServiceTestUtil.nextLong());
+			_persistence.countByClassNameId(RandomTestUtil.nextLong());
 
 			_persistence.countByClassNameId(0L);
 		}
@@ -160,8 +176,8 @@ public class AssetTagStatsPersistenceTest {
 	@Test
 	public void testCountByT_C() {
 		try {
-			_persistence.countByT_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByT_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByT_C(0L, 0L);
 		}
@@ -181,7 +197,7 @@ public class AssetTagStatsPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -220,7 +236,7 @@ public class AssetTagStatsPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetTagStats missingAssetTagStats = _persistence.fetchByPrimaryKey(pk);
 
@@ -231,16 +247,18 @@ public class AssetTagStatsPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new AssetTagStatsActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = AssetTagStatsLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					AssetTagStats assetTagStats = (AssetTagStats)object;
 
 					Assert.assertNotNull(assetTagStats);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -273,7 +291,7 @@ public class AssetTagStatsPersistenceTest {
 				AssetTagStats.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("tagStatsId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<AssetTagStats> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -312,7 +330,7 @@ public class AssetTagStatsPersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("tagStatsId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("tagStatsId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -338,15 +356,15 @@ public class AssetTagStatsPersistenceTest {
 	}
 
 	protected AssetTagStats addAssetTagStats() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		AssetTagStats assetTagStats = _persistence.create(pk);
 
-		assetTagStats.setTagId(ServiceTestUtil.nextLong());
+		assetTagStats.setTagId(RandomTestUtil.nextLong());
 
-		assetTagStats.setClassNameId(ServiceTestUtil.nextLong());
+		assetTagStats.setClassNameId(RandomTestUtil.nextLong());
 
-		assetTagStats.setAssetCount(ServiceTestUtil.nextInt());
+		assetTagStats.setAssetCount(RandomTestUtil.nextInt());
 
 		_persistence.update(assetTagStats);
 
@@ -354,6 +372,7 @@ public class AssetTagStatsPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(AssetTagStatsPersistenceTest.class);
+	private ModelListener<AssetTagStats>[] _modelListeners;
 	private AssetTagStatsPersistence _persistence = (AssetTagStatsPersistence)PortalBeanLocatorUtil.locate(AssetTagStatsPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

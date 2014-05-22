@@ -14,11 +14,13 @@
 
 package com.liferay.portlet.blogs.action;
 
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.sanitizer.SanitizerException;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.upload.UploadException;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.CalendarFactoryUtil;
 import com.liferay.portal.kernel.util.Constants;
@@ -52,6 +54,7 @@ import com.liferay.portlet.blogs.NoSuchEntryException;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
 import com.liferay.portlet.blogs.service.BlogsEntryServiceUtil;
+import com.liferay.portlet.documentlibrary.FileSizeException;
 import com.liferay.portlet.trash.util.TrashUtil;
 
 import java.io.InputStream;
@@ -97,7 +100,20 @@ public class EditEntryAction extends PortletAction {
 			BlogsEntry entry = null;
 			String oldUrlTitle = StringPool.BLANK;
 
-			if (cmd.equals(Constants.ADD) || cmd.equals(Constants.UPDATE)) {
+			UploadException uploadException =
+				(UploadException)actionRequest.getAttribute(
+					WebKeys.UPLOAD_EXCEPTION);
+
+			if (uploadException != null) {
+				if (uploadException.isExceededSizeLimit()) {
+					throw new FileSizeException(uploadException.getCause());
+				}
+
+				throw new PortalException(uploadException.getCause());
+			}
+			else if (cmd.equals(Constants.ADD) ||
+					 cmd.equals(Constants.UPDATE)) {
+
 				Object[] returnValue = updateEntry(actionRequest);
 
 				entry = (BlogsEntry)returnValue[0];
@@ -221,6 +237,7 @@ public class EditEntryAction extends PortletAction {
 					 e instanceof EntrySmallImageNameException ||
 					 e instanceof EntrySmallImageSizeException ||
 					 e instanceof EntryTitleException ||
+					 e instanceof FileSizeException ||
 					 e instanceof SanitizerException) {
 
 				SessionErrors.add(actionRequest, e.getClass());
@@ -378,13 +395,17 @@ public class EditEntryAction extends PortletAction {
 			ActionRequest actionRequest, ActionResponse actionResponse)
 		throws Exception {
 
+		ThemeDisplay themeDisplay = (ThemeDisplay)actionRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		long entryId = ParamUtil.getLong(actionRequest, "entryId");
 
 		BlogsEntry entry = BlogsEntryLocalServiceUtil.getEntry(entryId);
 
 		String content = ParamUtil.getString(actionRequest, "content");
 
-		Calendar displayDateCal = CalendarFactoryUtil.getCalendar();
+		Calendar displayDateCal = CalendarFactoryUtil.getCalendar(
+			themeDisplay.getTimeZone());
 
 		displayDateCal.setTime(entry.getDisplayDate());
 

@@ -400,6 +400,11 @@ public abstract class BaseSeleniumImpl
 	}
 
 	@Override
+	public boolean isTCatEnabled() {
+		return LiferaySeleniumHelper.isTCatEnabled();
+	}
+
+	@Override
 	public boolean isText(String locator, String value) {
 		return value.equals(getText(locator));
 	}
@@ -580,6 +585,16 @@ public abstract class BaseSeleniumImpl
 	}
 
 	@Override
+	public void sikuliAssertElementNotPresent(String image) throws Exception {
+		LiferaySeleniumHelper.sikuliAssertElementNotPresent(this, image);
+	}
+
+	@Override
+	public void sikuliAssertElementPresent(String image) throws Exception {
+		LiferaySeleniumHelper.sikuliAssertElementPresent(this, image);
+	}
+
+	@Override
 	public void sikuliClick(String image) throws Exception {
 		LiferaySeleniumHelper.sikuliClick(this, image);
 	}
@@ -594,6 +609,13 @@ public abstract class BaseSeleniumImpl
 		throws Exception {
 
 		LiferaySeleniumHelper.sikuliUploadCommonFile(this, image, value);
+	}
+
+	@Override
+	public void sikuliUploadTCatFile(String image, String value)
+		throws Exception {
+
+		LiferaySeleniumHelper.sikuliUploadTCatFile(this, image, value);
 	}
 
 	@Override

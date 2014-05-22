@@ -386,7 +386,19 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 
 		LocalRepository localRepository = getLocalRepository(repositoryId);
 
-		localRepository.deleteAll();
+		deleteRepository(localRepository);
+	}
+
+	@Override
+	public void deleteAllRepositories(long groupId)
+		throws PortalException, SystemException {
+
+		List<LocalRepository> localRepositories =
+			repositoryLocalService.getGroupLocalRepositoryImpl(groupId);
+
+		for (LocalRepository localRepository : localRepositories) {
+			deleteRepository(localRepository);
+		}
 	}
 
 	/**
@@ -407,14 +419,7 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 
 		dlAppHelperLocalService.deleteFileEntry(fileEntry);
 
-		SystemEventHierarchyEntryThreadLocal.push(FileEntry.class);
-
-		try {
-			localRepository.deleteFileEntry(fileEntryId);
-		}
-		finally {
-			SystemEventHierarchyEntryThreadLocal.pop(FileEntry.class);
-		}
+		localRepository.deleteFileEntry(fileEntryId);
 	}
 
 	/**
@@ -502,7 +507,19 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 
 		LocalRepository localRepository = getFolderLocalRepository(folderId);
 
+		List<FileEntry> fileEntries =
+			localRepository.getRepositoryFileEntries(
+				folderId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+
+		Folder folder = getFolder(folderId);
+
 		localRepository.deleteFolder(folderId);
+
+		for (FileEntry fileEntry : fileEntries) {
+			dlAppHelperLocalService.deleteFileEntry(fileEntry);
+		}
+
+		dlAppHelperLocalService.deleteFolder(folder);
 	}
 
 	/**
@@ -733,8 +750,12 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 
 				// Move file entries within repository
 
-				return fromLocalRepository.moveFileEntry(
+				FileEntry fileEntry = fromLocalRepository.moveFileEntry(
 					userId, fileEntryId, newFolderId, serviceContext);
+
+				dlAppHelperLocalService.moveFileEntry(fileEntry);
+
+				return fileEntry;
 			}
 
 			// Move file entries between repositories
@@ -1363,6 +1384,16 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 
 			throw pe;
 		}
+	}
+
+	protected void deleteRepository(LocalRepository localRepository)
+		throws PortalException, SystemException {
+
+		long repositoryId = localRepository.getRepositoryId();
+
+		dlAppHelperLocalService.deleteRepositoryFileEntries(repositoryId);
+
+		localRepository.deleteAll();
 	}
 
 	protected LocalRepository getFileEntryLocalRepository(long fileEntryId)

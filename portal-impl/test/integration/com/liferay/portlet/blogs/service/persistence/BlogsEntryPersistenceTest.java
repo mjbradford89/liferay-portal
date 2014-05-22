@@ -30,19 +30,22 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.blogs.NoSuchEntryException;
 import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.model.impl.BlogsEntryModelImpl;
+import com.liferay.portlet.blogs.service.BlogsEntryLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -60,6 +63,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class BlogsEntryPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<BlogsEntry> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -81,11 +93,15 @@ public class BlogsEntryPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<BlogsEntry> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		BlogsEntry blogsEntry = _persistence.create(pk);
 
@@ -112,53 +128,53 @@ public class BlogsEntryPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		BlogsEntry newBlogsEntry = _persistence.create(pk);
 
-		newBlogsEntry.setUuid(ServiceTestUtil.randomString());
+		newBlogsEntry.setUuid(RandomTestUtil.randomString());
 
-		newBlogsEntry.setGroupId(ServiceTestUtil.nextLong());
+		newBlogsEntry.setGroupId(RandomTestUtil.nextLong());
 
-		newBlogsEntry.setCompanyId(ServiceTestUtil.nextLong());
+		newBlogsEntry.setCompanyId(RandomTestUtil.nextLong());
 
-		newBlogsEntry.setUserId(ServiceTestUtil.nextLong());
+		newBlogsEntry.setUserId(RandomTestUtil.nextLong());
 
-		newBlogsEntry.setUserName(ServiceTestUtil.randomString());
+		newBlogsEntry.setUserName(RandomTestUtil.randomString());
 
-		newBlogsEntry.setCreateDate(ServiceTestUtil.nextDate());
+		newBlogsEntry.setCreateDate(RandomTestUtil.nextDate());
 
-		newBlogsEntry.setModifiedDate(ServiceTestUtil.nextDate());
+		newBlogsEntry.setModifiedDate(RandomTestUtil.nextDate());
 
-		newBlogsEntry.setTitle(ServiceTestUtil.randomString());
+		newBlogsEntry.setTitle(RandomTestUtil.randomString());
 
-		newBlogsEntry.setUrlTitle(ServiceTestUtil.randomString());
+		newBlogsEntry.setUrlTitle(RandomTestUtil.randomString());
 
-		newBlogsEntry.setDescription(ServiceTestUtil.randomString());
+		newBlogsEntry.setDescription(RandomTestUtil.randomString());
 
-		newBlogsEntry.setContent(ServiceTestUtil.randomString());
+		newBlogsEntry.setContent(RandomTestUtil.randomString());
 
-		newBlogsEntry.setDisplayDate(ServiceTestUtil.nextDate());
+		newBlogsEntry.setDisplayDate(RandomTestUtil.nextDate());
 
-		newBlogsEntry.setAllowPingbacks(ServiceTestUtil.randomBoolean());
+		newBlogsEntry.setAllowPingbacks(RandomTestUtil.randomBoolean());
 
-		newBlogsEntry.setAllowTrackbacks(ServiceTestUtil.randomBoolean());
+		newBlogsEntry.setAllowTrackbacks(RandomTestUtil.randomBoolean());
 
-		newBlogsEntry.setTrackbacks(ServiceTestUtil.randomString());
+		newBlogsEntry.setTrackbacks(RandomTestUtil.randomString());
 
-		newBlogsEntry.setSmallImage(ServiceTestUtil.randomBoolean());
+		newBlogsEntry.setSmallImage(RandomTestUtil.randomBoolean());
 
-		newBlogsEntry.setSmallImageId(ServiceTestUtil.nextLong());
+		newBlogsEntry.setSmallImageId(RandomTestUtil.nextLong());
 
-		newBlogsEntry.setSmallImageURL(ServiceTestUtil.randomString());
+		newBlogsEntry.setSmallImageURL(RandomTestUtil.randomString());
 
-		newBlogsEntry.setStatus(ServiceTestUtil.nextInt());
+		newBlogsEntry.setStatus(RandomTestUtil.nextInt());
 
-		newBlogsEntry.setStatusByUserId(ServiceTestUtil.nextLong());
+		newBlogsEntry.setStatusByUserId(RandomTestUtil.nextLong());
 
-		newBlogsEntry.setStatusByUserName(ServiceTestUtil.randomString());
+		newBlogsEntry.setStatusByUserName(RandomTestUtil.randomString());
 
-		newBlogsEntry.setStatusDate(ServiceTestUtil.nextDate());
+		newBlogsEntry.setStatusDate(RandomTestUtil.nextDate());
 
 		_persistence.update(newBlogsEntry);
 
@@ -234,7 +250,7 @@ public class BlogsEntryPersistenceTest {
 	public void testCountByUUID_G() {
 		try {
 			_persistence.countByUUID_G(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUUID_G(StringPool.NULL, 0L);
 
@@ -249,7 +265,7 @@ public class BlogsEntryPersistenceTest {
 	public void testCountByUuid_C() {
 		try {
 			_persistence.countByUuid_C(StringPool.BLANK,
-				ServiceTestUtil.nextLong());
+				RandomTestUtil.nextLong());
 
 			_persistence.countByUuid_C(StringPool.NULL, 0L);
 
@@ -263,7 +279,7 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByGroupId() {
 		try {
-			_persistence.countByGroupId(ServiceTestUtil.nextLong());
+			_persistence.countByGroupId(RandomTestUtil.nextLong());
 
 			_persistence.countByGroupId(0L);
 		}
@@ -275,7 +291,7 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByCompanyId() {
 		try {
-			_persistence.countByCompanyId(ServiceTestUtil.nextLong());
+			_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
 			_persistence.countByCompanyId(0L);
 		}
@@ -287,8 +303,8 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByC_U() {
 		try {
-			_persistence.countByC_U(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByC_U(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByC_U(0L, 0L);
 		}
@@ -300,10 +316,10 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByC_LtD() {
 		try {
-			_persistence.countByC_LtD(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextDate());
+			_persistence.countByC_LtD(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextDate());
 
-			_persistence.countByC_LtD(0L, ServiceTestUtil.nextDate());
+			_persistence.countByC_LtD(0L, RandomTestUtil.nextDate());
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -313,8 +329,8 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByC_NotS() {
 		try {
-			_persistence.countByC_NotS(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByC_NotS(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt());
 
 			_persistence.countByC_NotS(0L, 0);
 		}
@@ -326,8 +342,8 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByC_S() {
 		try {
-			_persistence.countByC_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByC_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt());
 
 			_persistence.countByC_S(0L, 0);
 		}
@@ -339,8 +355,7 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_UT() {
 		try {
-			_persistence.countByG_UT(ServiceTestUtil.nextLong(),
-				StringPool.BLANK);
+			_persistence.countByG_UT(RandomTestUtil.nextLong(), StringPool.BLANK);
 
 			_persistence.countByG_UT(0L, StringPool.NULL);
 
@@ -354,10 +369,10 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_LtD() {
 		try {
-			_persistence.countByG_LtD(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextDate());
+			_persistence.countByG_LtD(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextDate());
 
-			_persistence.countByG_LtD(0L, ServiceTestUtil.nextDate());
+			_persistence.countByG_LtD(0L, RandomTestUtil.nextDate());
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -367,8 +382,8 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_NotS() {
 		try {
-			_persistence.countByG_NotS(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByG_NotS(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt());
 
 			_persistence.countByG_NotS(0L, 0);
 		}
@@ -380,8 +395,8 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_S() {
 		try {
-			_persistence.countByG_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByG_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextInt());
 
 			_persistence.countByG_S(0L, 0);
 		}
@@ -393,10 +408,10 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByLtD_S() {
 		try {
-			_persistence.countByLtD_S(ServiceTestUtil.nextDate(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByLtD_S(RandomTestUtil.nextDate(),
+				RandomTestUtil.nextInt());
 
-			_persistence.countByLtD_S(ServiceTestUtil.nextDate(), 0);
+			_persistence.countByLtD_S(RandomTestUtil.nextDate(), 0);
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -406,8 +421,8 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByC_U_NotS() {
 		try {
-			_persistence.countByC_U_NotS(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextInt());
+			_persistence.countByC_U_NotS(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
 			_persistence.countByC_U_NotS(0L, 0L, 0);
 		}
@@ -419,8 +434,8 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByC_U_S() {
 		try {
-			_persistence.countByC_U_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextInt());
+			_persistence.countByC_U_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
 			_persistence.countByC_U_S(0L, 0L, 0);
 		}
@@ -432,10 +447,10 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByC_LtD_NotS() {
 		try {
-			_persistence.countByC_LtD_NotS(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextDate(), ServiceTestUtil.nextInt());
+			_persistence.countByC_LtD_NotS(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
 
-			_persistence.countByC_LtD_NotS(0L, ServiceTestUtil.nextDate(), 0);
+			_persistence.countByC_LtD_NotS(0L, RandomTestUtil.nextDate(), 0);
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -445,10 +460,10 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByC_LtD_S() {
 		try {
-			_persistence.countByC_LtD_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextDate(), ServiceTestUtil.nextInt());
+			_persistence.countByC_LtD_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
 
-			_persistence.countByC_LtD_S(0L, ServiceTestUtil.nextDate(), 0);
+			_persistence.countByC_LtD_S(0L, RandomTestUtil.nextDate(), 0);
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -458,10 +473,10 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_U_LtD() {
 		try {
-			_persistence.countByG_U_LtD(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextDate());
+			_persistence.countByG_U_LtD(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextDate());
 
-			_persistence.countByG_U_LtD(0L, 0L, ServiceTestUtil.nextDate());
+			_persistence.countByG_U_LtD(0L, 0L, RandomTestUtil.nextDate());
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -471,8 +486,8 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_U_NotS() {
 		try {
-			_persistence.countByG_U_NotS(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextInt());
+			_persistence.countByG_U_NotS(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
 			_persistence.countByG_U_NotS(0L, 0L, 0);
 		}
@@ -484,8 +499,8 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_U_S() {
 		try {
-			_persistence.countByG_U_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextInt());
+			_persistence.countByG_U_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextInt());
 
 			_persistence.countByG_U_S(0L, 0L, 0);
 		}
@@ -497,10 +512,10 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_LtD_NotS() {
 		try {
-			_persistence.countByG_LtD_NotS(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextDate(), ServiceTestUtil.nextInt());
+			_persistence.countByG_LtD_NotS(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
 
-			_persistence.countByG_LtD_NotS(0L, ServiceTestUtil.nextDate(), 0);
+			_persistence.countByG_LtD_NotS(0L, RandomTestUtil.nextDate(), 0);
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -510,10 +525,10 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_LtD_S() {
 		try {
-			_persistence.countByG_LtD_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextDate(), ServiceTestUtil.nextInt());
+			_persistence.countByG_LtD_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextDate(), RandomTestUtil.nextInt());
 
-			_persistence.countByG_LtD_S(0L, ServiceTestUtil.nextDate(), 0);
+			_persistence.countByG_LtD_S(0L, RandomTestUtil.nextDate(), 0);
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -523,12 +538,12 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_U_LtD_NotS() {
 		try {
-			_persistence.countByG_U_LtD_NotS(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextDate(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByG_U_LtD_NotS(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextDate(),
+				RandomTestUtil.nextInt());
 
-			_persistence.countByG_U_LtD_NotS(0L, 0L,
-				ServiceTestUtil.nextDate(), 0);
+			_persistence.countByG_U_LtD_NotS(0L, 0L, RandomTestUtil.nextDate(),
+				0);
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -538,11 +553,11 @@ public class BlogsEntryPersistenceTest {
 	@Test
 	public void testCountByG_U_LtD_S() {
 		try {
-			_persistence.countByG_U_LtD_S(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong(), ServiceTestUtil.nextDate(),
-				ServiceTestUtil.nextInt());
+			_persistence.countByG_U_LtD_S(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong(), RandomTestUtil.nextDate(),
+				RandomTestUtil.nextInt());
 
-			_persistence.countByG_U_LtD_S(0L, 0L, ServiceTestUtil.nextDate(), 0);
+			_persistence.countByG_U_LtD_S(0L, 0L, RandomTestUtil.nextDate(), 0);
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -560,7 +575,7 @@ public class BlogsEntryPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -615,7 +630,7 @@ public class BlogsEntryPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		BlogsEntry missingBlogsEntry = _persistence.fetchByPrimaryKey(pk);
 
@@ -626,16 +641,18 @@ public class BlogsEntryPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new BlogsEntryActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = BlogsEntryLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					BlogsEntry blogsEntry = (BlogsEntry)object;
 
 					Assert.assertNotNull(blogsEntry);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -668,7 +685,7 @@ public class BlogsEntryPersistenceTest {
 				BlogsEntry.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("entryId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<BlogsEntry> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -707,7 +724,7 @@ public class BlogsEntryPersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("entryId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("entryId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -740,53 +757,53 @@ public class BlogsEntryPersistenceTest {
 	}
 
 	protected BlogsEntry addBlogsEntry() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		BlogsEntry blogsEntry = _persistence.create(pk);
 
-		blogsEntry.setUuid(ServiceTestUtil.randomString());
+		blogsEntry.setUuid(RandomTestUtil.randomString());
 
-		blogsEntry.setGroupId(ServiceTestUtil.nextLong());
+		blogsEntry.setGroupId(RandomTestUtil.nextLong());
 
-		blogsEntry.setCompanyId(ServiceTestUtil.nextLong());
+		blogsEntry.setCompanyId(RandomTestUtil.nextLong());
 
-		blogsEntry.setUserId(ServiceTestUtil.nextLong());
+		blogsEntry.setUserId(RandomTestUtil.nextLong());
 
-		blogsEntry.setUserName(ServiceTestUtil.randomString());
+		blogsEntry.setUserName(RandomTestUtil.randomString());
 
-		blogsEntry.setCreateDate(ServiceTestUtil.nextDate());
+		blogsEntry.setCreateDate(RandomTestUtil.nextDate());
 
-		blogsEntry.setModifiedDate(ServiceTestUtil.nextDate());
+		blogsEntry.setModifiedDate(RandomTestUtil.nextDate());
 
-		blogsEntry.setTitle(ServiceTestUtil.randomString());
+		blogsEntry.setTitle(RandomTestUtil.randomString());
 
-		blogsEntry.setUrlTitle(ServiceTestUtil.randomString());
+		blogsEntry.setUrlTitle(RandomTestUtil.randomString());
 
-		blogsEntry.setDescription(ServiceTestUtil.randomString());
+		blogsEntry.setDescription(RandomTestUtil.randomString());
 
-		blogsEntry.setContent(ServiceTestUtil.randomString());
+		blogsEntry.setContent(RandomTestUtil.randomString());
 
-		blogsEntry.setDisplayDate(ServiceTestUtil.nextDate());
+		blogsEntry.setDisplayDate(RandomTestUtil.nextDate());
 
-		blogsEntry.setAllowPingbacks(ServiceTestUtil.randomBoolean());
+		blogsEntry.setAllowPingbacks(RandomTestUtil.randomBoolean());
 
-		blogsEntry.setAllowTrackbacks(ServiceTestUtil.randomBoolean());
+		blogsEntry.setAllowTrackbacks(RandomTestUtil.randomBoolean());
 
-		blogsEntry.setTrackbacks(ServiceTestUtil.randomString());
+		blogsEntry.setTrackbacks(RandomTestUtil.randomString());
 
-		blogsEntry.setSmallImage(ServiceTestUtil.randomBoolean());
+		blogsEntry.setSmallImage(RandomTestUtil.randomBoolean());
 
-		blogsEntry.setSmallImageId(ServiceTestUtil.nextLong());
+		blogsEntry.setSmallImageId(RandomTestUtil.nextLong());
 
-		blogsEntry.setSmallImageURL(ServiceTestUtil.randomString());
+		blogsEntry.setSmallImageURL(RandomTestUtil.randomString());
 
-		blogsEntry.setStatus(ServiceTestUtil.nextInt());
+		blogsEntry.setStatus(RandomTestUtil.nextInt());
 
-		blogsEntry.setStatusByUserId(ServiceTestUtil.nextLong());
+		blogsEntry.setStatusByUserId(RandomTestUtil.nextLong());
 
-		blogsEntry.setStatusByUserName(ServiceTestUtil.randomString());
+		blogsEntry.setStatusByUserName(RandomTestUtil.randomString());
 
-		blogsEntry.setStatusDate(ServiceTestUtil.nextDate());
+		blogsEntry.setStatusDate(RandomTestUtil.nextDate());
 
 		_persistence.update(blogsEntry);
 
@@ -794,6 +811,7 @@ public class BlogsEntryPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(BlogsEntryPersistenceTest.class);
+	private ModelListener<BlogsEntry>[] _modelListeners;
 	private BlogsEntryPersistence _persistence = (BlogsEntryPersistence)PortalBeanLocatorUtil.locate(BlogsEntryPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

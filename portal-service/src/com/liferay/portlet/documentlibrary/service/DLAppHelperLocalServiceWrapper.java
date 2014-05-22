@@ -113,6 +113,13 @@ public class DLAppHelperLocalServiceWrapper implements DLAppHelperLocalService,
 	}
 
 	@Override
+	public void deleteRepositoryFileEntries(long repositoryId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		_dlAppHelperLocalService.deleteRepositoryFileEntries(repositoryId);
+	}
+
+	@Override
 	public void getFileAsStream(long userId,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
 		boolean incrementCounter)
@@ -403,13 +410,13 @@ public class DLAppHelperLocalServiceWrapper implements DLAppHelperLocalService,
 		com.liferay.portal.kernel.repository.model.FileEntry fileEntry,
 		com.liferay.portal.kernel.repository.model.FileVersion latestFileVersion,
 		int oldStatus, int newStatus,
-		java.util.Map<java.lang.String, java.io.Serializable> workflowContext,
-		com.liferay.portal.service.ServiceContext serviceContext)
+		com.liferay.portal.service.ServiceContext serviceContext,
+		java.util.Map<java.lang.String, java.io.Serializable> workflowContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		_dlAppHelperLocalService.updateStatus(userId, fileEntry,
-			latestFileVersion, oldStatus, newStatus, workflowContext,
-			serviceContext);
+			latestFileVersion, oldStatus, newStatus, serviceContext,
+			workflowContext);
 	}
 
 	/**

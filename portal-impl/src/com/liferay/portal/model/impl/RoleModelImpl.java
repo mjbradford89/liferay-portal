@@ -176,8 +176,8 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 				"value.object.finder.cache.enabled.Groups_Roles"), true);
 	public static final String MAPPING_TABLE_USERS_ROLES_NAME = "Users_Roles";
 	public static final Object[][] MAPPING_TABLE_USERS_ROLES_COLUMNS = {
-			{ "userId", Types.BIGINT },
-			{ "roleId", Types.BIGINT }
+			{ "roleId", Types.BIGINT },
+			{ "userId", Types.BIGINT }
 		};
 	public static final String MAPPING_TABLE_USERS_ROLES_SQL_CREATE = "create table Users_Roles (roleId LONG not null,userId LONG not null,primary key (roleId, userId))";
 	public static final boolean FINDER_CACHE_ENABLED_USERS_ROLES = GetterUtil.getBoolean(com.liferay.portal.util.PropsUtil.get(
@@ -879,7 +879,14 @@ public class RoleModelImpl extends BaseModelImpl<Role> implements RoleModel {
 
 	@Override
 	public void prepareLocalizedFieldsForImport() throws LocaleException {
-		prepareLocalizedFieldsForImport(null);
+		Locale defaultLocale = LocaleUtil.fromLanguageId(getDefaultLanguageId());
+
+		Locale[] availableLocales = LocaleUtil.fromLanguageIds(getAvailableLanguageIds());
+
+		Locale defaultImportLocale = LocalizationUtil.getDefaultImportLocale(Role.class.getName(),
+				getPrimaryKey(), defaultLocale, availableLocales);
+
+		prepareLocalizedFieldsForImport(defaultImportLocale);
 	}
 
 	@Override

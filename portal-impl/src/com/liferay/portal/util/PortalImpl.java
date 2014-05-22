@@ -92,8 +92,10 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.kernel.util.UniqueList;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.QName;
+import com.liferay.portal.language.LanguageResources;
 import com.liferay.portal.model.AuditedModel;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.ClassName;
@@ -122,6 +124,7 @@ import com.liferay.portal.model.Ticket;
 import com.liferay.portal.model.TicketConstants;
 import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroup;
+import com.liferay.portal.model.VirtualHost;
 import com.liferay.portal.model.VirtualLayoutConstants;
 import com.liferay.portal.model.impl.CookieRemotePreference;
 import com.liferay.portal.model.impl.LayoutTypePortletImpl;
@@ -146,12 +149,14 @@ import com.liferay.portal.service.GroupServiceUtil;
 import com.liferay.portal.service.ImageLocalServiceUtil;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.LayoutSetLocalServiceUtil;
+import com.liferay.portal.service.OrganizationLocalServiceUtil;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.service.ResourceLocalServiceUtil;
 import com.liferay.portal.service.ResourcePermissionLocalServiceUtil;
 import com.liferay.portal.service.TicketLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.service.UserServiceUtil;
+import com.liferay.portal.service.VirtualHostLocalServiceUtil;
 import com.liferay.portal.service.permission.GroupPermissionUtil;
 import com.liferay.portal.service.permission.LayoutPermissionUtil;
 import com.liferay.portal.service.permission.LayoutPrototypePermissionUtil;
@@ -815,26 +820,8 @@ public class PortalImpl implements Portal {
 			domain = domain.substring(0, pos);
 		}
 
-		try {
-			Company company = CompanyLocalServiceUtil.fetchCompanyByVirtualHost(
-				domain);
-
-			if (company != null) {
-				return url;
-			}
-		}
-		catch (Exception e) {
-		}
-
-		try {
-			LayoutSet layoutSet = LayoutSetLocalServiceUtil.fetchLayoutSet(
-				domain);
-
-			if (layoutSet != null) {
-				return url;
-			}
-		}
-		catch (Exception e) {
+		if (isValidVirtualHostname(domain)) {
+			return url;
 		}
 
 		try {
@@ -1288,6 +1275,62 @@ public class PortalImpl implements Portal {
 		}
 
 		return userId;
+	}
+
+	@Override
+	public List<Group> getBrowsableScopeGroups(
+			long userId, long companyId, long groupId, String portletId)
+		throws PortalException, SystemException {
+
+		List<Group> groups = new UniqueList<Group>();
+
+		LinkedHashMap<String, Object> params =
+			new LinkedHashMap<String, Object>();
+
+		params.put("usersGroups", new Long(userId));
+
+		groups.addAll(
+			0,
+			GroupLocalServiceUtil.search(
+				companyId, null, null, params, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS));
+
+		List<Organization> organizations =
+			OrganizationLocalServiceUtil.getUserOrganizations(userId);
+
+		for (Organization organization : organizations) {
+			groups.add(0, organization.getGroup());
+		}
+
+		if (PropsValues.LAYOUT_USER_PRIVATE_LAYOUTS_ENABLED ||
+			PropsValues.LAYOUT_USER_PUBLIC_LAYOUTS_ENABLED) {
+
+			groups.add(
+				0, GroupLocalServiceUtil.getUserGroup(companyId, userId));
+		}
+
+		groups.addAll(0, getCurrentAndAncestorSiteGroups(groupId));
+
+		List<Group> filteredGroups = new ArrayList<Group>();
+
+		for (Group group : groups) {
+			if (group.hasStagingGroup()) {
+				Group stagingGroup = group.getStagingGroup();
+
+				if ((stagingGroup.getGroupId() == groupId) &&
+					group.isStagedPortlet(portletId) &&
+					!group.isStagedRemotely() &&
+					group.isStagedPortlet(PortletKeys.DOCUMENT_LIBRARY)) {
+
+					filteredGroups.add(stagingGroup);
+				}
+			}
+			else {
+				filteredGroups.add(group);
+			}
+		}
+
+		return filteredGroups;
 	}
 
 	@Override
@@ -1832,15 +1875,7 @@ public class PortalImpl implements Portal {
 	public long[] getCurrentAndAncestorSiteGroupIds(long groupId)
 		throws PortalException, SystemException {
 
-		List<Group> groups = new ArrayList<Group>();
-
-		Group siteGroup = doGetCurrentSiteGroup(groupId);
-
-		if (siteGroup != null) {
-			groups.add(siteGroup);
-		}
-
-		groups.addAll(doGetAncestorSiteGroups(groupId, false));
+		List<Group> groups = getCurrentAndAncestorSiteGroups(groupId);
 
 		long[] groupIds = new long[groups.size()];
 
@@ -1851,6 +1886,23 @@ public class PortalImpl implements Portal {
 		}
 
 		return groupIds;
+	}
+
+	@Override
+	public List<Group> getCurrentAndAncestorSiteGroups(long groupId)
+		throws PortalException, SystemException {
+
+		List<Group> groups = new UniqueList<Group>();
+
+		Group siteGroup = doGetCurrentSiteGroup(groupId);
+
+		if (siteGroup != null) {
+			groups.add(siteGroup);
+		}
+
+		groups.addAll(doGetAncestorSiteGroups(groupId, false));
+
+		return groups;
 	}
 
 	@Override
@@ -4112,8 +4164,9 @@ public class PortalImpl implements Portal {
 
 	@Override
 	public String getPortalURL(HttpServletRequest request, boolean secure) {
-		return getPortalURL(
-			request.getServerName(), request.getServerPort(), secure);
+		String domain = getValidPortalDomain(request.getServerName());
+
+		return getPortalURL(domain, request.getServerPort(), secure);
 	}
 
 	@Override
@@ -4151,9 +4204,9 @@ public class PortalImpl implements Portal {
 
 	@Override
 	public String getPortalURL(PortletRequest portletRequest, boolean secure) {
-		return getPortalURL(
-			portletRequest.getServerName(), portletRequest.getServerPort(),
-			secure);
+		String domain = getValidPortalDomain(portletRequest.getServerName());
+
+		return getPortalURL(domain, portletRequest.getServerPort(), secure);
 	}
 
 	@Override
@@ -4743,6 +4796,11 @@ public class PortalImpl implements Portal {
 	}
 
 	@Override
+	public ResourceBundle getResourceBundle(Locale locale) {
+		return LanguageResources.getResourceBundle(locale);
+	}
+
+	@Override
 	public long getScopeGroupId(HttpServletRequest request)
 		throws PortalException, SystemException {
 
@@ -4981,7 +5039,7 @@ public class PortalImpl implements Portal {
 			long companyId, long groupId, long userId)
 		throws PortalException, SystemException {
 
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new UniqueList<Group>();
 
 		Group siteGroup = doGetCurrentSiteGroup(groupId);
 
@@ -6848,6 +6906,25 @@ public class PortalImpl implements Portal {
 	}
 
 	@Override
+	public String resetPortletParameters(String url, String portletId) {
+		if (Validator.isNull(url) || Validator.isNull(portletId)) {
+			return url;
+		}
+
+		String portletNamespace = getPortletNamespace(portletId);
+
+		Map<String, String[]> parameterMap = HttpUtil.getParameterMap(url);
+
+		for (String name : parameterMap.keySet()) {
+			if (name.startsWith(portletNamespace)) {
+				url = HttpUtil.removeParameter(url, name);
+			}
+		}
+
+		return url;
+	}
+
+	@Override
 	public void sendError(
 			Exception e, ActionRequest actionRequest,
 			ActionResponse actionResponse)
@@ -6953,50 +7030,44 @@ public class PortalImpl implements Portal {
 			}
 		}
 
-		HttpSession session = PortalSessionThreadLocal.getHttpSession();
-
-		if (session == null) {
-			session = request.getSession();
-		}
-
-		ServletContext servletContext = session.getServletContext();
-
-		String redirect = PATH_MAIN + "/portal/status";
+		String redirect = null;
 
 		if ((e instanceof NoSuchGroupException) &&
 			Validator.isNotNull(
 				PropsValues.SITES_FRIENDLY_URL_PAGE_NOT_FOUND)) {
 
-			response.setStatus(status);
-
 			redirect = PropsValues.SITES_FRIENDLY_URL_PAGE_NOT_FOUND;
-
-			RequestDispatcher requestDispatcher =
-				servletContext.getRequestDispatcher(redirect);
-
-			if (requestDispatcher != null) {
-				requestDispatcher.forward(request, response);
-			}
 		}
 		else if ((e instanceof NoSuchLayoutException) &&
 				 Validator.isNotNull(
 					PropsValues.LAYOUT_FRIENDLY_URL_PAGE_NOT_FOUND)) {
 
-			response.setStatus(status);
-
 			redirect = PropsValues.LAYOUT_FRIENDLY_URL_PAGE_NOT_FOUND;
-
-			RequestDispatcher requestDispatcher =
-				servletContext.getRequestDispatcher(redirect);
-
-			if (requestDispatcher != null) {
-				requestDispatcher.forward(request, response);
-			}
 		}
 		else if (PropsValues.LAYOUT_SHOW_HTTP_STATUS) {
+			redirect = PATH_MAIN + "/portal/status";
+		}
+
+		if (Validator.equals(redirect, request.getRequestURI())) {
+			if (_log.isWarnEnabled()) {
+				_log.warn("Unable to redirect to missing URI: " + redirect);
+			}
+
+			redirect = null;
+		}
+
+		if (Validator.isNotNull(redirect)) {
+			HttpSession session = PortalSessionThreadLocal.getHttpSession();
+
+			if (session == null) {
+				session = request.getSession();
+			}
+
 			response.setStatus(status);
 
 			SessionErrors.add(session, e.getClass(), e);
+
+			ServletContext servletContext = session.getServletContext();
 
 			RequestDispatcher requestDispatcher =
 				servletContext.getRequestDispatcher(redirect);
@@ -7623,7 +7694,7 @@ public class PortalImpl implements Portal {
 			long groupId, boolean checkContentSharingWithChildrenEnabled)
 		throws PortalException, SystemException {
 
-		List<Group> groups = new ArrayList<Group>();
+		List<Group> groups = new UniqueList<Group>();
 
 		long siteGroupId = getSiteGroupId(groupId);
 
@@ -8129,6 +8200,28 @@ public class PortalImpl implements Portal {
 		return sb.toString();
 	}
 
+	protected String getValidPortalDomain(String domain) {
+		if (StringUtil.equalsIgnoreCase(domain, _LOCALHOST)) {
+			return _LOCALHOST;
+		}
+
+		if (isValidVirtualHostname(domain)) {
+			return domain;
+		}
+
+		try {
+			Company company = CompanyLocalServiceUtil.getCompanyById(
+				getDefaultCompanyId());
+
+			return company.getVirtualHostname();
+		}
+		catch (Exception e) {
+			_log.error("Unable to load default portal instance", e);
+		}
+
+		return _LOCALHOST;
+	}
+
 	protected boolean isAlwaysAllowDoAsUser(HttpServletRequest request)
 		throws Exception {
 
@@ -8207,6 +8300,23 @@ public class PortalImpl implements Portal {
 				panelSelectedPortlets);
 
 			return ArrayUtil.contains(panelSelectedPortletsArray, portletId);
+		}
+
+		return false;
+	}
+
+	protected boolean isValidVirtualHostname(String virtualHostname) {
+		try {
+			virtualHostname = StringUtil.toLowerCase(virtualHostname.trim());
+
+			VirtualHost virtualHost =
+				VirtualHostLocalServiceUtil.fetchVirtualHost(virtualHostname);
+
+			if (virtualHost != null) {
+				return true;
+			}
+		}
+		catch (Exception e) {
 		}
 
 		return false;
@@ -8361,6 +8471,7 @@ public class PortalImpl implements Portal {
 	 * @deprecated As of 7.0.0, replaced by {@link
 	 *             #_portalServerInetSocketAddress}
 	 */
+	@Deprecated
 	private final AtomicInteger _portalPort = new AtomicInteger(-1);
 
 	/**

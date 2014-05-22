@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermissio
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.workflow.WorkflowTask;
 import com.liferay.portal.kernel.xml.Element;
+import com.liferay.portal.model.ExportImportConfiguration;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutRevision;
@@ -66,6 +67,13 @@ public class StagingUtil {
 		return getStaging().buildRemoteURL(typeSettingsProperties);
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             com.liferay.portal.service.StagingLocalServiceUtil#
+	 *             checkDefaultLayoutSetBranches(long, Group, boolean, boolean,
+	 *             boolean, ServiceContext))}
+	 */
+	@Deprecated
 	public static void checkDefaultLayoutSetBranches(
 			long userId, Group liveGroup, boolean branchingPublic,
 			boolean branchingPrivate, boolean remote,
@@ -78,14 +86,14 @@ public class StagingUtil {
 	}
 
 	public static void copyFromLive(PortletRequest PortletRequest)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().copyFromLive(PortletRequest);
 	}
 
 	public static void copyFromLive(
 			PortletRequest PortletRequest, Portlet portlet)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().copyFromLive(PortletRequest, portlet);
 	}
@@ -94,11 +102,24 @@ public class StagingUtil {
 			PortletRequest PortletRequest, long sourceGroupId,
 			long targetGroupId, long sourcePlid, long targetPlid,
 			String portletId)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().copyPortlet(
 			PortletRequest, sourceGroupId, targetGroupId, sourcePlid,
 			targetPlid, portletId);
+	}
+
+	public static void copyRemoteLayouts(
+			ExportImportConfiguration exportImportConfiguration)
+		throws PortalException, SystemException {
+
+		getStaging().copyRemoteLayouts(exportImportConfiguration);
+	}
+
+	public static void copyRemoteLayouts(long exportImportConfigurationId)
+		throws PortalException, SystemException {
+
+		getStaging().copyRemoteLayouts(exportImportConfigurationId);
 	}
 
 	public static void copyRemoteLayouts(
@@ -107,7 +128,7 @@ public class StagingUtil {
 			String remoteAddress, int remotePort, String remotePathContext,
 			boolean secureConnection, long remoteGroupId,
 			boolean remotePrivateLayout, Date startDate, Date endDate)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().copyRemoteLayouts(
 			sourceGroupId, privateLayout, layoutIdMap, parameterMap,
@@ -351,15 +372,31 @@ public class StagingUtil {
 		return getStaging().isIncomplete(layout, layoutSetBranchId);
 	}
 
-	public static void lockGroup(long userId, long groupId) throws Exception {
+	public static void lockGroup(long userId, long groupId)
+		throws PortalException, SystemException {
+
 		getStaging().lockGroup(userId, groupId);
 	}
 
 	public static void publishLayout(
 			long userId, long plid, long liveGroupId, boolean includeChildren)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().publishLayout(userId, plid, liveGroupId, includeChildren);
+	}
+
+	public static void publishLayouts(
+			long userId, ExportImportConfiguration exportImportConfiguration)
+		throws PortalException, SystemException {
+
+		getStaging().publishLayouts(userId, exportImportConfiguration);
+	}
+
+	public static void publishLayouts(
+			long userId, long exportImportConfigurationId)
+		throws PortalException, SystemException {
+
+		getStaging().publishLayouts(userId, exportImportConfigurationId);
 	}
 
 	public static void publishLayouts(
@@ -401,38 +438,38 @@ public class StagingUtil {
 	}
 
 	public static void publishToLive(PortletRequest PortletRequest)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().publishToLive(PortletRequest);
 	}
 
 	public static void publishToLive(
 			PortletRequest PortletRequest, Portlet portlet)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().publishToLive(PortletRequest, portlet);
 	}
 
 	public static void publishToRemote(PortletRequest PortletRequest)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().publishToRemote(PortletRequest);
 	}
 
 	public static void scheduleCopyFromLive(PortletRequest PortletRequest)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().scheduleCopyFromLive(PortletRequest);
 	}
 
 	public static void schedulePublishToLive(PortletRequest PortletRequest)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().schedulePublishToLive(PortletRequest);
 	}
 
 	public static void schedulePublishToRemote(PortletRequest PortletRequest)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().schedulePublishToRemote(PortletRequest);
 	}
@@ -495,19 +532,19 @@ public class StagingUtil {
 	}
 
 	public static void unscheduleCopyFromLive(PortletRequest PortletRequest)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().unscheduleCopyFromLive(PortletRequest);
 	}
 
 	public static void unschedulePublishToLive(PortletRequest PortletRequest)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().unschedulePublishToLive(PortletRequest);
 	}
 
 	public static void unschedulePublishToRemote(PortletRequest PortletRequest)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().unschedulePublishToRemote(PortletRequest);
 	}
@@ -515,7 +552,7 @@ public class StagingUtil {
 	public static void updateLastImportSettings(
 			Element layoutElement, Layout layout,
 			PortletDataContext portletDataContext)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().updateLastImportSettings(
 			layoutElement, layout, portletDataContext);
@@ -523,7 +560,7 @@ public class StagingUtil {
 
 	public static void updateLastPublishDate(
 			long sourceGroupId, boolean privateLayout, Date lastPublishDate)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().updateLastPublishDate(
 			sourceGroupId, privateLayout, lastPublishDate);
@@ -532,7 +569,7 @@ public class StagingUtil {
 	public static void updateLastPublishDate(
 			String portletId, PortletPreferences portletPreferences,
 			Date lastPublishDate)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().updateLastPublishDate(
 			portletId, portletPreferences, lastPublishDate);
@@ -540,11 +577,27 @@ public class StagingUtil {
 
 	public static void updateStaging(
 			PortletRequest PortletRequest, Group liveGroup)
-		throws Exception {
+		throws PortalException, SystemException {
 
 		getStaging().updateStaging(PortletRequest, liveGroup);
 	}
 
+	public static void validateRemote(
+			long groupId, String remoteAddress, int remotePort,
+			String remotePathContext, boolean secureConnection,
+			long remoteGroupId)
+		throws PortalException {
+
+		getStaging().validateRemote(
+			groupId, remoteAddress, remotePort, remotePathContext,
+			secureConnection, remoteGroupId);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #validateRemote(long, String,
+	 *             int, String, boolean, long)}
+	 */
+	@Deprecated
 	public static void validateRemote(
 			String remoteAddress, int remotePort, String remotePathContext,
 			boolean secureConnection, long remoteGroupId)

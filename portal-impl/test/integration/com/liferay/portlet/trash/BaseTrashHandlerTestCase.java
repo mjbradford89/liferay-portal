@@ -41,11 +41,12 @@ import com.liferay.portal.model.TrashedModel;
 import com.liferay.portal.model.WorkflowedModel;
 import com.liferay.portal.service.GroupLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceTestUtil;
-import com.liferay.portal.service.persistence.SystemEventActionableDynamicQuery;
-import com.liferay.portal.util.GroupTestUtil;
+import com.liferay.portal.service.SystemEventLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.util.test.GroupTestUtil;
+import com.liferay.portal.util.test.SearchContextTestUtil;
+import com.liferay.portal.util.test.ServiceContextTestUtil;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.portlet.trash.model.TrashEntry;
@@ -84,8 +85,8 @@ public abstract class BaseTrashHandlerTestCase {
 	@Test
 	@Transactional
 	public void testDeleteTrashVersions() throws Exception {
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		BaseModel<?> parentBaseModel = getParentBaseModel(
 			group, serviceContext);
@@ -350,36 +351,34 @@ public abstract class BaseTrashHandlerTestCase {
 			trashHandler.getSystemEventClassName());
 
 		ActionableDynamicQuery actionableDynamicQuery =
-			new SystemEventActionableDynamicQuery() {
+			SystemEventLocalServiceUtil.getActionableDynamicQuery();
 
-			@Override
-			protected void addCriteria(DynamicQuery dynamicQuery) {
-				Property classNameIdProperty = PropertyFactoryUtil.forName(
-					"classNameId");
+		actionableDynamicQuery.setAddCriteriaMethod(
+			new ActionableDynamicQuery.AddCriteriaMethod() {
 
-				dynamicQuery.add(
-					classNameIdProperty.eq(systemEventClassNameId));
-
-				if (systemEventSetKey > 0) {
-					Property systemEventSetKeyProperty =
-						PropertyFactoryUtil.forName("systemEventSetKey");
+				@Override
+				public void addCriteria(DynamicQuery dynamicQuery) {
+					Property classNameIdProperty = PropertyFactoryUtil.forName(
+						"classNameId");
 
 					dynamicQuery.add(
-						systemEventSetKeyProperty.eq(systemEventSetKey));
+						classNameIdProperty.eq(systemEventClassNameId));
+
+					if (systemEventSetKey > 0) {
+						Property systemEventSetKeyProperty =
+							PropertyFactoryUtil.forName("systemEventSetKey");
+
+						dynamicQuery.add(
+							systemEventSetKeyProperty.eq(systemEventSetKey));
+					}
+
+					Property typeProperty = PropertyFactoryUtil.forName("type");
+
+					dynamicQuery.add(
+						typeProperty.eq(SystemEventConstants.TYPE_DELETE));
 				}
 
-				Property typeProperty = PropertyFactoryUtil.forName("type");
-
-				dynamicQuery.add(
-					typeProperty.eq(SystemEventConstants.TYPE_DELETE));
-			}
-
-			@Override
-			protected void performAction(Object object) {
-			}
-
-		};
-
+			});
 		actionableDynamicQuery.setGroupId(group.getGroupId());
 
 		return actionableDynamicQuery.performCount();
@@ -520,7 +519,7 @@ public abstract class BaseTrashHandlerTestCase {
 
 		Indexer indexer = IndexerRegistryUtil.getIndexer(clazz);
 
-		SearchContext searchContext = ServiceTestUtil.getSearchContext();
+		SearchContext searchContext = SearchContextTestUtil.getSearchContext();
 
 		searchContext.setGroupIds(new long[] {groupId});
 
@@ -544,8 +543,8 @@ public abstract class BaseTrashHandlerTestCase {
 	protected void trashBaseModel(boolean approved, boolean delete)
 		throws Exception {
 
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		BaseModel<?> parentBaseModel = getParentBaseModel(
 			group, serviceContext);
@@ -723,8 +722,8 @@ public abstract class BaseTrashHandlerTestCase {
 	}
 
 	protected void trashDuplicateBaseModel() throws Exception {
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		BaseModel<?> parentBaseModel = getParentBaseModel(
 			group, serviceContext);
@@ -769,8 +768,8 @@ public abstract class BaseTrashHandlerTestCase {
 	protected void trashGrandparentBaseModelAndRestoreParentModel()
 		throws Exception {
 
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		BaseModel<?> grandparentBaseModel = getParentBaseModel(
 			group, serviceContext);
@@ -843,8 +842,8 @@ public abstract class BaseTrashHandlerTestCase {
 	}
 
 	protected void trashIsRestorableBaseModel() throws Exception {
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		baseModel = addBaseModelWithWorkflow(true, serviceContext);
 
@@ -863,8 +862,8 @@ public abstract class BaseTrashHandlerTestCase {
 			boolean deleteParent, boolean moveParentToTrash)
 		throws Exception {
 
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		BaseModel<?> parentBaseModel = getParentBaseModel(
 			group, serviceContext);
@@ -907,8 +906,8 @@ public abstract class BaseTrashHandlerTestCase {
 	}
 
 	protected void trashMoveBaseModel() throws Exception {
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		int initialBaseModelsSearchCount = 0;
 
@@ -963,8 +962,8 @@ public abstract class BaseTrashHandlerTestCase {
 	}
 
 	protected void trashMyBaseModel() throws Exception {
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		BaseModel<?> parentBaseModel = getParentBaseModel(
 			group, serviceContext);
@@ -994,8 +993,8 @@ public abstract class BaseTrashHandlerTestCase {
 			boolean deleteGroupTrashEntries)
 		throws Exception {
 
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		BaseModel<?> parentBaseModel = getParentBaseModel(
 			group, serviceContext);
@@ -1136,8 +1135,8 @@ public abstract class BaseTrashHandlerTestCase {
 	}
 
 	protected void trashRecentBaseModel() throws Exception {
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		BaseModel<?> parentBaseModel = getParentBaseModel(
 			group, serviceContext);
@@ -1161,8 +1160,8 @@ public abstract class BaseTrashHandlerTestCase {
 	}
 
 	protected void trashVersionBaseModel(boolean delete) throws Exception {
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		BaseModel<?> parentBaseModel = getParentBaseModel(
 			group, serviceContext);
@@ -1285,8 +1284,8 @@ public abstract class BaseTrashHandlerTestCase {
 	protected void trashVersionParentBaseModel(boolean moveBaseModel)
 		throws Exception {
 
-		ServiceContext serviceContext = ServiceTestUtil.getServiceContext(
-			group.getGroupId());
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		BaseModel<?> parentBaseModel = getParentBaseModel(
 			group, serviceContext);

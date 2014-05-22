@@ -242,6 +242,19 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.getActionableDynamicQuery();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -566,6 +579,11 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 		return _dlFileEntryLocalService.getExtraSettingsFileEntriesCount();
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getFile(long, String,
+	boolean)}
+	*/
+	@Deprecated
 	@Override
 	public java.io.File getFile(long userId, long fileEntryId,
 		java.lang.String version, boolean incrementCounter)
@@ -575,6 +593,11 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 			incrementCounter);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getFile(long, String,
+	boolean, int)}
+	*/
+	@Deprecated
 	@Override
 	public java.io.File getFile(long userId, long fileEntryId,
 		java.lang.String version, boolean incrementCounter, int increment)
@@ -585,6 +608,29 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 	}
 
 	@Override
+	public java.io.File getFile(long fileEntryId, java.lang.String version,
+		boolean incrementCounter)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.getFile(fileEntryId, version,
+			incrementCounter);
+	}
+
+	@Override
+	public java.io.File getFile(long fileEntryId, java.lang.String version,
+		boolean incrementCounter, int increment)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.getFile(fileEntryId, version,
+			incrementCounter, increment);
+	}
+
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getFileAsStream(long,
+	String)}
+	*/
+	@Deprecated
+	@Override
 	public java.io.InputStream getFileAsStream(long userId, long fileEntryId,
 		java.lang.String version)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -593,6 +639,11 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 			version);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getFileAsStream(long,
+	String, boolean)}
+	*/
+	@Deprecated
 	@Override
 	public java.io.InputStream getFileAsStream(long userId, long fileEntryId,
 		java.lang.String version, boolean incrementCounter)
@@ -602,6 +653,11 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 			version, incrementCounter);
 	}
 
+	/**
+	* @deprecated As of 7.0.0, replaced by {@link #getFileAsStream(long,
+	String, boolean, int)}
+	*/
+	@Deprecated
 	@Override
 	public java.io.InputStream getFileAsStream(long userId, long fileEntryId,
 		java.lang.String version, boolean incrementCounter, int increment)
@@ -609,6 +665,32 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileEntryLocalService.getFileAsStream(userId, fileEntryId,
 			version, incrementCounter, increment);
+	}
+
+	@Override
+	public java.io.InputStream getFileAsStream(long fileEntryId,
+		java.lang.String version)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.getFileAsStream(fileEntryId, version);
+	}
+
+	@Override
+	public java.io.InputStream getFileAsStream(long fileEntryId,
+		java.lang.String version, boolean incrementCounter)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.getFileAsStream(fileEntryId, version,
+			incrementCounter);
+	}
+
+	@Override
+	public java.io.InputStream getFileAsStream(long fileEntryId,
+		java.lang.String version, boolean incrementCounter, int increment)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.getFileAsStream(fileEntryId, version,
+			incrementCounter, increment);
 	}
 
 	@Override
@@ -786,6 +868,15 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 	}
 
 	@Override
+	public java.util.List<com.liferay.portlet.documentlibrary.model.DLFileEntry> getGroupFileEntries(
+		long groupId, long userId, long rootFolderId, int start, int end,
+		com.liferay.portal.kernel.util.OrderByComparator obc)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _dlFileEntryLocalService.getGroupFileEntries(groupId, userId,
+			rootFolderId, start, end, obc);
+	}
+
+	@Override
 	public int getGroupFileEntriesCount(long groupId)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileEntryLocalService.getGroupFileEntriesCount(groupId);
@@ -929,12 +1020,12 @@ public class DLFileEntryLocalServiceWrapper implements DLFileEntryLocalService,
 	@Override
 	public com.liferay.portlet.documentlibrary.model.DLFileEntry updateStatus(
 		long userId, long fileVersionId, int status,
-		java.util.Map<java.lang.String, java.io.Serializable> workflowContext,
-		com.liferay.portal.service.ServiceContext serviceContext)
+		com.liferay.portal.service.ServiceContext serviceContext,
+		java.util.Map<java.lang.String, java.io.Serializable> workflowContext)
 		throws com.liferay.portal.kernel.exception.PortalException,
 			com.liferay.portal.kernel.exception.SystemException {
 		return _dlFileEntryLocalService.updateStatus(userId, fileVersionId,
-			status, workflowContext, serviceContext);
+			status, serviceContext, workflowContext);
 	}
 
 	@Override

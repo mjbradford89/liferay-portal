@@ -27,9 +27,8 @@ import com.liferay.portal.kernel.repository.InvalidRepositoryIdException;
 import com.liferay.portal.kernel.repository.LocalRepository;
 import com.liferay.portal.kernel.repository.RepositoryException;
 import com.liferay.portal.kernel.repository.cmis.CMISRepositoryHandler;
-import com.liferay.portal.kernel.systemevent.SystemEventHierarchyEntryThreadLocal;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.ProxyUtil;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ClassName;
@@ -48,6 +47,7 @@ import com.liferay.portal.service.base.RepositoryLocalServiceBaseImpl;
 import com.liferay.portlet.documentlibrary.RepositoryNameException;
 import com.liferay.portlet.documentlibrary.model.DLFolder;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -159,38 +159,39 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 
 	@Override
 	public Repository deleteRepository(long repositoryId)
-		throws PortalException, SystemException {
+		throws SystemException {
 
 		Repository repository = repositoryPersistence.fetchByPrimaryKey(
 			repositoryId);
 
 		if (repository != null) {
-			SystemEventHierarchyEntryThreadLocal.push(Repository.class);
-
-			try {
-				expandoValueLocalService.deleteValues(
-					Repository.class.getName(), repositoryId);
-
-				DLFolder dlFolder = dlFolderLocalService.fetchDLFolder(
-					repository.getDlFolderId());
-
-				if (dlFolder != null) {
-					dlFolderLocalService.deleteDLFolder(dlFolder);
-				}
-
-				repositoryPersistence.remove(repository);
-
-				repositoryEntryPersistence.removeByRepositoryId(repositoryId);
-			}
-			finally {
-				SystemEventHierarchyEntryThreadLocal.pop(Repository.class);
-			}
-
-			systemEventLocalService.addSystemEvent(
-				0, repository.getGroupId(), Repository.class.getName(),
-				repositoryId, repository.getUuid(), null,
-				SystemEventConstants.TYPE_DELETE, StringPool.BLANK);
+			repositoryLocalService.deleteRepository(repository);
 		}
+
+		return repository;
+	}
+
+	@Override
+	@SystemEvent(
+		action = SystemEventConstants.ACTION_SKIP,
+		type = SystemEventConstants.TYPE_DELETE)
+	public Repository deleteRepository(Repository repository)
+		throws SystemException {
+
+		expandoValueLocalService.deleteValues(
+			Repository.class.getName(), repository.getRepositoryId());
+
+		DLFolder dlFolder = dlFolderLocalService.fetchDLFolder(
+			repository.getDlFolderId());
+
+		if (dlFolder != null) {
+			dlFolderLocalService.deleteDLFolder(dlFolder);
+		}
+
+		repositoryPersistence.remove(repository);
+
+		repositoryEntryPersistence.removeByRepositoryId(
+			repository.getRepositoryId());
 
 		return repository;
 	}
@@ -208,6 +209,26 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 		throws SystemException {
 
 		return repositoryPersistence.fetchByG_N_P(groupId, name, portletId);
+	}
+
+	@Override
+	public List<LocalRepository> getGroupLocalRepositoryImpl(long groupId)
+		throws PortalException, SystemException {
+
+		List<Repository> repositories = repositoryPersistence.findByGroupId(
+			groupId);
+
+		List<LocalRepository> localRepositories =
+			new ArrayList<LocalRepository>(repositories.size() + 1);
+
+		for (Repository repository : repositories) {
+			localRepositories.add(
+				getLocalRepositoryImpl(repository.getRepositoryId()));
+		}
+
+		localRepositories.add(getLocalRepositoryImpl(groupId));
+
+		return localRepositories;
 	}
 
 	@Override
@@ -558,9 +579,10 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 		baseRepository.setAssetEntryLocalService(assetEntryLocalService);
 		baseRepository.setCompanyId(repository.getCompanyId());
 		baseRepository.setCompanyLocalService(companyLocalService);
-		baseRepository.setCounterLocalService(counterLocalService);
 		baseRepository.setDLAppHelperLocalService(dlAppHelperLocalService);
 		baseRepository.setGroupId(repository.getGroupId());
+		baseRepository.setRepositoryEntryLocalService(
+			repositoryEntryLocalService);
 		baseRepository.setRepositoryId(repositoryId);
 		baseRepository.setTypeSettingsProperties(
 			repository.getTypeSettingsProperties());

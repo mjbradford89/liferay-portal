@@ -30,17 +30,20 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.UserIdMapper;
 import com.liferay.portal.model.impl.UserIdMapperModelImpl;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.service.UserIdMapperLocalServiceUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -58,6 +61,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class UserIdMapperPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<UserIdMapper> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -79,11 +91,15 @@ public class UserIdMapperPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<UserIdMapper> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserIdMapper userIdMapper = _persistence.create(pk);
 
@@ -110,19 +126,19 @@ public class UserIdMapperPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserIdMapper newUserIdMapper = _persistence.create(pk);
 
-		newUserIdMapper.setMvccVersion(ServiceTestUtil.nextLong());
+		newUserIdMapper.setMvccVersion(RandomTestUtil.nextLong());
 
-		newUserIdMapper.setUserId(ServiceTestUtil.nextLong());
+		newUserIdMapper.setUserId(RandomTestUtil.nextLong());
 
-		newUserIdMapper.setType(ServiceTestUtil.randomString());
+		newUserIdMapper.setType(RandomTestUtil.randomString());
 
-		newUserIdMapper.setDescription(ServiceTestUtil.randomString());
+		newUserIdMapper.setDescription(RandomTestUtil.randomString());
 
-		newUserIdMapper.setExternalUserId(ServiceTestUtil.randomString());
+		newUserIdMapper.setExternalUserId(RandomTestUtil.randomString());
 
 		_persistence.update(newUserIdMapper);
 
@@ -145,7 +161,7 @@ public class UserIdMapperPersistenceTest {
 	@Test
 	public void testCountByUserId() {
 		try {
-			_persistence.countByUserId(ServiceTestUtil.nextLong());
+			_persistence.countByUserId(RandomTestUtil.nextLong());
 
 			_persistence.countByUserId(0L);
 		}
@@ -157,7 +173,7 @@ public class UserIdMapperPersistenceTest {
 	@Test
 	public void testCountByU_T() {
 		try {
-			_persistence.countByU_T(ServiceTestUtil.nextLong(), StringPool.BLANK);
+			_persistence.countByU_T(RandomTestUtil.nextLong(), StringPool.BLANK);
 
 			_persistence.countByU_T(0L, StringPool.NULL);
 
@@ -193,7 +209,7 @@ public class UserIdMapperPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -233,7 +249,7 @@ public class UserIdMapperPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserIdMapper missingUserIdMapper = _persistence.fetchByPrimaryKey(pk);
 
@@ -244,16 +260,18 @@ public class UserIdMapperPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new UserIdMapperActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = UserIdMapperLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					UserIdMapper userIdMapper = (UserIdMapper)object;
 
 					Assert.assertNotNull(userIdMapper);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -286,7 +304,7 @@ public class UserIdMapperPersistenceTest {
 				UserIdMapper.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("userIdMapperId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<UserIdMapper> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -327,7 +345,7 @@ public class UserIdMapperPersistenceTest {
 				"userIdMapperId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("userIdMapperId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -361,19 +379,19 @@ public class UserIdMapperPersistenceTest {
 	}
 
 	protected UserIdMapper addUserIdMapper() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		UserIdMapper userIdMapper = _persistence.create(pk);
 
-		userIdMapper.setMvccVersion(ServiceTestUtil.nextLong());
+		userIdMapper.setMvccVersion(RandomTestUtil.nextLong());
 
-		userIdMapper.setUserId(ServiceTestUtil.nextLong());
+		userIdMapper.setUserId(RandomTestUtil.nextLong());
 
-		userIdMapper.setType(ServiceTestUtil.randomString());
+		userIdMapper.setType(RandomTestUtil.randomString());
 
-		userIdMapper.setDescription(ServiceTestUtil.randomString());
+		userIdMapper.setDescription(RandomTestUtil.randomString());
 
-		userIdMapper.setExternalUserId(ServiceTestUtil.randomString());
+		userIdMapper.setExternalUserId(RandomTestUtil.randomString());
 
 		_persistence.update(userIdMapper);
 
@@ -381,6 +399,7 @@ public class UserIdMapperPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(UserIdMapperPersistenceTest.class);
+	private ModelListener<UserIdMapper>[] _modelListeners;
 	private UserIdMapperPersistence _persistence = (UserIdMapperPersistence)PortalBeanLocatorUtil.locate(UserIdMapperPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

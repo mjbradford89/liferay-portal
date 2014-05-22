@@ -29,16 +29,18 @@ import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.Country;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.impl.CountryModelImpl;
-import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -56,6 +58,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class CountryPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<Country> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -77,11 +88,15 @@ public class CountryPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<Country> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Country country = _persistence.create(pk);
 
@@ -108,25 +123,25 @@ public class CountryPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Country newCountry = _persistence.create(pk);
 
-		newCountry.setMvccVersion(ServiceTestUtil.nextLong());
+		newCountry.setMvccVersion(RandomTestUtil.nextLong());
 
-		newCountry.setName(ServiceTestUtil.randomString());
+		newCountry.setName(RandomTestUtil.randomString());
 
-		newCountry.setA2(ServiceTestUtil.randomString());
+		newCountry.setA2(RandomTestUtil.randomString());
 
-		newCountry.setA3(ServiceTestUtil.randomString());
+		newCountry.setA3(RandomTestUtil.randomString());
 
-		newCountry.setNumber(ServiceTestUtil.randomString());
+		newCountry.setNumber(RandomTestUtil.randomString());
 
-		newCountry.setIdd(ServiceTestUtil.randomString());
+		newCountry.setIdd(RandomTestUtil.randomString());
 
-		newCountry.setZipRequired(ServiceTestUtil.randomBoolean());
+		newCountry.setZipRequired(RandomTestUtil.randomBoolean());
 
-		newCountry.setActive(ServiceTestUtil.randomBoolean());
+		newCountry.setActive(RandomTestUtil.randomBoolean());
 
 		_persistence.update(newCountry);
 
@@ -191,9 +206,9 @@ public class CountryPersistenceTest {
 	@Test
 	public void testCountByActive() {
 		try {
-			_persistence.countByActive(ServiceTestUtil.randomBoolean());
+			_persistence.countByActive(RandomTestUtil.randomBoolean());
 
-			_persistence.countByActive(ServiceTestUtil.randomBoolean());
+			_persistence.countByActive(RandomTestUtil.randomBoolean());
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -211,7 +226,7 @@ public class CountryPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -250,7 +265,7 @@ public class CountryPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Country missingCountry = _persistence.fetchByPrimaryKey(pk);
 
@@ -283,7 +298,7 @@ public class CountryPersistenceTest {
 				Country.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("countryId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<Country> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -322,7 +337,7 @@ public class CountryPersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("countryId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("countryId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -352,25 +367,25 @@ public class CountryPersistenceTest {
 	}
 
 	protected Country addCountry() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		Country country = _persistence.create(pk);
 
-		country.setMvccVersion(ServiceTestUtil.nextLong());
+		country.setMvccVersion(RandomTestUtil.nextLong());
 
-		country.setName(ServiceTestUtil.randomString());
+		country.setName(RandomTestUtil.randomString());
 
-		country.setA2(ServiceTestUtil.randomString());
+		country.setA2(RandomTestUtil.randomString());
 
-		country.setA3(ServiceTestUtil.randomString());
+		country.setA3(RandomTestUtil.randomString());
 
-		country.setNumber(ServiceTestUtil.randomString());
+		country.setNumber(RandomTestUtil.randomString());
 
-		country.setIdd(ServiceTestUtil.randomString());
+		country.setIdd(RandomTestUtil.randomString());
 
-		country.setZipRequired(ServiceTestUtil.randomBoolean());
+		country.setZipRequired(RandomTestUtil.randomBoolean());
 
-		country.setActive(ServiceTestUtil.randomBoolean());
+		country.setActive(RandomTestUtil.randomBoolean());
 
 		_persistence.update(country);
 
@@ -378,6 +393,7 @@ public class CountryPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(CountryPersistenceTest.class);
+	private ModelListener<Country>[] _modelListeners;
 	private CountryPersistence _persistence = (CountryPersistence)PortalBeanLocatorUtil.locate(CountryPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

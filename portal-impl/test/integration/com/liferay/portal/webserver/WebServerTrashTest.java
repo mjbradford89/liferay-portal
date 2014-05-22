@@ -32,16 +32,16 @@ import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.security.permission.PermissionThreadLocal;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.test.EnvironmentExecutionTestListener;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.TransactionalExecutionTestListener;
 import com.liferay.portal.util.PortletKeys;
-import com.liferay.portal.util.RoleTestUtil;
-import com.liferay.portal.util.TestPropsValues;
-import com.liferay.portal.util.UserTestUtil;
+import com.liferay.portal.util.test.RoleTestUtil;
+import com.liferay.portal.util.test.TestPropsValues;
+import com.liferay.portal.util.test.UserTestUtil;
 import com.liferay.portlet.documentlibrary.service.DLAppServiceUtil;
 import com.liferay.portlet.documentlibrary.service.permission.DLPermission;
-import com.liferay.portlet.documentlibrary.util.DLAppTestUtil;
+import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +57,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
  */
 @ExecutionTestListeners(
 	listeners = {
-		EnvironmentExecutionTestListener.class,
+		MainServletExecutionTestListener.class,
 		TransactionalExecutionTestListener.class
 	})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)

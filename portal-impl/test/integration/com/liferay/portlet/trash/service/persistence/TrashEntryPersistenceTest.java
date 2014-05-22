@@ -28,19 +28,22 @@ import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
 import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
 import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
 import com.liferay.portal.util.PropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.trash.NoSuchEntryException;
 import com.liferay.portlet.trash.model.TrashEntry;
 import com.liferay.portlet.trash.model.impl.TrashEntryModelImpl;
+import com.liferay.portlet.trash.service.TrashEntryLocalServiceUtil;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
@@ -58,6 +61,15 @@ import java.util.Set;
 	PersistenceExecutionTestListener.class})
 @RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
 public class TrashEntryPersistenceTest {
+	@Before
+	public void setUp() {
+		_modelListeners = _persistence.getListeners();
+
+		for (ModelListener<TrashEntry> modelListener : _modelListeners) {
+			_persistence.unregisterListener(modelListener);
+		}
+	}
+
 	@After
 	public void tearDown() throws Exception {
 		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
@@ -79,11 +91,15 @@ public class TrashEntryPersistenceTest {
 		}
 
 		_transactionalPersistenceAdvice.reset();
+
+		for (ModelListener<TrashEntry> modelListener : _modelListeners) {
+			_persistence.registerListener(modelListener);
+		}
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		TrashEntry trashEntry = _persistence.create(pk);
 
@@ -110,29 +126,29 @@ public class TrashEntryPersistenceTest {
 
 	@Test
 	public void testUpdateExisting() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		TrashEntry newTrashEntry = _persistence.create(pk);
 
-		newTrashEntry.setGroupId(ServiceTestUtil.nextLong());
+		newTrashEntry.setGroupId(RandomTestUtil.nextLong());
 
-		newTrashEntry.setCompanyId(ServiceTestUtil.nextLong());
+		newTrashEntry.setCompanyId(RandomTestUtil.nextLong());
 
-		newTrashEntry.setUserId(ServiceTestUtil.nextLong());
+		newTrashEntry.setUserId(RandomTestUtil.nextLong());
 
-		newTrashEntry.setUserName(ServiceTestUtil.randomString());
+		newTrashEntry.setUserName(RandomTestUtil.randomString());
 
-		newTrashEntry.setCreateDate(ServiceTestUtil.nextDate());
+		newTrashEntry.setCreateDate(RandomTestUtil.nextDate());
 
-		newTrashEntry.setClassNameId(ServiceTestUtil.nextLong());
+		newTrashEntry.setClassNameId(RandomTestUtil.nextLong());
 
-		newTrashEntry.setClassPK(ServiceTestUtil.nextLong());
+		newTrashEntry.setClassPK(RandomTestUtil.nextLong());
 
-		newTrashEntry.setSystemEventSetKey(ServiceTestUtil.nextLong());
+		newTrashEntry.setSystemEventSetKey(RandomTestUtil.nextLong());
 
-		newTrashEntry.setTypeSettings(ServiceTestUtil.randomString());
+		newTrashEntry.setTypeSettings(RandomTestUtil.randomString());
 
-		newTrashEntry.setStatus(ServiceTestUtil.nextInt());
+		newTrashEntry.setStatus(RandomTestUtil.nextInt());
 
 		_persistence.update(newTrashEntry);
 
@@ -166,7 +182,7 @@ public class TrashEntryPersistenceTest {
 	@Test
 	public void testCountByGroupId() {
 		try {
-			_persistence.countByGroupId(ServiceTestUtil.nextLong());
+			_persistence.countByGroupId(RandomTestUtil.nextLong());
 
 			_persistence.countByGroupId(0L);
 		}
@@ -178,7 +194,7 @@ public class TrashEntryPersistenceTest {
 	@Test
 	public void testCountByCompanyId() {
 		try {
-			_persistence.countByCompanyId(ServiceTestUtil.nextLong());
+			_persistence.countByCompanyId(RandomTestUtil.nextLong());
 
 			_persistence.countByCompanyId(0L);
 		}
@@ -190,10 +206,10 @@ public class TrashEntryPersistenceTest {
 	@Test
 	public void testCountByG_LtCD() {
 		try {
-			_persistence.countByG_LtCD(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextDate());
+			_persistence.countByG_LtCD(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextDate());
 
-			_persistence.countByG_LtCD(0L, ServiceTestUtil.nextDate());
+			_persistence.countByG_LtCD(0L, RandomTestUtil.nextDate());
 		}
 		catch (Exception e) {
 			Assert.fail(e.getMessage());
@@ -203,8 +219,8 @@ public class TrashEntryPersistenceTest {
 	@Test
 	public void testCountByG_C() {
 		try {
-			_persistence.countByG_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByG_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByG_C(0L, 0L);
 		}
@@ -216,8 +232,8 @@ public class TrashEntryPersistenceTest {
 	@Test
 	public void testCountByC_C() {
 		try {
-			_persistence.countByC_C(ServiceTestUtil.nextLong(),
-				ServiceTestUtil.nextLong());
+			_persistence.countByC_C(RandomTestUtil.nextLong(),
+				RandomTestUtil.nextLong());
 
 			_persistence.countByC_C(0L, 0L);
 		}
@@ -237,7 +253,7 @@ public class TrashEntryPersistenceTest {
 
 	@Test
 	public void testFindByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		try {
 			_persistence.findByPrimaryKey(pk);
@@ -278,7 +294,7 @@ public class TrashEntryPersistenceTest {
 
 	@Test
 	public void testFetchByPrimaryKeyMissing() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		TrashEntry missingTrashEntry = _persistence.fetchByPrimaryKey(pk);
 
@@ -289,16 +305,18 @@ public class TrashEntryPersistenceTest {
 	public void testActionableDynamicQuery() throws Exception {
 		final IntegerWrapper count = new IntegerWrapper();
 
-		ActionableDynamicQuery actionableDynamicQuery = new TrashEntryActionableDynamicQuery() {
+		ActionableDynamicQuery actionableDynamicQuery = TrashEntryLocalServiceUtil.getActionableDynamicQuery();
+
+		actionableDynamicQuery.setPerformActionMethod(new ActionableDynamicQuery.PerformActionMethod() {
 				@Override
-				protected void performAction(Object object) {
+				public void performAction(Object object) {
 					TrashEntry trashEntry = (TrashEntry)object;
 
 					Assert.assertNotNull(trashEntry);
 
 					count.increment();
 				}
-			};
+			});
 
 		actionableDynamicQuery.performActions();
 
@@ -331,7 +349,7 @@ public class TrashEntryPersistenceTest {
 				TrashEntry.class.getClassLoader());
 
 		dynamicQuery.add(RestrictionsFactoryUtil.eq("entryId",
-				ServiceTestUtil.nextLong()));
+				RandomTestUtil.nextLong()));
 
 		List<TrashEntry> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -370,7 +388,7 @@ public class TrashEntryPersistenceTest {
 		dynamicQuery.setProjection(ProjectionFactoryUtil.property("entryId"));
 
 		dynamicQuery.add(RestrictionsFactoryUtil.in("entryId",
-				new Object[] { ServiceTestUtil.nextLong() }));
+				new Object[] { RandomTestUtil.nextLong() }));
 
 		List<Object> result = _persistence.findWithDynamicQuery(dynamicQuery);
 
@@ -396,29 +414,29 @@ public class TrashEntryPersistenceTest {
 	}
 
 	protected TrashEntry addTrashEntry() throws Exception {
-		long pk = ServiceTestUtil.nextLong();
+		long pk = RandomTestUtil.nextLong();
 
 		TrashEntry trashEntry = _persistence.create(pk);
 
-		trashEntry.setGroupId(ServiceTestUtil.nextLong());
+		trashEntry.setGroupId(RandomTestUtil.nextLong());
 
-		trashEntry.setCompanyId(ServiceTestUtil.nextLong());
+		trashEntry.setCompanyId(RandomTestUtil.nextLong());
 
-		trashEntry.setUserId(ServiceTestUtil.nextLong());
+		trashEntry.setUserId(RandomTestUtil.nextLong());
 
-		trashEntry.setUserName(ServiceTestUtil.randomString());
+		trashEntry.setUserName(RandomTestUtil.randomString());
 
-		trashEntry.setCreateDate(ServiceTestUtil.nextDate());
+		trashEntry.setCreateDate(RandomTestUtil.nextDate());
 
-		trashEntry.setClassNameId(ServiceTestUtil.nextLong());
+		trashEntry.setClassNameId(RandomTestUtil.nextLong());
 
-		trashEntry.setClassPK(ServiceTestUtil.nextLong());
+		trashEntry.setClassPK(RandomTestUtil.nextLong());
 
-		trashEntry.setSystemEventSetKey(ServiceTestUtil.nextLong());
+		trashEntry.setSystemEventSetKey(RandomTestUtil.nextLong());
 
-		trashEntry.setTypeSettings(ServiceTestUtil.randomString());
+		trashEntry.setTypeSettings(RandomTestUtil.randomString());
 
-		trashEntry.setStatus(ServiceTestUtil.nextInt());
+		trashEntry.setStatus(RandomTestUtil.nextInt());
 
 		_persistence.update(trashEntry);
 
@@ -426,6 +444,7 @@ public class TrashEntryPersistenceTest {
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(TrashEntryPersistenceTest.class);
+	private ModelListener<TrashEntry>[] _modelListeners;
 	private TrashEntryPersistence _persistence = (TrashEntryPersistence)PortalBeanLocatorUtil.locate(TrashEntryPersistence.class.getName());
 	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
 }

@@ -16,21 +16,26 @@ package com.liferay.portlet.documentlibrary.service;
 
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
+import com.liferay.portal.kernel.settings.Settings;
+import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
-import com.liferay.portal.service.ServiceTestUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousMailExecutionTestListener;
 import com.liferay.portal.util.BaseSubscriptionTestCase;
 import com.liferay.portal.util.PortletKeys;
-import com.liferay.portal.util.TestPropsValues;
+import com.liferay.portal.util.test.RandomTestUtil;
+import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryTypeConstants;
-import com.liferay.portlet.documentlibrary.util.DLAppTestUtil;
+import com.liferay.portlet.documentlibrary.util.DLConstants;
+import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
-import com.liferay.portlet.dynamicdatamapping.util.DDMStructureTestUtil;
+import com.liferay.portlet.dynamicdatamapping.util.test.DDMStructureTestUtil;
 
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -64,8 +69,8 @@ public class DLSubscriptionTest extends BaseSubscriptionTestCase {
 
 	@Override
 	protected long addBaseModel(long containerModelId) throws Exception {
-		FileEntry fileEntry = DLAppTestUtil.addFileEntry(
-			group.getGroupId(), group.getGroupId(), containerModelId);
+		FileEntry fileEntry = DLAppTestUtil.addFileEntryWithWorkflow(
+			group.getGroupId(), group.getGroupId(), containerModelId, true);
 
 		return fileEntry.getFileEntryId();
 	}
@@ -76,8 +81,8 @@ public class DLSubscriptionTest extends BaseSubscriptionTestCase {
 		throws Exception {
 
 		FileEntry fileEntry = DLAppTestUtil.addFileEntry(
-			group.getGroupId(), containerModelId,
-			ServiceTestUtil.randomString(), classTypeId);
+			group.getGroupId(), containerModelId, RandomTestUtil.randomString(),
+			classTypeId);
 
 		return fileEntry.getFileEntryId();
 	}
@@ -134,6 +139,30 @@ public class DLSubscriptionTest extends BaseSubscriptionTestCase {
 	@Override
 	protected String getSubscriptionBodyPreferenceName() throws Exception {
 		return "emailFileEntryAddedBody";
+	}
+
+	@Override
+	protected void setAddBaseModelSubscriptionBodyPreferences()
+		throws Exception {
+
+		Settings settings = SettingsFactoryUtil.getGroupServiceSettings(
+			group.getGroupId(), DLConstants.SERVICE_NAME);
+
+		String germanSubscriptionBodyPreferencesKey =
+			LocalizationUtil.getPreferencesKey(
+				getSubscriptionBodyPreferenceName(),
+				LocaleUtil.toLanguageId(LocaleUtil.GERMANY));
+
+		settings.setValue(germanSubscriptionBodyPreferencesKey, GERMAN_BODY);
+
+		String spanishSubscriptionBodyPreferencesKey =
+			LocalizationUtil.getPreferencesKey(
+				getSubscriptionBodyPreferenceName(),
+				LocaleUtil.toLanguageId(LocaleUtil.SPAIN));
+
+		settings.setValue(spanishSubscriptionBodyPreferencesKey, SPANISH_BODY);
+
+		settings.store();
 	}
 
 }

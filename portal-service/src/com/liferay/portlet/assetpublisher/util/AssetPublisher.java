@@ -25,6 +25,7 @@ import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.theme.ThemeDisplay;
 import com.liferay.portlet.asset.model.AssetEntry;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
+import com.liferay.portlet.asset.model.ClassType;
 import com.liferay.portlet.asset.service.persistence.AssetEntryQuery;
 
 import java.util.List;
@@ -130,10 +131,30 @@ public interface AssetPublisher {
 			boolean checkPermission)
 		throws Exception;
 
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             AssetPublisher#getAssetEntryQuery(PortletPreferences, long[],
+	 *             long[], String[])}
+	 */
+	@Deprecated
 	public AssetEntryQuery getAssetEntryQuery(
-			PortletPreferences portletPreferences, long[] scopeGroupIds)
+			PortletPreferences portletPreferences, long[] siteGroupIds)
 		throws PortalException, SystemException;
 
+	public AssetEntryQuery getAssetEntryQuery(
+			PortletPreferences portletPreferences, long[] scopeGroupIds,
+			long[] overrideAllAssetCategoryIds,
+			String[] overrideAllAssetTagNames)
+		throws PortalException, SystemException;
+
+	public String[] getAssetTagNames(
+		PortletPreferences portletPreferences) throws Exception;
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link
+	 *             AssetPublisher#getAssetTagNames(PortletPreferences)}
+	 */
+	@Deprecated
 	public String[] getAssetTagNames(
 			PortletPreferences portletPreferences, long scopeGroupId)
 		throws Exception;
@@ -142,6 +163,10 @@ public interface AssetPublisher {
 
 	public long[] getClassNameIds(
 		PortletPreferences portletPreferences, long[] availableClassNameIds);
+
+	public Long[] getClassTypeIds(
+		PortletPreferences portletPreferences, String className,
+		List<ClassType> availableClassTypes);
 
 	public Long[] getClassTypeIds(
 		PortletPreferences portletPreferences, String className,

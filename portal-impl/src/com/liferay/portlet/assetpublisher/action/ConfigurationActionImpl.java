@@ -52,6 +52,8 @@ import com.liferay.portlet.asset.AssetTagException;
 import com.liferay.portlet.asset.DuplicateQueryRuleException;
 import com.liferay.portlet.asset.model.AssetQueryRule;
 import com.liferay.portlet.asset.model.AssetRendererFactory;
+import com.liferay.portlet.asset.model.ClassType;
+import com.liferay.portlet.asset.model.ClassTypeReader;
 import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
 import com.liferay.portlet.assetpublisher.util.AssetPublisher;
 import com.liferay.portlet.assetpublisher.util.AssetPublisherUtil;
@@ -68,7 +70,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -91,14 +92,6 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 			long companyId, PortletRequest portletRequest,
 			PortletPreferences portletPreferences)
 		throws SystemException {
-
-		removeDefaultValue(
-			portletRequest, portletPreferences, "emailFromAddress",
-			AssetPublisherUtil.getEmailFromAddress(
-				portletPreferences, companyId));
-		removeDefaultValue(
-			portletRequest, portletPreferences, "emailFromName",
-			AssetPublisherUtil.getEmailFromName(portletPreferences, companyId));
 
 		String languageId = LocaleUtil.toLanguageId(
 			LocaleUtil.getSiteDefault());
@@ -133,7 +126,7 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 		}
 		else if (cmd.equals(Constants.UPDATE)) {
 			try {
-				validateEmail(actionRequest, "emailAssetEntryAdded", true);
+				validateEmail(actionRequest, "emailAssetEntryAdded");
 				validateEmailFrom(actionRequest);
 
 				updateDisplaySettings(actionRequest);
@@ -367,12 +360,13 @@ public class ConfigurationActionImpl extends DefaultConfigurationAction {
 			AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(
 				className);
 
-		long[] groupIds = {
-			themeDisplay.getCompanyGroupId(), themeDisplay.getSiteGroupId()
-		};
+		ClassTypeReader classTypeReader =
+			assetRendererFactory.getClassTypeReader();
 
-		Map<Long, String> classTypes = assetRendererFactory.getClassTypes(
-			groupIds, themeDisplay.getLocale());
+		List<ClassType> classTypes = classTypeReader.getAvailableClassTypes(
+			PortalUtil.getCurrentAndAncestorSiteGroupIds(
+				themeDisplay.getSiteGroupId()),
+			themeDisplay.getLocale());
 
 		if (classTypes.isEmpty()) {
 			return null;

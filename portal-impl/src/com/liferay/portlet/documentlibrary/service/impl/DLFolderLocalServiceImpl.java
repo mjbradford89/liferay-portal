@@ -202,7 +202,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	@SystemEvent(
-		action = SystemEventConstants.ACTION_SKIP, send = false,
+		action = SystemEventConstants.ACTION_SKIP,
 		type = SystemEventConstants.TYPE_DELETE)
 	public DLFolder deleteFolder(DLFolder dlFolder)
 		throws PortalException, SystemException {
@@ -213,7 +213,7 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	@SystemEvent(
-		action = SystemEventConstants.ACTION_SKIP, send = false,
+		action = SystemEventConstants.ACTION_SKIP,
 		type = SystemEventConstants.TYPE_DELETE)
 	public DLFolder deleteFolder(
 			DLFolder dlFolder, boolean includeTrashedEntries)
@@ -276,10 +276,6 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		// Expando
 
 		expandoRowLocalService.deleteRows(dlFolder.getFolderId());
-
-		// App helper
-
-		dlAppHelperLocalService.deleteFolder(new LiferayFolder(dlFolder));
 
 		// Folder
 
@@ -481,6 +477,19 @@ public class DLFolderLocalServiceImpl extends DLFolderLocalServiceBaseImpl {
 		}
 
 		return folderId;
+	}
+
+	@Override
+	public List<Long> getFolderIds(long groupId, long parentFolderId)
+		throws SystemException {
+
+		List<Long> folderIds = new ArrayList<Long>();
+
+		folderIds.add(parentFolderId);
+
+		getSubfolderIds(folderIds, groupId, parentFolderId);
+
+		return folderIds;
 	}
 
 	@Override

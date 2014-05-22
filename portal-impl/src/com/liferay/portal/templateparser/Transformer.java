@@ -175,7 +175,6 @@ public class Transformer {
 
 			String templatesPath = getTemplatesPath(companyId, scopeGroupId);
 
-			template.put("journalTemplatesPath", templatesPath);
 			template.put(
 				"permissionChecker",
 				PermissionThreadLocal.getPermissionChecker());
@@ -189,6 +188,7 @@ public class Transformer {
 			// Deprecated variables
 
 			template.put("groupId", scopeGroupId);
+			template.put("journalTemplatesPath", templatesPath);
 
 			mergeTemplate(template, unsyncStringWriter);
 		}
@@ -313,23 +313,28 @@ public class Transformer {
 						}
 					}
 
-					if (langType.equals(TemplateConstants.LANG_TYPE_XSL)) {
-						Element requestElement = null;
+					if (portletRequestModel != null) {
+						template.put("request", portletRequestModel.toMap());
 
-						if (portletRequestModel != null) {
+						if (langType.equals(TemplateConstants.LANG_TYPE_XSL)) {
 							Document requestDocument = SAXReaderUtil.read(
 								portletRequestModel.toXML());
 
-							requestElement = requestDocument.getRootElement();
+							Element requestElement =
+								requestDocument.getRootElement();
+
+							template.put("xmlRequest", requestElement.asXML());
 						}
-						else {
-							requestElement = rootElement.element("request");
-						}
+					}
+					else {
+						Element requestElement = rootElement.element("request");
 
 						template.put(
 							"request", insertRequestVariables(requestElement));
 
-						template.put("xmlRequest", requestElement.asXML());
+						if (langType.equals(TemplateConstants.LANG_TYPE_XSL)) {
+							template.put("xmlRequest", requestElement.asXML());
+						}
 					}
 				}
 
@@ -340,8 +345,6 @@ public class Transformer {
 
 				String templatesPath = getTemplatesPath(
 					companyId, articleGroupId);
-
-				template.put("journalTemplatesPath", templatesPath);
 
 				Locale locale = LocaleUtil.fromLanguageId(languageId);
 
@@ -361,6 +364,7 @@ public class Transformer {
 				// Deprecated variables
 
 				template.put("groupId", articleGroupId);
+				template.put("journalTemplatesPath", templatesPath);
 
 				mergeTemplate(template, unsyncStringWriter);
 			}

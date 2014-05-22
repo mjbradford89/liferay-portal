@@ -3380,6 +3380,18 @@ public class AssetCategoryUtil {
 	}
 
 	/**
+	* Returns the primaryKeys of asset entries associated with the asset category.
+	*
+	* @param pk the primary key of the asset category
+	* @return List<Long> of the primaryKeys of asset entries associated with the asset category
+	* @throws SystemException if a system exception occurred
+	*/
+	public static java.util.List<java.lang.Long> getAssetEntryPrimaryKeys(
+		long pk) throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().getAssetEntryPrimaryKeys(pk);
+	}
+
+	/**
 	* Returns all the asset entries associated with the asset category.
 	*
 	* @param pk the primary key of the asset category
@@ -3603,6 +3615,30 @@ public class AssetCategoryUtil {
 		java.util.List<com.liferay.portlet.asset.model.AssetEntry> assetEntries)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		getPersistence().setAssetEntries(pk, assetEntries);
+	}
+
+	public static long countAncestors(
+		com.liferay.portlet.asset.model.AssetCategory assetCategory)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countAncestors(assetCategory);
+	}
+
+	public static long countDescendants(
+		com.liferay.portlet.asset.model.AssetCategory assetCategory)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().countDescendants(assetCategory);
+	}
+
+	public static java.util.List<com.liferay.portlet.asset.model.AssetCategory> getAncestors(
+		com.liferay.portlet.asset.model.AssetCategory assetCategory)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().getAncestors(assetCategory);
+	}
+
+	public static java.util.List<com.liferay.portlet.asset.model.AssetCategory> getDescendants(
+		com.liferay.portlet.asset.model.AssetCategory assetCategory)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return getPersistence().getDescendants(assetCategory);
 	}
 
 	/**

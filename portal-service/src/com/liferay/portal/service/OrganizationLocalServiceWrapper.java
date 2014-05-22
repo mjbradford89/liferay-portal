@@ -226,6 +226,19 @@ public class OrganizationLocalServiceWrapper implements OrganizationLocalService
 	}
 
 	@Override
+	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery getActionableDynamicQuery()
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _organizationLocalService.getActionableDynamicQuery();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery getExportActionableDynamicQuery(
+		com.liferay.portal.kernel.lar.PortletDataContext portletDataContext)
+		throws com.liferay.portal.kernel.exception.SystemException {
+		return _organizationLocalService.getExportActionableDynamicQuery(portletDataContext);
+	}
+
+	@Override
 	public com.liferay.portal.model.PersistedModel getPersistedModel(
 		java.io.Serializable primaryKeyObj)
 		throws com.liferay.portal.kernel.exception.PortalException,
@@ -812,6 +825,15 @@ public class OrganizationLocalServiceWrapper implements OrganizationLocalService
 		long companyId, java.lang.String name)
 		throws com.liferay.portal.kernel.exception.SystemException {
 		return _organizationLocalService.fetchOrganization(companyId, name);
+	}
+
+	@Override
+	public java.util.List<com.liferay.portal.model.Organization> getGroupUserOrganizations(
+		long groupId, long userId)
+		throws com.liferay.portal.kernel.exception.PortalException,
+			com.liferay.portal.kernel.exception.SystemException {
+		return _organizationLocalService.getGroupUserOrganizations(groupId,
+			userId);
 	}
 
 	@Override
