@@ -302,9 +302,8 @@ AUI.add(
 											'@vocabularyId': '$vocabularies.vocabularyId'
 										}
 									}
-								},
-								callback
-							);
+								}
+							).then(callback);
 						}
 						else {
 							if (!portalModelResource && (themeDisplay.getSiteGroupId() != themeDisplay.getCompanyGroupId())) {
@@ -324,9 +323,8 @@ AUI.add(
 											'@vocabularyId': '$vocabularies.vocabularyId'
 										}
 									}
-								},
-								callback
-							);
+								}
+							).then(callback);
 						}
 					},
 
@@ -593,9 +591,8 @@ AUI.add(
 											'@categoryId': '$display.categories.categoryId'
 										}
 									}
-								},
-								callback
-							);
+								}
+							).then(callback);
 						}
 
 						searchResults.toggle(!!searchValue);
