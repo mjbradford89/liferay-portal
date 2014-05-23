@@ -228,6 +228,25 @@ AUI.add(
 			}
 		);
 
+		Form.bind = function(ns, fm) {
+			var form = document[ns + (fm || 'fm')], formNode = A.one(form);
+
+			return function(property, value, formId) {
+				var form = formId ? A.one(form[ns + formId]) : formNode;
+
+				var inputId = '#' + ns + property;
+
+				var input = form.one(inputId);
+
+				if (input && value) {
+					input.set('value', value);
+				}
+				else if (input) {
+					return input.get('value');
+				}
+			};
+		};
+
 		Liferay.Form = Form;
 	},
 	'',

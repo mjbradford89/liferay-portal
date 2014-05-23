@@ -459,81 +459,114 @@ if (Validator.isNull(redirect)) {
 	</c:choose>
 </aui:form>
 
-<aui:script>
-	function <portlet:namespace />changeFormat(formatSelect) {
-		var currentFormat = formatSelect.options[window.<portlet:namespace />currentFormatIndex].text;
+<aui:script use="liferay-form">
+	var formVal = Liferay.Form.bind('<portlet:namespace />');
 
-		var newFormat = formatSelect.options[formatSelect.selectedIndex].text;
+	Liferay.provide(
+		window,
+		'<portlet:namespace />changeFormat',
+		function(formatSelect) {
+			var currentFormat = formatSelect.options[window.<portlet:namespace />currentFormatIndex].text;
 
-		var confirmMessage = '<%= UnicodeLanguageUtil.get(pageContext, "you-may-lose-formatting-when-switching-from-x-to-x") %>';
+			var newFormat = formatSelect.options[formatSelect.selectedIndex].text;
 
-		confirmMessage = AUI().Lang.sub(confirmMessage, [currentFormat, newFormat]);
+			var confirmMessage = '<%= UnicodeLanguageUtil.get(pageContext, "you-may-lose-formatting-when-switching-from-x-to-x") %>';
 
-		if (!confirm(confirmMessage)) {
-			formatSelect.selectedIndex = window.<portlet:namespace />currentFormatIndex;
+			confirmMessage = A.Lang.sub(confirmMessage, [currentFormat, newFormat]);
 
-			return;
+			if (!confirm(confirmMessage)) {
+				formatSelect.selectedIndex = window.<portlet:namespace />currentFormatIndex;
+
+				return;
+			}
+
+			if (window.<portlet:namespace />editor) {
+				formVal('content', window.<portlet:namespace />editor.getHTML());
+			}
+
+			submitForm(document.<portlet:namespace />fm, null, null, false);
 		}
+	);
 
-		if (window.<portlet:namespace />editor) {
-			document.<portlet:namespace />fm.<portlet:namespace />content.value = window.<portlet:namespace />editor.getHTML();
+	Liferay.provide(
+		window,
+		'<portlet:namespace />discardDraftPage',
+		function() {
+			formVal('<%= Constants.CMD %>', '<%= Constants.DELETE %>');
+
+			submitForm(document.<portlet:namespace />fm);
 		}
+	);
 
-		submitForm(document.<portlet:namespace />fm, null, null, false);
-	}
-
-	function <portlet:namespace />discardDraftPage() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= Constants.DELETE %>';
-
-		submitForm(document.<portlet:namespace />fm);
-	}
-
-	function <portlet:namespace />getSuggestionsContent() {
-		return document.<portlet:namespace />fm.<portlet:namespace />title.value + ' ' + window.<portlet:namespace />editor.getHTML();
-	}
-
-	function <portlet:namespace />moveToTrashPage() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= Constants.MOVE_TO_TRASH %>';
-
-		<portlet:renderURL var="nodeURL">
-			<portlet:param name="struts_action" value="/wiki/view" />
-			<portlet:param name="title" value="<%= WikiPageConstants.FRONT_PAGE %>" />
-			<portlet:param name="tag" value="<%= StringPool.BLANK %>" />
-		</portlet:renderURL>
-
-		document.<portlet:namespace />fm.<portlet:namespace />redirect.value = '<%= nodeURL.toString() %>';
-
-		submitForm(document.<portlet:namespace />fm);
-	}
-
-	function <portlet:namespace />previewPage() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '';
-		document.<portlet:namespace />fm.<portlet:namespace />preview.value = 'true';
-
-		if (window.<portlet:namespace />editor) {
-			document.<portlet:namespace />fm.<portlet:namespace />content.value = window.<portlet:namespace />editor.getHTML();
+	Liferay.provide(
+		window,
+		'<portlet:namespace />getSuggestionsContent',
+		function() {
+			return formVal('title') + window.<portlet:namespace />editor.getHTML();
 		}
+	);
 
-		submitForm(document.<portlet:namespace />fm);
-	}
+	Liferay.provide(
+		window,
+		'<portlet:namespace />moveToTrashPage',
+		function() {
+			formVal('<%= Constants.CMD %>', '<%= Constants.MOVE_TO_TRASH %>');
 
-	function <portlet:namespace />publishPage() {
-		document.<portlet:namespace />fm.<portlet:namespace />workflowAction.value = '<%= WorkflowConstants.ACTION_PUBLISH %>';
+			<portlet:renderURL var="nodeURL">
+				<portlet:param name="struts_action" value="/wiki/view" />
+				<portlet:param name="title" value="<%= WikiPageConstants.FRONT_PAGE %>" />
+				<portlet:param name="tag" value="<%= StringPool.BLANK %>" />
+			</portlet:renderURL>
 
-		<portlet:namespace />savePage();
-	}
+			formVal('redirect', '<%= nodeURL.toString() %>')
 
-	function <portlet:namespace />savePage() {
-		document.<portlet:namespace />fm.<portlet:namespace /><%= Constants.CMD %>.value = '<%= newPage ? Constants.ADD : Constants.UPDATE %>';
-
-		if (window.<portlet:namespace />editor) {
-			document.<portlet:namespace />fm.<portlet:namespace />content.value = window.<portlet:namespace />editor.getHTML();
+			submitForm(document.<portlet:namespace />fm);
 		}
+	);
 
-		submitForm(document.<portlet:namespace />fm);
-	}
+	Liferay.provide(
+		window,
+		'<portlet:namespace />previewPage',
+		function() {
+			formVal('<%= Constants.CMD %>', '');
+			formVal('preview', 'true');
 
-	window.<portlet:namespace />currentFormatIndex = document.<portlet:namespace />fm.<portlet:namespace />format.selectedIndex;
+			if (window.<portlet:namespace />editor) {
+				formVal('content', window.<portlet:namespace />editor.getHTML());
+			}
+
+			submitForm(document.<portlet:namespace />fm);
+		}
+	);
+
+	Liferay.provide(
+		window,
+		'<portlet:namespace />publishPage',
+		function() {
+			formVal('workflowAction', '<%= WorkflowConstants.ACTION_PUBLISH %>');
+
+			<portlet:namespace />savePage();
+		}
+	);
+
+	Liferay.provide(
+		window,
+		'<portlet:namespace />savePage',
+		function() {
+			formVal('<%= Constants.CMD %>', '<%= newPage ? Constants.ADD : Constants.UPDATE %>');
+
+			if (window.<portlet:namespace />editor) {
+				formVal('content', window.<portlet:namespace />editor.getHTML());
+			}
+
+			submitForm(document.<portlet:namespace />fm);
+		}
+	);
+
+	var formatVal = formVal('format');
+	var selectedIndex = A.one('#<portlet:namespace />fm [value="' + formatVal + '"]').get('index');
+
+	window.<portlet:namespace />currentFormatIndex = selectedIndex;
 </aui:script>
 
 <%
