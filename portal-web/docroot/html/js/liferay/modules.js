@@ -848,6 +848,24 @@
 							'uploader'
 						]
 					},
+					'liferay-upload-data': {
+						path: 'upload-data.js',
+						requires: [
+							'liferay-upload'
+						]
+					},
+					'liferay-upload-data-queue': {
+						path: 'upload-data-queue.js',
+						requires: [
+							'liferay-upload-data'
+						]
+					},
+					'liferay-upload-data-validation': {
+						path: 'upload-data-validation.js',
+						requires: [
+							'liferay-upload-data'
+						]
+					},
 					'liferay-util-list-fields': {
 						path: 'util_list_fields.js',
 						requires: [
