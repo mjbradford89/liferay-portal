@@ -839,6 +839,12 @@
 							'collection',
 							'liferay-portlet-base',
 							'liferay-storage-formatter',
+							'liferay-upload-base'
+						]
+					},
+					'liferay-upload-base': {
+						path: 'upload-base.js',
+						requires: [
 							'uploader'
 						]
 					},
