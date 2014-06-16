@@ -243,6 +243,7 @@ if (!defaultFolderView && (folder != null) && (portletName.equals(PortletKeys.DO
 					p_p_lifecycle: 0
 				},
 				defaultParentFolderId: '<%= DLFolderConstants.DEFAULT_PARENT_FOLDER_ID %>',
+				folderId: <%= folderId %>,
 				dimensions: {
 					height: '<%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_ENTRY_THUMBNAIL_MAX_HEIGHT) %>',
 					width: '<%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_ENTRY_THUMBNAIL_MAX_WIDTH) %>'
