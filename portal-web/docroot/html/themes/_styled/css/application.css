@@ -612,6 +612,7 @@
 body.html-editor {
 	background: #FFF;
 	color: #000;
+	line-height: 1;
 	padding: 1em;
 }
 
@@ -773,9 +774,27 @@ body.html-editor {
 	}
 }
 
+/* LPS-45287 */
+
 .ios.mobile {
-	.modal-content .dialog-iframe-bd {
-		-webkit-overflow-scrolling: touch;
-		overflow: auto;
+	.dialog-iframe-modal {
+		height: auto !important;
+		left: 7px !important;
+		position: absolute !important;
+		top: 10px !important;
+
+		&, .dialog-iframe-bd, .dialog-iframe-node {
+			height: auto !important;
+		}
+
+		.dialog-iframe-bd {
+			max-height: none !important;
+			overflow: auto;
+			-webkit-overflow-scrolling: touch;
+		}
+
+		.modal-content {
+			overflow: visible;
+		}
 	}
 }

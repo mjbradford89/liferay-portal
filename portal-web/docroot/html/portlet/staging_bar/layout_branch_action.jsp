@@ -26,7 +26,7 @@ LayoutBranch layoutBranch = rootLayoutRevision.getLayoutBranch();
 long currentLayoutBranchId = GetterUtil.getLong((String)request.getAttribute("view_layout_branches.jsp-currentLayoutBranchId"));
 %>
 
-<liferay-ui:icon-menu>
+<liferay-ui:icon-menu icon="<%= StringPool.BLANK %>" message="<%= StringPool.BLANK %>">
 	<c:if test="<%= LayoutBranchPermissionUtil.contains(permissionChecker, layoutBranch, ActionKeys.UPDATE) %>">
 		<portlet:renderURL var="editURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
 			<portlet:param name="struts_action" value="/staging_bar/edit_layout_branch" />
@@ -41,7 +41,8 @@ long currentLayoutBranchId = GetterUtil.getLong((String)request.getAttribute("vi
 		%>
 
 		<liferay-ui:icon
-			image="edit"
+			iconCssClass="icon-edit"
+			message="edit"
 			url="<%= taglibURL %>"
 		/>
 

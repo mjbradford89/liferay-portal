@@ -110,10 +110,10 @@ OrderByComparator orderByComparator = BackgroundTaskComparatorFactoryUtil.getBac
 						%>
 
 						<liferay-ui:icon
-							image="download"
+							iconCssClass="icon-download"
 							label="<%= true %>"
 							message="<%= sb.toString() %>"
-							url="<%= PortletFileRepositoryUtil.getPortletFileEntryURL(themeDisplay, fileEntry, StringPool.BLANK) %>"
+							url="<%= PortletFileRepositoryUtil.getDownloadPortletFileEntryURL(themeDisplay, fileEntry, StringPool.BLANK) %>"
 						/>
 
 					<%
@@ -128,7 +128,7 @@ OrderByComparator orderByComparator = BackgroundTaskComparatorFactoryUtil.getBac
 					%>
 
 					<liferay-ui:icon
-						image="download"
+						iconCssClass="icon-download"
 						label="<%= true %>"
 						message='<%= HtmlUtil.escape(MapUtil.getString(taskContextMap, "fileName")) %>'
 					/>

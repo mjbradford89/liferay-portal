@@ -23,7 +23,7 @@ SearchContainer searchContainer = new UserSearch(renderRequest, "cur2", currentU
 
 RowChecker rowChecker = new RowChecker(renderResponse);
 
-rowChecker.setRowIds("rowIdsUserCheckbox");
+rowChecker.setRowIds("rowIdsUser");
 
 searchContainer.setRowChecker(rowChecker);
 
@@ -120,7 +120,7 @@ if (!ParamUtil.getBoolean(renderRequest, "advancedSearch")) {
 
 		<c:if test="<%= layout.isTypeControlPanel() %>">
 			<div id="breadcrumb">
-				<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showCurrentPortlet="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
+				<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
 			</div>
 		</c:if>
 
@@ -211,9 +211,7 @@ if (!ParamUtil.getBoolean(renderRequest, "advancedSearch")) {
 	}
 	else {
 		if (filterManageableOrganizations && !UserPermissionUtil.contains(permissionChecker, ResourceConstants.PRIMKEY_DNE, ActionKeys.VIEW)) {
-			Long[] organizationIds = UsersAdminUtil.getOrganizationIds(user.getOrganizations());
-
-			userParams.put("usersOrgs", organizationIds);
+			userParams.put("usersOrgs", user.getOrganizationIds());
 		}
 	}
 
@@ -260,6 +258,7 @@ if (!ParamUtil.getBoolean(renderRequest, "advancedSearch")) {
 
 		<liferay-ui:search-container-column-jsp
 			align="right"
+			cssClass="entry-action"
 			path="/html/portlet/users_admin/user_action.jsp"
 		/>
 	</liferay-ui:search-container-row>

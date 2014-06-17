@@ -495,6 +495,12 @@ public class SearchEngineUtil {
 		indexWriter.indexSpellCheckerDictionary(searchContext);
 	}
 
+	public synchronized static void initialize(long companyId) {
+		for (SearchEngine searchEngine : _searchEngines.values()) {
+			searchEngine.initialize(companyId);
+		}
+	}
+
 	public static boolean isIndexReadOnly() {
 		PortalRuntimePermission.checkGetBeanProperty(
 			SearchEngineUtil.class, "indexReadOnly");
@@ -869,6 +875,25 @@ public class SearchEngineUtil {
 			new SearchEngineConfiguratorServiceTrackerCustomizer());
 
 		_serviceTracker.open();
+
+		try {
+			if (_log.isDebugEnabled()) {
+				_log.debug("Waiting for search engine registration");
+			}
+
+			if (_serviceTracker.isEmpty()) {
+				_serviceTracker.waitForService(30000);
+			}
+
+			if (_log.isDebugEnabled()) {
+				_log.debug("Registered search engine");
+			}
+		}
+		catch (InterruptedException ie) {
+			if (_log.isDebugEnabled()) {
+				_log.debug("Interrupted search engine registration", ie);
+			}
+		}
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(SearchEngineUtil.class);

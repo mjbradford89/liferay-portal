@@ -109,7 +109,7 @@ String keywords = ParamUtil.getString(request, "keywords");
 			sb.append("<br />");
 			sb.append("<img alt=\"");
 			sb.append(item.getSku());
-			sb.append("\" border=\"0\" src=\"");
+			sb.append("\" src=\"");
 
 			if (Validator.isNotNull(item.getSmallImageURL())) {
 				sb.append(item.getSmallImageURL());
@@ -174,7 +174,7 @@ String keywords = ParamUtil.getString(request, "keywords");
 
 		// Action
 
-		row.addJSP("right", SearchEntry.DEFAULT_VALIGN, "/html/portlet/shopping/item_action.jsp");
+		row.addJSP("/html/portlet/shopping/item_action.jsp", "entry-action");
 
 		// Add result row
 

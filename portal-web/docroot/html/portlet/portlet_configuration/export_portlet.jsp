@@ -108,7 +108,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 										</ul>
 
 										<aui:script>
-											Liferay.Util.toggleBoxes('<portlet:namespace /><%= PortletDataHandlerKeys.PORTLET_CONFIGURATION + StringPool.UNDERLINE + selPortlet.getRootPortletId() %>Checkbox', '<portlet:namespace />showChangeConfiguration<%= StringPool.UNDERLINE + selPortlet.getRootPortletId() %>');
+											Liferay.Util.toggleBoxes('<portlet:namespace /><%= PortletDataHandlerKeys.PORTLET_CONFIGURATION + StringPool.UNDERLINE + selPortlet.getRootPortletId() %>', '<portlet:namespace />showChangeConfiguration<%= StringPool.UNDERLINE + selPortlet.getRootPortletId() %>');
 										</aui:script>
 									</li>
 								</ul>
@@ -249,7 +249,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 									</liferay-util:buffer>
 
 									<liferay-ui:icon
-										image="calendar"
+										iconCssClass="icon-calendar"
 										label="<%= true %>"
 										message='<%= LanguageUtil.get(locale, "date-range") + selectedLabelsHTML %>'
 									/>
@@ -341,7 +341,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 													</ul>
 
 													<aui:script>
-														Liferay.Util.toggleBoxes('<portlet:namespace /><%= PortletDataHandlerKeys.PORTLET_DATA + StringPool.UNDERLINE + selPortlet.getRootPortletId() %>Checkbox', '<portlet:namespace />showChangeContent<%= StringPool.UNDERLINE + selPortlet.getRootPortletId() %>');
+														Liferay.Util.toggleBoxes('<portlet:namespace /><%= PortletDataHandlerKeys.PORTLET_DATA + StringPool.UNDERLINE + selPortlet.getRootPortletId() %>', '<portlet:namespace />showChangeContent<%= StringPool.UNDERLINE + selPortlet.getRootPortletId() %>');
 													</aui:script>
 
 												<%

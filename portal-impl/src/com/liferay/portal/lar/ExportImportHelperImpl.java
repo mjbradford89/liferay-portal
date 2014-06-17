@@ -179,7 +179,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 
 	@Override
 	public Layout getExportableLayout(ThemeDisplay themeDisplay)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Layout layout = themeDisplay.getLayout();
 
@@ -398,7 +398,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 
 	@Override
 	public long[] getLayoutIds(Map<Long, Boolean> layoutIdMap)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return getLayoutIds(layoutIdMap, GroupConstants.DEFAULT_LIVE_GROUP_ID);
 	}
@@ -406,7 +406,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 	@Override
 	public long[] getLayoutIds(
 			Map<Long, Boolean> layoutIdMap, long targetGroupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (MapUtil.isEmpty(layoutIdMap)) {
 			return new long[0];
@@ -450,7 +450,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 
 	@Override
 	public long[] getLayoutIds(PortletRequest portletRequest)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return getLayoutIds(
 			getLayoutIdMap(portletRequest),
@@ -460,7 +460,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 	@Override
 	public long[] getLayoutIds(
 			PortletRequest portletRequest, long targetGroupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return getLayoutIds(getLayoutIdMap(portletRequest), targetGroupId);
 	}
@@ -555,7 +555,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 	 */
 	@Override
 	public List<Layout> getMissingParentLayouts(Layout layout, long liveGroupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<Layout> missingParentLayouts = new ArrayList<Layout>();
 
@@ -590,7 +590,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 	public long getModelDeletionCount(
 			final PortletDataContext portletDataContext,
 			final StagedModelType stagedModelType)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		ActionableDynamicQuery actionableDynamicQuery =
 			SystemEventLocalServiceUtil.getActionableDynamicQuery();
@@ -613,7 +613,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 	@Override
 	public FileEntry getTempFileEntry(
 			long groupId, long userId, String folderName)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		String[] tempFileEntryNames = LayoutServiceUtil.getTempFileEntryNames(
 			groupId, folderName);
@@ -628,7 +628,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 
 	@Override
 	public UserIdStrategy getUserIdStrategy(long userId, String userIdStrategy)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		User user = UserLocalServiceUtil.getUserById(userId);
 
@@ -1808,6 +1808,10 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		if (!legacyURL) {
 			String[] pathArray = dlReference.split(StringPool.SLASH);
 
+			if (pathArray.length < 3) {
+				return map;
+			}
+
 			map.put("groupId", new String[] {pathArray[2]});
 
 			if (pathArray.length == 4) {
@@ -2054,7 +2058,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 	}
 
 	protected FileEntry getFileEntry(Map<String, String[]> map) {
-		if (map == null) {
+		if (MapUtil.isEmpty(map)) {
 			return null;
 		}
 
@@ -2353,7 +2357,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 	protected String replaceExportHostname(
 			PortletDataContext portletDataContext, String url,
 			StringBundler urlSB)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!HttpUtil.hasProtocol(url)) {
 			return url;
@@ -2456,7 +2460,19 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 		if (!stagedModelDataHandler.validateReference(
 				portletDataContext, element)) {
 
-			return new MissingReference(element);
+			MissingReference missingReference = new MissingReference(element);
+
+			Map<Long, Long> groupIds =
+				(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
+					Group.class);
+
+			long groupId = MapUtil.getLong(
+				groupIds,
+				GetterUtil.getLong(element.attributeValue("group-id")));
+
+			missingReference.setGroupId(groupId);
+
+			return missingReference;
 		}
 
 		return null;

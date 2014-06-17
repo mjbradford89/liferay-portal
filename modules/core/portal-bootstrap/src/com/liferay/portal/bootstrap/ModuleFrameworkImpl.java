@@ -49,7 +49,7 @@ import com.liferay.portal.security.permission.PermissionThreadLocal;
 import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.registry.RegistryUtil;
-import com.liferay.registry.impl.RegistryImpl;
+import com.liferay.registry.internal.RegistryImpl;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -721,11 +721,15 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 		Class<?> beanClass = bean.getClass();
 
+		interfaces.add(beanClass);
+
 		for (Class<?> interfaceClass : beanClass.getInterfaces()) {
 			interfaces.add(interfaceClass);
 		}
 
 		while ((beanClass = beanClass.getSuperclass()) != null) {
+			interfaces.add(beanClass);
+
 			for (Class<?> interfaceClass : beanClass.getInterfaces()) {
 				if (!interfaces.contains(interfaceClass)) {
 					interfaces.add(interfaceClass);
@@ -1076,6 +1080,12 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		Parameters parameters = OSGiHeader.parseHeader(exportPackage);
 
 		for (Map.Entry<String, Attrs> entry : parameters.entrySet()) {
+			Attrs attrs = entry.getValue();
+
+			if (attrs.isEmpty()) {
+				continue;
+			}
+
 			String key = entry.getKey();
 
 			List<URL> urls = _extraPackageMap.get(key);

@@ -39,6 +39,10 @@ public interface WebKeys {
 
 	public static final String CLP_MESSAGE_LISTENERS = "CLP_MESSAGE_LISTENERS";
 
+	public static final String COMPANY = "COMPANY";
+
+	public static final String COMPANY_ID = "COMPANY_ID";
+
 	public static final String CTX = "CTX";
 
 	public static final String CTX_PATH = "CTX_PATH";
@@ -123,6 +127,8 @@ public interface WebKeys {
 
 	public static final String PORTAL_MESSAGES = "LIFERAY_SHARED_PORTAL_MESSAGES";
 
+	public static final String PORTLET_BREADCRUMBS = "LIFERAY_SHARED_PORTLET_BREADCRUMBS";
+
 	public static final String PORTLET_CONFIGURATOR_VISIBILITY = "PORTLET_CONFIGURATOR_VISIBILITY";
 
 	public static final String PORTLET_DECORATE = "PORTLET_DECORATE";
@@ -174,6 +180,8 @@ public interface WebKeys {
 	public static final String SERVLET_CONTEXT_INCLUDE_FILTER_THEME = "SERVLET_CONTEXT_INCLUDE_FILTER_THEME";
 
 	public static final String SERVLET_PATH = "SERVLET_PATH";
+
+	public static final String SINGLE_PAGE_APPLICATION_LAST_PORTLET_ID = "SINGLE_PAGE_APPLICATION_LAST_PORTLET_ID";
 
 	@Distributed(direction = Direction.RESPONSE)
 	public static final String SPI_AGENT_ACTION_RESULT = "SPI_AGENT_ACTION_RESULT";

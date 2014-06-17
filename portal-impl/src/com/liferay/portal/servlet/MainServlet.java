@@ -972,7 +972,7 @@ public class MainServlet extends ActionServlet {
 	protected long loginUser(
 			HttpServletRequest request, HttpServletResponse response,
 			long companyId, long userId, String remoteUser)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if ((userId > 0) || (remoteUser == null)) {
 			return userId;
@@ -1188,6 +1188,8 @@ public class MainServlet extends ActionServlet {
 
 		if (plid > 0) {
 			try {
+				redirect = HttpUtil.addParameter(redirect, "refererPlid", plid);
+
 				Layout layout = LayoutLocalServiceUtil.getLayout(plid);
 
 				Group group = layout.getGroup();

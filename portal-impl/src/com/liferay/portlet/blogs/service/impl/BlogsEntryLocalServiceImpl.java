@@ -16,7 +16,6 @@ package com.liferay.portlet.blogs.service.impl;
 
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -41,6 +40,7 @@ import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -107,7 +107,13 @@ import net.htmlparser.jericho.StartTag;
  */
 public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
-	@Indexable(type = IndexableType.REINDEX)
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #addEntry(long, String,
+	 *             String, String, String, int, int, int, int, int, boolean,
+	 *             boolean, String[], boolean, String, String, InputStream,
+	 *             ServiceContext)}
+	 */
+	@Deprecated
 	@Override
 	public BlogsEntry addEntry(
 			long userId, String title, String description, String content,
@@ -116,7 +122,26 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			boolean allowTrackbacks, String[] trackbacks, boolean smallImage,
 			String smallImageURL, String smallImageFileName,
 			InputStream smallImageInputStream, ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
+
+		return addEntry(
+			userId, title, StringPool.BLANK, description, content,
+			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
+			displayDateMinute, allowPingbacks, allowTrackbacks, trackbacks,
+			smallImage, smallImageURL, smallImageFileName,
+			smallImageInputStream, serviceContext);
+	}
+
+	@Override
+	public BlogsEntry addEntry(
+			long userId, String title, String deckTitle, String description,
+			String content, int displayDateMonth, int displayDateDay,
+			int displayDateYear, int displayDateHour, int displayDateMinute,
+			boolean allowPingbacks, boolean allowTrackbacks,
+			String[] trackbacks, boolean smallImage, String smallImageURL,
+			String smallImageFileName, InputStream smallImageInputStream,
+			ServiceContext serviceContext)
+		throws PortalException {
 
 		// Entry
 
@@ -156,6 +181,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		entry.setCreateDate(serviceContext.getCreateDate(now));
 		entry.setModifiedDate(serviceContext.getModifiedDate(now));
 		entry.setTitle(title);
+		entry.setDeckTitle(deckTitle);
 		entry.setUrlTitle(
 			getUniqueUrlTitle(entryId, title, null, serviceContext));
 		entry.setDescription(description);
@@ -226,7 +252,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	public void addEntryResources(
 			BlogsEntry entry, boolean addGroupPermissions,
 			boolean addGuestPermissions)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		resourceLocalService.addResources(
 			entry.getCompanyId(), entry.getGroupId(), entry.getUserId(),
@@ -238,7 +264,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	public void addEntryResources(
 			BlogsEntry entry, String[] groupPermissions,
 			String[] guestPermissions)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		resourceLocalService.addModelResources(
 			entry.getCompanyId(), entry.getGroupId(), entry.getUserId(),
@@ -250,7 +276,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	public void addEntryResources(
 			long entryId, boolean addGroupPermissions,
 			boolean addGuestPermissions)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		BlogsEntry entry = blogsEntryPersistence.findByPrimaryKey(entryId);
 
@@ -260,7 +286,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Override
 	public void addEntryResources(
 			long entryId, String[] groupPermissions, String[] guestPermissions)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		BlogsEntry entry = blogsEntryPersistence.findByPrimaryKey(entryId);
 
@@ -268,7 +294,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void checkEntries() throws PortalException, SystemException {
+	public void checkEntries() throws PortalException {
 		Date now = new Date();
 
 		int count = blogsEntryPersistence.countByLtD_S(
@@ -305,9 +331,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void deleteEntries(long groupId)
-		throws PortalException, SystemException {
-
+	public void deleteEntries(long groupId) throws PortalException {
 		for (BlogsEntry entry : blogsEntryPersistence.findByGroupId(groupId)) {
 			blogsEntryLocalService.deleteEntry(entry);
 		}
@@ -316,8 +340,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
-	public BlogsEntry deleteEntry(BlogsEntry entry)
-		throws PortalException, SystemException {
+	public BlogsEntry deleteEntry(BlogsEntry entry) throws PortalException {
 
 		// Entry
 
@@ -385,9 +408,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void deleteEntry(long entryId)
-		throws PortalException, SystemException {
-
+	public void deleteEntry(long entryId) throws PortalException {
 		BlogsEntry entry = blogsEntryPersistence.findByPrimaryKey(entryId);
 
 		blogsEntryLocalService.deleteEntry(entry);
@@ -400,8 +421,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getCompanyEntries(
-			long companyId, Date displayDate, int status, int start, int end)
-		throws SystemException {
+		long companyId, Date displayDate, int status, int start, int end) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, null);
@@ -416,9 +436,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getCompanyEntries(
-			long companyId, Date displayDate, int status, int start, int end,
-			OrderByComparator obc)
-		throws SystemException {
+		long companyId, Date displayDate, int status, int start, int end,
+		OrderByComparator obc) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, obc);
@@ -428,8 +447,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public List<BlogsEntry> getCompanyEntries(
-			long companyId, Date displayDate, QueryDefinition queryDefinition)
-		throws SystemException {
+		long companyId, Date displayDate, QueryDefinition queryDefinition) {
 
 		if (queryDefinition.isExcludeStatus()) {
 			return blogsEntryPersistence.findByC_LtD_NotS(
@@ -452,8 +470,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public int getCompanyEntriesCount(
-			long companyId, Date displayDate, int status)
-		throws SystemException {
+		long companyId, Date displayDate, int status) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(status);
 
@@ -462,8 +479,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public int getCompanyEntriesCount(
-			long companyId, Date displayDate, QueryDefinition queryDefinition)
-		throws SystemException {
+		long companyId, Date displayDate, QueryDefinition queryDefinition) {
 
 		if (queryDefinition.isExcludeStatus()) {
 			return blogsEntryPersistence.countByC_LtD_NotS(
@@ -477,7 +493,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public BlogsEntry[] getEntriesPrevAndNext(long entryId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		BlogsEntry entry = blogsEntryPersistence.findByPrimaryKey(entryId);
 
@@ -488,15 +504,13 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	@Override
-	public BlogsEntry getEntry(long entryId)
-		throws PortalException, SystemException {
-
+	public BlogsEntry getEntry(long entryId) throws PortalException {
 		return blogsEntryPersistence.findByPrimaryKey(entryId);
 	}
 
 	@Override
 	public BlogsEntry getEntry(long groupId, String urlTitle)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return blogsEntryPersistence.findByG_UT(groupId, urlTitle);
 	}
@@ -508,8 +522,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getGroupEntries(
-			long groupId, Date displayDate, int status, int start, int end)
-		throws SystemException {
+		long groupId, Date displayDate, int status, int start, int end) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, null);
@@ -524,9 +537,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getGroupEntries(
-			long groupId, Date displayDate, int status, int start, int end,
-			OrderByComparator obc)
-		throws SystemException {
+		long groupId, Date displayDate, int status, int start, int end,
+		OrderByComparator obc) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, obc);
@@ -536,8 +548,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public List<BlogsEntry> getGroupEntries(
-			long groupId, Date displayDate, QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, Date displayDate, QueryDefinition queryDefinition) {
 
 		if (queryDefinition.isExcludeStatus()) {
 			return blogsEntryPersistence.findByG_LtD_NotS(
@@ -560,8 +571,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getGroupEntries(
-			long groupId, int status, int start, int end)
-		throws SystemException {
+		long groupId, int status, int start, int end) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, null);
@@ -576,8 +586,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getGroupEntries(
-			long groupId, int status, int start, int end, OrderByComparator obc)
-		throws SystemException {
+		long groupId, int status, int start, int end, OrderByComparator obc) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, obc);
@@ -587,8 +596,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public List<BlogsEntry> getGroupEntries(
-			long groupId, QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, QueryDefinition queryDefinition) {
 
 		if (queryDefinition.isExcludeStatus()) {
 			return blogsEntryPersistence.findByG_NotS(
@@ -610,8 +618,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	 */
 	@Deprecated
 	@Override
-	public int getGroupEntriesCount(long groupId, Date displayDate, int status)
-		throws SystemException {
+	public int getGroupEntriesCount(
+		long groupId, Date displayDate, int status) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(status);
 
@@ -620,8 +628,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public int getGroupEntriesCount(
-			long groupId, Date displayDate, QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, Date displayDate, QueryDefinition queryDefinition) {
 
 		if (queryDefinition.isExcludeStatus()) {
 			return blogsEntryPersistence.countByG_LtD_NotS(
@@ -639,8 +646,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	 */
 	@Deprecated
 	@Override
-	public int getGroupEntriesCount(long groupId, int status)
-		throws SystemException {
+	public int getGroupEntriesCount(long groupId, int status) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(status);
 
@@ -649,8 +655,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public int getGroupEntriesCount(
-			long groupId, QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, QueryDefinition queryDefinition) {
 
 		if (queryDefinition.isExcludeStatus()) {
 			return blogsEntryPersistence.countByG_NotS(
@@ -669,9 +674,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getGroupsEntries(
-			long companyId, long groupId, Date displayDate, int status,
-			int start, int end)
-		throws SystemException {
+		long companyId, long groupId, Date displayDate, int status, int start,
+		int end) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, null);
@@ -682,9 +686,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public List<BlogsEntry> getGroupsEntries(
-			long companyId, long groupId, Date displayDate,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long companyId, long groupId, Date displayDate,
+		QueryDefinition queryDefinition) {
 
 		return blogsEntryFinder.findByGroupIds(
 			companyId, groupId, displayDate, queryDefinition);
@@ -697,9 +700,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getGroupUserEntries(
-			long groupId, long userId, Date displayDate, int status, int start,
-			int end)
-		throws SystemException {
+		long groupId, long userId, Date displayDate, int status, int start,
+		int end) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, null);
@@ -715,9 +717,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getGroupUserEntries(
-			long groupId, long userId, Date displayDate, int status, int start,
-			int end, OrderByComparator obc)
-		throws SystemException {
+		long groupId, long userId, Date displayDate, int status, int start,
+		int end, OrderByComparator obc) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, obc);
@@ -728,9 +729,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public List<BlogsEntry> getGroupUserEntries(
-			long groupId, long userId, Date displayDate,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, long userId, Date displayDate,
+		QueryDefinition queryDefinition) {
 
 		if (queryDefinition.isExcludeStatus()) {
 			return blogsEntryPersistence.findByG_U_NotS(
@@ -753,8 +753,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public int getGroupUserEntriesCount(
-			long groupId, long userId, Date displayDate, int status)
-		throws SystemException {
+		long groupId, long userId, Date displayDate, int status) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(status);
 
@@ -764,9 +763,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public int getGroupUserEntriesCount(
-			long groupId, long userId, Date displayDate,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long groupId, long userId, Date displayDate,
+		QueryDefinition queryDefinition) {
 
 		if (queryDefinition.isExcludeStatus()) {
 			return blogsEntryPersistence.countByG_U_LtD_NotS(
@@ -779,7 +777,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	@Override
-	public List<BlogsEntry> getNoAssetEntries() throws SystemException {
+	public List<BlogsEntry> getNoAssetEntries() {
 		return blogsEntryFinder.findByNoAssets();
 	}
 
@@ -790,9 +788,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getOrganizationEntries(
-			long organizationId, Date displayDate, int status, int start,
-			int end)
-		throws SystemException {
+		long organizationId, Date displayDate, int status, int start, int end) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, null);
@@ -808,9 +804,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public List<BlogsEntry> getOrganizationEntries(
-			long organizationId, Date displayDate, int status, int start,
-			int end, OrderByComparator obc)
-		throws SystemException {
+		long organizationId, Date displayDate, int status, int start, int end,
+		OrderByComparator obc) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(
 			status, start, end, obc);
@@ -821,9 +816,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public List<BlogsEntry> getOrganizationEntries(
-			long organizationId, Date displayDate,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long organizationId, Date displayDate,
+		QueryDefinition queryDefinition) {
 
 		return blogsEntryFinder.findByOrganizationId(
 			organizationId, displayDate, queryDefinition);
@@ -836,8 +830,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	@Deprecated
 	@Override
 	public int getOrganizationEntriesCount(
-			long organizationId, Date displayDate, int status)
-		throws SystemException {
+		long organizationId, Date displayDate, int status) {
 
 		QueryDefinition queryDefinition = new QueryDefinition(status);
 
@@ -847,9 +840,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public int getOrganizationEntriesCount(
-			long organizationId, Date displayDate,
-			QueryDefinition queryDefinition)
-		throws SystemException {
+		long organizationId, Date displayDate,
+		QueryDefinition queryDefinition) {
 
 		return blogsEntryFinder.countByOrganizationId(
 			organizationId, displayDate, queryDefinition);
@@ -857,7 +849,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	@Override
 	public void moveEntriesToTrash(long groupId, long userId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		List<BlogsEntry> entries = blogsEntryPersistence.findByGroupId(groupId);
 
@@ -876,12 +868,11 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	 * @throws PortalException if a user with the primary key could not be found
 	 *         or if the blogs entry owner's social activity counter could not
 	 *         be updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public BlogsEntry moveEntryToTrash(long userId, BlogsEntry entry)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		// Entry
 
@@ -928,11 +919,10 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	 * @throws PortalException if a user or blogs entry with the primary key
 	 *         could not be found or if the blogs entry owner's social activity
 	 *         counter could not be updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public BlogsEntry moveEntryToTrash(long userId, long entryId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		BlogsEntry entry = blogsEntryPersistence.findByPrimaryKey(entryId);
 
@@ -949,12 +939,11 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	 * @throws PortalException if a user or blogs entry with the primary key
 	 *         could not be found or if the blogs entry owner's social activity
 	 *         counter could not be updated
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public BlogsEntry restoreEntryFromTrash(long userId, long entryId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		// Entry
 
@@ -979,17 +968,13 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void subscribe(long userId, long groupId)
-		throws PortalException, SystemException {
-
+	public void subscribe(long userId, long groupId) throws PortalException {
 		subscriptionLocalService.addSubscription(
 			userId, groupId, BlogsEntry.class.getName(), groupId);
 	}
 
 	@Override
-	public void unsubscribe(long userId, long groupId)
-		throws PortalException, SystemException {
-
+	public void unsubscribe(long userId, long groupId) throws PortalException {
 		subscriptionLocalService.deleteSubscription(
 			userId, BlogsEntry.class.getName(), groupId);
 	}
@@ -998,7 +983,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	public void updateAsset(
 			long userId, BlogsEntry entry, long[] assetCategoryIds,
 			String[] assetTagNames, long[] assetLinkEntryIds)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		boolean visible = false;
 
@@ -1022,7 +1007,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			AssetLinkConstants.TYPE_RELATED);
 	}
 
-	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public BlogsEntry updateEntry(
 			long userId, long entryId, String title, String description,
@@ -1032,7 +1016,26 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			String[] trackbacks, boolean smallImage, String smallImageURL,
 			String smallImageFileName, InputStream smallImageInputStream,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
+
+		return updateEntry(
+			userId, entryId, title, StringPool.BLANK, description, content,
+			displayDateMonth, displayDateDay, displayDateYear, displayDateHour,
+			displayDateMinute, allowPingbacks, allowTrackbacks, trackbacks,
+			smallImage, smallImageURL, smallImageFileName,
+			smallImageInputStream, serviceContext);
+	}
+
+	@Override
+	public BlogsEntry updateEntry(
+			long userId, long entryId, String title, String deckTitle,
+			String description, String content, int displayDateMonth,
+			int displayDateDay, int displayDateYear, int displayDateHour,
+			int displayDateMinute, boolean allowPingbacks,
+			boolean allowTrackbacks, String[] trackbacks, boolean smallImage,
+			String smallImageURL, String smallImageFileName,
+			InputStream smallImageInputStream, ServiceContext serviceContext)
+		throws PortalException {
 
 		// Entry
 
@@ -1063,6 +1066,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		entry.setModifiedDate(serviceContext.getModifiedDate(null));
 		entry.setTitle(title);
+		entry.setDeckTitle(deckTitle);
 		entry.setUrlTitle(
 			getUniqueUrlTitle(entryId, title, oldUrlTitle, serviceContext));
 		entry.setDescription(description);
@@ -1136,7 +1140,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	public void updateEntryResources(
 			BlogsEntry entry, String[] groupPermissions,
 			String[] guestPermissions)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		resourceLocalService.updateResources(
 			entry.getCompanyId(), entry.getGroupId(),
@@ -1153,7 +1157,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	public BlogsEntry updateStatus(
 			long userId, long entryId, int status,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return updateStatus(
 			userId, entryId, status, serviceContext,
@@ -1166,7 +1170,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			long userId, long entryId, int status,
 			ServiceContext serviceContext,
 			Map<String, Serializable> workflowContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		// Entry
 
@@ -1312,7 +1316,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	protected String getEntryURL(
 			BlogsEntry entry, ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		HttpServletRequest request = serviceContext.getRequest();
 
@@ -1341,8 +1345,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		return portletURL.toString();
 	}
 
-	protected String getUniqueUrlTitle(long entryId, long groupId, String title)
-		throws SystemException {
+	protected String getUniqueUrlTitle(
+		long entryId, long groupId, String title) {
 
 		String urlTitle = BlogsUtil.getUrlTitle(entryId, title);
 
@@ -1371,9 +1375,8 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	protected String getUniqueUrlTitle(
-			long entryId, String title, String oldUrlTitle,
-			ServiceContext serviceContext)
-		throws SystemException {
+		long entryId, String title, String oldUrlTitle,
+		ServiceContext serviceContext) {
 
 		String serviceContextUrlTitle = ParamUtil.getString(
 			serviceContext, "urlTitle");
@@ -1406,20 +1409,20 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	protected void notifySubscribers(
 			BlogsEntry entry, String entryURL, ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!entry.isApproved() || Validator.isNull(entryURL)) {
 			return;
 		}
 
-		BlogsSettings blogsSettings = BlogsUtil.getBlogsSettings(
+		BlogsSettings blogsSettings = BlogsSettings.getInstance(
 			entry.getGroupId());
 
 		if (serviceContext.isCommandAdd() &&
-			blogsSettings.getEmailEntryAddedEnabled()) {
+			blogsSettings.isEmailEntryAddedEnabled()) {
 		}
 		else if (serviceContext.isCommandUpdate() &&
-				 blogsSettings.getEmailEntryUpdatedEnabled()) {
+				 blogsSettings.isEmailEntryUpdatedEnabled()) {
 		}
 		else {
 			return;
@@ -1450,12 +1453,26 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		subscriptionSender.setClassName(entry.getModelClassName());
 		subscriptionSender.setCompanyId(entry.getCompanyId());
 		subscriptionSender.setContextAttribute(
-			"[$BLOGS_ENTRY_CONTENT$]", entry.getContent(), false);
+			"[$BLOGS_ENTRY_CONTENT$]",
+			StringUtil.shorten(HtmlUtil.stripHtml(entry.getContent()), 500),
+			false);
+
+		User user = userPersistence.findByPrimaryKey(entry.getUserId());
+
 		subscriptionSender.setContextAttributes(
+			"[$BLOGS_ENTRY_CREATE_DATE$]",
+			Time.getSimpleDate(entry.getCreateDate(), "yyyy/MM/dd"),
 			"[$BLOGS_ENTRY_DESCRIPTION$]", entry.getDescription(),
+			"[$BLOGS_ENTRY_SITE_NAME$]",
+			groupLocalService.getGroupDescriptiveName(
+				entry.getGroupId(), serviceContext.getLocale()),
 			"[$BLOGS_ENTRY_STATUS_BY_USER_NAME$]", entry.getStatusByUserName(),
 			"[$BLOGS_ENTRY_TITLE$]", entryTitle, "[$BLOGS_ENTRY_URL$]",
-			entryURL);
+			entryURL, "[$BLOGS_ENTRY_USER_PORTRAIT_URL$]",
+			user.getPortraitURL(serviceContext.getThemeDisplay()),
+			"[$BLOGS_ENTRY_USER_URL$]",
+			user.getDisplayURL(serviceContext.getThemeDisplay()));
+
 		subscriptionSender.setContextUserPrefix("BLOGS_ENTRY");
 		subscriptionSender.setEntryTitle(entryTitle);
 		subscriptionSender.setEntryURL(entryURL);
@@ -1491,7 +1508,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	protected void pingGoogle(BlogsEntry entry, ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!PropsValues.BLOGS_PING_GOOGLE_ENABLED || !entry.isApproved()) {
 			return;
@@ -1549,7 +1566,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	protected void pingPingback(BlogsEntry entry, ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!PropsValues.BLOGS_PINGBACK_ENABLED ||
 			!entry.isAllowPingbacks() || !entry.isApproved()) {
@@ -1597,7 +1614,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	protected void pingTrackbacks(
 			BlogsEntry entry, String[] trackbacks, boolean pingOldTrackbacks,
 			ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (!PropsValues.BLOGS_TRACKBACK_ENABLED ||
 			!entry.isAllowTrackbacks() || !entry.isApproved()) {
@@ -1687,7 +1704,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	protected void saveImages(
 			boolean smallImage, long smallImageId, byte[] smallImageBytes)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (smallImage) {
 			if (smallImageBytes != null) {
@@ -1701,7 +1718,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 	protected void startWorkflowInstance(
 			long userId, BlogsEntry entry, ServiceContext serviceContext)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Map<String, Serializable> workflowContext =
 			new HashMap<String, Serializable>();
@@ -1719,7 +1736,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			String title, String content, boolean smallImage,
 			String smallImageURL, String smallImageFileName,
 			byte[] smallImageBytes)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if (Validator.isNull(title)) {
 			throw new EntryTitleException();

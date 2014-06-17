@@ -17,7 +17,6 @@ package com.liferay.portal.kernel.language;
 import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.security.pacl.permission.PortalRuntimePermission;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
@@ -301,7 +300,7 @@ public class LanguageUtil {
 	}
 
 	public static boolean isInheritLocales(long groupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return getLanguage().isInheritLocales(groupId);
 	}
@@ -310,6 +309,12 @@ public class LanguageUtil {
 		String value = getLanguage().get(locale, key, StringPool.BLANK);
 
 		return Validator.isNotNull(value);
+	}
+
+	public static String process(
+		ResourceBundle resourceBundle, Locale locale, String content) {
+
+		return getLanguage().process(resourceBundle, locale, content);
 	}
 
 	public static void resetAvailableGroupLocales(long groupId) {

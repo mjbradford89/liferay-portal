@@ -17,7 +17,6 @@ package com.liferay.portlet.dynamicdatamapping.model.impl;
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscapeBeanHandler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSON;
 import com.liferay.portal.kernel.lar.StagedModelType;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -452,7 +451,7 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 	}
 
 	@Override
-	public String getUserUuid() throws SystemException {
+	public String getUserUuid() {
 		try {
 			User user = UserLocalServiceUtil.getUserById(getUserId());
 
@@ -862,13 +861,6 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 		_type = type;
 	}
 
-	public com.liferay.portal.kernel.xml.Document getDocument() {
-		return null;
-	}
-
-	public void setDocument(com.liferay.portal.kernel.xml.Document document) {
-	}
-
 	public java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.util.Map<java.lang.String, java.lang.String>>> getLocalizedFieldsMap() {
 		return null;
 	}
@@ -953,7 +945,9 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 			return StringPool.BLANK;
 		}
 
-		return LocalizationUtil.getDefaultLanguageId(xml);
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
+
+		return LocalizationUtil.getDefaultLanguageId(xml, defaultLocale);
 	}
 
 	@Override
@@ -972,7 +966,7 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 	@SuppressWarnings("unused")
 	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
 		throws LocaleException {
-		Locale defaultLocale = LocaleUtil.getDefault();
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
 
 		String modelDefaultLanguageId = getDefaultLanguageId();
 
@@ -1112,8 +1106,6 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 
 		ddmStructureModelImpl._originalDescription = ddmStructureModelImpl._description;
 
-		setDocument(null);
-
 		setLocalizedFieldsMap(null);
 
 		setLocalizedPersistentFieldsMap(null);
@@ -1214,8 +1206,6 @@ public class DDMStructureModelImpl extends BaseModelImpl<DDMStructure>
 		}
 
 		ddmStructureCacheModel.type = getType();
-
-		ddmStructureCacheModel._document = getDocument();
 
 		ddmStructureCacheModel._localizedFieldsMap = getLocalizedFieldsMap();
 

@@ -357,12 +357,11 @@ if (Validator.isNotNull(structureAvailableFields)) {
 
 							var expanded = !instance.get('expanded');
 
-							A.one('#<portlet:namespace />smallImage').set('value', expanded);
-							A.one('#<portlet:namespace />smallImageCheckbox').set('checked', expanded);
+							A.one('#<portlet:namespace />smallImage').set('checked', expanded);
 
 							if (expanded) {
 								types.each(
-									function(item, index, collection) {
+									function(item, index) {
 										if (item.get('checked')) {
 											values.item(index).set('disabled', false);
 										}
