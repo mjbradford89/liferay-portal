@@ -4,7 +4,7 @@ AUI.add(
 		var Lang = A.Lang;
 		var AArray = A.Array;
 
-		var docElement = A.one(DOC.documentElement);
+		var docElement = A.one(A.config.doc.documentElement);
 
 		var removeCssClassTask = A.debounce(
 			function() {
@@ -19,17 +19,47 @@ AUI.add(
 				ATTRS: {
 					dropTargets: {
 						validator: Lang.isString,
-						// value: 'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]'
+						// DM configuration: value: 'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]'
 						value: 'body'
 					},
+
+					// replaced this with uploadItemsIntent
+					//
+					// fileList: {
+					// 	setter: function(val) {
+					// 		var instance = this;
+
+					// 		instance._getUploader().set('fileList', val);
+
+					// 		return val;
+					// 	},
+					// 	validator: Lang.isArray,
+					// 	value: []
+					// },
+
 					fileFieldName: {
 						validator: Lang.isString,
 						value: 'file'
 					},
+
+					maxFileSize: {
+						setter: function(val) {
+							var maxFileSize = Lang.toInt(val);
+
+							return instance.formatStorage(maxFileSize);
+						},
+						value: 0
+					},
+
 					multipleFiles: {
 						validator: Lang.isBoolean,
 						value: true
 					},
+
+					render: {
+						value: true
+					},
+
 					strings: {
 						validator: Lang.isObject,
 						value: {
@@ -39,11 +69,13 @@ AUI.add(
 							zeroByteSizeText: Liferay.Language.get('the-file-contains-no-data-and-cannot-be-uploaded.-please-use-the-classic-uploader'),
 						}
 					},
+
 					swfURL: {
 						setter: '_addTimeStampParam',
 						validator: Lang.isString,
 						value: themeDisplay.getPathContext() + '/html/js/aui/uploader/assets/flashuploader.swf'
 					},
+
 					uploadURL: {
 						setter: '_addTimeStampParam',
 						validator: Lang.isString,
@@ -70,7 +102,7 @@ AUI.add(
 						}
 					},
 
-					getUploader: function() {
+					_getUploader: function() {
 						var instance = this;
 
 						var uploader = instance._uploader;
@@ -82,6 +114,85 @@ AUI.add(
 						}
 
 						return uploader;
+					},
+
+					_getRouter: function() {
+						var instance = this;
+
+						var router = instance._router;
+
+						if (!router) {
+							var uploader = instance._getUploader();
+
+							var routes = {};
+							var queue = {};
+
+							router = {
+								send: function(items, location) {
+									// if uploading
+
+										// find the route
+
+										// if the route is new, create it
+
+										// add this to our queue
+
+									// else
+									uploader.set('fileList', items);
+
+									if (instance._isUploading()) {
+										// var queue = instance.
+										var queue = this.queue;
+
+										AArray.each(items, queue.addToQueueBottom, queue);
+									}
+									else {
+										uploader.uploadAll();
+									}
+								}
+								// queue: uploader.queue
+							};
+
+							intance.router = router;
+						}
+
+						return router;
+					},
+
+					_getLocation: function() {
+						var instance = this;
+
+						var location;
+
+						// todo
+
+						return location;
+					},
+
+					upload: function(items, location) {
+						var instance = this;
+
+						location = location || instance._getLocation();
+
+						instance.router.send(items, location);
+					},
+
+					// uploadAll: function() {
+					// 	var instance = this;
+
+					// 	var uploader = instance._getUploader();
+
+					// 	if (!instance._isUploading()) {
+					// 		uploader.uploadAll();
+					// 	}
+					// },
+
+					uploadThese: function() {
+						var instance = this;
+
+						var uploader = instance._getUploader();
+
+						uploader.uploadThese();
 					},
 
 					_addTimeStampParam: function(val) {

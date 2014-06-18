@@ -147,14 +147,9 @@ AUI.add(
 						value: ''
 					},
 
-					fallback: { // to-do replace with flash fallback
+					fallback: {
 						setter: A.one,
 						value: null
-					},
-
-					maxFileSize: {
-						setter: Lang.toInt,
-						value: 0
 					},
 
 					metadataContainer: {
@@ -165,15 +160,6 @@ AUI.add(
 					metadataExplanationContainer: {
 						setter: A.one,
 						value: null
-					},
-
-					multipleFiles: {
-						validator: Lang.isBoolean,
-						value: true
-					},
-
-					render: {
-						value: true
 					},
 
 					tempFileURL: {
@@ -219,44 +205,78 @@ AUI.add(
 							);
 						}
 						else {
-							var maxFileSize = instance.formatStorage(instance.get('maxFileSize'));
+							// var maxFileSize = instance.formatStorage(instance.get('maxFileSize'));
 
-							instance._invalidFileSizeText = Lang.sub(strings.invalidFileSizeText, [maxFileSize]);
+							// instance._invalidFileSizeText = Lang.sub(strings.invalidFileSizeText, [maxFileSize]);
 
 							instance._metadataContainer = instance.get('metadataContainer');
 							instance._metadataExplanationContainer = instance.get('metadataExplanationContainer');
 
 							instance._fileListBuffer = [];
 							instance._renderFileListTask = A.debounce(instance._renderFileList, 10, instance);
+
+							instance.after('uploader:init', instance.bindUploaderLifecyle, instance);
 						}
 
+						instance._fileListTPL = new A.Template(TPL_FILE_LIST, templateConfig);
+
+						instance._selectUploadedFileCheckboxId = instance.ns('selectUploadedFileCheckbox');
+
+						var NS = instance.NS;
+
+						var templateConfig = {
+							$ns: instance.NS,
+							cancelUploadsText: (instance.get('multipleFiles')) ? strings.cancelUploadsText : strings.cancelFileText,
+							dropFileText: (instance.get('multipleFiles')) ? strings.dropFilesText : strings.dropFileText,
+							multipleFiles: instance.get('multipleFiles'),
+							selectFilesText: (instance.get('multipleFiles')) ? strings.selectFilesText : strings.selectFileText,
+							strings: strings,
+							uploaderType: UPLOADER_TYPE
+						};
+
+						var uploadFragment = new A.Template(TPL_UPLOAD, templateConfig).render(
+							{
+								multipleFiles: instance.get('multipleFiles')
+							}
+						);
+
+						instance._allRowIdsCheckbox = uploadFragment.one(instance._allRowIdsCheckboxSelector);
+						instance._allRowIdsCheckboxSelector = formatSelectorNS(NS, '#allRowIdsCheckbox');
+						instance._cancelButton = uploadFragment.one('.cancel-uploads');
+						instance._clearUploadsButton = uploadFragment.one('.clear-uploads');
 						instance._fallback = fallback;
+						instance._fileList = uploadFragment.one(instance._fileListSelector);
+						instance._fileListContent = uploadFragment.oneNS(NS, '#fileListContent');
+						instance._fileListSelector = formatSelectorNS(NS, '#fileList');
+						instance._listInfo = uploadFragment.oneNS(NS, '#listInfo');
+						instance._manageUploadTarget = uploadFragment.oneNS(NS, '#manageUploadTarget');
+						instance._pendingFileInfo = uploadFragment.one('.pending-files-info');
+						instance._selectFilesButton = uploadFragment.oneNS(NS, '#selectFilesButton');
+						instance._uploaderBoundingBox = uploadFragment.oneNS(NS, '#uploader');
+						instance._uploaderContentBox = uploadFragment.oneNS(NS, '#uploaderContent');
+						instance._uploadFragment = uploadFragment;
 
-						instance.after('uploader:init', instance.bindUploaderLifecyle, instance);
-
-						instance.bindDragDropUI();
+						instance.bindUI();
 					},
 
 					renderUI: function() {
 						var instance = this;
 
 						instance._renderControls();
-						instance._renderUploader();
+						// instance._renderUploader();
 					},
 
-					bindUploaderLifecyle: function(uploader) {
-						var instance = this;
+					bindUploaderLifecyle: function() {
+						var uploader = this;
 
 						uploader.after('fileselect', instance._onFileSelect, instance);
-
 						uploader.on('alluploadscomplete', instance._onAllUploadsComplete, instance);
 						uploader.on('fileuploadstart', instance._onUploadStart, instance);
 						uploader.on('uploadcomplete', instance._onUploadComplete, instance);
 						uploader.on('uploadprogress', instance._onUploadProgress, instance);
 					},
 
-					// bindUI: function() {
-					bindDragDropUI: function() {
+					bindUI: function() {
 						var instance = this;
 
 						if (instance._allRowIdsCheckbox) {
@@ -283,7 +303,7 @@ AUI.add(
 
 						var strings = instance.get(STRINGS);
 
-						var uploader = instance._uploader;
+						var uploader = instance.getUploader();
 
 						var queue = uploader.queue;
 
@@ -527,7 +547,7 @@ AUI.add(
 
 						var strings = instance.get(STRINGS);
 
-						var uploader = instance._uploader;
+						var uploader = instance.getUploader();
 
 						instance._filesTotal = 0;
 
@@ -557,7 +577,7 @@ AUI.add(
 
 						var strings = instance.get(STRINGS);
 
-						var uploader = instance._uploader;
+						var uploader = instance.getUploader();
 
 						var queue = uploader.queue;
 
@@ -646,22 +666,27 @@ AUI.add(
 						var validFilesLength = validFiles.length;
 
 						if (validFilesLength) {
-							var uploader = instance._uploader;
+							// var uploader = instance.getUploader();
+							// var uploader = instance.getUploader();
 
-							uploader.set('fileList', validFiles);
+							// uploader.set('fileList', validFiles);
+							// instance.set('fileList', validFiles);
+							// instance.uploadItemsIntent(validFiles);
+							// instance.uploadItems(validFiles);
+							instance.upload(validFiles);
 
 							instance._filesTotal += validFilesLength;
 
 							instance._cancelButton.show();
 
-							if (instance._isUploading()) {
-								var uploadQueue = uploader.queue;
+							// if (instance._isUploading()) {
+							// 	var uploadQueue = uploader.queue;
 
-								AArray.each(validFiles, uploadQueue.addToQueueBottom, uploadQueue);
-							}
-							else {
-								uploader.uploadAll();
-							}
+							// 	AArray.each(validFiles, uploadQueue.addToQueueBottom, uploadQueue);
+							// }
+							// else {
+							// 	uploader.uploadAll();
+							// }
 						}
 
 						instance._pendingFileInfo.hide();
@@ -792,7 +817,7 @@ AUI.add(
 
 						var strings = instance.get(STRINGS);
 
-						var uploader = instance._uploader;
+						var uploader = instance.getUploader();
 
 						var queue = uploader.queue;
 
@@ -839,49 +864,6 @@ AUI.add(
 					_renderControls: function() {
 						var instance = this;
 
-						var strings = instance.get(STRINGS);
-
-						var templateConfig = {
-							$ns: instance.NS,
-							cancelUploadsText: (instance.get('multipleFiles')) ? strings.cancelUploadsText : strings.cancelFileText,
-							dropFileText: (instance.get('multipleFiles')) ? strings.dropFilesText : strings.dropFileText,
-							multipleFiles: instance.get('multipleFiles'),
-							selectFilesText: (instance.get('multipleFiles')) ? strings.selectFilesText : strings.selectFileText,
-							strings: strings,
-							uploaderType: UPLOADER_TYPE
-						};
-
-						instance._fileListTPL = new A.Template(TPL_FILE_LIST, templateConfig);
-
-						instance._selectUploadedFileCheckboxId = instance.ns('selectUploadedFile');
-
-						var NS = instance.NS;
-
-						instance._fileListSelector = formatSelectorNS(NS, '#fileList');
-						instance._allRowIdsCheckboxSelector = formatSelectorNS(NS, '#allRowIds');
-
-						var uploadFragment = new A.Template(TPL_UPLOAD, templateConfig).render(
-							{
-								multipleFiles: instance.get('multipleFiles')
-							}
-						);
-
-						instance._allRowIdsCheckbox = uploadFragment.one(instance._allRowIdsCheckboxSelector);
-
-						instance._manageUploadTarget = uploadFragment.oneNS(NS, '#manageUploadTarget');
-
-						instance._cancelButton = uploadFragment.one('.cancel-uploads');
-						instance._clearUploadsButton = uploadFragment.one('.clear-uploads');
-
-						instance._fileList = uploadFragment.one(instance._fileListSelector);
-						instance._fileListContent = uploadFragment.oneNS(NS, '#fileListContent');
-						instance._listInfo = uploadFragment.oneNS(NS, '#listInfo');
-						instance._pendingFileInfo = uploadFragment.one('.pending-files-info');
-						instance._selectFilesButton = uploadFragment.oneNS(NS, '#selectFilesButton');
-
-						instance._uploaderBoundingBox = uploadFragment.oneNS(NS, '#uploader');
-						instance._uploaderContentBox = uploadFragment.oneNS(NS, '#uploaderContent');
-
 						var tempFileURL = instance.get('tempFileURL');
 
 						if (tempFileURL) {
@@ -902,8 +884,6 @@ AUI.add(
 								tempFileURL.method(tempFileURL.params, A.bind('_formatTempFiles', instance));
 							}
 						}
-
-						instance._uploadFragment = uploadFragment;
 
 						instance._cancelButton.hide();
 					},
