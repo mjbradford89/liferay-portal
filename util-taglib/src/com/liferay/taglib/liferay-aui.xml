@@ -493,6 +493,12 @@
 				<outputType>long</outputType>
 			</attribute>
 			<attribute>
+				<name>classTypePK</name>
+				<inputType>long</inputType>
+				<outputType>long</outputType>
+				<defaultValue>-1</defaultValue>
+			</attribute>
+			<attribute>
 				<name>cssClass</name>
 				<inputType>java.lang.String</inputType>
 				<outputType>java.lang.String</outputType>
@@ -546,7 +552,7 @@
 				<name>helpTextCssClass</name>
 				<inputType>java.lang.String</inputType>
 				<outputType>java.lang.String</outputType>
-				<defaultValue>add-on</defaultValue>
+				<defaultValue>input-group-addon</defaultValue>
 			</attribute>
 			<attribute>
 				<name>id</name>
@@ -557,12 +563,6 @@
 				<name>ignoreRequestValue</name>
 				<inputType>boolean</inputType>
 				<outputType>boolean</outputType>
-			</attribute>
-			<attribute>
-				<name>includeHiddenField</name>
-				<inputType>boolean</inputType>
-				<outputType>boolean</outputType>
-				<defaultValue>true</defaultValue>
 			</attribute>
 			<attribute>
 				<name>inlineField</name>
@@ -994,12 +994,6 @@
 				<outputType>java.lang.String</outputType>
 			</attribute>
 			<attribute>
-				<name>fluid</name>
-				<inputType>boolean</inputType>
-				<outputType>boolean</outputType>
-				<defaultValue>true</defaultValue>
-			</attribute>
-			<attribute>
 				<name>id</name>
 				<inputType>java.lang.String</inputType>
 				<outputType>java.lang.String</outputType>
@@ -1161,6 +1155,11 @@
 				<name>value</name>
 				<inputType>java.lang.Object</inputType>
 				<outputType>java.lang.Object</outputType>
+			</attribute>
+			<attribute>
+				<name>wrapperCssClass</name>
+				<inputType>java.lang.String</inputType>
+				<outputType>java.lang.String</outputType>
 			</attribute>
 		</attributes>
 	</component>

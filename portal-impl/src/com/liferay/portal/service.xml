@@ -2293,7 +2293,7 @@
 		<column name="classNameId" type="long" />
 		<column name="classPK" type="long" />
 		<column name="name" type="String" accessor="true" />
-		<column name="title" type="String" localized="true" />
+		<column name="title" type="String" accessor="true" localized="true" />
 		<column name="description" type="String" localized="true" />
 		<column name="type" type="int" />
 		<column name="subtype" type="String" />
@@ -2553,7 +2553,7 @@
 		<!-- Other fields -->
 
 		<column name="groupId" type="long" />
-		<column name="name" type="String" />
+		<column name="name" type="String" accessor="true" />
 		<column name="description" type="String" />
 
 		<!-- Relationships -->
@@ -2781,6 +2781,7 @@
 		<reference package-path="com.liferay.portlet.messageboards" entity="MBThreadFlag" />
 		<reference package-path="com.liferay.portlet.shopping" entity="ShoppingCart" />
 		<reference package-path="com.liferay.portlet.social" entity="SocialActivity" />
+		<reference package-path="com.liferay.portlet.social" entity="SocialRelation" />
 		<reference package-path="com.liferay.portlet.social" entity="SocialRequest" />
 	</entity>
 	<entity name="UserGroup" uuid="true" local-service="true" remote-service="true">
@@ -2992,6 +2993,7 @@
 		<column name="deliverBy" type="long" />
 		<column name="delivered" type="boolean" />
 		<column name="payload" type="String" />
+		<column name="actionRequired" type="boolean" />
 		<column name="archived" type="boolean" />
 
 		<!-- Order -->
@@ -3011,6 +3013,16 @@
 		</finder>
 		<finder name="U_A" return-type="Collection">
 			<finder-column name="userId" />
+			<finder-column name="archived" />
+		</finder>
+		<finder name="U_D_A" return-type="Collection">
+			<finder-column name="userId" />
+			<finder-column name="delivered" />
+			<finder-column name="actionRequired" />
+		</finder>
+		<finder name="U_A_A" return-type="Collection">
+			<finder-column name="userId" />
+			<finder-column name="actionRequired" />
 			<finder-column name="archived" />
 		</finder>
 

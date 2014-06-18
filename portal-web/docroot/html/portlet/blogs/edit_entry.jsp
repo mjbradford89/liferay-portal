@@ -59,6 +59,10 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 	<liferay-ui:error exception="<%= EntryContentException.class %>" message="please-enter-valid-content" />
 	<liferay-ui:error exception="<%= EntryTitleException.class %>" message="please-enter-a-valid-title" />
 
+	<liferay-ui:error exception="<%= LiferayFileItemException.class %>">
+		<liferay-ui:message arguments="<%= TextFormatter.formatStorageSize(LiferayFileItem.THRESHOLD_SIZE, locale) %>" key="please-enter-valid-content-with-valid-content-size-no-larger-than-x" translateArguments="<%= false %>" />
+	</liferay-ui:error>
+
 	<liferay-ui:error exception="<%= FileSizeException.class %>">
 
 		<%
@@ -83,11 +87,13 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 	</c:if>
 
 	<c:if test="<%= entry != null %>">
-		<aui:workflow-status id="<%= String.valueOf(entry.getEntryId()) %>" status="<%= entry.getStatus() %>" />
+		<aui:workflow-status id="<%= String.valueOf(entry.getEntryId()) %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= entry.getStatus() %>" />
 	</c:if>
 
 	<aui:fieldset>
 		<aui:input autoFocus="<%= windowState.equals(WindowState.MAXIMIZED) || windowState.equals(LiferayWindowState.POP_UP) %>" name="title" />
+
+		<aui:input name="deckTitle" />
 
 		<aui:input name="displayDate" />
 
@@ -378,7 +384,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 						on: {
 							failure: function() {
 								if (saveStatus) {
-									saveStatus.set('className', 'alert alert-error save-status');
+									saveStatus.set('className', 'alert alert-danger save-status');
 									saveStatus.html('<%= UnicodeLanguageUtil.get(pageContext, "could-not-save-draft-to-the-server") %>');
 								}
 							},
@@ -451,6 +457,16 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 		},
 		['aui-io']
 	);
+
+	var clearSaveDraftHandle = function(event) {
+		if (event.portletId === '<%= portletDisplay.getRootPortletId() %>') {
+			<portlet:namespace />clearSaveDraftIntervalId();
+
+			Liferay.detach('destroyPortlet', clearSaveDraftHandle);
+		}
+	};
+
+	Liferay.on('destroyPortlet', clearSaveDraftHandle);
 </aui:script>
 
 <aui:script use="aui-base">
@@ -512,8 +528,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 
 					var expanded = !instance.get('expanded');
 
-					A.one('#<portlet:namespace />smallImage').set('value', expanded);
-					A.one('#<portlet:namespace />smallImageCheckbox').set('checked', expanded);
+					A.one('#<portlet:namespace />smallImage').set('checked', expanded);
 
 					if (expanded) {
 						types.each(

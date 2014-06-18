@@ -185,7 +185,7 @@ if (feed != null) {
 
 				</aui:select>
 
-				<div class="control-group">
+				<div class="form-group">
 					<aui:input name="structureId" required="<%= true %>" type="hidden" value="<%= structureId %>" />
 
 					<aui:input name="structure" type="resource" value="<%= ddmStructureName %>" />
@@ -221,7 +221,7 @@ if (feed != null) {
 								<c:if test="<%= tableIteratorObj.isSmallImage() %>">
 									<br />
 
-									<img alt="" border="0" hspace="0" src="<%= Validator.isNotNull(tableIteratorObj.getSmallImageURL()) ? tableIteratorObj.getSmallImageURL() : themeDisplay.getPathImage() + "/journal/template?img_id=" + tableIteratorObj.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(tableIteratorObj.getSmallImageId()) %>" vspace="0" />
+									<img alt="" hspace="0" src="<%= Validator.isNotNull(tableIteratorObj.getSmallImageURL()) ? tableIteratorObj.getSmallImageURL() : themeDisplay.getPathImage() + "/journal/template?img_id=" + tableIteratorObj.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(tableIteratorObj.getSmallImageId()) %>" vspace="0" />
 								</c:if>
 							</liferay-ui:table-iterator>
 						</aui:field-wrapper>
@@ -414,7 +414,7 @@ if (feed != null) {
 		}
 	}
 
-	Liferay.Util.disableToggleBoxes('<portlet:namespace />autoFeedIdCheckbox','<portlet:namespace />newFeedId', true);
+	Liferay.Util.disableToggleBoxes('<portlet:namespace />autoFeedId','<portlet:namespace />newFeedId', true);
 </aui:script>
 
 <aui:script use="aui-base">

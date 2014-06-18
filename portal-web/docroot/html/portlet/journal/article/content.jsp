@@ -123,7 +123,7 @@ String toLanguageId = (String)request.getAttribute("edit_article.jsp-toLanguageI
 											iconCssClass="icon-search"
 											id="selectStructure"
 											label="<%= true %>"
-											linkCssClass="btn"
+											linkCssClass="btn btn-default"
 											message="select"
 											url="javascript:;"
 										/>
@@ -145,7 +145,7 @@ String toLanguageId = (String)request.getAttribute("edit_article.jsp-toLanguageI
 										</c:if>
 
 										<c:choose>
-											<c:when test="<%= (ddmTemplate != null) && DDMTemplatePermission.contains(permissionChecker, ddmTemplate, PortletKeys.JOURNAL, ActionKeys.UPDATE) %>">
+											<c:when test="<%= (ddmTemplate != null) && DDMTemplatePermission.contains(permissionChecker, scopeGroupId, ddmTemplate, PortletKeys.JOURNAL, ActionKeys.UPDATE) %>">
 												<aui:a href="javascript:;" id="editDDMTemplate" label="<%= HtmlUtil.escape(ddmTemplate.getName(locale)) %>" />
 											</c:when>
 											<c:otherwise>
@@ -158,7 +158,7 @@ String toLanguageId = (String)request.getAttribute("edit_article.jsp-toLanguageI
 										iconCssClass="icon-search"
 										id="selectTemplate"
 										label="<%= true %>"
-										linkCssClass="btn"
+										linkCssClass="btn btn-default"
 										message="select"
 										url="javascript:;"
 									/>
@@ -281,7 +281,7 @@ String toLanguageId = (String)request.getAttribute("edit_article.jsp-toLanguageI
 											String editTranslationURL = HttpUtil.addParameter(editArticleRenderPopUpURL.toString(), renderResponse.getNamespace() + "toLanguageId", translations[i]);
 										%>
 
-										<aui:a cssClass="journal-article-translation lfr-token" href="<%= editTranslationURL %>" id='<%= "journal-article-translation-" + translations[i] %>'>
+										<aui:a cssClass="journal-article-translation lfr-token" href="<%= editTranslationURL %>" id='<%= "journal-article-translation-link-" + translations[i] %>'>
 											<img alt="" src='<%= themeDisplay.getPathThemeImages() + "/language/" + translations[i] + ".png" %>' />
 
 											<%= LocaleUtil.fromLanguageId(translations[i]).getDisplayName(locale) %>
@@ -410,7 +410,7 @@ String toLanguageId = (String)request.getAttribute("edit_article.jsp-toLanguageI
 		}
 	);
 
-	Liferay.Util.disableToggleBoxes('<portlet:namespace />autoArticleIdCheckbox','<portlet:namespace />newArticleId', true);
+	Liferay.Util.disableToggleBoxes('<portlet:namespace />autoArticleId','<portlet:namespace />newArticleId', true);
 </aui:script>
 
 <%!

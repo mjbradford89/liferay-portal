@@ -14,9 +14,15 @@
 
 package com.liferay.portlet.documentlibrary.service;
 
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.messaging.DestinationNames;
+import com.liferay.portal.kernel.messaging.Message;
+import com.liferay.portal.kernel.messaging.MessageBusUtil;
+import com.liferay.portal.kernel.messaging.MessageListener;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
@@ -35,12 +41,13 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.User;
 import com.liferay.portal.security.permission.DoAsUserThread;
 import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.service.ServiceTestUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.service.test.ServiceTestUtil;
-import com.liferay.portal.test.EnvironmentExecutionTestListener;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
+import com.liferay.portal.util.test.RandomTestUtil;
 import com.liferay.portal.util.test.ServiceContextTestUtil;
 import com.liferay.portal.util.test.UserTestUtil;
 import com.liferay.portlet.asset.model.AssetEntry;
@@ -48,6 +55,7 @@ import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.DuplicateFileException;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryConstants;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
+import com.liferay.portlet.documentlibrary.model.DLSyncConstants;
 import com.liferay.portlet.documentlibrary.util.test.DLAppTestUtil;
 
 import java.io.ByteArrayInputStream;
@@ -55,6 +63,7 @@ import java.io.File;
 import java.io.InputStream;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -67,7 +76,7 @@ import org.junit.runner.RunWith;
  */
 @ExecutionTestListeners(
 	listeners = {
-		EnvironmentExecutionTestListener.class,
+		MainServletExecutionTestListener.class,
 		SynchronousDestinationExecutionTestListener.class
 	})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
@@ -105,6 +114,21 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 		for (int i = 0; i < ServiceTestUtil.THREAD_COUNT; i++) {
 			UserLocalServiceUtil.deleteUser(_userIds[i]);
 		}
+	}
+
+	@Test
+	public void testAddAssetEntryWhenAddingFolder() throws PortalException {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		Folder folder = DLAppServiceUtil.addFolder(
+			group.getGroupId(), parentFolder.getFolderId(),
+			RandomTestUtil.randomString(), StringPool.BLANK, serviceContext);
+
+		AssetEntry assetEntry = AssetEntryLocalServiceUtil.fetchEntry(
+			DLFolderConstants.getClassName(), folder.getFolderId());
+
+		Assert.assertNotNull(assetEntry);
 	}
 
 	@Test
@@ -217,7 +241,7 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 	}
 
 	@Test
-	public void testAddNullFileEntry() throws Exception {
+	public void testAddFileEntryWithNullBytes() throws Exception {
 		long folderId = parentFolder.getFolderId();
 		String description = StringPool.BLANK;
 		String changeLog = StringPool.BLANK;
@@ -250,6 +274,16 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 				"Unable to pass null byte[] " +
 					StackTraceUtil.getStackTrace(e));
 		}
+	}
+
+	@Test
+	public void testAddFileEntryWithNullFile() throws Exception {
+		long folderId = parentFolder.getFolderId();
+		String description = StringPool.BLANK;
+		String changeLog = StringPool.BLANK;
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		try {
 			String name = "File-null.txt";
@@ -281,6 +315,16 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 			Assert.fail(
 				"Unable to pass null File " + StackTraceUtil.getStackTrace(e));
 		}
+	}
+
+	@Test
+	public void testAddFileEntryWithNullInputStream() throws Exception {
+		long folderId = parentFolder.getFolderId();
+		String description = StringPool.BLANK;
+		String changeLog = StringPool.BLANK;
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
 
 		try {
 			String name = "IS-null.txt";
@@ -372,6 +416,45 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 	}
 
 	@Test
+	public void testFireSyncEventWhenAddingFolder() throws Exception {
+		AtomicInteger counter = registerDLSyncEventProcessorMessageListener(
+			DLSyncConstants.EVENT_ADD);
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		DLAppServiceUtil.addFolder(
+			group.getGroupId(), parentFolder.getFolderId(),
+			RandomTestUtil.randomString(), StringPool.BLANK, serviceContext);
+
+		Assert.assertEquals(1, counter.get());
+	}
+
+	@Test
+	public void testFireSyncEventWhenCopyingFolder() throws Exception {
+		AtomicInteger counter = registerDLSyncEventProcessorMessageListener(
+			DLSyncConstants.EVENT_ADD);
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		Folder folder = DLAppServiceUtil.addFolder(
+			group.getGroupId(), parentFolder.getFolderId(),
+			RandomTestUtil.randomString(), StringPool.BLANK, serviceContext);
+
+		DLAppServiceUtil.addFolder(
+			group.getGroupId(), folder.getFolderId(),
+			RandomTestUtil.randomString(), StringPool.BLANK, serviceContext);
+
+		DLAppServiceUtil.copyFolder(
+			folder.getRepositoryId(), folder.getFolderId(),
+			parentFolder.getParentFolderId(), folder.getName(),
+			folder.getDescription(), serviceContext);
+
+		Assert.assertEquals(4, counter.get());
+	}
+
+	@Test
 	public void testSearchFileInRootFolder() throws Exception {
 		searchFile(true);
 	}
@@ -379,6 +462,16 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 	@Test
 	public void testSearchFileInSubFolder() throws Exception {
 		searchFile(false);
+	}
+
+	@Test
+	public void testUpdateDefaultParentFolder() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext(group.getGroupId());
+
+		DLAppServiceUtil.updateFolder(
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			RandomTestUtil.randomString(), StringPool.BLANK, serviceContext);
 	}
 
 	@Test
@@ -414,6 +507,29 @@ public class DLAppServiceTest extends BaseDLAppTestCase {
 
 		return DLAppTestUtil.addFileEntry(
 			group.getGroupId(), folderId, "Title.txt");
+	}
+
+	protected AtomicInteger registerDLSyncEventProcessorMessageListener(
+		final String targetEvent) {
+
+		final AtomicInteger counter = new AtomicInteger();
+
+		MessageBusUtil.registerMessageListener(
+			DestinationNames.DOCUMENT_LIBRARY_SYNC_EVENT_PROCESSOR,
+			new MessageListener() {
+
+				@Override
+				public void receive(Message message) {
+					Object event = message.get("event");
+
+					if (targetEvent.equals(event)) {
+						counter.incrementAndGet();
+					}
+				}
+
+			});
+
+		return counter;
 	}
 
 	protected void search(

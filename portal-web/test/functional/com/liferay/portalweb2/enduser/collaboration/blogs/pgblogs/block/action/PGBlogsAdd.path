@@ -20,12 +20,12 @@
 </tr>
 <tr>
 	<td>ERROR_MESSAGE_1</td>
-	<td>xPath=(//div[contains(@class,'alert') and contains(@class,'alert-error')])[1]</td>
+	<td>xPath=(//div[contains(@class,'alert') and (contains(@class,'alert-error') or contains(@class,'alert-danger'))])[1]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ERROR_MESSAGE_2</td>
-	<td>xPath=(//div[contains(@class,'alert') and contains(@class,'alert-error')])[2]</td>
+	<td>xPath=(//div[contains(@class,'alert') and (contains(@class,'alert-error') or contains(@class,'alert-danger'))])[2]</td>
 	<td></td>
 </tr>
 <tr>
@@ -136,6 +136,32 @@
 <tr>
 	<td>SUBMIT_FOR_PUBLICATION_BUTTON</td>
 	<td>//button[@id='_33_publishButton' and contains(.,'Submit for Publication')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<!--PERMISSIONS-->
+<tr>
+	<td>PERMISSIONS_VIEWABLE_BY_DROPDOWN</td>
+	<td>//select[contains(@id,'inputPermissionsViewRole')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PERMISSIONS_MORE_OPTIONS_LINK</td>
+	<td>//span[contains(@id,'inputPermissionsShowOptions')]/a[contains(.,'More Options')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PERMISSIONS_HIDE_OPTIONS_LINK</td>
+	<td>//a[contains(@id,'inputPermissionsHideOptions') and contains (.,'Hide Options')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PERMISSIONS_CHECKBOX</td>
+	<td>//tr[contains(.,'${key_roleName}')]//input[@value='${key_permissionDefinitionKey}']</td>
 	<td></td>
 </tr>
 <tr>

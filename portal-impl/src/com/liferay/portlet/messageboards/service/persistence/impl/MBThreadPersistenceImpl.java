@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.SQLQuery;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -54,7 +53,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -116,10 +119,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param uuid the uuid
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByUuid(String uuid) throws SystemException {
+	public List<MBThread> findByUuid(String uuid) {
 		return findByUuid(uuid, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -134,11 +136,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByUuid(String uuid, int start, int end)
-		throws SystemException {
+	public List<MBThread> findByUuid(String uuid, int start, int end) {
 		return findByUuid(uuid, start, end, null);
 	}
 
@@ -154,11 +154,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByUuid(String uuid, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -275,12 +274,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByUuid_First(String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByUuid_First(uuid, orderByComparator);
 
 		if (mbThread != null) {
@@ -305,11 +302,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByUuid_First(String uuid,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<MBThread> list = findByUuid(uuid, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -326,12 +322,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByUuid_Last(String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByUuid_Last(uuid, orderByComparator);
 
 		if (mbThread != null) {
@@ -356,11 +350,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByUuid_Last(String uuid,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByUuid(uuid);
 
 		if (count == 0) {
@@ -385,12 +378,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByUuid_PrevAndNext(long threadId, String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -541,10 +532,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * Removes all the message boards threads where uuid = &#63; from the database.
 	 *
 	 * @param uuid the uuid
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUuid(String uuid) throws SystemException {
+	public void removeByUuid(String uuid) {
 		for (MBThread mbThread : findByUuid(uuid, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -556,10 +546,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param uuid the uuid
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUuid(String uuid) throws SystemException {
+	public int countByUuid(String uuid) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID;
 
 		Object[] finderArgs = new Object[] { uuid };
@@ -639,11 +628,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @return the matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByUUID_G(String uuid, long groupId)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByUUID_G(uuid, groupId);
 
 		if (mbThread == null) {
@@ -675,11 +663,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public MBThread fetchByUUID_G(String uuid, long groupId)
-		throws SystemException {
+	public MBThread fetchByUUID_G(String uuid, long groupId) {
 		return fetchByUUID_G(uuid, groupId, true);
 	}
 
@@ -690,11 +676,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByUUID_G(String uuid, long groupId,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { uuid, groupId };
 
 		Object result = null;
@@ -797,11 +782,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the message boards thread that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread removeByUUID_G(String uuid, long groupId)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByUUID_G(uuid, groupId);
 
 		return remove(mbThread);
@@ -813,11 +797,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUUID_G(String uuid, long groupId)
-		throws SystemException {
+	public int countByUUID_G(String uuid, long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID_G;
 
 		Object[] finderArgs = new Object[] { uuid, groupId };
@@ -913,11 +895,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public List<MBThread> findByUuid_C(String uuid, long companyId) {
 		return findByUuid_C(uuid, companyId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -934,11 +914,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByUuid_C(String uuid, long companyId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByUuid_C(uuid, companyId, start, end, null);
 	}
 
@@ -955,11 +934,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByUuid_C(String uuid, long companyId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1086,12 +1064,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByUuid_C_First(uuid, companyId,
 				orderByComparator);
 
@@ -1121,11 +1097,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<MBThread> list = findByUuid_C(uuid, companyId, 0, 1,
 				orderByComparator);
 
@@ -1144,12 +1119,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByUuid_C_Last(uuid, companyId,
 				orderByComparator);
 
@@ -1179,11 +1152,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByUuid_C(uuid, companyId);
 
 		if (count == 0) {
@@ -1209,12 +1181,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByUuid_C_PrevAndNext(long threadId, String uuid,
 		long companyId, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -1370,11 +1341,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public void removeByUuid_C(String uuid, long companyId) {
 		for (MBThread mbThread : findByUuid_C(uuid, companyId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -1387,11 +1356,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public int countByUuid_C(String uuid, long companyId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID_C;
 
 		Object[] finderArgs = new Object[] { uuid, companyId };
@@ -1485,10 +1452,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param groupId the group ID
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByGroupId(long groupId) throws SystemException {
+	public List<MBThread> findByGroupId(long groupId) {
 		return findByGroupId(groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -1503,11 +1469,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByGroupId(long groupId, int start, int end)
-		throws SystemException {
+	public List<MBThread> findByGroupId(long groupId, int start, int end) {
 		return findByGroupId(groupId, start, end, null);
 	}
 
@@ -1523,11 +1487,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1630,12 +1593,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByGroupId_First(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByGroupId_First(groupId, orderByComparator);
 
 		if (mbThread != null) {
@@ -1660,11 +1621,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByGroupId_First(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<MBThread> list = findByGroupId(groupId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1681,12 +1641,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByGroupId_Last(groupId, orderByComparator);
 
 		if (mbThread != null) {
@@ -1711,11 +1669,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByGroupId_Last(long groupId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByGroupId(groupId);
 
 		if (count == 0) {
@@ -1740,12 +1697,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByGroupId_PrevAndNext(long threadId, long groupId,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -1883,11 +1838,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param groupId the group ID
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> filterFindByGroupId(long groupId)
-		throws SystemException {
+	public List<MBThread> filterFindByGroupId(long groupId) {
 		return filterFindByGroupId(groupId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -1903,11 +1856,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> filterFindByGroupId(long groupId, int start, int end)
-		throws SystemException {
+	public List<MBThread> filterFindByGroupId(long groupId, int start, int end) {
 		return filterFindByGroupId(groupId, start, end, null);
 	}
 
@@ -1923,11 +1874,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByGroupId(long groupId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
@@ -2014,12 +1964,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] filterFindByGroupId_PrevAndNext(long threadId,
 		long groupId, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByGroupId_PrevAndNext(threadId, groupId,
 				orderByComparator);
@@ -2196,10 +2145,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * Removes all the message boards threads where groupId = &#63; from the database.
 	 *
 	 * @param groupId the group ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByGroupId(long groupId) throws SystemException {
+	public void removeByGroupId(long groupId) {
 		for (MBThread mbThread : findByGroupId(groupId, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -2211,10 +2159,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByGroupId(long groupId) throws SystemException {
+	public int countByGroupId(long groupId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_GROUPID;
 
 		Object[] finderArgs = new Object[] { groupId };
@@ -2264,10 +2211,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param groupId the group ID
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByGroupId(long groupId) throws SystemException {
+	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
 		}
@@ -2325,11 +2271,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param rootMessageId the root message ID
 	 * @return the matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByRootMessageId(long rootMessageId)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByRootMessageId(rootMessageId);
 
 		if (mbThread == null) {
@@ -2357,11 +2302,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param rootMessageId the root message ID
 	 * @return the matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public MBThread fetchByRootMessageId(long rootMessageId)
-		throws SystemException {
+	public MBThread fetchByRootMessageId(long rootMessageId) {
 		return fetchByRootMessageId(rootMessageId, true);
 	}
 
@@ -2371,11 +2314,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param rootMessageId the root message ID
 	 * @param retrieveFromCache whether to use the finder cache
 	 * @return the matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByRootMessageId(long rootMessageId,
-		boolean retrieveFromCache) throws SystemException {
+		boolean retrieveFromCache) {
 		Object[] finderArgs = new Object[] { rootMessageId };
 
 		Object result = null;
@@ -2463,11 +2405,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param rootMessageId the root message ID
 	 * @return the message boards thread that was removed
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread removeByRootMessageId(long rootMessageId)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByRootMessageId(rootMessageId);
 
 		return remove(mbThread);
@@ -2478,11 +2419,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param rootMessageId the root message ID
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByRootMessageId(long rootMessageId)
-		throws SystemException {
+	public int countByRootMessageId(long rootMessageId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_ROOTMESSAGEID;
 
 		Object[] finderArgs = new Object[] { rootMessageId };
@@ -2560,11 +2499,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByG_C(long groupId, long categoryId)
-		throws SystemException {
+	public List<MBThread> findByG_C(long groupId, long categoryId) {
 		return findByG_C(groupId, categoryId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -2581,11 +2518,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C(long groupId, long categoryId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByG_C(groupId, categoryId, start, end, null);
 	}
 
@@ -2602,11 +2538,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C(long groupId, long categoryId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2719,12 +2654,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_C_First(long groupId, long categoryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_C_First(groupId, categoryId,
 				orderByComparator);
 
@@ -2754,11 +2687,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_C_First(long groupId, long categoryId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<MBThread> list = findByG_C(groupId, categoryId, 0, 1,
 				orderByComparator);
 
@@ -2777,12 +2709,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_C_Last(long groupId, long categoryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_C_Last(groupId, categoryId,
 				orderByComparator);
 
@@ -2812,11 +2742,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_C_Last(long groupId, long categoryId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByG_C(groupId, categoryId);
 
 		if (count == 0) {
@@ -2842,12 +2771,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByG_C_PrevAndNext(long threadId, long groupId,
 		long categoryId, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -2990,11 +2918,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> filterFindByG_C(long groupId, long categoryId)
-		throws SystemException {
+	public List<MBThread> filterFindByG_C(long groupId, long categoryId) {
 		return filterFindByG_C(groupId, categoryId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -3011,11 +2937,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C(long groupId, long categoryId,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return filterFindByG_C(groupId, categoryId, start, end, null);
 	}
 
@@ -3032,12 +2957,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C(long groupId, long categoryId,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C(groupId, categoryId, start, end, orderByComparator);
 		}
@@ -3129,12 +3052,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] filterFindByG_C_PrevAndNext(long threadId, long groupId,
 		long categoryId, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C_PrevAndNext(threadId, groupId, categoryId,
 				orderByComparator);
@@ -3317,11 +3239,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryIds the category IDs
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> filterFindByG_C(long groupId, long[] categoryIds)
-		throws SystemException {
+	public List<MBThread> filterFindByG_C(long groupId, long[] categoryIds) {
 		return filterFindByG_C(groupId, categoryIds, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -3338,11 +3258,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C(long groupId, long[] categoryIds,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return filterFindByG_C(groupId, categoryIds, start, end, null);
 	}
 
@@ -3359,12 +3278,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C(long groupId, long[] categoryIds,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C(groupId, categoryIds, start, end, orderByComparator);
 		}
@@ -3467,11 +3384,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryIds the category IDs
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByG_C(long groupId, long[] categoryIds)
-		throws SystemException {
+	public List<MBThread> findByG_C(long groupId, long[] categoryIds) {
 		return findByG_C(groupId, categoryIds, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -3488,11 +3403,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C(long groupId, long[] categoryIds,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByG_C(groupId, categoryIds, start, end, null);
 	}
 
@@ -3509,12 +3423,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C(long groupId, long[] categoryIds,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator orderByComparator) {
 		if (categoryIds == null) {
 			categoryIds = new long[0];
 		}
@@ -3639,11 +3551,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_C(long groupId, long categoryId)
-		throws SystemException {
+	public void removeByG_C(long groupId, long categoryId) {
 		for (MBThread mbThread : findByG_C(groupId, categoryId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -3656,11 +3566,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_C(long groupId, long categoryId)
-		throws SystemException {
+	public int countByG_C(long groupId, long categoryId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_C;
 
 		Object[] finderArgs = new Object[] { groupId, categoryId };
@@ -3715,11 +3623,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryIds the category IDs
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_C(long groupId, long[] categoryIds)
-		throws SystemException {
+	public int countByG_C(long groupId, long[] categoryIds) {
 		if (categoryIds == null) {
 			categoryIds = new long[0];
 		}
@@ -3794,11 +3700,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_C(long groupId, long categoryId)
-		throws SystemException {
+	public int filterCountByG_C(long groupId, long categoryId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C(groupId, categoryId);
 		}
@@ -3849,11 +3753,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryIds the category IDs
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_C(long groupId, long[] categoryIds)
-		throws SystemException {
+	public int filterCountByG_C(long groupId, long[] categoryIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C(groupId, categoryIds);
 		}
@@ -3939,11 +3841,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByG_NotC(long groupId, long categoryId)
-		throws SystemException {
+	public List<MBThread> findByG_NotC(long groupId, long categoryId) {
 		return findByG_NotC(groupId, categoryId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -3960,11 +3860,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_NotC(long groupId, long categoryId,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByG_NotC(groupId, categoryId, start, end, null);
 	}
 
@@ -3981,12 +3880,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_NotC(long groupId, long categoryId,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -4091,12 +3988,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_NotC_First(long groupId, long categoryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_NotC_First(groupId, categoryId,
 				orderByComparator);
 
@@ -4126,11 +4021,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_NotC_First(long groupId, long categoryId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<MBThread> list = findByG_NotC(groupId, categoryId, 0, 1,
 				orderByComparator);
 
@@ -4149,12 +4043,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_NotC_Last(long groupId, long categoryId,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_NotC_Last(groupId, categoryId,
 				orderByComparator);
 
@@ -4184,11 +4076,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_NotC_Last(long groupId, long categoryId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByG_NotC(groupId, categoryId);
 
 		if (count == 0) {
@@ -4214,12 +4105,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByG_NotC_PrevAndNext(long threadId, long groupId,
 		long categoryId, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -4362,11 +4252,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> filterFindByG_NotC(long groupId, long categoryId)
-		throws SystemException {
+	public List<MBThread> filterFindByG_NotC(long groupId, long categoryId) {
 		return filterFindByG_NotC(groupId, categoryId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -4383,11 +4271,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_NotC(long groupId, long categoryId,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return filterFindByG_NotC(groupId, categoryId, start, end, null);
 	}
 
@@ -4404,12 +4291,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_NotC(long groupId, long categoryId,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_NotC(groupId, categoryId, start, end,
 				orderByComparator);
@@ -4502,12 +4387,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] filterFindByG_NotC_PrevAndNext(long threadId,
 		long groupId, long categoryId, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_NotC_PrevAndNext(threadId, groupId, categoryId,
 				orderByComparator);
@@ -4689,11 +4573,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_NotC(long groupId, long categoryId)
-		throws SystemException {
+	public void removeByG_NotC(long groupId, long categoryId) {
 		for (MBThread mbThread : findByG_NotC(groupId, categoryId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -4706,11 +4588,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_NotC(long groupId, long categoryId)
-		throws SystemException {
+	public int countByG_NotC(long groupId, long categoryId) {
 		FinderPath finderPath = FINDER_PATH_WITH_PAGINATION_COUNT_BY_G_NOTC;
 
 		Object[] finderArgs = new Object[] { groupId, categoryId };
@@ -4765,11 +4645,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_NotC(long groupId, long categoryId)
-		throws SystemException {
+	public int filterCountByG_NotC(long groupId, long categoryId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_NotC(groupId, categoryId);
 		}
@@ -4844,11 +4722,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByG_S(long groupId, int status)
-		throws SystemException {
+	public List<MBThread> findByG_S(long groupId, int status) {
 		return findByG_S(groupId, status, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			null);
 	}
@@ -4865,11 +4741,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByG_S(long groupId, int status, int start, int end)
-		throws SystemException {
+	public List<MBThread> findByG_S(long groupId, int status, int start, int end) {
 		return findByG_S(groupId, status, start, end, null);
 	}
 
@@ -4886,11 +4760,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_S(long groupId, int status, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5003,12 +4876,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_S_First(long groupId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_S_First(groupId, status, orderByComparator);
 
 		if (mbThread != null) {
@@ -5037,11 +4908,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_S_First(long groupId, int status,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<MBThread> list = findByG_S(groupId, status, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -5059,12 +4929,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_S_Last(long groupId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_S_Last(groupId, status, orderByComparator);
 
 		if (mbThread != null) {
@@ -5093,11 +4961,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_S_Last(long groupId, int status,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByG_S(groupId, status);
 
 		if (count == 0) {
@@ -5123,12 +4990,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByG_S_PrevAndNext(long threadId, long groupId,
 		int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -5271,11 +5137,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> filterFindByG_S(long groupId, int status)
-		throws SystemException {
+	public List<MBThread> filterFindByG_S(long groupId, int status) {
 		return filterFindByG_S(groupId, status, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -5292,11 +5156,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_S(long groupId, int status, int start,
-		int end) throws SystemException {
+		int end) {
 		return filterFindByG_S(groupId, status, start, end, null);
 	}
 
@@ -5313,11 +5176,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_S(long groupId, int status, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_S(groupId, status, start, end, orderByComparator);
 		}
@@ -5409,12 +5271,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] filterFindByG_S_PrevAndNext(long threadId, long groupId,
 		int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_S_PrevAndNext(threadId, groupId, status,
 				orderByComparator);
@@ -5596,10 +5457,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param groupId the group ID
 	 * @param status the status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_S(long groupId, int status) throws SystemException {
+	public void removeByG_S(long groupId, int status) {
 		for (MBThread mbThread : findByG_S(groupId, status, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -5612,10 +5472,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_S(long groupId, int status) throws SystemException {
+	public int countByG_S(long groupId, int status) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_S;
 
 		Object[] finderArgs = new Object[] { groupId, status };
@@ -5670,11 +5529,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param status the status
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_S(long groupId, int status)
-		throws SystemException {
+	public int filterCountByG_S(long groupId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_S(groupId, status);
 		}
@@ -5748,11 +5605,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param priority the priority
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByC_P(long categoryId, double priority)
-		throws SystemException {
+	public List<MBThread> findByC_P(long categoryId, double priority) {
 		return findByC_P(categoryId, priority, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -5769,11 +5624,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByC_P(long categoryId, double priority,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByC_P(categoryId, priority, start, end, null);
 	}
 
@@ -5790,12 +5644,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByC_P(long categoryId, double priority,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -5908,12 +5760,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByC_P_First(long categoryId, double priority,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByC_P_First(categoryId, priority,
 				orderByComparator);
 
@@ -5943,11 +5793,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param priority the priority
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByC_P_First(long categoryId, double priority,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<MBThread> list = findByC_P(categoryId, priority, 0, 1,
 				orderByComparator);
 
@@ -5966,12 +5815,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByC_P_Last(long categoryId, double priority,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByC_P_Last(categoryId, priority,
 				orderByComparator);
 
@@ -6001,11 +5848,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param priority the priority
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByC_P_Last(long categoryId, double priority,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByC_P(categoryId, priority);
 
 		if (count == 0) {
@@ -6031,12 +5877,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByC_P_PrevAndNext(long threadId, long categoryId,
 		double priority, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -6178,11 +6023,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param categoryId the category ID
 	 * @param priority the priority
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByC_P(long categoryId, double priority)
-		throws SystemException {
+	public void removeByC_P(long categoryId, double priority) {
 		for (MBThread mbThread : findByC_P(categoryId, priority,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -6195,11 +6038,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param priority the priority
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_P(long categoryId, double priority)
-		throws SystemException {
+	public int countByC_P(long categoryId, double priority) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_P;
 
 		Object[] finderArgs = new Object[] { categoryId, priority };
@@ -6276,11 +6117,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param lastPostDate the last post date
 	 * @param priority the priority
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByL_P(Date lastPostDate, double priority)
-		throws SystemException {
+	public List<MBThread> findByL_P(Date lastPostDate, double priority) {
 		return findByL_P(lastPostDate, priority, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -6297,11 +6136,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByL_P(Date lastPostDate, double priority,
-		int start, int end) throws SystemException {
+		int start, int end) {
 		return findByL_P(lastPostDate, priority, start, end, null);
 	}
 
@@ -6318,12 +6156,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByL_P(Date lastPostDate, double priority,
-		int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int start, int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -6447,12 +6283,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByL_P_First(Date lastPostDate, double priority,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByL_P_First(lastPostDate, priority,
 				orderByComparator);
 
@@ -6482,11 +6316,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param priority the priority
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByL_P_First(Date lastPostDate, double priority,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<MBThread> list = findByL_P(lastPostDate, priority, 0, 1,
 				orderByComparator);
 
@@ -6505,12 +6338,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByL_P_Last(Date lastPostDate, double priority,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByL_P_Last(lastPostDate, priority,
 				orderByComparator);
 
@@ -6540,11 +6371,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param priority the priority
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByL_P_Last(Date lastPostDate, double priority,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByL_P(lastPostDate, priority);
 
 		if (count == 0) {
@@ -6570,12 +6400,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByL_P_PrevAndNext(long threadId, Date lastPostDate,
 		double priority, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -6728,11 +6557,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param lastPostDate the last post date
 	 * @param priority the priority
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByL_P(Date lastPostDate, double priority)
-		throws SystemException {
+	public void removeByL_P(Date lastPostDate, double priority) {
 		for (MBThread mbThread : findByL_P(lastPostDate, priority,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -6745,11 +6572,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param lastPostDate the last post date
 	 * @param priority the priority
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByL_P(Date lastPostDate, double priority)
-		throws SystemException {
+	public int countByL_P(Date lastPostDate, double priority) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_L_P;
 
 		Object[] finderArgs = new Object[] { lastPostDate, priority };
@@ -6845,11 +6670,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param lastPostDate the last post date
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_L(long groupId, long categoryId,
-		Date lastPostDate) throws SystemException {
+		Date lastPostDate) {
 		return findByG_C_L(groupId, categoryId, lastPostDate,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -6867,11 +6691,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_L(long groupId, long categoryId,
-		Date lastPostDate, int start, int end) throws SystemException {
+		Date lastPostDate, int start, int end) {
 		return findByG_C_L(groupId, categoryId, lastPostDate, start, end, null);
 	}
 
@@ -6889,12 +6712,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_L(long groupId, long categoryId,
 		Date lastPostDate, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -7025,12 +6847,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_C_L_First(long groupId, long categoryId,
 		Date lastPostDate, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_C_L_First(groupId, categoryId,
 				lastPostDate, orderByComparator);
 
@@ -7064,12 +6885,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param lastPostDate the last post date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_C_L_First(long groupId, long categoryId,
-		Date lastPostDate, OrderByComparator orderByComparator)
-		throws SystemException {
+		Date lastPostDate, OrderByComparator orderByComparator) {
 		List<MBThread> list = findByG_C_L(groupId, categoryId, lastPostDate, 0,
 				1, orderByComparator);
 
@@ -7089,12 +6908,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_C_L_Last(long groupId, long categoryId,
 		Date lastPostDate, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_C_L_Last(groupId, categoryId,
 				lastPostDate, orderByComparator);
 
@@ -7128,12 +6946,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param lastPostDate the last post date
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_C_L_Last(long groupId, long categoryId,
-		Date lastPostDate, OrderByComparator orderByComparator)
-		throws SystemException {
+		Date lastPostDate, OrderByComparator orderByComparator) {
 		int count = countByG_C_L(groupId, categoryId, lastPostDate);
 
 		if (count == 0) {
@@ -7160,12 +6976,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByG_C_L_PrevAndNext(long threadId, long groupId,
 		long categoryId, Date lastPostDate, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -7324,11 +7139,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param lastPostDate the last post date
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_L(long groupId, long categoryId,
-		Date lastPostDate) throws SystemException {
+		Date lastPostDate) {
 		return filterFindByG_C_L(groupId, categoryId, lastPostDate,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -7346,11 +7160,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_L(long groupId, long categoryId,
-		Date lastPostDate, int start, int end) throws SystemException {
+		Date lastPostDate, int start, int end) {
 		return filterFindByG_C_L(groupId, categoryId, lastPostDate, start, end,
 			null);
 	}
@@ -7369,12 +7182,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_L(long groupId, long categoryId,
 		Date lastPostDate, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C_L(groupId, categoryId, lastPostDate, start, end,
 				orderByComparator);
@@ -7483,13 +7295,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] filterFindByG_C_L_PrevAndNext(long threadId,
 		long groupId, long categoryId, Date lastPostDate,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C_L_PrevAndNext(threadId, groupId, categoryId,
 				lastPostDate, orderByComparator);
@@ -7687,11 +7497,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @param lastPostDate the last post date
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_C_L(long groupId, long categoryId, Date lastPostDate)
-		throws SystemException {
+	public void removeByG_C_L(long groupId, long categoryId, Date lastPostDate) {
 		for (MBThread mbThread : findByG_C_L(groupId, categoryId, lastPostDate,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -7705,11 +7513,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param lastPostDate the last post date
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_C_L(long groupId, long categoryId, Date lastPostDate)
-		throws SystemException {
+	public int countByG_C_L(long groupId, long categoryId, Date lastPostDate) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_C_L;
 
 		Object[] finderArgs = new Object[] { groupId, categoryId, lastPostDate };
@@ -7780,11 +7586,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param lastPostDate the last post date
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int filterCountByG_C_L(long groupId, long categoryId,
-		Date lastPostDate) throws SystemException {
+		Date lastPostDate) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_L(groupId, categoryId, lastPostDate);
 		}
@@ -7892,11 +7697,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findByG_C_S(long groupId, long categoryId, int status)
-		throws SystemException {
+	public List<MBThread> findByG_C_S(long groupId, long categoryId, int status) {
 		return findByG_C_S(groupId, categoryId, status, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -7914,11 +7717,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_S(long groupId, long categoryId,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return findByG_C_S(groupId, categoryId, status, start, end, null);
 	}
 
@@ -7936,12 +7738,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_S(long groupId, long categoryId,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -8060,12 +7860,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_C_S_First(long groupId, long categoryId,
 		int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_C_S_First(groupId, categoryId, status,
 				orderByComparator);
 
@@ -8099,12 +7898,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_C_S_First(long groupId, long categoryId,
-		int status, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, OrderByComparator orderByComparator) {
 		List<MBThread> list = findByG_C_S(groupId, categoryId, status, 0, 1,
 				orderByComparator);
 
@@ -8124,12 +7921,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_C_S_Last(long groupId, long categoryId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_C_S_Last(groupId, categoryId, status,
 				orderByComparator);
 
@@ -8163,12 +7958,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_C_S_Last(long groupId, long categoryId,
-		int status, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, OrderByComparator orderByComparator) {
 		int count = countByG_C_S(groupId, categoryId, status);
 
 		if (count == 0) {
@@ -8195,12 +7988,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByG_C_S_PrevAndNext(long threadId, long groupId,
 		long categoryId, int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -8348,11 +8140,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_S(long groupId, long categoryId,
-		int status) throws SystemException {
+		int status) {
 		return filterFindByG_C_S(groupId, categoryId, status,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -8370,11 +8161,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_S(long groupId, long categoryId,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return filterFindByG_C_S(groupId, categoryId, status, start, end, null);
 	}
 
@@ -8392,12 +8182,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_S(long groupId, long categoryId,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end, OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C_S(groupId, categoryId, status, start, end,
 				orderByComparator);
@@ -8495,13 +8283,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] filterFindByG_C_S_PrevAndNext(long threadId,
 		long groupId, long categoryId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C_S_PrevAndNext(threadId, groupId, categoryId,
 				status, orderByComparator);
@@ -8689,11 +8475,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryIds the category IDs
 	 * @param status the status
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_S(long groupId, long[] categoryIds,
-		int status) throws SystemException {
+		int status) {
 		return filterFindByG_C_S(groupId, categoryIds, status,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -8711,11 +8496,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_S(long groupId, long[] categoryIds,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return filterFindByG_C_S(groupId, categoryIds, status, start, end, null);
 	}
 
@@ -8733,12 +8517,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_S(long groupId, long[] categoryIds,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end, OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C_S(groupId, categoryIds, status, start, end,
 				orderByComparator);
@@ -8849,11 +8631,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryIds the category IDs
 	 * @param status the status
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_S(long groupId, long[] categoryIds,
-		int status) throws SystemException {
+		int status) {
 		return findByG_C_S(groupId, categoryIds, status, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -8871,11 +8652,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_S(long groupId, long[] categoryIds,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return findByG_C_S(groupId, categoryIds, status, start, end, null);
 	}
 
@@ -8893,12 +8673,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_S(long groupId, long[] categoryIds,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end, OrderByComparator orderByComparator) {
 		if (categoryIds == null) {
 			categoryIds = new long[0];
 		}
@@ -9033,11 +8811,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @param status the status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_C_S(long groupId, long categoryId, int status)
-		throws SystemException {
+	public void removeByG_C_S(long groupId, long categoryId, int status) {
 		for (MBThread mbThread : findByG_C_S(groupId, categoryId, status,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -9051,11 +8827,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_C_S(long groupId, long categoryId, int status)
-		throws SystemException {
+	public int countByG_C_S(long groupId, long categoryId, int status) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_G_C_S;
 
 		Object[] finderArgs = new Object[] { groupId, categoryId, status };
@@ -9115,11 +8889,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryIds the category IDs
 	 * @param status the status
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_C_S(long groupId, long[] categoryIds, int status)
-		throws SystemException {
+	public int countByG_C_S(long groupId, long[] categoryIds, int status) {
 		if (categoryIds == null) {
 			categoryIds = new long[0];
 		}
@@ -9201,11 +8973,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_C_S(long groupId, long categoryId, int status)
-		throws SystemException {
+	public int filterCountByG_C_S(long groupId, long categoryId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_S(groupId, categoryId, status);
 		}
@@ -9261,11 +9031,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryIds the category IDs
 	 * @param status the status
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_C_S(long groupId, long[] categoryIds, int status)
-		throws SystemException {
+	public int filterCountByG_C_S(long groupId, long[] categoryIds, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_S(groupId, categoryIds, status);
 		}
@@ -9364,11 +9132,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_NotS(long groupId, long categoryId,
-		int status) throws SystemException {
+		int status) {
 		return findByG_C_NotS(groupId, categoryId, status, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -9386,11 +9153,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_NotS(long groupId, long categoryId,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return findByG_C_NotS(groupId, categoryId, status, start, end, null);
 	}
 
@@ -9408,12 +9174,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_NotS(long groupId, long categoryId,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -9524,12 +9288,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_C_NotS_First(long groupId, long categoryId,
 		int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_C_NotS_First(groupId, categoryId, status,
 				orderByComparator);
 
@@ -9563,12 +9326,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_C_NotS_First(long groupId, long categoryId,
-		int status, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, OrderByComparator orderByComparator) {
 		List<MBThread> list = findByG_C_NotS(groupId, categoryId, status, 0, 1,
 				orderByComparator);
 
@@ -9588,12 +9349,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_C_NotS_Last(long groupId, long categoryId,
 		int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_C_NotS_Last(groupId, categoryId, status,
 				orderByComparator);
 
@@ -9627,12 +9387,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_C_NotS_Last(long groupId, long categoryId,
-		int status, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, OrderByComparator orderByComparator) {
 		int count = countByG_C_NotS(groupId, categoryId, status);
 
 		if (count == 0) {
@@ -9659,12 +9417,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByG_C_NotS_PrevAndNext(long threadId, long groupId,
 		long categoryId, int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -9812,11 +9569,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_NotS(long groupId, long categoryId,
-		int status) throws SystemException {
+		int status) {
 		return filterFindByG_C_NotS(groupId, categoryId, status,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -9834,11 +9590,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_NotS(long groupId, long categoryId,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return filterFindByG_C_NotS(groupId, categoryId, status, start, end,
 			null);
 	}
@@ -9857,12 +9612,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_NotS(long groupId, long categoryId,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end, OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C_NotS(groupId, categoryId, status, start, end,
 				orderByComparator);
@@ -9960,13 +9713,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] filterFindByG_C_NotS_PrevAndNext(long threadId,
 		long groupId, long categoryId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C_NotS_PrevAndNext(threadId, groupId, categoryId,
 				status, orderByComparator);
@@ -10154,11 +9905,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryIds the category IDs
 	 * @param status the status
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_NotS(long groupId,
-		long[] categoryIds, int status) throws SystemException {
+		long[] categoryIds, int status) {
 		return filterFindByG_C_NotS(groupId, categoryIds, status,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -10176,12 +9926,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_NotS(long groupId,
-		long[] categoryIds, int status, int start, int end)
-		throws SystemException {
+		long[] categoryIds, int status, int start, int end) {
 		return filterFindByG_C_NotS(groupId, categoryIds, status, start, end,
 			null);
 	}
@@ -10200,12 +9948,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_C_NotS(long groupId,
 		long[] categoryIds, int status, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_C_NotS(groupId, categoryIds, status, start, end,
 				orderByComparator);
@@ -10316,11 +10063,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryIds the category IDs
 	 * @param status the status
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_NotS(long groupId, long[] categoryIds,
-		int status) throws SystemException {
+		int status) {
 		return findByG_C_NotS(groupId, categoryIds, status, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -10338,11 +10084,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_NotS(long groupId, long[] categoryIds,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return findByG_C_NotS(groupId, categoryIds, status, start, end, null);
 	}
 
@@ -10360,12 +10105,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_C_NotS(long groupId, long[] categoryIds,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end, OrderByComparator orderByComparator) {
 		if (categoryIds == null) {
 			categoryIds = new long[0];
 		}
@@ -10500,11 +10243,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @param status the status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_C_NotS(long groupId, long categoryId, int status)
-		throws SystemException {
+	public void removeByG_C_NotS(long groupId, long categoryId, int status) {
 		for (MBThread mbThread : findByG_C_NotS(groupId, categoryId, status,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -10518,11 +10259,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_C_NotS(long groupId, long categoryId, int status)
-		throws SystemException {
+	public int countByG_C_NotS(long groupId, long categoryId, int status) {
 		FinderPath finderPath = FINDER_PATH_WITH_PAGINATION_COUNT_BY_G_C_NOTS;
 
 		Object[] finderArgs = new Object[] { groupId, categoryId, status };
@@ -10582,11 +10321,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryIds the category IDs
 	 * @param status the status
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_C_NotS(long groupId, long[] categoryIds, int status)
-		throws SystemException {
+	public int countByG_C_NotS(long groupId, long[] categoryIds, int status) {
 		if (categoryIds == null) {
 			categoryIds = new long[0];
 		}
@@ -10668,11 +10405,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_C_NotS(long groupId, long categoryId, int status)
-		throws SystemException {
+	public int filterCountByG_C_NotS(long groupId, long categoryId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_NotS(groupId, categoryId, status);
 		}
@@ -10728,11 +10463,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryIds the category IDs
 	 * @param status the status
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int filterCountByG_C_NotS(long groupId, long[] categoryIds,
-		int status) throws SystemException {
+		int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_NotS(groupId, categoryIds, status);
 		}
@@ -10831,11 +10565,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_NotC_S(long groupId, long categoryId,
-		int status) throws SystemException {
+		int status) {
 		return findByG_NotC_S(groupId, categoryId, status, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -10853,11 +10586,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_NotC_S(long groupId, long categoryId,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return findByG_NotC_S(groupId, categoryId, status, start, end, null);
 	}
 
@@ -10875,12 +10607,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_NotC_S(long groupId, long categoryId,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -10991,12 +10721,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_NotC_S_First(long groupId, long categoryId,
 		int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_NotC_S_First(groupId, categoryId, status,
 				orderByComparator);
 
@@ -11030,12 +10759,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_NotC_S_First(long groupId, long categoryId,
-		int status, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, OrderByComparator orderByComparator) {
 		List<MBThread> list = findByG_NotC_S(groupId, categoryId, status, 0, 1,
 				orderByComparator);
 
@@ -11055,12 +10782,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_NotC_S_Last(long groupId, long categoryId,
 		int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_NotC_S_Last(groupId, categoryId, status,
 				orderByComparator);
 
@@ -11094,12 +10820,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_NotC_S_Last(long groupId, long categoryId,
-		int status, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, OrderByComparator orderByComparator) {
 		int count = countByG_NotC_S(groupId, categoryId, status);
 
 		if (count == 0) {
@@ -11126,12 +10850,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByG_NotC_S_PrevAndNext(long threadId, long groupId,
 		long categoryId, int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -11279,11 +11002,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_NotC_S(long groupId, long categoryId,
-		int status) throws SystemException {
+		int status) {
 		return filterFindByG_NotC_S(groupId, categoryId, status,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -11301,11 +11023,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_NotC_S(long groupId, long categoryId,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return filterFindByG_NotC_S(groupId, categoryId, status, start, end,
 			null);
 	}
@@ -11324,12 +11045,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_NotC_S(long groupId, long categoryId,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end, OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_NotC_S(groupId, categoryId, status, start, end,
 				orderByComparator);
@@ -11427,13 +11146,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] filterFindByG_NotC_S_PrevAndNext(long threadId,
 		long groupId, long categoryId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_NotC_S_PrevAndNext(threadId, groupId, categoryId,
 				status, orderByComparator);
@@ -11620,11 +11337,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @param status the status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_NotC_S(long groupId, long categoryId, int status)
-		throws SystemException {
+	public void removeByG_NotC_S(long groupId, long categoryId, int status) {
 		for (MBThread mbThread : findByG_NotC_S(groupId, categoryId, status,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -11638,11 +11353,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_NotC_S(long groupId, long categoryId, int status)
-		throws SystemException {
+	public int countByG_NotC_S(long groupId, long categoryId, int status) {
 		FinderPath finderPath = FINDER_PATH_WITH_PAGINATION_COUNT_BY_G_NOTC_S;
 
 		Object[] finderArgs = new Object[] { groupId, categoryId, status };
@@ -11702,11 +11415,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int filterCountByG_NotC_S(long groupId, long categoryId, int status)
-		throws SystemException {
+	public int filterCountByG_NotC_S(long groupId, long categoryId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_NotC_S(groupId, categoryId, status);
 		}
@@ -11785,11 +11496,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_NotC_NotS(long groupId, long categoryId,
-		int status) throws SystemException {
+		int status) {
 		return findByG_NotC_NotS(groupId, categoryId, status,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -11807,11 +11517,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_NotC_NotS(long groupId, long categoryId,
-		int status, int start, int end) throws SystemException {
+		int status, int start, int end) {
 		return findByG_NotC_NotS(groupId, categoryId, status, start, end, null);
 	}
 
@@ -11829,12 +11538,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findByG_NotC_NotS(long groupId, long categoryId,
-		int status, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, int start, int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -11945,12 +11652,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_NotC_NotS_First(long groupId, long categoryId,
 		int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_NotC_NotS_First(groupId, categoryId,
 				status, orderByComparator);
 
@@ -11984,12 +11690,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_NotC_NotS_First(long groupId, long categoryId,
-		int status, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, OrderByComparator orderByComparator) {
 		List<MBThread> list = findByG_NotC_NotS(groupId, categoryId, status, 0,
 				1, orderByComparator);
 
@@ -12009,12 +11713,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByG_NotC_NotS_Last(long groupId, long categoryId,
 		int status, OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByG_NotC_NotS_Last(groupId, categoryId,
 				status, orderByComparator);
 
@@ -12048,12 +11751,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param status the status
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching message boards thread, or <code>null</code> if a matching message boards thread could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread fetchByG_NotC_NotS_Last(long groupId, long categoryId,
-		int status, OrderByComparator orderByComparator)
-		throws SystemException {
+		int status, OrderByComparator orderByComparator) {
 		int count = countByG_NotC_NotS(groupId, categoryId, status);
 
 		if (count == 0) {
@@ -12080,13 +11781,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] findByG_NotC_NotS_PrevAndNext(long threadId,
 		long groupId, long categoryId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		MBThread mbThread = findByPrimaryKey(threadId);
 
 		Session session = null;
@@ -12234,11 +11933,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_NotC_NotS(long groupId,
-		long categoryId, int status) throws SystemException {
+		long categoryId, int status) {
 		return filterFindByG_NotC_NotS(groupId, categoryId, status,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -12256,12 +11954,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_NotC_NotS(long groupId,
-		long categoryId, int status, int start, int end)
-		throws SystemException {
+		long categoryId, int status, int start, int end) {
 		return filterFindByG_NotC_NotS(groupId, categoryId, status, start, end,
 			null);
 	}
@@ -12280,12 +11976,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> filterFindByG_NotC_NotS(long groupId,
 		long categoryId, int status, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_NotC_NotS(groupId, categoryId, status, start, end,
 				orderByComparator);
@@ -12383,13 +12078,11 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread[] filterFindByG_NotC_NotS_PrevAndNext(long threadId,
 		long groupId, long categoryId, int status,
-		OrderByComparator orderByComparator)
-		throws NoSuchThreadException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchThreadException {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_NotC_NotS_PrevAndNext(threadId, groupId, categoryId,
 				status, orderByComparator);
@@ -12576,11 +12269,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param groupId the group ID
 	 * @param categoryId the category ID
 	 * @param status the status
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByG_NotC_NotS(long groupId, long categoryId, int status)
-		throws SystemException {
+	public void removeByG_NotC_NotS(long groupId, long categoryId, int status) {
 		for (MBThread mbThread : findByG_NotC_NotS(groupId, categoryId, status,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(mbThread);
@@ -12594,11 +12285,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the number of matching message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByG_NotC_NotS(long groupId, long categoryId, int status)
-		throws SystemException {
+	public int countByG_NotC_NotS(long groupId, long categoryId, int status) {
 		FinderPath finderPath = FINDER_PATH_WITH_PAGINATION_COUNT_BY_G_NOTC_NOTS;
 
 		Object[] finderArgs = new Object[] { groupId, categoryId, status };
@@ -12658,11 +12347,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param categoryId the category ID
 	 * @param status the status
 	 * @return the number of matching message boards threads that the user has permission to view
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int filterCountByG_NotC_NotS(long groupId, long categoryId,
-		int status) throws SystemException {
+		int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_NotC_NotS(groupId, categoryId, status);
 		}
@@ -12914,11 +12602,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param threadId the primary key of the message boards thread
 	 * @return the message boards thread that was removed
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public MBThread remove(long threadId)
-		throws NoSuchThreadException, SystemException {
+	public MBThread remove(long threadId) throws NoSuchThreadException {
 		return remove((Serializable)threadId);
 	}
 
@@ -12928,11 +12614,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param primaryKey the primary key of the message boards thread
 	 * @return the message boards thread that was removed
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread remove(Serializable primaryKey)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		Session session = null;
 
 		try {
@@ -12964,7 +12649,7 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	}
 
 	@Override
-	protected MBThread removeImpl(MBThread mbThread) throws SystemException {
+	protected MBThread removeImpl(MBThread mbThread) {
 		mbThread = toUnwrappedModel(mbThread);
 
 		Session session = null;
@@ -12997,8 +12682,7 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 
 	@Override
 	public MBThread updateImpl(
-		com.liferay.portlet.messageboards.model.MBThread mbThread)
-		throws SystemException {
+		com.liferay.portlet.messageboards.model.MBThread mbThread) {
 		mbThread = toUnwrappedModel(mbThread);
 
 		boolean isNew = mbThread.isNew();
@@ -13275,11 +12959,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param primaryKey the primary key of the message boards thread
 	 * @return the message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		MBThread mbThread = fetchByPrimaryKey(primaryKey);
 
 		if (mbThread == null) {
@@ -13300,11 +12983,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param threadId the primary key of the message boards thread
 	 * @return the message boards thread
 	 * @throws com.liferay.portlet.messageboards.NoSuchThreadException if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public MBThread findByPrimaryKey(long threadId)
-		throws NoSuchThreadException, SystemException {
+		throws NoSuchThreadException {
 		return findByPrimaryKey((Serializable)threadId);
 	}
 
@@ -13313,11 +12995,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param primaryKey the primary key of the message boards thread
 	 * @return the message boards thread, or <code>null</code> if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public MBThread fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public MBThread fetchByPrimaryKey(Serializable primaryKey) {
 		MBThread mbThread = (MBThread)EntityCacheUtil.getResult(MBThreadModelImpl.ENTITY_CACHE_ENABLED,
 				MBThreadImpl.class, primaryKey);
 
@@ -13360,21 +13040,111 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 *
 	 * @param threadId the primary key of the message boards thread
 	 * @return the message boards thread, or <code>null</code> if a message boards thread with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public MBThread fetchByPrimaryKey(long threadId) throws SystemException {
+	public MBThread fetchByPrimaryKey(long threadId) {
 		return fetchByPrimaryKey((Serializable)threadId);
+	}
+
+	@Override
+	public Map<Serializable, MBThread> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, MBThread> map = new HashMap<Serializable, MBThread>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			MBThread mbThread = fetchByPrimaryKey(primaryKey);
+
+			if (mbThread != null) {
+				map.put(primaryKey, mbThread);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			MBThread mbThread = (MBThread)EntityCacheUtil.getResult(MBThreadModelImpl.ENTITY_CACHE_ENABLED,
+					MBThreadImpl.class, primaryKey);
+
+			if (mbThread == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, mbThread);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_MBTHREAD_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (MBThread mbThread : (List<MBThread>)q.list()) {
+				map.put(mbThread.getPrimaryKeyObj(), mbThread);
+
+				cacheResult(mbThread);
+
+				uncachedPrimaryKeys.remove(mbThread.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(MBThreadModelImpl.ENTITY_CACHE_ENABLED,
+					MBThreadImpl.class, primaryKey, _nullMBThread);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the message boards threads.
 	 *
 	 * @return the message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findAll() throws SystemException {
+	public List<MBThread> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -13388,10 +13158,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param start the lower bound of the range of message boards threads
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @return the range of message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<MBThread> findAll(int start, int end) throws SystemException {
+	public List<MBThread> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -13406,11 +13175,10 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * @param end the upper bound of the range of message boards threads (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<MBThread> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -13492,10 +13260,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	/**
 	 * Removes all the message boards threads from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (MBThread mbThread : findAll()) {
 			remove(mbThread);
 		}
@@ -13505,10 +13272,9 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	 * Returns the number of message boards threads.
 	 *
 	 * @return the number of message boards threads
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -13577,6 +13343,7 @@ public class MBThreadPersistenceImpl extends BasePersistenceImpl<MBThread>
 	}
 
 	private static final String _SQL_SELECT_MBTHREAD = "SELECT mbThread FROM MBThread mbThread";
+	private static final String _SQL_SELECT_MBTHREAD_WHERE_PKS_IN = "SELECT mbThread FROM MBThread mbThread WHERE threadId IN (";
 	private static final String _SQL_SELECT_MBTHREAD_WHERE = "SELECT mbThread FROM MBThread mbThread WHERE ";
 	private static final String _SQL_COUNT_MBTHREAD = "SELECT COUNT(mbThread) FROM MBThread mbThread";
 	private static final String _SQL_COUNT_MBTHREAD_WHERE = "SELECT COUNT(mbThread) FROM MBThread mbThread WHERE ";

@@ -90,9 +90,9 @@ else {
 
 <div id="<portlet:namespace />listViewContainer">
 	<div id="<portlet:namespace />folderContainer">
-		<aui:nav cssClass="nav-list well">
+		<aui:nav cssClass="list-group">
 			<c:if test="<%= Validator.isNotNull(parentTitle) %>">
-				<li class="nav-header">
+				<li class="dropdown-header list-group-item">
 					<%= parentTitle %>
 				</li>
 			</c:if>
@@ -247,6 +247,8 @@ else {
 
 							dataView.put("browse-by", "structure");
 							dataView.put("structure-id", ddmStructure.getStructureKey());
+
+							AssetRendererFactory assetRendererFactory = AssetRendererFactoryRegistryUtil.getAssetRendererFactoryByClassName(JournalArticle.class.getName());
 						%>
 
 							<liferay-portlet:renderURL varImpl="viewDDMStructureArticlesURL">
@@ -264,7 +266,7 @@ else {
 								cssClass="folder structure"
 								dataView="<%= dataView %>"
 								entryTitle="<%= ddmStructure.getName(locale) %>"
-								iconImage="icon-th-large"
+								iconImage="<%= assetRendererFactory.getIconCssClass() %>"
 								selected="<%= structureId.equals(ddmStructure.getStructureKey()) %>"
 								viewURL="<%= viewDDMStructureArticlesURL.toString() %>"
 							/>

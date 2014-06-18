@@ -27,7 +27,7 @@ boolean trashEnabled = PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKe
 </aui:fieldset>
 
 <aui:script use="aui-base">
-	var trashEnabledCheckbox = A.one('#<portlet:namespace />trashEnabledCheckbox');
+	var trashEnabledCheckbox = A.one('#<portlet:namespace />trashEnabled');
 
 	var trashEnabledDefault = trashEnabledCheckbox.attr('checked');
 
@@ -41,8 +41,6 @@ boolean trashEnabled = PrefsPropsUtil.getBoolean(company.getCompanyId(), PropsKe
 			if (!trashEnabled && trashEnabledDefault) {
 				if (!confirm('<%= HtmlUtil.escapeJS(LanguageUtil.get(pageContext, "disabling-the-recycle-bin-will-prevent-the-restoring-of-content-that-has-been-moved-to-the-recycle-bin")) %>')) {
 					currentTarget.attr('checked', true);
-
-					trashEnabled = true;
 				}
 			}
 		}
