@@ -3,36 +3,46 @@ AUI.add(
 	function(A) {
 		var Data = {};
 
+		var Validation = A.Component.create(
+			{
+				ATTRS: {},
+				// AUGMENTS: [A.WidgetChild],
+				// EXTENDS: A.Base,
+				NAME: 'datavalidation',
+				prototype: {
+					initializer: function() {
+						var instance = this;
+
+
+					}
+				}
+			}
+		);
+
+		Data.Validation = Validation;
+
+		var Queue = A.Component.create(
+			{
+				ATTRS: {},
+				// AUGMENTS: [A.WidgetChild],
+				// EXTENDS: A.Base,
+				NAME: 'dataqueue',
+				prototype: {
+					initializer: function() {
+						var instance = this;
+
+
+					}
+				}
+			}
+		);
+
+		Data.Queue = Data;
+
 		Liferay.Upload.Data = Data;
 	},
 	'',
 	{
-		requires: ['liferay-upload']
-	}
-);
-
-AUI.add(
-	'liferay-upload-data-validation',
-	function(A) {
-		var Validation = {};
-
-		Liferay.Upload.Data.Validation = Data;
-	},
-	'',
-	{
-		requires: ['liferay-upload-data']
-	}
-);
-
-AUI.add(
-	'liferay-upload-data-queue',
-	function(A) {
-		var Queue = {};
-
-		Liferay.Upload.Data.Queue = Data;
-	},
-	'',
-	{
-		requires: ['liferay-upload-data']
+		requires: ['liferay-upload-base']
 	}
 );

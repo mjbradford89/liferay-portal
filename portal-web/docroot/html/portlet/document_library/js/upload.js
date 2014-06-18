@@ -191,6 +191,7 @@ AUI.add(
 					}
 				},
 				AUGMENTS: [Liferay.StorageFormatter],
+				// AUGMENTS: [Liferay.StorageFormatter, Liferay.Upload.Data.Validation],
 				EXTENDS: A.Plugin.Base,
 				NAME: 'documentlibraryupload',
 				NS: 'upload',
@@ -198,24 +199,24 @@ AUI.add(
 					initializer: function() {
 						var instance = this;
 
-						instance._attachEventHandlers();
+						instance._attachEventHandlers(); // to get rid of
 
-						instance._columnNames = instance.get('columnNames');
+						instance._columnNames = instance.get('columnNames'); // DL entry
 
-						instance._dimensions = instance.get('dimensions');
+						instance._dimensions = instance.get('dimensions'); // DL entry
 
-						instance._displayStyle = instance.get('displayStyle');
+						instance._displayStyle = instance.get('displayStyle'); // DL entry
 
-						instance._handles = [];
+						instance._handles = []; // DL entry
 
-						var appViewEntryTemplates = instance.get('appViewEntryTemplates');
+						var appViewEntryTemplates = instance.get('appViewEntryTemplates'); // DL entry
 
 						instance._invisibleDescriptiveEntry = appViewEntryTemplates.one(SELECTOR_ENTRY_DISPLAY_STYLE + SELECTOR_DISPLAY_DESCRIPTIVE);
 						instance._invisibleIconEntry = appViewEntryTemplates.one(SELECTOR_ENTRY_DISPLAY_STYLE + SELECTOR_DISPLAY_ICON);
 
-						instance._maxFileSize = instance.get('maxFileSize');
+						instance._maxFileSize = instance.get('maxFileSize'); // move to an attr
 
-						instance._strings = {
+						instance._strings = { // move to an attr
 							invalidFileSize: Liferay.Language.get('please-enter-a-file-with-a-valid-file-size-no-larger-than-x'),
 							invalidFileType: Liferay.Language.get('please-enter-a-file-with-a-valid-file-type'),
 							zeroByteFile: Liferay.Language.get('the-file-contains-no-data-and-cannot-be-uploaded.-please-use-the-classic-uploader')
@@ -316,7 +317,10 @@ AUI.add(
 
 										var target = event.target;
 
-										docElement.toggleClass('upload-drop-active', (target.compareTo(entriesContainer) || entriesContainer.contains(target)));
+										// todo replace entriesContainer with boundingBox
+										var boundingBox = instance.get('boundingBox');
+
+										docElement.toggleClass('upload-drop-active', (target.compareTo(boundingBox) || boundingBox.contains(target)));
 
 										removeCssClassTask();
 									}
@@ -974,10 +978,24 @@ AUI.add(
 						var target = event.details[0].target;
 
 						var filesPartition = instance._validateFiles(event.fileList);
+						// var filesPartition = instance.validate(event.fileList); // instance is augmented with validation
+
+						// var filesPartition = UploadBase.Data.Validation.validate(event.fileList); // use a static class fn
+
+						// var filesPartition = instance.validator.validate(event.fileList); // use a new Validation object that we called validator
+
+						// var validate = Liferay.UploadBase.Data.Validation.validate; // reference the static class fn
+						// ...
+						// var filesPartition = validate(event.fileList);
 
 						instance._updateStatusUI(target, filesPartition);
 
 						instance._queueSelectedFiles(target, filesPartition);
+						// var key = instance._getFolderId(target),
+						//     data = filesPartition;
+						//
+						// instance.queue.add(key, data);
+						// instance.dataQueue.add(key, data);
 					},
 
 					_positionProgressBar: function(overlay, progressBar) {

@@ -147,7 +147,7 @@ AUI.add(
 						value: ''
 					},
 
-					fallback: {
+					fallback: { // to-do replace with flash fallback
 						setter: A.one,
 						value: null
 					},
@@ -176,37 +176,6 @@ AUI.add(
 						value: true
 					},
 
-					strings: {
-						value: {
-							allFilesSelectedText: Liferay.Language.get('all-files-selected'),
-							cancelFileText: Liferay.Language.get('cancel-upload'),
-							cancelUploadsText: Liferay.Language.get('cancel-all-uploads'),
-							clearRecentUploadsText: Liferay.Language.get('clear-documents-already-saved'),
-							deleteFileText: Liferay.Language.get('delete-file'),
-							dropFileText: Liferay.Language.get('drop-file-here-to-upload'),
-							dropFilesText: Liferay.Language.get('drop-files-here-to-upload'),
-							fileCannotBeSavedText: Liferay.Language.get('the-file-x-cannot-be-saved'),
-							invalidFileNameText: Liferay.Language.get('please-enter-a-file-with-a-valid-file-name'),
-							invalidFileSizeText: Liferay.Language.get('please-enter-a-file-with-a-valid-file-size-no-larger-than-x'),
-							noFilesSelectedText: Liferay.Language.get('no-files-selected'),
-							notAvailableText: Liferay.Language.get('multiple-file-uploading-is-not-available'),
-							orText: Liferay.Language.get('or'),
-							pendingFileText: Liferay.Language.get('these-files-have-been-previously-uploaded-but-not-actually-saved.-please-save-or-delete-them-before-they-are-removed'),
-							selectFileText: Liferay.Language.get('select-file'),
-							selectFilesText: Liferay.Language.get('select-files'),
-							unexpectedErrorOnDeleteText: Liferay.Language.get('an-unexpected-error-occurred-while-deleting-the-file'),
-							unexpectedErrorOnUploadText: Liferay.Language.get('an-unexpected-error-occurred-while-uploading-your-file'),
-							uploadingFileXofXText: Liferay.Language.get('uploading-file-x-of-x'),
-							uploadingText: Liferay.Language.get('uploading'),
-							uploadsCompleteText: Liferay.Language.get('all-files-ready-to-be-saved'),
-							warningFailureText: Liferay.Language.get('consider-that-the-following-data-would-not-have-been-imported-either'),
-							warningText: Liferay.Language.get('the-following-data-will-not-be-imported'),
-							xFilesReadyText: Liferay.Language.get('x-files-ready-to-be-uploaded'),
-							xFilesSelectedText: Liferay.Language.get('x-files-selected'),
-							zeroByteSizeText: Liferay.Language.get('the-file-contains-no-data-and-cannot-be-uploaded.-please-use-the-classic-uploader')
-						}
-					},
-
 					tempFileURL: {
 						value: ''
 					},
@@ -214,14 +183,10 @@ AUI.add(
 					tempRandomSuffix: {
 						validator: Lang.isString,
 						value: null
-					},
-
-					uploadFile: {
-						value: ''
 					}
 				},
 
-				AUGMENTS: [Liferay.PortletBase, Liferay.StorageFormatter],
+				AUGMENTS: [Liferay.PortletBase, Liferay.UploadBase],
 
 				NAME: 'liferayupload',
 
@@ -229,7 +194,7 @@ AUI.add(
 					initializer: function(config) {
 						var instance = this;
 
-						var strings = instance.get(STRINGS);
+						var strings = instance._getStrings();
 
 						var fallback = instance.get('fallback');
 
@@ -266,6 +231,10 @@ AUI.add(
 						}
 
 						instance._fallback = fallback;
+
+						instance.after('uploader:init', instance.bindUploaderLifecyle, instance);
+
+						instance.bindDragDropUI();
 					},
 
 					renderUI: function() {
@@ -275,7 +244,19 @@ AUI.add(
 						instance._renderUploader();
 					},
 
-					bindUI: function() {
+					bindUploaderLifecyle: function(uploader) {
+						var instance = this;
+
+						uploader.after('fileselect', instance._onFileSelect, instance);
+
+						uploader.on('alluploadscomplete', instance._onAllUploadsComplete, instance);
+						uploader.on('fileuploadstart', instance._onUploadStart, instance);
+						uploader.on('uploadcomplete', instance._onUploadComplete, instance);
+						uploader.on('uploadprogress', instance._onUploadProgress, instance);
+					},
+
+					// bindUI: function() {
+					bindDragDropUI: function() {
 						var instance = this;
 
 						if (instance._allRowIdsCheckbox) {
@@ -285,65 +266,9 @@ AUI.add(
 						instance._cancelButton.on('click', instance._cancelAllFiles, instance);
 						instance._clearUploadsButton.on('click', instance._clearUploads, instance);
 
-						A.getWin().on('beforeunload', instance._onBeforeUnload, instance);
-
 						instance._fileList.delegate('click', instance._handleFileClick, '.select-file, li .delete-button, li .cancel-button', instance);
 
 						Liferay.after('filesSaved', instance._afterFilesSaved, instance);
-
-						var uploader = instance._uploader;
-
-						uploader.after('fileselect', instance._onFileSelect, instance);
-
-						uploader.on('alluploadscomplete', instance._onAllUploadsComplete, instance);
-						uploader.on('fileuploadstart', instance._onUploadStart, instance);
-						uploader.on('uploadcomplete', instance._onUploadComplete, instance);
-						uploader.on('uploadprogress', instance._onUploadProgress, instance);
-
-						var docElement = A.getDoc().get('documentElement');
-
-						docElement.on('drop', instance._handleDrop, instance);
-
-						var uploaderBoundingBox = instance._uploaderBoundingBox;
-
-						var removeCssClassTask = A.debounce(
-							function() {
-								docElement.removeClass('upload-drop-intent');
-								docElement.removeClass('upload-drop-active');
-							},
-							500
-						);
-
-						docElement.on(
-							'dragover',
-							function(event) {
-								var originalEvent = event._event;
-
-								var dataTransfer = originalEvent.dataTransfer;
-
-								if (dataTransfer && AArray.indexOf(dataTransfer.types, 'Files') > -1) {
-									event.halt();
-
-									docElement.addClass('upload-drop-intent');
-
-									var target = event.target;
-
-									var inDropArea = target.compareTo(uploaderBoundingBox) || uploaderBoundingBox.contains(target);
-
-									var dropEffect = 'none';
-
-									if (inDropArea) {
-										dropEffect = 'copy';
-									}
-
-									docElement.toggleClass('upload-drop-active', inDropArea);
-
-									dataTransfer.dropEffect = dropEffect;
-								}
-
-								removeCssClassTask();
-							}
-						);
 					},
 
 					_afterFilesSaved: function(event) {
@@ -446,6 +371,43 @@ AUI.add(
 						}
 					},
 
+					_getStrings: function() {
+						var instance = this;
+
+						instance.set(
+							STRINGS,
+							A.mix(
+								instance.get(STRINGS),
+								{
+									allFilesSelectedText: Liferay.Language.get('all-files-selected'),
+									cancelFileText: Liferay.Language.get('cancel-upload'),
+									cancelUploadsText: Liferay.Language.get('cancel-all-uploads'),
+									clearRecentUploadsText: Liferay.Language.get('clear-documents-already-saved'),
+									deleteFileText: Liferay.Language.get('delete-file'),
+									dropFileText: Liferay.Language.get('drop-file-here-to-upload'),
+									dropFilesText: Liferay.Language.get('drop-files-here-to-upload'),
+									fileCannotBeSavedText: Liferay.Language.get('the-file-x-cannot-be-saved'),
+									noFilesSelectedText: Liferay.Language.get('no-files-selected'),
+									notAvailableText: Liferay.Language.get('multiple-file-uploading-is-not-available'),
+									orText: Liferay.Language.get('or'),
+									pendingFileText: Liferay.Language.get('these-files-have-been-previously-uploaded-but-not-actually-saved.-please-save-or-delete-them-before-they-are-removed'),
+									selectFileText: Liferay.Language.get('select-file'),
+									selectFilesText: Liferay.Language.get('select-files'),
+									unexpectedErrorOnDeleteText: Liferay.Language.get('an-unexpected-error-occurred-while-deleting-the-file'),
+									unexpectedErrorOnUploadText: Liferay.Language.get('an-unexpected-error-occurred-while-uploading-your-file'),
+									uploadingFileXofXText: Liferay.Language.get('uploading-file-x-of-x'),
+									uploadingText: Liferay.Language.get('uploading'),
+									uploadsCompleteText: Liferay.Language.get('all-files-ready-to-be-saved'),
+									warningFailureText: Liferay.Language.get('consider-that-the-following-data-would-not-have-been-imported-either'),
+									warningText: Liferay.Language.get('the-following-data-will-not-be-imported'),
+									xFilesReadyText: Liferay.Language.get('x-files-ready-to-be-uploaded'),
+									xFilesSelectedText: Liferay.Language.get('x-files-selected')
+								}
+							)
+						);
+					},
+
+					// rmove this, place it in the validation
 					_getValidFiles: function(data) {
 						var instance = this;
 
@@ -519,32 +481,6 @@ AUI.add(
 						Liferay.fire('tempFileRemoved');
 					},
 
-					_handleDrop: function(event) {
-						var instance = this;
-
-						event.halt();
-
-						var uploaderBoundingBox = instance._uploaderBoundingBox;
-
-						var target = event.target;
-
-						var uploader = instance._uploader;
-
-						var dataTransfer = event._event.dataTransfer;
-
-						var dragDropFiles = dataTransfer && AArray(dataTransfer.files);
-
-						if (dragDropFiles && (target === uploaderBoundingBox || uploaderBoundingBox.contains(target))) {
-							event.fileList = AArray.map(
-								dragDropFiles,
-								function(item, index) {
-									return new A.FileHTML5(item);
-								}
-							);
-
-							uploader.fire('fileselect', event);
-						}
-					},
 
 					_handleFileClick: function(event) {
 						var instance = this;
@@ -560,14 +496,6 @@ AUI.add(
 						else if (currentTarget.hasClass('cancel-button')) {
 							instance._onCancelFileClick(currentTarget);
 						}
-					},
-
-					_isUploading: function() {
-						var instance = this;
-
-						var queue = instance._uploader.queue;
-
-						return !!(queue && (queue.queuedFiles.length > 0 || queue.numberOfUploads > 0 || !A.Object.isEmpty(queue.currentFiles)) && queue._currentState === UploaderQueue.UPLOADING);
 					},
 
 					_markSelected: function(node) {
@@ -622,14 +550,6 @@ AUI.add(
 						instance._updateList(0, uploadsCompleteText);
 
 						Liferay.fire('allUploadsComplete');
-					},
-
-					_onBeforeUnload: function(event) {
-						var instance = this;
-
-						if (instance._isUploading()) {
-							event.preventDefault();
-						}
 					},
 
 					_onCancelFileClick: function(currentTarget) {
@@ -1162,6 +1082,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-io-request', 'aui-template-deprecated', 'collection', 'liferay-portlet-base', 'liferay-storage-formatter', 'uploader']
+		requires: ['aui-io-request', 'aui-template-deprecated', 'collection', 'liferay-portlet-base', 'liferay-upload-base']
 	}
 );
