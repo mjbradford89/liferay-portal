@@ -30,12 +30,12 @@
 </tr>
 <tr>
 	<td>INFO_MESSAGE_1</td>
-	<td>xpath=(//div[contains(@class,'alert') and contains(@class,'alert-error')])[1]</td>
+	<td>xpath=(//div[contains(@class,'alert') and (contains(@class,'alert-error') or contains(@class,'alert-danger'))])[1]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>INFO_MESSAGE_2</td>
-	<td>xpath=(//div[contains(@class,'alert') and contains(@class,'alert-error')])[2]</td>
+	<td>xpath=(//div[contains(@class,'alert') and (contains(@class,'alert-error') or contains(@class,'alert-danger'))])[2]</td>
 	<td></td>
 </tr>
 <tr>
@@ -167,6 +167,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>PAGE_TREE_PAGE_PLUS_ICON</td>
+	<td>//div[contains(@class,'tree-collapsed')]/i[contains(@class,'icon-plus')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PAGE_TREE_PAGE_LINK</td>
 	<td>xpath=(//a[contains(@id,'layoutsTree_layout_') and contains(.,'${key_sitePageName}')])</td>
 	<td></td>
@@ -214,6 +219,16 @@
 <tr>
 	<td>PAGE_TREE_PAGE_LINK_8</td>
 	<td>xpath=(//a[contains(@id,'layoutsTree_layout_')])[8]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAGE_TREE_PAGE_LINK_TO_PAGE</td>
+	<td>xpath=(//li[contains(@id,'layoutsTree_layoutId_2')]/div/i[contains(@class,'icon-link')])</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAGE_TREE_LOAD_MORE_RESULTS_LINK</td>
+	<td>//ul/li/div[contains(.,'${key_pageName}')]/..//a[@class='tree-node-paginator']</td>
 	<td></td>
 </tr>
 <tr>

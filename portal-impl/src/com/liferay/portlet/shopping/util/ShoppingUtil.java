@@ -15,12 +15,8 @@
 package com.liferay.portlet.shopping.util;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
-import com.liferay.portal.kernel.settings.ParameterMapSettings;
-import com.liferay.portal.kernel.settings.Settings;
-import com.liferay.portal.kernel.settings.SettingsFactoryUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -78,7 +74,6 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.WindowState;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 
 /**
@@ -92,7 +87,7 @@ public class ShoppingUtil {
 	}
 
 	public static double calculateActualPrice(ShoppingItem item, int count)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return calculatePrice(item, count) -
 			calculateDiscountPrice(item, count);
@@ -116,14 +111,14 @@ public class ShoppingUtil {
 
 	public static double calculateActualSubtotal(
 			Map<ShoppingCartItem, Integer> items)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return calculateSubtotal(items) - calculateDiscountSubtotal(items);
 	}
 
 	public static double calculateAlternativeShipping(
 			Map<ShoppingCartItem, Integer> items, int altShipping)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		double shipping = calculateShipping(items);
 		double alternativeShipping = shipping;
@@ -138,7 +133,8 @@ public class ShoppingUtil {
 			if (shoppingSettings == null) {
 				ShoppingCategory category = item.getCategory();
 
-				shoppingSettings = getShoppingSettings(category.getGroupId());
+				shoppingSettings = ShoppingSettings.getInstance(
+					category.getGroupId());
 
 				break;
 			}
@@ -170,7 +166,7 @@ public class ShoppingUtil {
 
 	public static double calculateCouponDiscount(
 			Map<ShoppingCartItem, Integer> items, ShoppingCoupon coupon)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		return calculateCouponDiscount(items, null, coupon);
 	}
@@ -178,7 +174,7 @@ public class ShoppingUtil {
 	public static double calculateCouponDiscount(
 			Map<ShoppingCartItem, Integer> items, String stateId,
 			ShoppingCoupon coupon)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		double discount = 0.0;
 
@@ -259,7 +255,7 @@ public class ShoppingUtil {
 
 	public static double calculateDiscountPercent(
 			Map<ShoppingCartItem, Integer> items)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		double discount = calculateDiscountSubtotal(
 			items) / calculateSubtotal(items);
@@ -276,7 +272,7 @@ public class ShoppingUtil {
 	}
 
 	public static double calculateDiscountPrice(ShoppingItem item, int count)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		ShoppingItemPrice itemPrice = _getItemPrice(item, count);
 
@@ -289,7 +285,7 @@ public class ShoppingUtil {
 
 	public static double calculateDiscountSubtotal(
 			Map<ShoppingCartItem, Integer> items)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		double subtotal = 0.0;
 
@@ -307,7 +303,7 @@ public class ShoppingUtil {
 
 	public static double calculateInsurance(
 			Map<ShoppingCartItem, Integer> items)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		double insurance = 0.0;
 		double subtotal = 0.0;
@@ -323,7 +319,8 @@ public class ShoppingUtil {
 			if (shoppingSettings == null) {
 				ShoppingCategory category = item.getCategory();
 
-				shoppingSettings = getShoppingSettings(category.getGroupId());
+				shoppingSettings = ShoppingSettings.getInstance(
+					category.getGroupId());
 			}
 
 			ShoppingItemPrice itemPrice = _getItemPrice(item, count.intValue());
@@ -365,7 +362,7 @@ public class ShoppingUtil {
 	}
 
 	public static double calculatePrice(ShoppingItem item, int count)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		ShoppingItemPrice itemPrice = _getItemPrice(item, count);
 
@@ -373,7 +370,7 @@ public class ShoppingUtil {
 	}
 
 	public static double calculateShipping(Map<ShoppingCartItem, Integer> items)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		double shipping = 0.0;
 		double subtotal = 0.0;
@@ -389,7 +386,8 @@ public class ShoppingUtil {
 			if (shoppingSettings == null) {
 				ShoppingCategory category = item.getCategory();
 
-				shoppingSettings = getShoppingSettings(category.getGroupId());
+				shoppingSettings = ShoppingSettings.getInstance(
+					category.getGroupId());
 			}
 
 			if (item.isRequiresShipping()) {
@@ -440,7 +438,7 @@ public class ShoppingUtil {
 	}
 
 	public static double calculateSubtotal(Map<ShoppingCartItem, Integer> items)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		double subtotal = 0.0;
 
@@ -458,7 +456,7 @@ public class ShoppingUtil {
 
 	public static double calculateTax(
 			Map<ShoppingCartItem, Integer> items, String stateId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		double tax = 0.0;
 
@@ -472,7 +470,8 @@ public class ShoppingUtil {
 			if (shoppingSettings == null) {
 				ShoppingCategory category = item.getCategory();
 
-				shoppingSettings = getShoppingSettings(category.getGroupId());
+				shoppingSettings = ShoppingSettings.getInstance(
+					category.getGroupId());
 
 				break;
 			}
@@ -505,7 +504,7 @@ public class ShoppingUtil {
 	public static double calculateTotal(
 			Map<ShoppingCartItem, Integer> items, String stateId,
 			ShoppingCoupon coupon, int altShipping, boolean insure)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		double actualSubtotal = calculateActualSubtotal(items);
 		double tax = calculateTax(items, stateId);
@@ -529,9 +528,7 @@ public class ShoppingUtil {
 		return total;
 	}
 
-	public static double calculateTotal(ShoppingOrder order)
-		throws SystemException {
-
+	public static double calculateTotal(ShoppingOrder order) {
 		List<ShoppingOrderItem> orderItems =
 			ShoppingOrderItemLocalServiceUtil.getOrderItems(order.getOrderId());
 
@@ -644,7 +641,7 @@ public class ShoppingUtil {
 	}
 
 	public static ShoppingCart getCart(PortletRequest portletRequest)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		PortletSession portletSession = portletRequest.getPortletSession();
 
@@ -883,9 +880,7 @@ public class ShoppingUtil {
 		return orderByComparator;
 	}
 
-	public static int getMinQuantity(ShoppingItem item)
-		throws PortalException, SystemException {
-
+	public static int getMinQuantity(ShoppingItem item) throws PortalException {
 		int minQuantity = item.getMinQuantity();
 
 		List<ShoppingItemPrice> itemPrices = item.getItemPrices();
@@ -991,28 +986,6 @@ public class ShoppingUtil {
 		}
 	}
 
-	public static ShoppingSettings getShoppingSettings(long groupId)
-		throws PortalException, SystemException {
-
-		Settings settings = SettingsFactoryUtil.getGroupServiceSettings(
-			groupId, ShoppingConstants.SERVICE_NAME);
-
-		return new ShoppingSettings(settings);
-	}
-
-	public static ShoppingSettings getShoppingSettings(
-			long groupId, HttpServletRequest request)
-		throws PortalException, SystemException {
-
-		Settings settings = SettingsFactoryUtil.getGroupServiceSettings(
-			groupId, ShoppingConstants.SERVICE_NAME);
-
-		ParameterMapSettings parameterMapSettings = new ParameterMapSettings(
-			request.getParameterMap(), settings);
-
-		return new ShoppingSettings(parameterMapSettings);
-	}
-
 	public static boolean isInStock(ShoppingItem item) {
 		if (!item.isFields()) {
 			if (item.getStockQuantity() > 0) {
@@ -1080,7 +1053,7 @@ public class ShoppingUtil {
 	public static boolean meetsMinOrder(
 			ShoppingSettings shoppingSettings,
 			Map<ShoppingCartItem, Integer> items)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		if ((shoppingSettings.getMinOrder() > 0) &&
 			(calculateSubtotal(items) < shoppingSettings.getMinOrder())) {
@@ -1093,7 +1066,7 @@ public class ShoppingUtil {
 	}
 
 	private static ShoppingItemPrice _getItemPrice(ShoppingItem item, int count)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		ShoppingItemPrice itemPrice = null;
 

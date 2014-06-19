@@ -76,7 +76,7 @@ portletURL.setParameter("recordSetId", String.valueOf(recordSet.getRecordSetId()
 	>
 
 		<aui:nav-bar>
-			<aui:nav searchContainer="<%= searchContainer %>">
+			<aui:nav cssClass="navbar-nav" searchContainer="<%= searchContainer %>">
 				<c:if test="<%= showAddRecordButton %>">
 					<portlet:renderURL var="addRecordURL">
 						<portlet:param name="struts_action" value="/dynamic_data_lists/edit_record" />
@@ -145,7 +145,7 @@ portletURL.setParameter("recordSetId", String.valueOf(recordSet.getRecordSetId()
 
 			// Action
 
-			row.addJSP("right", SearchEntry.DEFAULT_VALIGN, "/html/portlet/dynamic_data_lists/record_action.jsp");
+			row.addJSP("/html/portlet/dynamic_data_lists/record_action.jsp", "entry-action");
 
 			// Add result row
 

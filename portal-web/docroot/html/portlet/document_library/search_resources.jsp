@@ -126,7 +126,7 @@ else if ((searchType == DLSearchConstants.SINGLE) && !ajax) {
 				</span>
 			</c:if>
 
-			<liferay-ui:icon cssClass="close-search" id="closeSearch" image="../aui/remove" url="javascript:;" />
+			<liferay-ui:icon cssClass="close-search" iconCssClass="icon-remove" id="closeSearch" url="javascript:;" />
 		</div>
 
 		<c:if test="<%= windowState.equals(WindowState.MAXIMIZED) %>">
@@ -308,7 +308,7 @@ else if ((searchType == DLSearchConstants.SINGLE) && !ajax) {
 
 						<c:otherwise>
 							<div style="float: left; margin: 100px 10px 0px;">
-								<img alt="<liferay-ui:message key="error" />" border="no" src="<%= themeDisplay.getPathThemeImages() %>/application/forbidden_action.png" />
+								<i class="icon-ban-circle"></i>
 							</div>
 						</c:otherwise>
 					</c:choose>

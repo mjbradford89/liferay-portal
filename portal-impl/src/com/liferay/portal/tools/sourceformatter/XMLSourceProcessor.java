@@ -292,9 +292,10 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	@Override
 	protected void format() throws Exception {
 		String[] excludes = new String[] {
-			"**\\.bnd\\**", "**\\.idea\\**", "portal-impl\\**\\*.action",
-			"portal-impl\\**\\*.function", "portal-impl\\**\\*.macro",
-			"portal-impl\\**\\*.testcase", "tools\\sdk\\**"
+			"**\\.bnd\\**", "**\\.idea\\**", "**\\.ivy\\**",
+			"portal-impl\\**\\*.action", "portal-impl\\**\\*.function",
+			"portal-impl\\**\\*.macro", "portal-impl\\**\\*.testcase",
+			"tools\\sdk\\**"
 		};
 
 		String[] includes = new String[] {
@@ -302,11 +303,10 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			"**\\*.xml"
 		};
 
-		Properties exclusions = getExclusionsProperties(
-			"source_formatter_xml_exclusions.properties");
+		List<String> exclusions = getExclusions("xml.excludes");
 
-		_friendlyUrlRoutesSortExclusions = getExclusionsProperties(
-			"source_formatter_friendly_url_routes_sort_exclusions.properties");
+		_friendlyUrlRoutesSortExclusions = getExclusions(
+			"friendly.url.routes.sort.excludes");
 
 		List<String> fileNames = getFileNames(excludes, includes);
 
@@ -1029,10 +1029,10 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	private static Pattern _commentPattern2 = Pattern.compile(
 		"[\t ]-->\n[\t<]");
 
-	private Properties _friendlyUrlRoutesSortExclusions;
+	private List<String> _friendlyUrlRoutesSortExclusions;
 	private Pattern _poshiClosingTagPattern = Pattern.compile("</[^>/]*>");
 	private Pattern _poshiCommandsPattern = Pattern.compile(
-		"\\<command name=\\\"([^\\\"]*)\\\".*\\>[\\s\\S]*?\\</command\\>" +
+		"\\<command.*name=\\\"([^\\\"]*)\\\".*\\>[\\s\\S]*?\\</command\\>" +
 			"[\\n|\\t]*?(?:[^(?:/\\>)]*?--\\>)*+");
 	private Pattern _poshiElementWithNoChildPattern = Pattern.compile(
 		"\\\"[\\s]*\\>[\\n\\s\\t]*\\</[a-z\\-]+>");

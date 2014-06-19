@@ -53,7 +53,7 @@ if (Validator.isNotNull(script)) {
 			scriptJSONArray = DDMXSDUtil.getJSONArray(structure, script);
 		}
 		catch (Exception e) {
-			scriptJSONArray = DDMXSDUtil.getJSONArray(structure.getDocument());
+			scriptJSONArray = DDMXSDUtil.getJSONArray(structure.getXsd());
 		}
 	}
 	else {
@@ -187,15 +187,8 @@ if (Validator.isNotNull(requestEditStructureURL)) {
 				<aui:field-wrapper label='<%= LanguageUtil.format(pageContext, "parent-x", ddmDisplay.getStructureName(locale), false) %>'>
 					<aui:input name="parentStructureId" type="hidden" value="<%= parentStructureId %>" />
 
-					<div class="input-append">
-						<c:choose>
-							<c:when test="<%= (structure == null) || Validator.isNotNull(parentStructureId) %>">
-								<aui:input name="parentStructureName" type="resource" value="<%= parentStructureName %>" />
-							</c:when>
-							<c:otherwise>
-								<aui:input name="parentStructureName" type="resource" />
-							</c:otherwise>
-						</c:choose>
+					<div class="input-group">
+						<aui:input label="" name="parentStructureName" type="resource" value="<%= parentStructureName %>" />
 
 						<aui:button onClick='<%= renderResponse.getNamespace() + "openParentStructureSelector();" %>' value="select" />
 

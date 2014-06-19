@@ -43,7 +43,7 @@ boolean expired = true;
 				</div>
 			</c:when>
 			<c:otherwise>
-				<div class="alert alert-error">
+				<div class="alert alert-danger">
 					<%= LanguageUtil.get(pageContext, "the-selected-web-content-no-longer-exists") %>
 				</div>
 			</c:otherwise>
@@ -62,7 +62,7 @@ boolean expired = true;
 				renderRequest.setAttribute(WebKeys.PORTLET_CONFIGURATOR_VISIBILITY, Boolean.TRUE);
 				%>
 
-				<div class="alert alert-error">
+				<div class="alert alert-danger">
 					<liferay-ui:message key="you-do-not-have-the-roles-required-to-access-this-web-content-entry" />
 				</div>
 			</c:when>
@@ -292,14 +292,14 @@ if ((articleDisplay != null) && Validator.isNotNull(articleDisplay.getDDMTemplat
 }
 
 boolean showEditArticleIcon = (latestArticle != null) && JournalArticlePermission.contains(permissionChecker, latestArticle.getGroupId(), latestArticle.getArticleId(), ActionKeys.UPDATE);
-boolean showEditTemplateIcon = (ddmTemplate != null) && DDMTemplatePermission.contains(permissionChecker, ddmTemplate, PortletKeys.JOURNAL, ActionKeys.UPDATE);
+boolean showEditTemplateIcon = (ddmTemplate != null) && DDMTemplatePermission.contains(permissionChecker, scopeGroupId, ddmTemplate, portletDisplay.getId(), ActionKeys.UPDATE);
 boolean showSelectArticleIcon = PortletPermissionUtil.contains(permissionChecker, layout, portletDisplay.getId(), ActionKeys.CONFIGURATION);
 boolean showAddArticleIcon = showSelectArticleIcon && JournalPermission.contains(permissionChecker, scopeGroupId, ActionKeys.ADD_ARTICLE);
 boolean showIconsActions = themeDisplay.isSignedIn() && !layout.isLayoutPrototypeLinkActive() && (showEditArticleIcon || showEditTemplateIcon || showSelectArticleIcon || showAddArticleIcon);
 %>
 
 <c:if test="<%= showIconsActions && !print && hasViewPermission %>">
-	<div class="lfr-meta-actions icons-container">
+	<div class="icons-container lfr-meta-actions">
 		<div class="lfr-icon-actions">
 
 			<%
@@ -326,8 +326,8 @@ boolean showIconsActions = themeDisplay.isSignedIn() && !layout.isLayoutPrototyp
 				%>
 
 				<liferay-ui:icon
-					cssClass="lfr-icon-action lfr-icon-action-edit"
-					image="edit"
+					cssClass="lfr-icon-action"
+					iconCssClass="icon-pencil"
 					label="<%= true %>"
 					message="edit"
 					url="<%= taglibEditArticleURL %>"
@@ -349,8 +349,8 @@ boolean showIconsActions = themeDisplay.isSignedIn() && !layout.isLayoutPrototyp
 				%>
 
 				<liferay-ui:icon
-					cssClass="lfr-icon-action lfr-icon-action-edit-template"
-					image="../file_system/small/xml"
+					cssClass="lfr-icon-action"
+					iconCssClass="icon-edit"
 					label="<%= true %>"
 					message="edit-template"
 					url="<%= taglibEditTemplateURL %>"
@@ -359,8 +359,8 @@ boolean showIconsActions = themeDisplay.isSignedIn() && !layout.isLayoutPrototyp
 
 			<c:if test="<%= showSelectArticleIcon %>">
 				<liferay-ui:icon
-					cssClass="lfr-icon-action lfr-icon-action-configuration"
-					image="configuration"
+					cssClass="lfr-icon-action"
+					iconCssClass="icon-cog"
 					label="<%= true %>"
 					message="select-web-content"
 					method="get"
@@ -373,6 +373,7 @@ boolean showIconsActions = themeDisplay.isSignedIn() && !layout.isLayoutPrototyp
 				<liferay-ui:icon-menu
 					cssClass="lfr-icon-action lfr-icon-action-add"
 					direction="down"
+					icon="../aui/plus"
 					message="add"
 					showArrow="<%= false %>"
 					showWhenSingleIcon="<%= true %>"
