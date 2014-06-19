@@ -57,6 +57,10 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		return _classPK;
 	}
 
+	public long getClassTypePK() {
+		return _classTypePK;
+	}
+
 	public java.lang.String getCssClass() {
 		return _cssClass;
 	}
@@ -107,10 +111,6 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 
 	public boolean getIgnoreRequestValue() {
 		return _ignoreRequestValue;
-	}
-
-	public boolean getIncludeHiddenField() {
-		return _includeHiddenField;
 	}
 
 	public boolean getInlineField() {
@@ -245,6 +245,12 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		setScopedAttribute("classPK", classPK);
 	}
 
+	public void setClassTypePK(long classTypePK) {
+		_classTypePK = classTypePK;
+
+		setScopedAttribute("classTypePK", classTypePK);
+	}
+
 	public void setCssClass(java.lang.String cssClass) {
 		_cssClass = cssClass;
 
@@ -321,12 +327,6 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		_ignoreRequestValue = ignoreRequestValue;
 
 		setScopedAttribute("ignoreRequestValue", ignoreRequestValue);
-	}
-
-	public void setIncludeHiddenField(boolean includeHiddenField) {
-		_includeHiddenField = includeHiddenField;
-
-		setScopedAttribute("includeHiddenField", includeHiddenField);
 	}
 
 	public void setInlineField(boolean inlineField) {
@@ -481,6 +481,7 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		_changesContext = false;
 		_checked = false;
 		_classPK = 0;
+		_classTypePK = -1;
 		_cssClass = null;
 		_data = null;
 		_dateTogglerCheckboxLabel = null;
@@ -491,10 +492,9 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		_first = false;
 		_formName = null;
 		_helpMessage = null;
-		_helpTextCssClass = "add-on";
+		_helpTextCssClass = "input-group-addon";
 		_id = null;
 		_ignoreRequestValue = false;
-		_includeHiddenField = true;
 		_inlineField = false;
 		_inlineLabel = null;
 		_label = null;
@@ -534,6 +534,7 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		setNamespacedAttribute(request, "changesContext", _changesContext);
 		setNamespacedAttribute(request, "checked", _checked);
 		setNamespacedAttribute(request, "classPK", _classPK);
+		setNamespacedAttribute(request, "classTypePK", _classTypePK);
 		setNamespacedAttribute(request, "cssClass", _cssClass);
 		setNamespacedAttribute(request, "data", _data);
 		setNamespacedAttribute(request, "dateTogglerCheckboxLabel", _dateTogglerCheckboxLabel);
@@ -547,7 +548,6 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 		setNamespacedAttribute(request, "helpTextCssClass", _helpTextCssClass);
 		setNamespacedAttribute(request, "id", _id);
 		setNamespacedAttribute(request, "ignoreRequestValue", _ignoreRequestValue);
-		setNamespacedAttribute(request, "includeHiddenField", _includeHiddenField);
 		setNamespacedAttribute(request, "inlineField", _inlineField);
 		setNamespacedAttribute(request, "inlineLabel", _inlineLabel);
 		setNamespacedAttribute(request, "label", _label);
@@ -585,6 +585,7 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 	private boolean _changesContext = false;
 	private boolean _checked = false;
 	private long _classPK = 0;
+	private long _classTypePK = -1;
 	private java.lang.String _cssClass = null;
 	private java.lang.Object _data = null;
 	private java.lang.String _dateTogglerCheckboxLabel = null;
@@ -595,10 +596,9 @@ public class BaseInputTag extends com.liferay.taglib.util.IncludeTag {
 	private boolean _first = false;
 	private java.lang.String _formName = null;
 	private java.lang.String _helpMessage = null;
-	private java.lang.String _helpTextCssClass = "add-on";
+	private java.lang.String _helpTextCssClass = "input-group-addon";
 	private java.lang.String _id = null;
 	private boolean _ignoreRequestValue = false;
-	private boolean _includeHiddenField = true;
 	private boolean _inlineField = false;
 	private java.lang.String _inlineLabel = null;
 	private java.lang.String _label = null;

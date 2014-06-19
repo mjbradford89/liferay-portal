@@ -14,33 +14,36 @@
 
 package com.liferay.portlet.journal.service;
 
-import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
-import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.model.Group;
-import com.liferay.portal.service.GroupLocalServiceUtil;
+import com.liferay.portal.service.ClassNameServiceUtil;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.test.EnvironmentExecutionTestListener;
+import com.liferay.portal.test.DeleteAfterTestRun;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
-import com.liferay.portal.test.TransactionalExecutionTestListener;
 import com.liferay.portal.util.test.GroupTestUtil;
 import com.liferay.portal.util.test.RandomTestUtil;
 import com.liferay.portal.util.test.ServiceContextTestUtil;
 import com.liferay.portal.util.test.TestPropsValues;
 import com.liferay.portlet.dynamicdatamapping.StorageFieldRequiredException;
+import com.liferay.portlet.dynamicdatamapping.StructureXsdException;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
+import com.liferay.portlet.dynamicdatamapping.service.DDMStructureServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMStructureTestUtil;
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMTemplateTestUtil;
 import com.liferay.portlet.journal.model.JournalArticle;
 import com.liferay.portlet.journal.model.JournalArticleConstants;
+import com.liferay.portlet.journal.model.JournalFolder;
 import com.liferay.portlet.journal.model.JournalFolderConstants;
+import com.liferay.portlet.journal.service.impl.JournalArticleLocalServiceImpl;
 import com.liferay.portlet.journal.util.test.JournalTestUtil;
 
 import java.io.InputStream;
@@ -62,19 +65,15 @@ import org.junit.runner.RunWith;
  */
 @ExecutionTestListeners(
 	listeners = {
-		EnvironmentExecutionTestListener.class,
-		SynchronousDestinationExecutionTestListener.class,
-		TransactionalExecutionTestListener.class
+		MainServletExecutionTestListener.class,
+		SynchronousDestinationExecutionTestListener.class
 	})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
 @Sync
-@Transactional
 public class JournalArticleServiceTest {
 
 	@Before
 	public void setUp() throws Exception {
-		FinderCacheUtil.clearCache();
-
 		_group = GroupTestUtil.addGroup();
 
 		_article = JournalTestUtil.addArticle(
@@ -87,8 +86,6 @@ public class JournalArticleServiceTest {
 	public void tearDown() throws Exception {
 		JournalArticleLocalServiceUtil.deleteArticle(
 			_group.getGroupId(), _article.getArticleId(), new ServiceContext());
-
-		GroupLocalServiceUtil.deleteGroup(_group);
 	}
 
 	@Test
@@ -119,6 +116,42 @@ public class JournalArticleServiceTest {
 		testAddArticleRequiredFields(
 			"test-ddm-structure-html-required-field.xml",
 			"test-journal-content-html-required-field.xml", requiredFields);
+	}
+
+	@Test(expected = StructureXsdException.class)
+	public void testCheckArticleWithInvalidStructure() throws Exception {
+		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
+			JournalArticle.class.getName());
+
+		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
+			ddmStructure.getStructureId());
+
+		String content = "<?xml version=\"1.0\"?><root></root>";
+
+		JournalArticle article = JournalTestUtil.addArticleWithXMLContent(
+			content, ddmStructure.getStructureKey(),
+			ddmTemplate.getTemplateKey());
+
+		checkArticleMatchesStructure(article, ddmStructure);
+	}
+
+	@Test
+	public void testCheckArticleWithValidStructure() throws Exception {
+		Group group = GroupTestUtil.addGroup();
+
+		JournalFolder parentFolder = JournalTestUtil.addFolder(
+			group.getGroupId(), RandomTestUtil.randomString());
+
+		JournalArticle article = JournalTestUtil.addArticle(
+			group.getGroupId(), parentFolder.getFolderId(), "title", "content");
+
+		long classNameId = ClassNameServiceUtil.fetchClassNameId(
+			JournalArticle.class);
+
+		DDMStructure ddmStructure = DDMStructureServiceUtil.getStructure(
+			group.getGroupId(), classNameId, article.getStructureId());
+
+		checkArticleMatchesStructure(article, ddmStructure);
 	}
 
 	@Test
@@ -441,6 +474,23 @@ public class JournalArticleServiceTest {
 		return articles;
 	}
 
+	protected void checkArticleMatchesStructure(
+			JournalArticle article, DDMStructure ddmStructure)
+		throws PortalException {
+
+		new JournalArticleLocalServiceImpl() {
+
+			@Override
+			public void checkStructure(
+					JournalArticle article, DDMStructure structure)
+				throws PortalException {
+
+				super.checkStructure(article, structure);
+			}
+
+		}.checkStructure(article, ddmStructure);
+	}
+
 	protected int countArticlesByKeyword(String keyword, int status)
 		throws Exception {
 
@@ -578,7 +628,10 @@ public class JournalArticleServiceTest {
 	}
 
 	private JournalArticle _article;
+
+	@DeleteAfterTestRun
 	private Group _group;
+
 	private String _keyword;
 	private JournalArticle _latestArticle;
 

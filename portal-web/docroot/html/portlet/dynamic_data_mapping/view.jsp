@@ -135,16 +135,10 @@ portletURL.setParameter("tabs1", tabs1);
 
 			<c:if test="<%= scopeClassNameId == 0 %>">
 				<liferay-ui:search-container-column-text
-					buffer="buffer"
 					href="<%= rowHREF %>"
 					name="type"
-				>
-
-					<%
-					buffer.append(ResourceActionsUtil.getModelResource(locale, structure.getClassName()));
-					%>
-
-				</liferay-ui:search-container-column-text>
+					value="<%= ResourceActionsUtil.getModelResource(locale, structure.getClassName()) %>"
+				/>
 			</c:if>
 
 			<liferay-ui:search-container-column-date
@@ -157,6 +151,7 @@ portletURL.setParameter("tabs1", tabs1);
 
 			<liferay-ui:search-container-column-jsp
 				align="right"
+				cssClass="entry-action"
 				path="/html/portlet/dynamic_data_mapping/structure_action.jsp"
 			/>
 		</liferay-ui:search-container-row>

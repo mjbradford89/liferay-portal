@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.dao.orm.Query;
 import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -47,7 +46,11 @@ import java.io.Serializable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -108,10 +111,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 *
 	 * @param uuid the uuid
 	 * @return the matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Website> findByUuid(String uuid) throws SystemException {
+	public List<Website> findByUuid(String uuid) {
 		return findByUuid(uuid, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -126,11 +128,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param start the lower bound of the range of websites
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @return the range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Website> findByUuid(String uuid, int start, int end)
-		throws SystemException {
+	public List<Website> findByUuid(String uuid, int start, int end) {
 		return findByUuid(uuid, start, end, null);
 	}
 
@@ -146,11 +146,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByUuid(String uuid, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -267,12 +266,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByUuid_First(String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = fetchByUuid_First(uuid, orderByComparator);
 
 		if (website != null) {
@@ -297,11 +294,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByUuid_First(String uuid,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<Website> list = findByUuid(uuid, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -318,12 +314,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByUuid_Last(String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = fetchByUuid_Last(uuid, orderByComparator);
 
 		if (website != null) {
@@ -348,11 +342,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByUuid_Last(String uuid,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByUuid(uuid);
 
 		if (count == 0) {
@@ -377,12 +370,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website[] findByUuid_PrevAndNext(long websiteId, String uuid,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = findByPrimaryKey(websiteId);
 
 		Session session = null;
@@ -532,10 +523,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * Removes all the websites where uuid = &#63; from the database.
 	 *
 	 * @param uuid the uuid
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUuid(String uuid) throws SystemException {
+	public void removeByUuid(String uuid) {
 		for (Website website : findByUuid(uuid, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(website);
@@ -547,10 +537,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 *
 	 * @param uuid the uuid
 	 * @return the number of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUuid(String uuid) throws SystemException {
+	public int countByUuid(String uuid) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID;
 
 		Object[] finderArgs = new Object[] { uuid };
@@ -640,11 +629,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @return the matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Website> findByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public List<Website> findByUuid_C(String uuid, long companyId) {
 		return findByUuid_C(uuid, companyId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -661,11 +648,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param start the lower bound of the range of websites
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @return the range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByUuid_C(String uuid, long companyId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByUuid_C(uuid, companyId, start, end, null);
 	}
 
@@ -682,11 +668,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByUuid_C(String uuid, long companyId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -813,12 +798,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = fetchByUuid_C_First(uuid, companyId, orderByComparator);
 
 		if (website != null) {
@@ -847,11 +830,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByUuid_C_First(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<Website> list = findByUuid_C(uuid, companyId, 0, 1,
 				orderByComparator);
 
@@ -870,12 +852,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = fetchByUuid_C_Last(uuid, companyId, orderByComparator);
 
 		if (website != null) {
@@ -904,11 +884,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByUuid_C_Last(String uuid, long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByUuid_C(uuid, companyId);
 
 		if (count == 0) {
@@ -934,12 +913,11 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website[] findByUuid_C_PrevAndNext(long websiteId, String uuid,
 		long companyId, OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		Website website = findByPrimaryKey(websiteId);
 
 		Session session = null;
@@ -1095,11 +1073,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public void removeByUuid_C(String uuid, long companyId) {
 		for (Website website : findByUuid_C(uuid, companyId, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(website);
@@ -1112,11 +1088,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @return the number of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUuid_C(String uuid, long companyId)
-		throws SystemException {
+	public int countByUuid_C(String uuid, long companyId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_UUID_C;
 
 		Object[] finderArgs = new Object[] { uuid, companyId };
@@ -1210,11 +1184,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 *
 	 * @param companyId the company ID
 	 * @return the matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Website> findByCompanyId(long companyId)
-		throws SystemException {
+	public List<Website> findByCompanyId(long companyId) {
 		return findByCompanyId(companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 			null);
 	}
@@ -1230,11 +1202,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param start the lower bound of the range of websites
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @return the range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Website> findByCompanyId(long companyId, int start, int end)
-		throws SystemException {
+	public List<Website> findByCompanyId(long companyId, int start, int end) {
 		return findByCompanyId(companyId, start, end, null);
 	}
 
@@ -1250,11 +1220,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByCompanyId(long companyId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1357,12 +1326,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = fetchByCompanyId_First(companyId, orderByComparator);
 
 		if (website != null) {
@@ -1387,11 +1354,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByCompanyId_First(long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<Website> list = findByCompanyId(companyId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1408,12 +1374,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = fetchByCompanyId_Last(companyId, orderByComparator);
 
 		if (website != null) {
@@ -1438,11 +1402,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByCompanyId_Last(long companyId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByCompanyId(companyId);
 
 		if (count == 0) {
@@ -1467,12 +1430,11 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website[] findByCompanyId_PrevAndNext(long websiteId,
 		long companyId, OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		Website website = findByPrimaryKey(websiteId);
 
 		Session session = null;
@@ -1609,10 +1571,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * Removes all the websites where companyId = &#63; from the database.
 	 *
 	 * @param companyId the company ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByCompanyId(long companyId) throws SystemException {
+	public void removeByCompanyId(long companyId) {
 		for (Website website : findByCompanyId(companyId, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(website);
@@ -1624,10 +1585,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 *
 	 * @param companyId the company ID
 	 * @return the number of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByCompanyId(long companyId) throws SystemException {
+	public int countByCompanyId(long companyId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_COMPANYID;
 
 		Object[] finderArgs = new Object[] { companyId };
@@ -1699,10 +1659,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 *
 	 * @param userId the user ID
 	 * @return the matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Website> findByUserId(long userId) throws SystemException {
+	public List<Website> findByUserId(long userId) {
 		return findByUserId(userId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -1717,11 +1676,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param start the lower bound of the range of websites
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @return the range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Website> findByUserId(long userId, int start, int end)
-		throws SystemException {
+	public List<Website> findByUserId(long userId, int start, int end) {
 		return findByUserId(userId, start, end, null);
 	}
 
@@ -1737,11 +1694,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByUserId(long userId, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1844,12 +1800,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByUserId_First(long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = fetchByUserId_First(userId, orderByComparator);
 
 		if (website != null) {
@@ -1874,11 +1828,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByUserId_First(long userId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<Website> list = findByUserId(userId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1895,12 +1848,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByUserId_Last(long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = fetchByUserId_Last(userId, orderByComparator);
 
 		if (website != null) {
@@ -1925,11 +1876,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param userId the user ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByUserId_Last(long userId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByUserId(userId);
 
 		if (count == 0) {
@@ -1954,12 +1904,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website[] findByUserId_PrevAndNext(long websiteId, long userId,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = findByPrimaryKey(websiteId);
 
 		Session session = null;
@@ -2095,10 +2043,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * Removes all the websites where userId = &#63; from the database.
 	 *
 	 * @param userId the user ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByUserId(long userId) throws SystemException {
+	public void removeByUserId(long userId) {
 		for (Website website : findByUserId(userId, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, null)) {
 			remove(website);
@@ -2110,10 +2057,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 *
 	 * @param userId the user ID
 	 * @return the number of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByUserId(long userId) throws SystemException {
+	public int countByUserId(long userId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_USERID;
 
 		Object[] finderArgs = new Object[] { userId };
@@ -2186,11 +2132,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @return the matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Website> findByC_C(long companyId, long classNameId)
-		throws SystemException {
+	public List<Website> findByC_C(long companyId, long classNameId) {
 		return findByC_C(companyId, classNameId, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -2207,11 +2151,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param start the lower bound of the range of websites
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @return the range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByC_C(long companyId, long classNameId, int start,
-		int end) throws SystemException {
+		int end) {
 		return findByC_C(companyId, classNameId, start, end, null);
 	}
 
@@ -2228,11 +2171,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByC_C(long companyId, long classNameId, int start,
-		int end, OrderByComparator orderByComparator) throws SystemException {
+		int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2345,12 +2287,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByC_C_First(long companyId, long classNameId,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = fetchByC_C_First(companyId, classNameId,
 				orderByComparator);
 
@@ -2380,11 +2320,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param classNameId the class name ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByC_C_First(long companyId, long classNameId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		List<Website> list = findByC_C(companyId, classNameId, 0, 1,
 				orderByComparator);
 
@@ -2403,12 +2342,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByC_C_Last(long companyId, long classNameId,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = fetchByC_C_Last(companyId, classNameId,
 				orderByComparator);
 
@@ -2438,11 +2375,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param classNameId the class name ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByC_C_Last(long companyId, long classNameId,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		int count = countByC_C(companyId, classNameId);
 
 		if (count == 0) {
@@ -2468,12 +2404,11 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website[] findByC_C_PrevAndNext(long websiteId, long companyId,
 		long classNameId, OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		Website website = findByPrimaryKey(websiteId);
 
 		Session session = null;
@@ -2615,11 +2550,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 *
 	 * @param companyId the company ID
 	 * @param classNameId the class name ID
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByC_C(long companyId, long classNameId)
-		throws SystemException {
+	public void removeByC_C(long companyId, long classNameId) {
 		for (Website website : findByC_C(companyId, classNameId,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(website);
@@ -2632,11 +2565,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @return the number of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_C(long companyId, long classNameId)
-		throws SystemException {
+	public int countByC_C(long companyId, long classNameId) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_C;
 
 		Object[] finderArgs = new Object[] { companyId, classNameId };
@@ -2720,11 +2651,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param classNameId the class name ID
 	 * @param classPK the class p k
 	 * @return the matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByC_C_C(long companyId, long classNameId,
-		long classPK) throws SystemException {
+		long classPK) {
 		return findByC_C_C(companyId, classNameId, classPK, QueryUtil.ALL_POS,
 			QueryUtil.ALL_POS, null);
 	}
@@ -2742,11 +2672,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param start the lower bound of the range of websites
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @return the range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByC_C_C(long companyId, long classNameId,
-		long classPK, int start, int end) throws SystemException {
+		long classPK, int start, int end) {
 		return findByC_C_C(companyId, classNameId, classPK, start, end, null);
 	}
 
@@ -2764,12 +2693,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByC_C_C(long companyId, long classNameId,
-		long classPK, int start, int end, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, int start, int end, OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -2888,12 +2815,11 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByC_C_C_First(long companyId, long classNameId,
 		long classPK, OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		Website website = fetchByC_C_C_First(companyId, classNameId, classPK,
 				orderByComparator);
 
@@ -2927,12 +2853,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param classPK the class p k
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByC_C_C_First(long companyId, long classNameId,
-		long classPK, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, OrderByComparator orderByComparator) {
 		List<Website> list = findByC_C_C(companyId, classNameId, classPK, 0, 1,
 				orderByComparator);
 
@@ -2952,12 +2876,11 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByC_C_C_Last(long companyId, long classNameId,
 		long classPK, OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		Website website = fetchByC_C_C_Last(companyId, classNameId, classPK,
 				orderByComparator);
 
@@ -2991,12 +2914,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param classPK the class p k
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByC_C_C_Last(long companyId, long classNameId,
-		long classPK, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, OrderByComparator orderByComparator) {
 		int count = countByC_C_C(companyId, classNameId, classPK);
 
 		if (count == 0) {
@@ -3023,12 +2944,11 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website[] findByC_C_C_PrevAndNext(long websiteId, long companyId,
 		long classNameId, long classPK, OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		Website website = findByPrimaryKey(websiteId);
 
 		Session session = null;
@@ -3175,11 +3095,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param companyId the company ID
 	 * @param classNameId the class name ID
 	 * @param classPK the class p k
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeByC_C_C(long companyId, long classNameId, long classPK)
-		throws SystemException {
+	public void removeByC_C_C(long companyId, long classNameId, long classPK) {
 		for (Website website : findByC_C_C(companyId, classNameId, classPK,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(website);
@@ -3193,11 +3111,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param classNameId the class name ID
 	 * @param classPK the class p k
 	 * @return the number of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countByC_C_C(long companyId, long classNameId, long classPK)
-		throws SystemException {
+	public int countByC_C_C(long companyId, long classNameId, long classPK) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_C_C;
 
 		Object[] finderArgs = new Object[] { companyId, classNameId, classPK };
@@ -3292,11 +3208,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param classPK the class p k
 	 * @param primary the primary
 	 * @return the matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByC_C_C_P(long companyId, long classNameId,
-		long classPK, boolean primary) throws SystemException {
+		long classPK, boolean primary) {
 		return findByC_C_C_P(companyId, classNameId, classPK, primary,
 			QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
@@ -3315,12 +3230,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param start the lower bound of the range of websites
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @return the range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByC_C_C_P(long companyId, long classNameId,
-		long classPK, boolean primary, int start, int end)
-		throws SystemException {
+		long classPK, boolean primary, int start, int end) {
 		return findByC_C_C_P(companyId, classNameId, classPK, primary, start,
 			end, null);
 	}
@@ -3340,12 +3253,11 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findByC_C_C_P(long companyId, long classNameId,
 		long classPK, boolean primary, int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -3470,12 +3382,11 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByC_C_C_P_First(long companyId, long classNameId,
 		long classPK, boolean primary, OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		Website website = fetchByC_C_C_P_First(companyId, classNameId, classPK,
 				primary, orderByComparator);
 
@@ -3513,12 +3424,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param primary the primary
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the first matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByC_C_C_P_First(long companyId, long classNameId,
-		long classPK, boolean primary, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, boolean primary, OrderByComparator orderByComparator) {
 		List<Website> list = findByC_C_C_P(companyId, classNameId, classPK,
 				primary, 0, 1, orderByComparator);
 
@@ -3539,12 +3448,11 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByC_C_C_P_Last(long companyId, long classNameId,
 		long classPK, boolean primary, OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		Website website = fetchByC_C_C_P_Last(companyId, classNameId, classPK,
 				primary, orderByComparator);
 
@@ -3582,12 +3490,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param primary the primary
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the last matching website, or <code>null</code> if a matching website could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website fetchByC_C_C_P_Last(long companyId, long classNameId,
-		long classPK, boolean primary, OrderByComparator orderByComparator)
-		throws SystemException {
+		long classPK, boolean primary, OrderByComparator orderByComparator) {
 		int count = countByC_C_C_P(companyId, classNameId, classPK, primary);
 
 		if (count == 0) {
@@ -3615,13 +3521,11 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
 	 * @return the previous, current, and next website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website[] findByC_C_C_P_PrevAndNext(long websiteId, long companyId,
 		long classNameId, long classPK, boolean primary,
-		OrderByComparator orderByComparator)
-		throws NoSuchWebsiteException, SystemException {
+		OrderByComparator orderByComparator) throws NoSuchWebsiteException {
 		Website website = findByPrimaryKey(websiteId);
 
 		Session session = null;
@@ -3773,11 +3677,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param classNameId the class name ID
 	 * @param classPK the class p k
 	 * @param primary the primary
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public void removeByC_C_C_P(long companyId, long classNameId, long classPK,
-		boolean primary) throws SystemException {
+		boolean primary) {
 		for (Website website : findByC_C_C_P(companyId, classNameId, classPK,
 				primary, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 			remove(website);
@@ -3792,11 +3695,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param classPK the class p k
 	 * @param primary the primary
 	 * @return the number of matching websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public int countByC_C_C_P(long companyId, long classNameId, long classPK,
-		boolean primary) throws SystemException {
+		boolean primary) {
 		FinderPath finderPath = FINDER_PATH_COUNT_BY_C_C_C_P;
 
 		Object[] finderArgs = new Object[] {
@@ -3969,11 +3871,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param websiteId the primary key of the website
 	 * @return the website that was removed
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Website remove(long websiteId)
-		throws NoSuchWebsiteException, SystemException {
+	public Website remove(long websiteId) throws NoSuchWebsiteException {
 		return remove((Serializable)websiteId);
 	}
 
@@ -3983,11 +3883,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param primaryKey the primary key of the website
 	 * @return the website that was removed
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website remove(Serializable primaryKey)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		Session session = null;
 
 		try {
@@ -4018,7 +3917,7 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	}
 
 	@Override
-	protected Website removeImpl(Website website) throws SystemException {
+	protected Website removeImpl(Website website) {
 		website = toUnwrappedModel(website);
 
 		Session session = null;
@@ -4050,8 +3949,7 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	}
 
 	@Override
-	public Website updateImpl(com.liferay.portal.model.Website website)
-		throws SystemException {
+	public Website updateImpl(com.liferay.portal.model.Website website) {
 		website = toUnwrappedModel(website);
 
 		boolean isNew = website.isNew();
@@ -4275,11 +4173,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param primaryKey the primary key of the website
 	 * @return the website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		Website website = fetchByPrimaryKey(primaryKey);
 
 		if (website == null) {
@@ -4300,11 +4197,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param websiteId the primary key of the website
 	 * @return the website
 	 * @throws com.liferay.portal.NoSuchWebsiteException if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public Website findByPrimaryKey(long websiteId)
-		throws NoSuchWebsiteException, SystemException {
+		throws NoSuchWebsiteException {
 		return findByPrimaryKey((Serializable)websiteId);
 	}
 
@@ -4313,11 +4209,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 *
 	 * @param primaryKey the primary key of the website
 	 * @return the website, or <code>null</code> if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Website fetchByPrimaryKey(Serializable primaryKey)
-		throws SystemException {
+	public Website fetchByPrimaryKey(Serializable primaryKey) {
 		Website website = (Website)EntityCacheUtil.getResult(WebsiteModelImpl.ENTITY_CACHE_ENABLED,
 				WebsiteImpl.class, primaryKey);
 
@@ -4360,21 +4254,111 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 *
 	 * @param websiteId the primary key of the website
 	 * @return the website, or <code>null</code> if a website with the primary key could not be found
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public Website fetchByPrimaryKey(long websiteId) throws SystemException {
+	public Website fetchByPrimaryKey(long websiteId) {
 		return fetchByPrimaryKey((Serializable)websiteId);
+	}
+
+	@Override
+	public Map<Serializable, Website> fetchByPrimaryKeys(
+		Set<Serializable> primaryKeys) {
+		if (primaryKeys.isEmpty()) {
+			return Collections.emptyMap();
+		}
+
+		Map<Serializable, Website> map = new HashMap<Serializable, Website>();
+
+		if (primaryKeys.size() == 1) {
+			Iterator<Serializable> iterator = primaryKeys.iterator();
+
+			Serializable primaryKey = iterator.next();
+
+			Website website = fetchByPrimaryKey(primaryKey);
+
+			if (website != null) {
+				map.put(primaryKey, website);
+			}
+
+			return map;
+		}
+
+		Set<Serializable> uncachedPrimaryKeys = null;
+
+		for (Serializable primaryKey : primaryKeys) {
+			Website website = (Website)EntityCacheUtil.getResult(WebsiteModelImpl.ENTITY_CACHE_ENABLED,
+					WebsiteImpl.class, primaryKey);
+
+			if (website == null) {
+				if (uncachedPrimaryKeys == null) {
+					uncachedPrimaryKeys = new HashSet<Serializable>();
+				}
+
+				uncachedPrimaryKeys.add(primaryKey);
+			}
+			else {
+				map.put(primaryKey, website);
+			}
+		}
+
+		if (uncachedPrimaryKeys == null) {
+			return map;
+		}
+
+		StringBundler query = new StringBundler((uncachedPrimaryKeys.size() * 2) +
+				1);
+
+		query.append(_SQL_SELECT_WEBSITE_WHERE_PKS_IN);
+
+		for (Serializable primaryKey : uncachedPrimaryKeys) {
+			query.append(String.valueOf(primaryKey));
+
+			query.append(StringPool.COMMA);
+		}
+
+		query.setIndex(query.index() - 1);
+
+		query.append(StringPool.CLOSE_PARENTHESIS);
+
+		String sql = query.toString();
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			Query q = session.createQuery(sql);
+
+			for (Website website : (List<Website>)q.list()) {
+				map.put(website.getPrimaryKeyObj(), website);
+
+				cacheResult(website);
+
+				uncachedPrimaryKeys.remove(website.getPrimaryKeyObj());
+			}
+
+			for (Serializable primaryKey : uncachedPrimaryKeys) {
+				EntityCacheUtil.putResult(WebsiteModelImpl.ENTITY_CACHE_ENABLED,
+					WebsiteImpl.class, primaryKey, _nullWebsite);
+			}
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+
+		return map;
 	}
 
 	/**
 	 * Returns all the websites.
 	 *
 	 * @return the websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Website> findAll() throws SystemException {
+	public List<Website> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
@@ -4388,10 +4372,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param start the lower bound of the range of websites
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @return the range of websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public List<Website> findAll(int start, int end) throws SystemException {
+	public List<Website> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
@@ -4406,11 +4389,10 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * @param end the upper bound of the range of websites (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @return the ordered range of websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
 	public List<Website> findAll(int start, int end,
-		OrderByComparator orderByComparator) throws SystemException {
+		OrderByComparator orderByComparator) {
 		boolean pagination = true;
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -4492,10 +4474,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	/**
 	 * Removes all the websites from the database.
 	 *
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public void removeAll() throws SystemException {
+	public void removeAll() {
 		for (Website website : findAll()) {
 			remove(website);
 		}
@@ -4505,10 +4486,9 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	 * Returns the number of websites.
 	 *
 	 * @return the number of websites
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public int countAll() throws SystemException {
+	public int countAll() {
 		Long count = (Long)FinderCacheUtil.getResult(FINDER_PATH_COUNT_ALL,
 				FINDER_ARGS_EMPTY, this);
 
@@ -4577,6 +4557,7 @@ public class WebsitePersistenceImpl extends BasePersistenceImpl<Website>
 	}
 
 	private static final String _SQL_SELECT_WEBSITE = "SELECT website FROM Website website";
+	private static final String _SQL_SELECT_WEBSITE_WHERE_PKS_IN = "SELECT website FROM Website website WHERE websiteId IN (";
 	private static final String _SQL_SELECT_WEBSITE_WHERE = "SELECT website FROM Website website WHERE ";
 	private static final String _SQL_COUNT_WEBSITE = "SELECT COUNT(website) FROM Website website";
 	private static final String _SQL_COUNT_WEBSITE_WHERE = "SELECT COUNT(website) FROM Website website WHERE ";
