@@ -71,9 +71,7 @@ import java.util.List;
  */
 public class VerifyDocumentLibrary extends VerifyProcess {
 
-	protected void addDLFileVersion(DLFileEntry dlFileEntry)
-		throws SystemException {
-
+	protected void addDLFileVersion(DLFileEntry dlFileEntry) {
 		long fileVersionId = CounterLocalServiceUtil.increment();
 
 		DLFileVersion dlFileVersion =
@@ -148,7 +146,7 @@ public class VerifyDocumentLibrary extends VerifyProcess {
 
 				@Override
 				public void performAction(Object object)
-					throws PortalException, SystemException {
+					throws PortalException {
 
 					DLFileEntry dlFileEntry = (DLFileEntry)object;
 
@@ -351,7 +349,7 @@ public class VerifyDocumentLibrary extends VerifyProcess {
 	}
 
 	protected void copyDLFileEntry(DLFileEntry dlFileEntry)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		long companyId = dlFileEntry.getCompanyId();
 		long dataRepositoryId = dlFileEntry.getDataRepositoryId();

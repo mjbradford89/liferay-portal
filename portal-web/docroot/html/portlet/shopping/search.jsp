@@ -76,7 +76,7 @@ String keywords = ParamUtil.getString(request, "keywords");
 	headerNames.add("price");
 	headerNames.add(StringPool.BLANK);
 
-	SearchContainer searchContainer = new SearchContainer(renderRequest, null, null, SearchContainer.DEFAULT_CUR_PARAM, SearchContainer.DEFAULT_DELTA, portletURL, headerNames, LanguageUtil.format(pageContext, "no-entries-were-found-that-matched-the-keywords-x", "<strong>" + HtmlUtil.escape(keywords) + "</strong>", false));
+	SearchContainer searchContainer = new SearchContainer(renderRequest, null, null, SearchContainer.DEFAULT_CUR_PARAM, SearchContainer.DEFAULT_DELTA, portletURL, headerNames, LanguageUtil.format(request, "no-entries-were-found-that-matched-the-keywords-x", "<strong>" + HtmlUtil.escape(keywords) + "</strong>", false));
 
 	int total = ShoppingItemLocalServiceUtil.searchCount(scopeGroupId, categoryIdsArray, keywords);
 
@@ -109,7 +109,7 @@ String keywords = ParamUtil.getString(request, "keywords");
 			sb.append("<br />");
 			sb.append("<img alt=\"");
 			sb.append(item.getSku());
-			sb.append("\" border=\"0\" src=\"");
+			sb.append("\" src=\"");
 
 			if (Validator.isNotNull(item.getSmallImageURL())) {
 				sb.append(item.getSmallImageURL());
@@ -174,7 +174,7 @@ String keywords = ParamUtil.getString(request, "keywords");
 
 		// Action
 
-		row.addJSP("right", SearchEntry.DEFAULT_VALIGN, "/html/portlet/shopping/item_action.jsp");
+		row.addJSP("/html/portlet/shopping/item_action.jsp", "entry-action");
 
 		// Add result row
 

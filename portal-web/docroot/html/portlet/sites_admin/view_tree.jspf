@@ -43,13 +43,13 @@ if (group != null) {
 <c:if test="<%= (group != null) %>">
 	<c:if test="<%= layout.isTypeControlPanel() %>">
 		<div id="breadcrumb">
-			<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showCurrentPortlet="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
+			<liferay-ui:breadcrumb showCurrentGroup="<%= false %>" showGuestGroup="<%= false %>" showLayout="<%= false %>" showPortletBreadcrumb="<%= true %>" />
 		</div>
 	</c:if>
 
 	<%
 	long parentGroupId = GroupConstants.DEFAULT_PARENT_GROUP_ID;
-	String parentGroupName = LanguageUtil.get(pageContext, "sites-home");
+	String parentGroupName = LanguageUtil.get(request, "sites-home");
 
 	if (!group.isRoot()) {
 		Group parentGroup = group.getParentGroup();
