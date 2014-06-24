@@ -16,7 +16,6 @@ package com.liferay.portal.kernel.lar;
 
 import com.liferay.portal.NoSuchModelException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.trash.TrashHandler;
@@ -57,7 +56,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 	@Override
 	public abstract void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException;
+		throws PortalException;
 
 	@Override
 	public void exportStagedModel(
@@ -321,7 +320,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 
 	protected void exportAssetCategories(
 			PortletDataContext portletDataContext, T stagedModel)
-		throws PortletDataException, SystemException {
+		throws PortletDataException {
 
 		List<AssetCategory> assetCategories =
 			AssetCategoryLocalServiceUtil.getCategories(
@@ -337,7 +336,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 
 	protected void exportComments(
 			PortletDataContext portletDataContext, T stagedModel)
-		throws PortletDataException, SystemException {
+		throws PortletDataException {
 
 		if (!MapUtil.getBoolean(
 				portletDataContext.getParameterMap(),
@@ -381,7 +380,7 @@ public abstract class BaseStagedModelDataHandler<T extends StagedModel>
 
 	protected void exportRatings(
 			PortletDataContext portletDataContext, T stagedModel)
-		throws PortletDataException, SystemException {
+		throws PortletDataException {
 
 		if (!MapUtil.getBoolean(
 				portletDataContext.getParameterMap(),

@@ -63,6 +63,7 @@ public class UserNotificationEventWrapper implements UserNotificationEvent,
 		attributes.put("deliverBy", getDeliverBy());
 		attributes.put("delivered", getDelivered());
 		attributes.put("payload", getPayload());
+		attributes.put("actionRequired", getActionRequired());
 		attributes.put("archived", getArchived());
 
 		return attributes;
@@ -135,6 +136,12 @@ public class UserNotificationEventWrapper implements UserNotificationEvent,
 
 		if (payload != null) {
 			setPayload(payload);
+		}
+
+		Boolean actionRequired = (Boolean)attributes.get("actionRequired");
+
+		if (actionRequired != null) {
+			setActionRequired(actionRequired);
 		}
 
 		Boolean archived = (Boolean)attributes.get("archived");
@@ -268,11 +275,9 @@ public class UserNotificationEventWrapper implements UserNotificationEvent,
 	* Returns the user uuid of this user notification event.
 	*
 	* @return the user uuid of this user notification event
-	* @throws SystemException if a system exception occurred
 	*/
 	@Override
-	public java.lang.String getUserUuid()
-		throws com.liferay.portal.kernel.exception.SystemException {
+	public java.lang.String getUserUuid() {
 		return _userNotificationEvent.getUserUuid();
 	}
 
@@ -417,6 +422,36 @@ public class UserNotificationEventWrapper implements UserNotificationEvent,
 	}
 
 	/**
+	* Returns the action required of this user notification event.
+	*
+	* @return the action required of this user notification event
+	*/
+	@Override
+	public boolean getActionRequired() {
+		return _userNotificationEvent.getActionRequired();
+	}
+
+	/**
+	* Returns <code>true</code> if this user notification event is action required.
+	*
+	* @return <code>true</code> if this user notification event is action required; <code>false</code> otherwise
+	*/
+	@Override
+	public boolean isActionRequired() {
+		return _userNotificationEvent.isActionRequired();
+	}
+
+	/**
+	* Sets whether this user notification event is action required.
+	*
+	* @param actionRequired the action required of this user notification event
+	*/
+	@Override
+	public void setActionRequired(boolean actionRequired) {
+		_userNotificationEvent.setActionRequired(actionRequired);
+	}
+
+	/**
 	* Returns the archived of this user notification event.
 	*
 	* @return the archived of this user notification event
@@ -546,8 +581,7 @@ public class UserNotificationEventWrapper implements UserNotificationEvent,
 	}
 
 	@Override
-	public void persist()
-		throws com.liferay.portal.kernel.exception.SystemException {
+	public void persist() {
 		_userNotificationEvent.persist();
 	}
 

@@ -224,3 +224,110 @@ Some content (such as web content) needs the `PortletRequest` and
 `PortletResponse` parameters in order to be rendered.
 
 ---------------------------------------
+### DDM Structure Local Service API has no longer the `updateXSDFieldMetadata()` operation
+- **Date:** 2014-Jun-11
+- **JIRA Ticket:** LPS-47559
+
+#### What changed?
+DDM Structure Local API users should not make direct reference to its internal representation, any call to modify the its content should be done through DDMForm model.
+
+#### Who is affected?
+Applications that use the DDM Structure Local Service API might be affected.
+
+#### How should I update my code?
+You should always use DDMForm to update the DDM Structure content. You can retrieve it by calling `ddmStructure.getDDMForm()`. Peform any changes to it and then call `DDMStructureLocalServiceUtil.updateDDMStructure(ddmStructure)`.
+
+#### Why was this change made?
+This change gives users the flexibility to modify the structure content without to worry about the DDM Structure internal content representation of data.
+
+---------------------------------------
+### aui:input taglib for type checkbox does not create a hidden input anymore
+- **Date:** 2014-Jun-16
+- **JIRA Ticket:** LPS-44228
+
+#### What changed?
+Whenever the aui:input taglib is used to generate an input of type checkbox, only an input tag will be generated, instead of the checkbox and hidden field it was generating before.
+For this reason, when a checkox is not checked, the parameter is not sent to the server (therefore, doing request.getParameter("checkboxName") will return null when the checkbox was unchecked).
+In order to help developers bypass this situation, we now send with the aui:form a parameter with a list of all the checkboxes that existed in the form called "checkboxNames".
+
+#### Who is affected?
+Anyone trying to grab the previously generated fields. Mostly affects JavaScript code trying to add some additional actions when clicking on the checkboxes.
+It will also affect java classes assuming that a checkbox would always send a parameter on form submit with a true/false value. Now, the parameter is only sent when the input is checked.
+
+#### How should I update my code?
+- In the frontend javascript code:
+ - Remove the `Checkbox` suffix when querying for the node in any of its forms; `A.one(...)`, `$(...)` ...
+ - Remove any action trying to set the value of the checkbox on the previously generated hidden field
+- In the backend java code:
+ - Use ParamUtil.getBoolean to recover a true/false value if the checkbox was checked or not checked
+ - Use PropertiesParamUtil.getProperties to recover true/false for a list of checkboxes
+ - Use the parameter called "checkboxNames" to obtain all the checkboxes from the aui:form
+ 
+
+#### Why was this change made?
+This change:
+- Makes generated forms more standard and interoperable since it falls back to the checkboxes default behaviour.
+- Allows the form to be submitted properly even when JavaScript is disabled.
+
+---------------------------------------
+### As a developer I'd like to be able to use util-taglib without needing to use the same javax.servlet.jsp impl as portal-service
+- **Date:** 2014-Jun-19
+- **JIRA Ticket:** LPS-47682
+
+#### What changed?
+Several API in portal-service.jar contained references to the javax.servlet.jsp package. This forced util-taglib which depended on many of those features to be bound to the same jsp impl.
+Due to this, several APIs had breaking changes:
+- LanguageUtil
+- UnicodeLanguageUtil
+- VelocityTaglibImpl
+- ThemeUtil
+- RuntimePageUtil
+- PortletDisplayTemplateUtil
+- DDMXSDUtil
+- PortletResourceBundles
+- ResourceActionsUtil
+- PortalUtil
+
+#### How should I update my code?
+Any invocations of the APIs listed above should replace parameter of PageContext by HttpServletRequest.
+
+#### Why was this change made?
+As stated previously, the use of the javax.servlet.jsp API in portal-service prevented the use of any other JSP impl within plugins (OSGi or otherwise). This limited what Liferay could change with respect to providing its own JSP implementation within OSGi.
+
+---------------------------------------
+
+### Some portlet instances setup may be ignored because they were never meant to be per instance
+- **Date:** 2014-Jun-06
+- **JIRA Ticket:** LPS-43134
+
+#### What changed?
+A few portlets allowed providing a separate setup per portlet instance (in the
+same page or in different pages). However for some of the setup fields, it
+didn't make sense to provide different values per instance and that was creating
+confusion among users. To fix this, those fields have been removed from the
+portlet instance set up and have been moved to Site Administration.
+
+The upgrade process will take care of making the necessary database changes,
+however if several portlet instances had different configurations only one will 
+be preserved. Check the log generated in the console by the migration process
+to get accurate information on which configuration was chosen.
+
+For instance: if you have configured three bookmarks portlets where the mail 
+configuration is the same you won't have any problem. But in case the three 
+configurations are different, you will have to choose which one to use.
+
+We think this case is rare and a problematic configuration (i.e. highly
+unrecommended) so we don't expect this change to have a relevant negative
+impact.
+
+#### Who is affected?
+Users who have configured more than one portlet of the same type which stores
+configuration at layout level with different settings.
+
+#### How should I update my code?
+The upgrade process will choose one of your configurations and will store it at
+the service level. You will have to review it then and modify it if needed.
+
+#### Why was this change made?
+To unify the configuration of portlets and services and make its management
+easier.
