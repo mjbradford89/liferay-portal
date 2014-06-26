@@ -52,6 +52,8 @@ AUI.add(
 			}
 		);
 
+return;
+
 		Surface.app.addScreenRoutes(
 			[
 				{
