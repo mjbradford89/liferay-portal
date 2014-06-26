@@ -39,6 +39,9 @@ cobertura.ser
 /test.*.properties
 /WEB-INF
 
+/.ivy/cache/com.liferay-*.xml
+/.ivy/cache/resolved-*
+
 /benchmarks/*.csv
 /benchmarks/*.sql
 /benchmarks/lib
