@@ -20,6 +20,7 @@ import aQute.bnd.header.Parameters;
 import aQute.bnd.osgi.Analyzer;
 import aQute.bnd.osgi.Builder;
 import aQute.bnd.osgi.Jar;
+import aQute.bnd.osgi.Resource;
 import aQute.bnd.osgi.Verifier;
 import aQute.bnd.version.Version;
 
@@ -49,7 +50,7 @@ import com.liferay.portal.security.permission.PermissionThreadLocal;
 import com.liferay.portal.util.ClassLoaderUtil;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.registry.RegistryUtil;
-import com.liferay.registry.impl.RegistryImpl;
+import com.liferay.registry.internal.RegistryImpl;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -597,6 +598,52 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		return properties;
 	}
 
+	private String _calculateExportPackage(Jar jar) {
+		StringBundler sb = new StringBundler();
+
+		String delimiter = StringPool.BLANK;
+
+		Map<String, Map<String, Resource>> directories = jar.getDirectories();
+
+		for (String directory : directories.keySet()) {
+			if (directory.equals("META-INF") ||
+				directory.startsWith("META-INF/")) {
+
+				continue;
+			}
+
+			if (directory.equals("OSGI-OPT") ||
+				directory.startsWith("OSGI-OPT/")) {
+
+				continue;
+			}
+
+			if (directory.equals(StringPool.SLASH)) {
+				continue;
+			}
+
+			if (directory.endsWith(StringPool.SLASH)) {
+				directory = directory.substring(0, directory.length() - 1);
+			}
+
+			if (directory.endsWith(StringPool.SLASH)) {
+				directory = directory.substring(0, directory.length() - 1);
+			}
+
+			String className = directory.replace(
+				StringPool.SLASH, StringPool.PERIOD);
+
+			if (directories.get(directory) != null) {
+				sb.append(delimiter);
+				sb.append(className);
+
+				delimiter = StringPool.COMMA;
+			}
+		}
+
+		return sb.toString();
+	}
+
 	private Manifest _calculateManifest(URL url, Manifest manifest) {
 		Analyzer analyzer = new Analyzer();
 
@@ -640,7 +687,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			analyzer.setProperty(
 				Analyzer.BUNDLE_SYMBOLICNAME, bundleSymbolicName);
 
-			String exportPackage = analyzer.calculateExportsFromContents(jar);
+			String exportPackage = _calculateExportPackage(jar);
 
 			analyzer.setProperty(Analyzer.EXPORT_PACKAGE, exportPackage);
 
@@ -704,12 +751,16 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		return String.valueOf(level);
 	}
 
-	private String _getHashcode(String[] keys) {
+	private String _getHashcode(String[]... keys) {
 		try {
 			CacheKeyGenerator cacheKeyGenerator = new JavaMD5CacheKeyGenerator(
 				128);
 
-			return String.valueOf(cacheKeyGenerator.getCacheKey(keys));
+			for (String[] key : keys) {
+				cacheKeyGenerator.append(key);
+			}
+
+			return String.valueOf(cacheKeyGenerator.finish());
 		}
 		catch (NoSuchAlgorithmException nsae) {
 			throw new RuntimeException(nsae);
@@ -721,11 +772,15 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 
 		Class<?> beanClass = bean.getClass();
 
+		interfaces.add(beanClass);
+
 		for (Class<?> interfaceClass : beanClass.getInterfaces()) {
 			interfaces.add(interfaceClass);
 		}
 
 		while ((beanClass = beanClass.getSuperclass()) != null) {
+			interfaces.add(beanClass);
+
 			for (Class<?> interfaceClass : beanClass.getInterfaces()) {
 				if (!interfaces.contains(interfaceClass)) {
 					interfaces.add(interfaceClass);
@@ -740,7 +795,9 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		String[] systemPackagesExtra =
 			PropsValues.MODULE_FRAMEWORK_SYSTEM_PACKAGES_EXTRA;
 
-		String hashcode = _getHashcode(systemPackagesExtra);
+		String hashcode = _getHashcode(
+			systemPackagesExtra,
+			PropsValues.MODULE_FRAMEWORK_SYSTEM_BUNDLE_IGNORED_FRAGMENTS);
 
 		File coreDir = new File(
 			PropsValues.LIFERAY_WEB_PORTAL_CONTEXT_TEMPDIR, "osgi");

@@ -17,12 +17,16 @@ package com.liferay.portal.test;
 import com.liferay.portal.kernel.test.AbstractIntegrationJUnitTestRunner;
 import com.liferay.portal.kernel.util.ReflectionUtil;
 import com.liferay.portal.test.jdbc.ResetDatabaseUtilDataSource;
+import com.liferay.portal.test.log.ConcurrentAssertUtil;
+import com.liferay.portal.test.log.LogAssertionUtil;
 import com.liferay.portal.util.InitUtil;
+import com.liferay.portal.util.test.TestPropsValues;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
 
@@ -51,7 +55,7 @@ public class LiferayIntegrationJUnitTestRunner
 
 	@Override
 	protected Statement classBlock(RunNotifier notifier) {
-		final Statement classBlock = super.classBlock(notifier);
+		final Statement statement = super.classBlock(notifier);
 
 		return new Statement() {
 
@@ -74,12 +78,39 @@ public class LiferayIntegrationJUnitTestRunner
 				_threadLocalsField.set(currentThread, null);
 
 				try {
-					classBlock.evaluate();
+					statement.evaluate();
 				}
 				finally {
 					_inheritableThreadLocalsField.set(
 						currentThread, inheritableThreadLocals);
 					_threadLocalsField.set(currentThread, threadLocals);
+				}
+			}
+
+		};
+	}
+
+	@Override
+	protected Statement methodBlock(FrameworkMethod frameworkMethod) {
+		final Statement statement = super.methodBlock(frameworkMethod);
+
+		if (!TestPropsValues.ASSERT_LOGS) {
+			return statement;
+		}
+
+		return new Statement() {
+
+			@Override
+			public void evaluate() throws Throwable {
+				ConcurrentAssertUtil.startAssert();
+
+				try {
+					LogAssertionUtil.enableLogAssertion();
+
+					statement.evaluate();
+				}
+				finally {
+					ConcurrentAssertUtil.endAssert();
 				}
 			}
 

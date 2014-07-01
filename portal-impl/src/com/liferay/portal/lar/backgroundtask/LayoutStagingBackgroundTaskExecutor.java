@@ -53,9 +53,14 @@ import org.springframework.transaction.interceptor.TransactionAttribute;
 public class LayoutStagingBackgroundTaskExecutor
 	extends BaseStagingBackgroundTaskExecutor {
 
+	public LayoutStagingBackgroundTaskExecutor() {
+		setBackgroundTaskStatusMessageTranslator(
+			new LayoutStagingBackgroundTaskStatusMessageTranslator());
+	}
+
 	@Override
 	public BackgroundTaskResult execute(BackgroundTask backgroundTask)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Map<String, Serializable> taskContextMap =
 			backgroundTask.getTaskContextMap();
@@ -114,7 +119,7 @@ public class LayoutStagingBackgroundTaskExecutor
 
 	protected void initLayoutSetBranches(
 			long userId, long sourceGroupId, long targetGroupId)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		Group sourceGroup = GroupLocalServiceUtil.getGroup(sourceGroupId);
 
@@ -163,9 +168,7 @@ public class LayoutStagingBackgroundTaskExecutor
 		}
 
 		@Override
-		public MissingReferences call()
-			throws PortalException, SystemException {
-
+		public MissingReferences call() throws PortalException {
 			File file = null;
 			MissingReferences missingReferences = null;
 

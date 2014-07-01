@@ -6,10 +6,6 @@
 	</command>
 
 	<command name="assertClick">
-		<case locator-key1="ADD">
-			<execute function="AssertClick#assertTextClickAtClickSidebar" />
-		</case>
-
 		<case locator-key1="ADD_APPLICATION_LINK">
 			<execute function="AssertClick#assertTextClickAtAddApplication" />
 		</case>
@@ -67,9 +63,21 @@
 		</case>
 	</command>
 
+	<command name="assertNotVisible">
+		<case comparator="startsWith" locator1="//span[@data-title='">
+			<execute function="AssertVisible#pauseAssertVisible" />
+		</case>
+	</command>
+
 	<command name="assertTextEquals">
 		<case locator-key1="PAGE_INFO_MESSAGE">
 			<execute function="AssertTextEquals#assertPartialText" />
+		</case>
+	</command>
+
+	<command name="assertVisible">
+		<case comparator="startsWith" locator1="//span[@data-title='">
+			<execute function="AssertVisible#pauseAssertVisible" />
 		</case>
 	</command>
 
