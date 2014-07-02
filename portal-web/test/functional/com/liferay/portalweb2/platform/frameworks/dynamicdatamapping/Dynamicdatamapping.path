@@ -29,18 +29,13 @@
 	<td></td>
 </tr>
 <tr>
+	<td>HEADER_TITLE</td>
+	<td>//h3[@class='header-title']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>IFRAME</td>
 	<td>//div[contains(@class,'dialog-iframe-bd')]/iframe[contains(@src,'_166_eventName=_167_selectDDMStructure')] | //div[contains(@class,'dialog-iframe-bd')]/iframe[contains(@src,'_166_eventName=selectStructure')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>NAME_FIELD</td>
-	<td>//input[@id='_166_name']</td>
-	<td></td>
-</tr>
-<tr>
-	<td>NAME_FIELD_ALERT</td>
-	<td>//div[@class='required']</td>
 	<td></td>
 </tr>
 <tr>
@@ -208,6 +203,11 @@
 <tr>
 	<td>SETTINGS_STYLE</td>
 	<td>//td[contains(@class,'table-col-name') and contains(.,'Style')]/following-sibling::td[contains(@class,'table-col-value')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SETTINGS_WIDTH</td>
+	<td>//td[contains(@class,'table-col-name') and contains(.,'Width')]/following-sibling::td[contains(@class,'table-col-value')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -394,12 +394,12 @@
 </tr>
 <tr>
 	<td>SETTINGS_CELL_EDITOR_SAVE_BUTTON</td>
-	<td>//div[contains(@class,'component toolbar')]//button[contains(.,'Save')]</td>
+	<td>//div[contains(@class,'component btn-toolbar')]//button[contains(.,'Save')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>SETTINGS_CELL_EDITOR_CANCEL_BUTTON</td>
-	<td>//div[contains(@class,'component toolbar')]//button[contains(.,'Cancel')]</td>
+	<td>//div[contains(@class,'component btn-toolbar')]//button[contains(.,'Cancel')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -440,6 +440,11 @@
 <tr>
 	<td>SETTINGS_CELL_EDITOR_OPTIONS_REMOVE_1</td>
 	<td>//div[contains(@class,'celleditor-edit-option-row')]//a[contains(@class,'celleditor-edit-delete-option')][1]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>SETTINGS_CELL_EDITOR_WIDTH</td>
+	<td>//label/input[@value='${key_widthSize}']</td>
 	<td></td>
 </tr>
 </tbody>

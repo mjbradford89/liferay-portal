@@ -22,7 +22,6 @@ page import="com.liferay.portal.kernel.xml.Element" %><%@
 page import="com.liferay.portal.kernel.xml.Node" %><%@
 page import="com.liferay.portal.kernel.xml.SAXReaderUtil" %><%@
 page import="com.liferay.portal.kernel.xml.XPath" %><%@
-page import="com.liferay.portlet.asset.NoSuchEntryException" %><%@
 page import="com.liferay.portlet.documentlibrary.util.JournalSearcher" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.NoSuchTemplateException" %><%@
 page import="com.liferay.portlet.dynamicdatamapping.StorageFieldRequiredException" %><%@
@@ -57,7 +56,6 @@ page import="com.liferay.portlet.journal.model.JournalFeed" %><%@
 page import="com.liferay.portlet.journal.model.JournalFeedConstants" %><%@
 page import="com.liferay.portlet.journal.model.JournalFolder" %><%@
 page import="com.liferay.portlet.journal.model.JournalFolderConstants" %><%@
-page import="com.liferay.portlet.journal.model.JournalSearchConstants" %><%@
 page import="com.liferay.portlet.journal.model.impl.JournalArticleImpl" %><%@
 page import="com.liferay.portlet.journal.search.ArticleDisplayTerms" %><%@
 page import="com.liferay.portlet.journal.search.EntriesChecker" %><%@
@@ -74,6 +72,7 @@ page import="com.liferay.portlet.journal.service.permission.JournalFolderPermiss
 page import="com.liferay.portlet.journal.service.permission.JournalPermission" %><%@
 page import="com.liferay.portlet.journal.util.JournalConverterUtil" %><%@
 page import="com.liferay.portlet.journal.util.JournalUtil" %><%@
+page import="com.liferay.portlet.journal.util.comparator.ArticleVersionComparator" %><%@
 page import="com.liferay.util.RSSUtil" %>
 
 <%

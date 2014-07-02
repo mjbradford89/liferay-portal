@@ -14,9 +14,7 @@
 
 package com.liferay.portal.model.impl;
 
-import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
-import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.LayoutTemplate;
@@ -26,7 +24,7 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.service.PortletLocalServiceUtil;
 import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.test.MainServletExecutionTestListener;
-import com.liferay.portal.test.TransactionalCallbackAwareExecutionTestListener;
+import com.liferay.portal.test.ResetDatabaseExecutionTestListener;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.test.GroupTestUtil;
 import com.liferay.portal.util.test.LayoutTestUtil;
@@ -38,7 +36,6 @@ import com.liferay.portlet.PortletInstanceFactoryUtil;
 import java.util.List;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -48,18 +45,12 @@ import org.junit.runner.RunWith;
 @ExecutionTestListeners(
 	listeners = {
 		MainServletExecutionTestListener.class,
-		TransactionalCallbackAwareExecutionTestListener.class
+		ResetDatabaseExecutionTestListener.class
 	})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class LayoutTypePortletTest {
 
-	@Before
-	public void setUp() {
-		FinderCacheUtil.clearCache();
-	}
-
 	@Test
-	@Transactional
 	public void testAddModeAboutPortletId() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -73,7 +64,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddModeConfigPortletId() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -87,7 +77,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddModeEditDefaultsPortletId() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -103,7 +92,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddModeEditGuestPortletId() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -119,7 +107,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddModeEditPortletId() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -133,7 +120,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddModeHelpPortletId() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -147,7 +133,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddModePreviewPortletId() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -162,7 +147,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddModePrintPortletId() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -176,7 +160,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddPortletIdCheckColumn() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -205,7 +188,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddPortletIdColumn2() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -240,7 +222,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddPortletIdWithInvalidId() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -257,7 +238,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddPortletIdWithInvalidIdWithoutPermission()
 		throws Exception {
 
@@ -276,7 +256,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testAddPortletIdWithValidId() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -293,7 +272,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testGetAllPortlets() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
@@ -320,7 +298,6 @@ public class LayoutTypePortletTest {
 	}
 
 	@Test
-	@Transactional
 	public void testNoPortlets() throws Exception {
 		LayoutTypePortlet layoutTypePortlet = getLayoutTypePortlet();
 
