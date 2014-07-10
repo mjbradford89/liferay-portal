@@ -31,11 +31,11 @@ AUI.add(
 
 		var STR_PAGINATION_DATA = 'paginationData';
 
-		var STR_ROW_IDS_FILE_SHORTCUT_CHECKBOX = 'rowIdsDLFileShortcutCheckbox';
+		var STR_ROW_IDS_FILE_SHORTCUT_CHECKBOX = 'rowIdsDLFileShortcut';
 
-		var STR_ROW_IDS_FOLDER_CHECKBOX = 'rowIdsFolderCheckbox';
+		var STR_ROW_IDS_FOLDER_CHECKBOX = 'rowIdsFolder';
 
-		var STR_ROW_IDS_FILE_ENTRY_CHECKBOX = 'rowIdsFileEntryCheckbox';
+		var STR_ROW_IDS_FILE_ENTRY_CHECKBOX = 'rowIdsFileEntry';
 
 		var STR_SEARCH_FOLDER_ID = 'searchFolderId';
 
@@ -61,7 +61,7 @@ AUI.add(
 
 		var DocumentLibrary = A.Component.create(
 			{
-				AUGMENTS: [Liferay.PortletBase, Liferay.DocumentLibraryUpload, Liferay.StorageFormatter],
+				AUGMENTS: [Liferay.PortletBase],
 
 				EXTENDS: A.Base,
 
@@ -194,6 +194,18 @@ AUI.add(
 						instance._toggleSyncNotification();
 
 						instance._toggleTrashAction();
+
+						var Win = A.config.win;
+
+						var html5 = (Win && Win.File && Win.FormData && Win.XMLHttpRequest);
+
+						var permission = (themeDisplay.isSignedIn() && instance.one('#addButtonContainer'));
+
+						if (html5 && permission) {
+							config.appViewEntryTemplates = instance.byId('appViewEntryTemplates');
+
+							A.getDoc().once('dragenter', instance._plugUpload, instance, config);
+						}
 					},
 
 					destructor: function() {
@@ -220,7 +232,7 @@ AUI.add(
 
 						AObject.each(
 							state,
-							function(item, index, collection) {
+							function(item, index) {
 								if (index.indexOf(namespace) === 0) {
 									requestParams[index] = item;
 								}
@@ -274,6 +286,28 @@ AUI.add(
 						}
 
 						return repositoryName;
+					},
+
+					_plugUpload: function(event, config) {
+						var instance = this;
+
+						instance.plug(
+							Liferay.DocumentLibraryUpload,
+							{
+								appViewEntryTemplates: config.appViewEntryTemplates,
+								appViewMove: instance._appViewMove,
+								columnNames: config.columnNames,
+								folderId: config.folders.folderId,
+								displayStyle: config.displayStyle,
+								dimensions: config.folders.dimensions,
+								entriesContainer: instance._entriesContainer,
+								listViewContainer: instance.byId('listViewContainer'),
+								maxFileSize: config.maxFileSize,
+								redirect: config.redirect,
+								uploadURL: config.uploadURL,
+								viewFileEntryURL: config.viewFileEntryURL
+							}
+						);
 					},
 
 					_onChangeSearchFolder: function(event) {
@@ -596,7 +630,7 @@ AUI.add(
 						if (trashEnabled) {
 							var repositoryId = instance._appViewSelect.get(STR_SELECTED_FOLDER).repositoryId;
 
-							var scopeGroupId = themeDisplay.getScopeGroupId();
+							var scopeGroupId = instance._config.scopeGroupId;
 
 							trashEnabled = (scopeGroupId === repositoryId);
 						}
@@ -617,6 +651,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-loading-mask-deprecated', 'aui-parse-content', 'document-library-upload', 'event-simulate', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-history-manager', 'liferay-message', 'liferay-portlet-base', 'liferay-storage-formatter', 'querystring-parse-simple']
+		requires: ['aui-loading-mask-deprecated', 'aui-parse-content', 'document-library-upload', 'event-simulate', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-history-manager', 'liferay-message', 'liferay-portlet-base', 'querystring-parse-simple']
 	}
 );

@@ -22,8 +22,6 @@ import com.liferay.portal.kernel.lar.ExportImportPathUtil;
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.lar.PortletDataException;
 import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -58,7 +56,7 @@ public class DDMTemplateStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
 		DDMTemplate ddmTemplate =
 			DDMTemplateLocalServiceUtil.fetchDDMTemplateByUuidAndGroupId(
@@ -227,8 +225,7 @@ public class DDMTemplateStagedModelDataHandler
 				String smallImageURL =
 					ExportImportHelperUtil.replaceExportContentReferences(
 						portletDataContext, template,
-						template.getSmallImageURL().concat(StringPool.SPACE),
-						true);
+						template.getSmallImageURL() + StringPool.SPACE, true);
 
 				template.setSmallImageURL(smallImageURL);
 			}
@@ -248,15 +245,12 @@ public class DDMTemplateStagedModelDataHandler
 			}
 		}
 
-		if (portletDataContext.getBooleanParameter(
-				DDMPortletDataHandler.NAMESPACE, "referenced-content")) {
+		String script = ExportImportHelperUtil.replaceExportContentReferences(
+			portletDataContext, template, template.getScript(),
+			portletDataContext.getBooleanParameter(
+				DDMPortletDataHandler.NAMESPACE, "referenced-content"));
 
-			String content =
-				ExportImportHelperUtil.replaceExportContentReferences(
-					portletDataContext, template, template.getScript(), true);
-
-			template.setScript(content);
-		}
+		template.setScript(script);
 
 		long defaultUserId = UserLocalServiceUtil.getDefaultUserId(
 			template.getCompanyId());
@@ -321,6 +315,12 @@ public class DDMTemplateStagedModelDataHandler
 					}
 				}
 			}
+
+			String script =
+				ExportImportHelperUtil.replaceImportContentReferences(
+					portletDataContext, template, template.getScript());
+
+			template.setScript(script);
 
 			ServiceContext serviceContext =
 				portletDataContext.createServiceContext(template);
@@ -394,9 +394,8 @@ public class DDMTemplateStagedModelDataHandler
 	}
 
 	protected DDMTemplate fetchExistingTemplate(
-			String uuid, long groupId, long classNameId, String templateKey,
-			boolean preloaded)
-		throws SystemException {
+		String uuid, long groupId, long classNameId, String templateKey,
+		boolean preloaded) {
 
 		DDMTemplate existingTemplate = null;
 
@@ -412,8 +411,5 @@ public class DDMTemplateStagedModelDataHandler
 
 		return existingTemplate;
 	}
-
-	private static Log _log = LogFactoryUtil.getLog(
-		DDMTemplateStagedModelDataHandler.class);
 
 }
