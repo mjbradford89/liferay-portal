@@ -3,14 +3,16 @@ AUI.add(
 	function(A) {
 		var AArray = A.Array;
 		var Lang = A.Lang;
-		var LString = Lang.String;
+
 		var HistoryManager = Liferay.HistoryManager;
+		var Util = Liferay.Util;
+
 		var UploaderQueue = A.Uploader.Queue;
 
 		var sub = Lang.sub;
+		var LString = Lang.String;
 
 		var DOC = A.config.doc;
-
 		var UA = A.UA;
 
 		var CSS_ACTIVE_AREA = 'active-area';
@@ -171,7 +173,7 @@ AUI.add(
 
 				AArray.each(
 					files,
-					function(item, index, collection) {
+					function(item, index) {
 						queue.addToQueueBottom(item);
 					}
 				);
@@ -254,7 +256,7 @@ AUI.add(
 
 								event.fileList = AArray.map(
 									dragDropFiles,
-									function(item, index, collection) {
+									function(item, index) {
 										return new A.FileHTML5(item);
 									}
 								);
@@ -323,7 +325,7 @@ AUI.add(
 
 				AArray.each(
 					queuedFiles,
-					function(item, index, collection) {
+					function(item, index) {
 						fileList.push(item);
 					}
 				);
@@ -394,7 +396,7 @@ AUI.add(
 
 				var columnValues = AArray.map(
 					instance._columnNames,
-					function(item, index, collection) {
+					function(item, index) {
 						var value = '';
 
 						if (item == 'name') {
@@ -488,7 +490,7 @@ AUI.add(
 				if (!currentUploadData.folder) {
 					AArray.each(
 						fileList,
-						function(item, index, collection) {
+						function(item, index) {
 							item.overlay.destroy();
 
 							item.progressBar.destroy();
@@ -769,6 +771,43 @@ AUI.add(
 				};
 			},
 
+			_getUploadStatus: function(key) {
+				var instance = this;
+
+				var dataSet = instance._getDataSet();
+
+				return dataSet.item(String(key));
+			},
+
+			_getUploadURL: function(folderId) {
+				var instance = this;
+
+				var uploadURL = instance._uploadURL;
+
+				if (!uploadURL) {
+					var config = instance._config;
+
+					var redirect = config.redirect;
+
+					uploadURL = unescape(config.uploadURL);
+
+					instance._uploadURL = Liferay.Util.addParams(
+						{
+							redirect: redirect,
+							ts: Lang.now()
+						},
+						uploadURL
+					);
+				}
+
+				return sub(
+					uploadURL,
+					{
+						folderId: folderId
+					}
+				);
+			},
+
 			_getUploader: function() {
 				var instance = this;
 
@@ -817,35 +856,6 @@ AUI.add(
 				}
 
 				return uploader;
-			},
-
-			_getUploadURL: function(folderId) {
-				var instance = this;
-
-				var uploadURL = instance._uploadURL;
-
-				if (!uploadURL) {
-					var config = instance._config;
-
-					var redirect = config.redirect;
-
-					uploadURL = unescape(config.uploadURL);
-
-					instance._uploadURL = Liferay.Util.addParams(
-						{
-							redirect: redirect,
-							ts: Lang.now()
-						},
-						uploadURL
-					);
-				}
-
-				return sub(
-					uploadURL,
-					{
-						folderId: folderId
-					}
-				);
 			},
 
 			_initDLUpload: function() {
@@ -905,14 +915,6 @@ AUI.add(
 				}
 			},
 
-			_getUploadStatus: function(key) {
-				var instance = this;
-
-				var dataSet = instance._getDataSet();
-
-				return dataSet.item(String(key));
-			},
-
 			_onFileSelect: function(event) {
 				var instance = this;
 
@@ -960,10 +962,10 @@ AUI.add(
 						key,
 						{
 							fileList: validFiles,
-							target: folderNode,
 							folder: (key != instance._folderId),
 							folderId: key,
-							invalidFiles: filesPartition.rejects
+							invalidFiles: filesPartition.rejects,
+							target: folderNode
 						}
 					);
 				}
@@ -1132,7 +1134,7 @@ AUI.add(
 				var link = node.one(selector);
 
 				if (link) {
-					link.attr('href', Liferay.Util.addParams(id, instance._viewFileEntryURL));
+					link.attr('href', Util.addParams(id, instance._viewFileEntryURL));
 				}
 			},
 
@@ -1140,16 +1142,6 @@ AUI.add(
 				var instance = this;
 
 				progressBar.set('value', Math.ceil(value));
-			},
-
-			_updateThumbnail: function(node, fileName) {
-				var instance = this;
-
-				var imageNode = node.one('img');
-
-				var thumbnailPath = instance._getMediaThumbnail(fileName);
-
-				imageNode.attr('src', thumbnailPath);
 			},
 
 			_updateStatusUI: function(target, filesPartition) {
@@ -1198,6 +1190,16 @@ AUI.add(
 				}
 			},
 
+			_updateThumbnail: function(node, fileName) {
+				var instance = this;
+
+				var imageNode = node.one('img');
+
+				var thumbnailPath = instance._getMediaThumbnail(fileName);
+
+				imageNode.attr('src', thumbnailPath);
+			},
+
 			_validateFiles: function(data) {
 				var instance = this;
 
@@ -1205,7 +1207,7 @@ AUI.add(
 
 				return AArray.partition(
 					data,
-					function(item, index, collection) {
+					function(item, index) {
 						var errorMessage;
 
 						var size = item.get('size') || 0;

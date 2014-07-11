@@ -511,13 +511,13 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 			localRepository.getRepositoryFileEntries(
 				folderId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 
-		Folder folder = getFolder(folderId);
-
-		localRepository.deleteFolder(folderId);
-
 		for (FileEntry fileEntry : fileEntries) {
 			dlAppHelperLocalService.deleteFileEntry(fileEntry);
 		}
+
+		Folder folder = getFolder(folderId);
+
+		localRepository.deleteFolder(folderId);
 
 		dlAppHelperLocalService.deleteFolder(folder);
 	}
@@ -1308,8 +1308,13 @@ public class DLAppLocalServiceImpl extends DLAppLocalServiceBaseImpl {
 
 		LocalRepository localRepository = getFolderLocalRepository(folderId);
 
-		return localRepository.updateFolder(
+		Folder folder = localRepository.updateFolder(
 			folderId, parentFolderId, name, description, serviceContext);
+
+		dlAppHelperLocalService.updateFolder(
+			serviceContext.getUserId(), folder, serviceContext);
+
+		return folder;
 	}
 
 	protected FileEntry copyFileEntry(

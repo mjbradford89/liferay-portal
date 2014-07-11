@@ -1,11 +1,13 @@
 AUI.add(
 	'liferay-upload',
 	function(A) {
-		var Lang = A.Lang;
 		var AArray = A.Array;
-		var UploaderQueue = A.Uploader.Queue;
+		var Lang = A.Lang;
+
+		var Util = Liferay.Util;
 
 		var formatSelectorNS = A.Node.formatSelectorNS;
+		var UploaderQueue = A.Uploader.Queue;
 
 		var STATUS_CODE = Liferay.STATUS_CODE;
 
@@ -20,9 +22,9 @@ AUI.add(
 		var TPL_FILE_LIST = [
 			'<tpl for=".">',
 				'<tpl if="!values.error">',
-					'<li class="upload-file {[ values.temp ? "upload-complete pending-file selectable" : "" ]} {[ values.selected ? "selected" : "" ]}" data-fileId="{id}" data-fileName="{[ Liferay.Util.escapeHTML(values.name) ]}" data-title="{[ Liferay.Util.escapeHTML(values.title ? values.title : values.name) ]}" id="{id}">',
-						'<input class="{[ !values.temp ? "hide" : "" ]} select-file" data-fileName="{[ Liferay.Util.escapeHTML(values.name) ]}" data-title="{[ Liferay.Util.escapeHTML(values.title ? values.title : values.name) ]}" id="{id}checkbox" name="{$ns}selectUploadedFileCheckbox" type="{[ this.multipleFiles ? "checkbox" : "hidden" ]}" value="{[ Liferay.Util.escapeHTML(values.name) ]}" />',
-						'<span class="file-title" title="{[ Liferay.Util.escapeHTML(values.title ? values.title : values.name) ]}">{[ Liferay.Util.escapeHTML(values.title ? values.title : values.name) ]}</span>',
+					'<li class="upload-file {[ values.temp ? "upload-complete pending-file selectable" : "" ]} {[ values.selected ? "selected" : "" ]}" data-fileId="{id}" data-fileName="{[ AUI().Lang.String.escapeHTML(values.name) ]}" data-title="{[ AUI().Lang.String.escapeHTML(values.title ? values.title : values.name) ]}" id="{id}">',
+						'<input class="{[ !values.temp ? "hide" : "" ]} select-file" data-fileName="{[ AUI().Lang.String.escapeHTML(values.name) ]}" data-title="{[ AUI().Lang.String.escapeHTML(values.title ? values.title : values.name) ]}" id="{id}checkbox" name="{$ns}selectUploadedFileCheckbox" type="{[ this.multipleFiles ? "checkbox" : "hidden" ]}" value="{[ AUI().Lang.String.escapeHTML(values.name) ]}" />',
+						'<span class="file-title" title="{[ AUI().Lang.String.escapeHTML(values.title ? values.title : values.name) ]}">{[ AUI().Lang.String.escapeHTML(values.title ? values.title : values.name) ]}</span>',
 						'<span class="progress-bar">',
 							'<span class="progress" id="{id}progress"></span>',
 						'</span>',
@@ -32,14 +34,14 @@ AUI.add(
 				'</tpl>',
 				'<tpl if="values.error && this.multipleFiles">',
 					'<li class="upload-file upload-error" data-fileId="{id}" id="{id}">',
-						'<span class="file-title" title="{[ Liferay.Util.escapeHTML(values.name) ]}">{[ Liferay.Util.escapeHTML(values.name) ]}</span>',
-						'<span class="error-message" title="{[ Liferay.Util.escapeHTML(values.error) ]}">{[ Liferay.Util.escapeHTML(values.error) ]}</span>',
+						'<span class="file-title" title="{[ AUI().Lang.String.escapeHTML(values.name) ]}">{[ AUI().Lang.String.escapeHTML(values.name) ]}</span>',
+						'<span class="error-message" title="{[ AUI().Lang.String.escapeHTML(values.error) ]}">{[ AUI().Lang.String.escapeHTML(values.error) ]}</span>',
 						'<tpl if="values.messageListItems && (values.messageListItems.length > 0)">',
 							'<ul class="error-list-items">',
 								'<tpl for="messageListItems">',
-									'<li>{[ Liferay.Util.escapeHTML(values.type) ]}: <strong>{[ Liferay.Util.escapeHTML(values.name) ]}</strong>',
+									'<li>{[ AUI().Lang.String.escapeHTML(values.type) ]}: <strong>{[ AUI().Lang.String.escapeHTML(values.name) ]}</strong>',
 										'<tpl if="info">',
-											'<span class="error-info"">({[ Liferay.Util.escapeHTML(values.info) ]})</span>',
+											'<span class="error-info"">({[ AUI().Lang.String.escapeHTML(values.info) ]})</span>',
 										'</tpl>',
 									'</li>',
 								'</tpl>',
@@ -49,14 +51,14 @@ AUI.add(
 				'</tpl>',
 				'<tpl if="values.error && !this.multipleFiles">',
 					'<li class="alert alert-error upload-error" data-fileId="{id}" id="{id}">',
-						'<h4 class="upload-error-message">{[ Lang.sub(this.strings.fileCannotBeSavedText, [Liferay.Util.escapeHTML(values.name)]) ]}</h4>',
-						'<span class="error-message" title="{[ Liferay.Util.escapeHTML(values.error) ]}">{[ Liferay.Util.escapeHTML(values.error) ]}</span>',
+						'<h4 class="upload-error-message">{[ Lang.sub(this.strings.fileCannotBeSavedText, [AUI().Lang.String.escapeHTML(values.name)]) ]}</h4>',
+						'<span class="error-message" title="{[ AUI().Lang.String.escapeHTML(values.error) ]}">{[ AUI().Lang.String.escapeHTML(values.error) ]}</span>',
 						'<tpl if="values.messageListItems && (values.messageListItems.length > 0)">',
 							'<ul class="error-list-items">',
 								'<tpl for="messageListItems">',
-									'<li>{[ Liferay.Util.escapeHTML(values.type) ]}: <strong>{[ Liferay.Util.escapeHTML(values.name) ]}</strong>',
+									'<li>{[ AUI().Lang.String.escapeHTML(values.type) ]}: <strong>{[ AUI().Lang.String.escapeHTML(values.name) ]}</strong>',
 										'<tpl if="info">',
-											'<span class="error-info"">({[ Liferay.Util.escapeHTML(values.info) ]})</span>',
+											'<span class="error-info"">({[ AUI().Lang.String.escapeHTML(values.info) ]})</span>',
 										'</tpl>',
 									'</li>',
 								'</tpl>',
@@ -66,12 +68,12 @@ AUI.add(
 				'</tpl>',
 				'<tpl if="values.warningMessages && (values.warningMessages.length > 0)">',
 					'<li class="alert upload-error" data-fileId="{id}" id="{id}">',
-						'<span class="error-message" title="{[ Liferay.Util.escapeHTML(values.error) ]}">{[ values.error ? this.strings.warningFailureText : this.strings.warningText ]}</span>',
+						'<span class="error-message" title="{[ AUI().Lang.String.escapeHTML(values.error) ]}">{[ values.error ? this.strings.warningFailureText : this.strings.warningText ]}</span>',
 						'<ul class="error-list-items">',
 							'<tpl for="warningMessages">',
-								'<li>{[ Liferay.Util.escapeHTML(values.type) ]} <strong>({size})</strong>:',
+								'<li>{[ AUI().Lang.String.escapeHTML(values.type) ]} <strong>({size})</strong>:',
 									'<tpl if="info">',
-										'<span class="error-info"">{[ Liferay.Util.escapeHTML(values.info) ]}</span>',
+										'<span class="error-info"">{[ AUI().Lang.String.escapeHTML(values.info) ]}</span>',
 									'</tpl>',
 								'</li>',
 							'</tpl>',
@@ -146,29 +148,36 @@ AUI.add(
 					deleteFile: {
 						value: ''
 					},
+
 					fallback: {
 						setter: A.one,
 						value: null
 					},
+
 					maxFileSize: {
 						setter: Lang.toInt,
 						value: 0
 					},
+
 					metadataContainer: {
 						setter: A.one,
 						value: null
 					},
+
 					metadataExplanationContainer: {
 						setter: A.one,
 						value: null
 					},
+
 					multipleFiles: {
 						validator: Lang.isBoolean,
 						value: true
 					},
+
 					render: {
 						value: true
 					},
+
 					strings: {
 						value: {
 							allFilesSelectedText: Liferay.Language.get('all-files-selected'),
@@ -176,8 +185,8 @@ AUI.add(
 							cancelUploadsText: Liferay.Language.get('cancel-all-uploads'),
 							clearRecentUploadsText: Liferay.Language.get('clear-documents-already-saved'),
 							deleteFileText: Liferay.Language.get('delete-file'),
-							dropFilesText: Liferay.Language.get('drop-files-here-to-upload'),
 							dropFileText: Liferay.Language.get('drop-file-here-to-upload'),
+							dropFilesText: Liferay.Language.get('drop-files-here-to-upload'),
 							fileCannotBeSavedText: Liferay.Language.get('the-file-x-cannot-be-saved'),
 							invalidFileNameText: Liferay.Language.get('please-enter-a-file-with-a-valid-file-name'),
 							invalidFileSizeText: Liferay.Language.get('please-enter-a-file-with-a-valid-file-size-no-larger-than-x'),
@@ -185,8 +194,8 @@ AUI.add(
 							notAvailableText: Liferay.Language.get('multiple-file-uploading-is-not-available'),
 							orText: Liferay.Language.get('or'),
 							pendingFileText: Liferay.Language.get('these-files-have-been-previously-uploaded-but-not-actually-saved.-please-save-or-delete-them-before-they-are-removed'),
-							selectFilesText: Liferay.Language.get('select-files'),
 							selectFileText: Liferay.Language.get('select-file'),
+							selectFilesText: Liferay.Language.get('select-files'),
 							unexpectedErrorOnDeleteText: Liferay.Language.get('an-unexpected-error-occurred-while-deleting-the-file'),
 							unexpectedErrorOnUploadText: Liferay.Language.get('an-unexpected-error-occurred-while-uploading-your-file'),
 							uploadingFileXofXText: Liferay.Language.get('uploading-file-x-of-x'),
@@ -199,13 +208,16 @@ AUI.add(
 							zeroByteSizeText: Liferay.Language.get('the-file-contains-no-data-and-cannot-be-uploaded.-please-use-the-classic-uploader')
 						}
 					},
+
 					tempFileURL: {
 						value: ''
 					},
+
 					tempRandomSuffix: {
 						validator: Lang.isString,
 						value: null
 					},
+
 					uploadFile: {
 						value: ''
 					}
@@ -358,7 +370,7 @@ AUI.add(
 
 						A.each(
 							queue.queuedFiles,
-							function(item, index, collection) {
+							function(item, index) {
 								var li = A.one('#' + item.id);
 
 								if (li && !li.hasClass('upload-complete')) {
@@ -390,6 +402,8 @@ AUI.add(
 						instance._updateManageUploadDisplay();
 					},
 
+					_filesTotal: 0,
+
 					_formatTempFiles: function(fileNames) {
 						var instance = this;
 
@@ -407,7 +421,7 @@ AUI.add(
 
 							var files = AArray.map(
 								fileNames,
-								function(item, index, collection) {
+								function(item, index) {
 									var title = item;
 
 									var tempRandomSuffix = instance.get('tempRandomSuffix');
@@ -445,7 +459,7 @@ AUI.add(
 
 						return AArray.filter(
 							data,
-							function(item, index, collection) {
+							function(item, index) {
 
 								var id = item.get('id') || A.guid();
 								var name = item.get('name');
@@ -527,7 +541,7 @@ AUI.add(
 						if (dragDropFiles && (target === uploaderBoundingBox || uploaderBoundingBox.contains(target))) {
 							event.fileList = AArray.map(
 								dragDropFiles,
-								function(item, index, collection) {
+								function(item, index) {
 									return new A.FileHTML5(item);
 								}
 							);
@@ -571,7 +585,7 @@ AUI.add(
 					_onAllRowIdsClick: function(event) {
 						var instance = this;
 
-						Liferay.Util.checkAll(
+						Util.checkAll(
 							instance._fileListSelector,
 							instance._selectUploadedFileCheckboxId,
 							instance._allRowIdsCheckboxSelector
@@ -614,6 +628,14 @@ AUI.add(
 						Liferay.fire('allUploadsComplete');
 					},
 
+					_onBeforeUnload: function(event) {
+						var instance = this;
+
+						if (instance._isUploading()) {
+							event.preventDefault();
+						}
+					},
+
 					_onCancelFileClick: function(currentTarget) {
 						var instance = this;
 
@@ -631,7 +653,7 @@ AUI.add(
 
 								var file = queue.currentFiles[fileId] || AArray.find(
 									queue.queuedFiles,
-									function(item, index, collection) {
+									function(item, index) {
 										return item.id === fileId;
 									}
 								);
@@ -681,13 +703,13 @@ AUI.add(
 									),
 									dataType: 'JSON',
 									on: {
-										success: function(event, id, obj) {
-											instance._handleDeleteResponse(this.get('responseData'), li);
-										},
 										failure: function(event, id, obj) {
 											li.show();
 
 											instance._handleDeleteResponse(failureResponse, li);
+										},
+										success: function(event, id, obj) {
+											instance._handleDeleteResponse(this.get('responseData'), li);
 										}
 									}
 								}
@@ -733,7 +755,7 @@ AUI.add(
 						var instance = this;
 
 						if (instance.get('multipleFiles')) {
-							Liferay.Util.checkAllBox(
+							Util.checkAllBox(
 								instance._fileListSelector,
 								instance._selectUploadedFileCheckboxId,
 								instance._allRowIdsCheckboxSelector
@@ -743,14 +765,6 @@ AUI.add(
 						instance._markSelected(currentTarget);
 
 						instance._updateMetadataContainer();
-					},
-
-					_onBeforeUnload: function(event) {
-						var instance = this;
-
-						if (instance._isUploading()) {
-							event.preventDefault();
-						}
 					},
 
 					_onUploadComplete: function(event) {
@@ -1016,8 +1030,8 @@ AUI.add(
 								},
 								selectFilesButton: instance._selectFilesButton,
 								simLimit: 2,
-								swfURL: Liferay.Util.addParams(timestampParam, URL_SWF_UPLOADER),
-								uploadURL: Liferay.Util.addParams(timestampParam, instance.get('uploadFile'))
+								swfURL: Util.addParams(timestampParam, URL_SWF_UPLOADER),
+								uploadURL: Util.addParams(timestampParam, instance.get('uploadFile'))
 							}
 						).render();
 
@@ -1141,9 +1155,7 @@ AUI.add(
 
 							warningContainer.hide();
 						}
-					},
-
-					_filesTotal: 0
+					}
 				}
 			}
 		);

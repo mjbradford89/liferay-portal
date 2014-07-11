@@ -2,14 +2,15 @@ AUI.add(
 	'liferay-portlet-dynamic-data-lists',
 	function(A) {
 		var AArray = A.Array;
+		var JSON = A.JSON;
+		var Lang = A.Lang;
 
 		var DateMath = A.DataType.DateMath;
 
-		var Lang = A.Lang;
-
-		var EMPTY_FN = A.Lang.emptyFn;
-
-		var JSON = A.JSON;
+		var LString = Lang.String;
+		var emptyFn = Lang.emptyFn;
+		var isArray = Lang.isArray;
+		var isNumber = Lang.isNumber;
 
 		var STR_DASH = '-';
 
@@ -19,9 +20,9 @@ AUI.add(
 
 		var DLFileEntryCellEditor = A.Component.create(
 			{
-				NAME: 'document-library-file-entry-cell-editor',
-
 				EXTENDS: A.BaseCellEditor,
+
+				NAME: 'document-library-file-entry-cell-editor',
 
 				prototype: {
 					ELEMENT_TEMPLATE: '<input type="hidden" />',
@@ -125,7 +126,7 @@ AUI.add(
 						}
 
 						linkNode.setAttribute('href', url);
-						linkNode.setContent(Liferay.Util.escapeHTML(title));
+						linkNode.setContent(LString.escapeHTML(title));
 					},
 
 					_uiSetValue: function(val) {
@@ -155,9 +156,9 @@ AUI.add(
 
 		var LinkToPageCellEditor = A.Component.create(
 			{
-				NAME: 'link-to-page-cell-editor',
-
 				EXTENDS: A.DropDownCellEditor,
+
+				NAME: 'link-to-page-cell-editor',
 
 				prototype: {
 					OPT_GROUP_TEMPLATE: '<optgroup label="{label}">{options}</optgroup>',
@@ -194,6 +195,30 @@ AUI.add(
 						);
 					},
 
+					_createOptionElements: function(layouts, options, prefix) {
+						var instance = this;
+
+						AArray.each(
+							layouts,
+							function(item, index) {
+								options[prefix + item.name] = {
+									groupId: item.groupId,
+									layoutId: item.layoutId,
+									name: item.name,
+									privateLayout: item.privateLayout
+								};
+
+								if (item.hasChildren) {
+									instance._createOptionElements(
+										item.children.layouts,
+										options,
+										prefix + STR_DASH + STR_SPACE
+									);
+								}
+							}
+						);
+					},
+
 					_createOptions: function(val) {
 						var instance = this;
 
@@ -202,11 +227,11 @@ AUI.add(
 
 						A.each(
 							val,
-							function(item, index, collection) {
+							function(item, index) {
 								var values = {
 									id: A.guid(),
 									label: index,
-									value: Liferay.Util.escapeHTML(JSON.stringify(item))
+									value: LString.escapeHTML(JSON.stringify(item))
 								};
 
 								var optionsArray = publicOptions;
@@ -246,30 +271,6 @@ AUI.add(
 						instance.options = elements.all('option');
 					},
 
-					_createOptionElements: function(layouts, options, prefix) {
-						var instance = this;
-
-						AArray.each(
-							layouts,
-							function(item, index, collection) {
-								options[prefix + item.name] = {
-									groupId: item.groupId,
-									layoutId: item.layoutId,
-									name: item.name,
-									privateLayout: item.privateLayout
-								};
-
-								if (item.hasChildren) {
-									instance._createOptionElements(
-										item.children.layouts,
-										options,
-										prefix + STR_DASH + STR_SPACE
-									);
-								}
-							}
-						);
-					},
-
 					_uiSetValue: function(val) {
 						var instance = this;
 
@@ -282,7 +283,7 @@ AUI.add(
 								var selLayout = SpreadSheet.Util.parseJSON(val);
 
 								options.each(
-									function(item, index, collection) {
+									function(item, index) {
 										var curLayout = SpreadSheet.Util.parseJSON(item.attr('value'));
 
 										if ((curLayout.groupId === selLayout.groupId) &&
@@ -311,12 +312,12 @@ AUI.add(
 					},
 
 					recordsetId: {
-						validator: Lang.isNumber,
+						validator: isNumber,
 						value: 0
 					},
 
 					structure: {
-						validator: Lang.isArray,
+						validator: isArray,
 						value: []
 					}
 				},
@@ -366,7 +367,7 @@ AUI.add(
 
 						var keys = AArray.map(
 							columns,
-							function(item, index, collection) {
+							function(item, index) {
 								return item.key;
 							}
 						);
@@ -377,15 +378,15 @@ AUI.add(
 					updateMinDisplayRows: function(minDisplayRows, callback) {
 						var instance = this;
 
-						callback = (callback && A.bind(callback, instance)) || EMPTY_FN;
+						callback = (callback && A.bind(callback, instance)) || emptyFn;
 
 						var recordsetId = instance.get('recordsetId');
 
 						Liferay.Service(
 							'/ddlrecordset/update-min-display-rows',
 							{
-								recordSetId: recordsetId,
 								minDisplayRows: minDisplayRows,
+								recordSetId: recordsetId,
 								serviceContext: JSON.stringify(
 									{
 										scopeGroupId: themeDisplay.getScopeGroupId(),
@@ -436,7 +437,7 @@ AUI.add(
 
 						A.each(
 							structure,
-							function(item, index, collection) {
+							function(item, index) {
 								var type = item.type;
 								var value = record.get(item.name);
 
@@ -448,7 +449,7 @@ AUI.add(
 									value = JSON.stringify(value);
 								}
 								else if ((type === 'radio') || (type === 'select')) {
-									if (!Lang.isArray(value)) {
+									if (!isArray(value)) {
 										value = AArray(value);
 									}
 
@@ -582,15 +583,15 @@ AUI.add(
 				addRecord: function(recordsetId, displayIndex, fieldsMap, callback) {
 					var instance = this;
 
-					callback = (callback && A.bind(callback, instance)) || EMPTY_FN;
+					callback = (callback && A.bind(callback, instance)) || emptyFn;
 
 					Liferay.Service(
 						'/ddlrecord/add-record',
 						{
-							groupId: themeDisplay.getScopeGroupId(),
-							recordSetId: recordsetId,
 							displayIndex: displayIndex,
 							fieldsMap: JSON.stringify(fieldsMap),
+							groupId: themeDisplay.getScopeGroupId(),
+							recordSetId: recordsetId,
 							serviceContext: JSON.stringify(
 								{
 									scopeGroupId: themeDisplay.getScopeGroupId(),
@@ -608,7 +609,7 @@ AUI.add(
 
 					AArray.each(
 						columns,
-						function(item, index, collection) {
+						function(item, index) {
 							var dataType = item.dataType;
 							var name = item.name;
 							var type = item.type;
@@ -660,7 +661,7 @@ AUI.add(
 								config.inputFormatter = function(val) {
 									return AArray.map(
 										val,
-										function(item, index, collection) {
+										function(item, index) {
 											return item.getTime();
 										}
 									);
@@ -669,7 +670,7 @@ AUI.add(
 								config.outputFormatter = function(val) {
 									return AArray.map(
 										val,
-										function(item, index, collection) {
+										function(item, index) {
 											var value = Lang.toInt(item) || Date.now();
 
 											var date = new Date(value);
@@ -703,7 +704,7 @@ AUI.add(
 
 									var numberValue = STR_EMPTY;
 
-									if (Lang.isNumber(number)) {
+									if (isNumber(number)) {
 										numberValue = number;
 									}
 
@@ -715,7 +716,7 @@ AUI.add(
 
 									var value = A.DataType.Number.parse(data[name]);
 
-									if (!Lang.isNumber(value)) {
+									if (!isNumber(value)) {
 										value = STR_EMPTY;
 									}
 
@@ -772,7 +773,7 @@ AUI.add(
 
 									AArray.each(
 										value,
-										function(item1, index1, collection1) {
+										function(item1, index1) {
 											label.push(options[item1]);
 										}
 									);
@@ -826,7 +827,7 @@ AUI.add(
 
 					AArray.some(
 						structure,
-						function(item, index, collection) {
+						function(item, index) {
 							found = item;
 
 							return (found[attributeName] === attributeValue);
@@ -841,7 +842,7 @@ AUI.add(
 
 					AArray.each(
 						options,
-						function(item, index, collection) {
+						function(item, index) {
 							normalized[item.value] = item.label;
 						}
 					);
@@ -856,7 +857,7 @@ AUI.add(
 
 					AArray.each(
 						keys,
-						function(item, index, collection) {
+						function(item, index) {
 							recordModel[item] = STR_EMPTY;
 						}
 					);
@@ -867,15 +868,15 @@ AUI.add(
 				updateRecord: function(recordId, displayIndex, fieldsMap, merge, callback) {
 					var instance = this;
 
-					callback = (callback && A.bind(callback, instance)) || EMPTY_FN;
+					callback = (callback && A.bind(callback, instance)) || emptyFn;
 
 					Liferay.Service(
 						'/ddlrecord/update-record',
 						{
-							recordId: recordId,
 							displayIndex: displayIndex,
 							fieldsMap: JSON.stringify(fieldsMap),
 							mergeFields: merge,
+							recordId: recordId,
 							serviceContext: JSON.stringify(
 								{
 									scopeGroupId: themeDisplay.getScopeGroupId(),
@@ -899,8 +900,8 @@ AUI.add(
 				Liferay.Service(
 					'/dlapp/get-file-entry-by-uuid-and-group-id',
 					{
-						uuid: fileJSON.uuid,
-						groupId: fileJSON.groupId
+						groupId: fileJSON.groupId,
+						uuid: fileJSON.uuid
 					},
 					callback
 				);
@@ -941,8 +942,6 @@ AUI.add(
 		Liferay.SpreadSheet = SpreadSheet;
 
 		var DDLUtil = {
-			previewDialog: null,
-
 			openPreviewDialog: function(content) {
 				var instance = this;
 
@@ -965,7 +964,9 @@ AUI.add(
 
 					previewDialog.set('bodyContent', content);
 				}
-			}
+			},
+
+			previewDialog: null
 		};
 
 		Liferay.DDLUtil = DDLUtil;
