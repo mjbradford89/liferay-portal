@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.shopping.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,8 +22,10 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
 import com.liferay.portal.kernel.test.AssertUtils;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
@@ -32,10 +33,9 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.RandomTestUtil;
 
@@ -47,23 +47,41 @@ import com.liferay.portlet.shopping.service.ShoppingOrderLocalServiceUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class ShoppingOrderPersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -75,25 +93,13 @@ public class ShoppingOrderPersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<ShoppingOrder> iterator = _shoppingOrders.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<ShoppingOrder> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -233,7 +239,7 @@ public class ShoppingOrderPersistenceTest {
 
 		newShoppingOrder.setSendShippingEmail(RandomTestUtil.randomBoolean());
 
-		_persistence.update(newShoppingOrder);
+		_shoppingOrders.add(_persistence.update(newShoppingOrder));
 
 		ShoppingOrder existingShoppingOrder = _persistence.findByPrimaryKey(newShoppingOrder.getPrimaryKey());
 
@@ -442,7 +448,7 @@ public class ShoppingOrderPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<ShoppingOrder> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("ShoppingOrder", "orderId",
 			true, "groupId", true, "companyId", true, "userId", true,
 			"userName", true, "createDate", true, "modifiedDate", true,
@@ -480,6 +486,88 @@ public class ShoppingOrderPersistenceTest {
 		ShoppingOrder missingShoppingOrder = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingShoppingOrder);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		ShoppingOrder newShoppingOrder1 = addShoppingOrder();
+		ShoppingOrder newShoppingOrder2 = addShoppingOrder();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newShoppingOrder1.getPrimaryKey());
+		primaryKeys.add(newShoppingOrder2.getPrimaryKey());
+
+		Map<Serializable, ShoppingOrder> shoppingOrders = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, shoppingOrders.size());
+		Assert.assertEquals(newShoppingOrder1,
+			shoppingOrders.get(newShoppingOrder1.getPrimaryKey()));
+		Assert.assertEquals(newShoppingOrder2,
+			shoppingOrders.get(newShoppingOrder2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, ShoppingOrder> shoppingOrders = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(shoppingOrders.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		ShoppingOrder newShoppingOrder = addShoppingOrder();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newShoppingOrder.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, ShoppingOrder> shoppingOrders = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, shoppingOrders.size());
+		Assert.assertEquals(newShoppingOrder,
+			shoppingOrders.get(newShoppingOrder.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, ShoppingOrder> shoppingOrders = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(shoppingOrders.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		ShoppingOrder newShoppingOrder = addShoppingOrder();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newShoppingOrder.getPrimaryKey());
+
+		Map<Serializable, ShoppingOrder> shoppingOrders = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, shoppingOrders.size());
+		Assert.assertEquals(newShoppingOrder,
+			shoppingOrders.get(newShoppingOrder.getPrimaryKey()));
 	}
 
 	@Test
@@ -702,13 +790,13 @@ public class ShoppingOrderPersistenceTest {
 
 		shoppingOrder.setSendShippingEmail(RandomTestUtil.randomBoolean());
 
-		_persistence.update(shoppingOrder);
+		_shoppingOrders.add(_persistence.update(shoppingOrder));
 
 		return shoppingOrder;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(ShoppingOrderPersistenceTest.class);
+	private List<ShoppingOrder> _shoppingOrders = new ArrayList<ShoppingOrder>();
 	private ModelListener<ShoppingOrder>[] _modelListeners;
-	private ShoppingOrderPersistence _persistence = (ShoppingOrderPersistence)PortalBeanLocatorUtil.locate(ShoppingOrderPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private ShoppingOrderPersistence _persistence = ShoppingOrderUtil.getPersistence();
 }

@@ -24,10 +24,10 @@ import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.search.BaseSearchTestCase;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.RandomTestUtil;
 import com.liferay.portal.util.test.TestPropsValues;
@@ -46,12 +46,16 @@ import com.liferay.portlet.journal.service.JournalArticleServiceUtil;
 import com.liferay.portlet.journal.service.JournalFolderServiceUtil;
 import com.liferay.portlet.journal.util.test.JournalTestUtil;
 
+import java.util.Locale;
+import java.util.Map;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
  * @author Juan Fernández
+ * @author Tibor Lipusz
  */
 @ExecutionTestListeners(
 	listeners = {
@@ -76,11 +80,12 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 
 		JournalFolder folder = (JournalFolder)parentBaseModel;
 
-		String xsd = DDMStructureTestUtil.getSampleStructureXSD("name");
+		String definition = DDMStructureTestUtil.getSampleStructureDefinition(
+			"name");
 
 		_ddmStructure = DDMStructureTestUtil.addStructure(
 			serviceContext.getScopeGroupId(), JournalArticle.class.getName(),
-			xsd);
+			definition);
 
 		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
 			serviceContext.getScopeGroupId(), _ddmStructure.getStructureId());
@@ -91,6 +96,16 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 		return JournalTestUtil.addArticleWithXMLContent(
 			folder.getFolderId(), content, _ddmStructure.getStructureKey(),
 			ddmTemplate.getTemplateKey(), serviceContext);
+	}
+
+	@Override
+	protected BaseModel<?> addBaseModelWithWorkflow(
+			BaseModel<?> parentBaseModel, boolean approved,
+			Map<Locale, String> keywordsMap, ServiceContext serviceContext)
+		throws Exception {
+
+		return JournalTestUtil.addArticleWithWorkflow(
+			group.getGroupId(), keywordsMap, null, keywordsMap, approved);
 	}
 
 	@Override
@@ -235,12 +250,13 @@ public class JournalArticleSearchTest extends BaseSearchTestCase {
 	protected void updateDDMStructure(ServiceContext serviceContext)
 		throws Exception {
 
-		String xsd = DDMStructureTestUtil.getSampleStructureXSD("title");
+		String definition = DDMStructureTestUtil.getSampleStructureDefinition(
+			"title");
 
 		DDMStructureLocalServiceUtil.updateStructure(
 			_ddmStructure.getStructureId(),
 			_ddmStructure.getParentStructureId(), _ddmStructure.getNameMap(),
-			_ddmStructure.getDescriptionMap(), xsd, serviceContext);
+			_ddmStructure.getDescriptionMap(), definition, serviceContext);
 	}
 
 	private DDMStructure _ddmStructure;

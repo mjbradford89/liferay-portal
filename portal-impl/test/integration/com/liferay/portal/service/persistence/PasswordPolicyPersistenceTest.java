@@ -15,7 +15,6 @@
 package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchPasswordPolicyException;
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -24,7 +23,9 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
@@ -35,33 +36,50 @@ import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.PasswordPolicy;
 import com.liferay.portal.model.impl.PasswordPolicyModelImpl;
 import com.liferay.portal.service.PasswordPolicyLocalServiceUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class PasswordPolicyPersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -73,25 +91,13 @@ public class PasswordPolicyPersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<PasswordPolicy> iterator = _passwordPolicies.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<PasswordPolicy> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -199,7 +205,7 @@ public class PasswordPolicyPersistenceTest {
 
 		newPasswordPolicy.setResetTicketMaxAge(RandomTestUtil.nextLong());
 
-		_persistence.update(newPasswordPolicy);
+		_passwordPolicies.add(_persistence.update(newPasswordPolicy));
 
 		PasswordPolicy existingPasswordPolicy = _persistence.findByPrimaryKey(newPasswordPolicy.getPrimaryKey());
 
@@ -379,7 +385,7 @@ public class PasswordPolicyPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<PasswordPolicy> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("PasswordPolicy",
 			"mvccVersion", true, "uuid", true, "passwordPolicyId", true,
 			"companyId", true, "userId", true, "userName", true, "createDate",
@@ -411,6 +417,88 @@ public class PasswordPolicyPersistenceTest {
 		PasswordPolicy missingPasswordPolicy = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingPasswordPolicy);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		PasswordPolicy newPasswordPolicy1 = addPasswordPolicy();
+		PasswordPolicy newPasswordPolicy2 = addPasswordPolicy();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newPasswordPolicy1.getPrimaryKey());
+		primaryKeys.add(newPasswordPolicy2.getPrimaryKey());
+
+		Map<Serializable, PasswordPolicy> passwordPolicies = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, passwordPolicies.size());
+		Assert.assertEquals(newPasswordPolicy1,
+			passwordPolicies.get(newPasswordPolicy1.getPrimaryKey()));
+		Assert.assertEquals(newPasswordPolicy2,
+			passwordPolicies.get(newPasswordPolicy2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, PasswordPolicy> passwordPolicies = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(passwordPolicies.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		PasswordPolicy newPasswordPolicy = addPasswordPolicy();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newPasswordPolicy.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, PasswordPolicy> passwordPolicies = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, passwordPolicies.size());
+		Assert.assertEquals(newPasswordPolicy,
+			passwordPolicies.get(newPasswordPolicy.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, PasswordPolicy> passwordPolicies = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(passwordPolicies.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		PasswordPolicy newPasswordPolicy = addPasswordPolicy();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newPasswordPolicy.getPrimaryKey());
+
+		Map<Serializable, PasswordPolicy> passwordPolicies = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, passwordPolicies.size());
+		Assert.assertEquals(newPasswordPolicy,
+			passwordPolicies.get(newPasswordPolicy.getPrimaryKey()));
 	}
 
 	@Test
@@ -606,13 +694,13 @@ public class PasswordPolicyPersistenceTest {
 
 		passwordPolicy.setResetTicketMaxAge(RandomTestUtil.nextLong());
 
-		_persistence.update(passwordPolicy);
+		_passwordPolicies.add(_persistence.update(passwordPolicy));
 
 		return passwordPolicy;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(PasswordPolicyPersistenceTest.class);
+	private List<PasswordPolicy> _passwordPolicies = new ArrayList<PasswordPolicy>();
 	private ModelListener<PasswordPolicy>[] _modelListeners;
-	private PasswordPolicyPersistence _persistence = (PasswordPolicyPersistence)PortalBeanLocatorUtil.locate(PasswordPolicyPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private PasswordPolicyPersistence _persistence = PasswordPolicyUtil.getPersistence();
 }

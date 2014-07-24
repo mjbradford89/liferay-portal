@@ -15,7 +15,6 @@
 package com.liferay.portlet.journal.trash;
 
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
-import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
@@ -26,10 +25,10 @@ import com.liferay.portal.model.ClassedModel;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.WorkflowedModel;
 import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
 import com.liferay.portal.test.Sync;
 import com.liferay.portal.test.SynchronousDestinationExecutionTestListener;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.util.test.RandomTestUtil;
 import com.liferay.portal.util.test.ServiceContextTestUtil;
 import com.liferay.portal.util.test.TestPropsValues;
@@ -71,7 +70,6 @@ import org.junit.runner.RunWith;
 public class JournalArticleTrashHandlerTest extends BaseTrashHandlerTestCase {
 
 	@Test
-	@Transactional
 	public void testArticleImages() throws Exception {
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(group.getGroupId());
@@ -84,14 +82,14 @@ public class JournalArticleTrashHandlerTest extends BaseTrashHandlerTestCase {
 
 		ClassLoader classLoader = clazz.getClassLoader();
 
-		String xsd = StringUtil.read(
+		String definition = StringUtil.read(
 			classLoader,
 			"com/liferay/portlet/journal/dependencies" +
 				"/test-ddm-structure-image-field.xml");
 
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
 			serviceContext.getScopeGroupId(), JournalArticle.class.getName(),
-			xsd);
+			definition);
 
 		DDMTemplate ddmTemplate = DDMTemplateTestUtil.addTemplate(
 			serviceContext.getScopeGroupId(), ddmStructure.getStructureId());

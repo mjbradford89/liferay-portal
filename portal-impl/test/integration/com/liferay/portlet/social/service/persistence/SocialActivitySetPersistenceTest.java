@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.social.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,15 +22,16 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.test.RandomTestUtil;
 
 import com.liferay.portlet.social.NoSuchActivitySetException;
@@ -41,23 +41,41 @@ import com.liferay.portlet.social.service.SocialActivitySetLocalServiceUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class SocialActivitySetPersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -69,25 +87,13 @@ public class SocialActivitySetPersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<SocialActivitySet> iterator = _socialActivitySets.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<SocialActivitySet> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -147,7 +153,7 @@ public class SocialActivitySetPersistenceTest {
 
 		newSocialActivitySet.setActivityCount(RandomTestUtil.nextInt());
 
-		_persistence.update(newSocialActivitySet);
+		_socialActivitySets.add(_persistence.update(newSocialActivitySet));
 
 		SocialActivitySet existingSocialActivitySet = _persistence.findByPrimaryKey(newSocialActivitySet.getPrimaryKey());
 
@@ -287,7 +293,7 @@ public class SocialActivitySetPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<SocialActivitySet> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("SocialActivitySet",
 			"activitySetId", true, "groupId", true, "companyId", true,
 			"userId", true, "createDate", true, "modifiedDate", true,
@@ -311,6 +317,88 @@ public class SocialActivitySetPersistenceTest {
 		SocialActivitySet missingSocialActivitySet = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingSocialActivitySet);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		SocialActivitySet newSocialActivitySet1 = addSocialActivitySet();
+		SocialActivitySet newSocialActivitySet2 = addSocialActivitySet();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSocialActivitySet1.getPrimaryKey());
+		primaryKeys.add(newSocialActivitySet2.getPrimaryKey());
+
+		Map<Serializable, SocialActivitySet> socialActivitySets = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, socialActivitySets.size());
+		Assert.assertEquals(newSocialActivitySet1,
+			socialActivitySets.get(newSocialActivitySet1.getPrimaryKey()));
+		Assert.assertEquals(newSocialActivitySet2,
+			socialActivitySets.get(newSocialActivitySet2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, SocialActivitySet> socialActivitySets = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(socialActivitySets.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		SocialActivitySet newSocialActivitySet = addSocialActivitySet();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSocialActivitySet.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, SocialActivitySet> socialActivitySets = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, socialActivitySets.size());
+		Assert.assertEquals(newSocialActivitySet,
+			socialActivitySets.get(newSocialActivitySet.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, SocialActivitySet> socialActivitySets = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(socialActivitySets.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		SocialActivitySet newSocialActivitySet = addSocialActivitySet();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSocialActivitySet.getPrimaryKey());
+
+		Map<Serializable, SocialActivitySet> socialActivitySets = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, socialActivitySets.size());
+		Assert.assertEquals(newSocialActivitySet,
+			socialActivitySets.get(newSocialActivitySet.getPrimaryKey()));
 	}
 
 	@Test
@@ -435,13 +523,13 @@ public class SocialActivitySetPersistenceTest {
 
 		socialActivitySet.setActivityCount(RandomTestUtil.nextInt());
 
-		_persistence.update(socialActivitySet);
+		_socialActivitySets.add(_persistence.update(socialActivitySet));
 
 		return socialActivitySet;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(SocialActivitySetPersistenceTest.class);
+	private List<SocialActivitySet> _socialActivitySets = new ArrayList<SocialActivitySet>();
 	private ModelListener<SocialActivitySet>[] _modelListeners;
-	private SocialActivitySetPersistence _persistence = (SocialActivitySetPersistence)PortalBeanLocatorUtil.locate(SocialActivitySetPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private SocialActivitySetPersistence _persistence = SocialActivitySetUtil.getPersistence();
 }

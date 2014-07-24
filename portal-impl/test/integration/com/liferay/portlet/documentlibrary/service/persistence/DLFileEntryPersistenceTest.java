@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,7 +22,9 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
@@ -31,10 +32,9 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.RandomTestUtil;
 
@@ -46,23 +46,41 @@ import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class DLFileEntryPersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -74,25 +92,13 @@ public class DLFileEntryPersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<DLFileEntry> iterator = _dlFileEntries.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<DLFileEntry> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -186,7 +192,7 @@ public class DLFileEntryPersistenceTest {
 
 		newDLFileEntry.setManualCheckInRequired(RandomTestUtil.randomBoolean());
 
-		_persistence.update(newDLFileEntry);
+		_dlFileEntries.add(_persistence.update(newDLFileEntry));
 
 		DLFileEntry existingDLFileEntry = _persistence.findByPrimaryKey(newDLFileEntry.getPrimaryKey());
 
@@ -519,7 +525,7 @@ public class DLFileEntryPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<DLFileEntry> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("DLFileEntry", "uuid", true,
 			"fileEntryId", true, "groupId", true, "companyId", true, "userId",
 			true, "userName", true, "createDate", true, "modifiedDate", true,
@@ -548,6 +554,88 @@ public class DLFileEntryPersistenceTest {
 		DLFileEntry missingDLFileEntry = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingDLFileEntry);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		DLFileEntry newDLFileEntry1 = addDLFileEntry();
+		DLFileEntry newDLFileEntry2 = addDLFileEntry();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDLFileEntry1.getPrimaryKey());
+		primaryKeys.add(newDLFileEntry2.getPrimaryKey());
+
+		Map<Serializable, DLFileEntry> dlFileEntries = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, dlFileEntries.size());
+		Assert.assertEquals(newDLFileEntry1,
+			dlFileEntries.get(newDLFileEntry1.getPrimaryKey()));
+		Assert.assertEquals(newDLFileEntry2,
+			dlFileEntries.get(newDLFileEntry2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, DLFileEntry> dlFileEntries = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(dlFileEntries.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		DLFileEntry newDLFileEntry = addDLFileEntry();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDLFileEntry.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, DLFileEntry> dlFileEntries = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, dlFileEntries.size());
+		Assert.assertEquals(newDLFileEntry,
+			dlFileEntries.get(newDLFileEntry.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, DLFileEntry> dlFileEntries = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(dlFileEntries.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		DLFileEntry newDLFileEntry = addDLFileEntry();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDLFileEntry.getPrimaryKey());
+
+		Map<Serializable, DLFileEntry> dlFileEntries = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, dlFileEntries.size());
+		Assert.assertEquals(newDLFileEntry,
+			dlFileEntries.get(newDLFileEntry.getPrimaryKey()));
 	}
 
 	@Test
@@ -738,13 +826,13 @@ public class DLFileEntryPersistenceTest {
 
 		dlFileEntry.setManualCheckInRequired(RandomTestUtil.randomBoolean());
 
-		_persistence.update(dlFileEntry);
+		_dlFileEntries.add(_persistence.update(dlFileEntry));
 
 		return dlFileEntry;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(DLFileEntryPersistenceTest.class);
+	private List<DLFileEntry> _dlFileEntries = new ArrayList<DLFileEntry>();
 	private ModelListener<DLFileEntry>[] _modelListeners;
-	private DLFileEntryPersistence _persistence = (DLFileEntryPersistence)PortalBeanLocatorUtil.locate(DLFileEntryPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private DLFileEntryPersistence _persistence = DLFileEntryUtil.getPersistence();
 }

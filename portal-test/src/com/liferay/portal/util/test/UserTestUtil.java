@@ -14,26 +14,32 @@
 
 package com.liferay.portal.util.test;
 
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PropsKeys;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.model.Company;
 import com.liferay.portal.model.Group;
 import com.liferay.portal.model.Organization;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.RoleConstants;
 import com.liferay.portal.model.User;
+import com.liferay.portal.service.CompanyLocalServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserGroupRoleLocalServiceUtil;
 import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalInstances;
 
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 /**
  * @author Alberto Chaparro
  * @author Manuel de la Peña
+ * @author Sampsa Sohlman
  */
 public class UserTestUtil {
 
@@ -66,12 +72,15 @@ public class UserTestUtil {
 	public static User addOmniAdmin() throws Exception {
 		User user = addUser();
 
-		user.setCompanyId(PortalInstances.getDefaultCompanyId());
+		Company defaultCompany = CompanyLocalServiceUtil.getCompanyByMx(
+			PropsUtil.get(PropsKeys.COMPANY_DEFAULT_WEB_ID));
+
+		user.setCompanyId(defaultCompany.getCompanyId());
 
 		UserLocalServiceUtil.updateUser(user);
 
 		Role administratorRole = RoleLocalServiceUtil.getRole(
-			PortalInstances.getDefaultCompanyId(), RoleConstants.ADMINISTRATOR);
+			defaultCompany.getCompanyId(), RoleConstants.ADMINISTRATOR);
 
 		UserLocalServiceUtil.addRoleUser(administratorRole.getRoleId(), user);
 
@@ -206,6 +215,20 @@ public class UserTestUtil {
 		else {
 			return addUser(screenName, false, new long[] {groupId});
 		}
+	}
+
+	public static User getAdminUser(long companyId) throws PortalException {
+		Role role = RoleLocalServiceUtil.getRole(
+			companyId, RoleConstants.ADMINISTRATOR);
+
+		List<User> users = UserLocalServiceUtil.getRoleUsers(
+			role.getRoleId(), 0, 1);
+
+		if (!users.isEmpty()) {
+			return users.get(0);
+		}
+
+		return null;
 	}
 
 }

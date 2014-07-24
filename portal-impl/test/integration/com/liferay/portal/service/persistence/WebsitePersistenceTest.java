@@ -15,7 +15,6 @@
 package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchWebsiteException;
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -24,7 +23,9 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
@@ -33,32 +34,49 @@ import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.Website;
 import com.liferay.portal.service.WebsiteLocalServiceUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class WebsitePersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -70,25 +88,13 @@ public class WebsitePersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<Website> iterator = _websites.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<Website> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -152,7 +158,7 @@ public class WebsitePersistenceTest {
 
 		newWebsite.setPrimary(RandomTestUtil.randomBoolean());
 
-		_persistence.update(newWebsite);
+		_websites.add(_persistence.update(newWebsite));
 
 		Website existingWebsite = _persistence.findByPrimaryKey(newWebsite.getPrimaryKey());
 
@@ -309,7 +315,7 @@ public class WebsitePersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<Website> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("Website", "mvccVersion",
 			true, "uuid", true, "websiteId", true, "companyId", true, "userId",
 			true, "userName", true, "createDate", true, "modifiedDate", true,
@@ -333,6 +339,86 @@ public class WebsitePersistenceTest {
 		Website missingWebsite = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingWebsite);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		Website newWebsite1 = addWebsite();
+		Website newWebsite2 = addWebsite();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newWebsite1.getPrimaryKey());
+		primaryKeys.add(newWebsite2.getPrimaryKey());
+
+		Map<Serializable, Website> websites = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, websites.size());
+		Assert.assertEquals(newWebsite1,
+			websites.get(newWebsite1.getPrimaryKey()));
+		Assert.assertEquals(newWebsite2,
+			websites.get(newWebsite2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, Website> websites = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(websites.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		Website newWebsite = addWebsite();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newWebsite.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, Website> websites = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, websites.size());
+		Assert.assertEquals(newWebsite, websites.get(newWebsite.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, Website> websites = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(websites.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		Website newWebsite = addWebsite();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newWebsite.getPrimaryKey());
+
+		Map<Serializable, Website> websites = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, websites.size());
+		Assert.assertEquals(newWebsite, websites.get(newWebsite.getPrimaryKey()));
 	}
 
 	@Test
@@ -458,13 +544,13 @@ public class WebsitePersistenceTest {
 
 		website.setPrimary(RandomTestUtil.randomBoolean());
 
-		_persistence.update(website);
+		_websites.add(_persistence.update(website));
 
 		return website;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(WebsitePersistenceTest.class);
+	private List<Website> _websites = new ArrayList<Website>();
 	private ModelListener<Website>[] _modelListeners;
-	private WebsitePersistence _persistence = (WebsitePersistence)PortalBeanLocatorUtil.locate(WebsitePersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private WebsitePersistence _persistence = WebsiteUtil.getPersistence();
 }

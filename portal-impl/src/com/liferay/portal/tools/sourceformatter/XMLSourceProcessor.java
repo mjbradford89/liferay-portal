@@ -113,6 +113,10 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			return content;
 		}
 
+		if (content.contains("<project>")) {
+			return content;
+		}
+
 		int y = fileName.indexOf("/", x);
 
 		String correctProjectElementText =
@@ -292,9 +296,10 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	@Override
 	protected void format() throws Exception {
 		String[] excludes = new String[] {
-			"**\\.bnd\\**", "**\\.idea\\**", "portal-impl\\**\\*.action",
-			"portal-impl\\**\\*.function", "portal-impl\\**\\*.macro",
-			"portal-impl\\**\\*.testcase", "tools\\sdk\\**"
+			"**\\.bnd\\**", "**\\.idea\\**", "**\\.ivy\\**",
+			"portal-impl\\**\\*.action", "portal-impl\\**\\*.function",
+			"portal-impl\\**\\*.macro", "portal-impl\\**\\*.testcase",
+			"tools\\sdk\\**"
 		};
 
 		String[] includes = new String[] {
@@ -302,11 +307,12 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			"**\\*.xml"
 		};
 
-		Properties exclusions = getExclusionsProperties(
-			"source_formatter_xml_exclusions.properties");
+		List<String> exclusions = getExclusions("xml.excludes");
 
-		_friendlyUrlRoutesSortExclusions = getExclusionsProperties(
-			"source_formatter_friendly_url_routes_sort_exclusions.properties");
+		_friendlyUrlRoutesSortExclusions = getExclusions(
+			"friendly.url.routes.sort.excludes");
+		_numericalPortletNameElementExclusions = getExclusions(
+			"numerical.portlet.name.element.excludes");
 
 		List<String> fileNames = getFileNames(excludes, includes);
 
@@ -337,11 +343,12 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			else if (fileName.endsWith("routes.xml")) {
 				newContent = formatFriendlyURLRoutesXML(fileName, newContent);
 			}
-			else if ((portalSource &&
+			else if (fileName.endsWith("/liferay-portlet.xml") ||
+					 (portalSource &&
 					  fileName.endsWith("/portlet-custom.xml")) ||
 					 (!portalSource && fileName.endsWith("/portlet.xml"))) {
 
-				newContent = formatPortletXML(newContent);
+				newContent = formatPortletXML(fileName, newContent);
 			}
 			else if (portalSource &&
 					 (fileName.endsWith(".action") ||
@@ -360,7 +367,9 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 			else if (portalSource && fileName.endsWith("/tiles-defs.xml")) {
 				formatTilesDefsXML(fileName, newContent);
 			}
-			else if ((portalSource && fileName.endsWith("WEB-INF/web.xml")) ||
+			else if ((portalSource &&
+					  fileName.endsWith(
+						  "portal-web/docroot/WEB-INF/web.xml")) ||
 					 (!portalSource && fileName.endsWith("/web.xml"))) {
 
 				newContent = formatWebXML(fileName, newContent);
@@ -574,7 +583,7 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		return sb.toString();
 	}
 
-	protected String formatPortletXML(String content)
+	protected String formatPortletXML(String fileName, String content)
 		throws DocumentException, IOException {
 
 		Document document = saxReaderUtil.read(content);
@@ -583,9 +592,31 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 
 		rootElement.sortAttributes(true);
 
+		boolean checkNumericalPortletNameElement = !isExcluded(
+			_numericalPortletNameElementExclusions, fileName);
+
 		List<Element> portletElements = rootElement.elements("portlet");
 
 		for (Element portletElement : portletElements) {
+			if (checkNumericalPortletNameElement) {
+				Element portletNameElement = portletElement.element(
+					"portlet-name");
+
+				String portletNameText = portletNameElement.getText();
+
+				if (!Validator.isNumber(portletNameText)) {
+					processErrorMessage(
+						fileName,
+						fileName +
+							" contains a nonstandard portlet-name element " +
+								portletNameText);
+				}
+			}
+
+			if (fileName.endsWith("/liferay-portlet.xml")) {
+				continue;
+			}
+
 			portletElement.sortElementsByChildElement("init-param", "name");
 
 			Element portletPreferencesElement = portletElement.element(
@@ -1029,10 +1060,11 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 	private static Pattern _commentPattern2 = Pattern.compile(
 		"[\t ]-->\n[\t<]");
 
-	private Properties _friendlyUrlRoutesSortExclusions;
+	private List<String> _friendlyUrlRoutesSortExclusions;
+	private List<String> _numericalPortletNameElementExclusions;
 	private Pattern _poshiClosingTagPattern = Pattern.compile("</[^>/]*>");
 	private Pattern _poshiCommandsPattern = Pattern.compile(
-		"\\<command name=\\\"([^\\\"]*)\\\".*\\>[\\s\\S]*?\\</command\\>" +
+		"\\<command.*name=\\\"([^\\\"]*)\\\".*\\>[\\s\\S]*?\\</command\\>" +
 			"[\\n|\\t]*?(?:[^(?:/\\>)]*?--\\>)*+");
 	private Pattern _poshiElementWithNoChildPattern = Pattern.compile(
 		"\\\"[\\s]*\\>[\\n\\s\\t]*\\</[a-z\\-]+>");

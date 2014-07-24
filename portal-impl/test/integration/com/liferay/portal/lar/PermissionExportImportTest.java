@@ -16,7 +16,6 @@ package com.liferay.portal.lar;
 
 import com.liferay.portal.kernel.lar.PortletDataContext;
 import com.liferay.portal.kernel.test.ExecutionTestListeners;
-import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
@@ -35,9 +34,9 @@ import com.liferay.portal.service.ResourceLocalServiceUtil;
 import com.liferay.portal.service.ResourcePermissionServiceUtil;
 import com.liferay.portal.service.RoleLocalServiceUtil;
 import com.liferay.portal.service.permission.PortletPermissionUtil;
-import com.liferay.portal.test.LiferayIntegrationJUnitTestRunner;
-import com.liferay.portal.test.MainServletExecutionTestListener;
-import com.liferay.portal.test.TransactionalCallbackAwareExecutionTestListener;
+import com.liferay.portal.test.listeners.MainServletExecutionTestListener;
+import com.liferay.portal.test.listeners.ResetDatabaseExecutionTestListener;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
 import com.liferay.portal.util.PortletKeys;
 import com.liferay.portal.util.ResourcePermissionUtil;
 import com.liferay.portal.util.test.LayoutTestUtil;
@@ -61,10 +60,9 @@ import org.powermock.api.mockito.PowerMockito;
 @ExecutionTestListeners(
 	listeners = {
 		MainServletExecutionTestListener.class,
-		TransactionalCallbackAwareExecutionTestListener.class
+		ResetDatabaseExecutionTestListener.class
 	})
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
-@Transactional
 public class PermissionExportImportTest extends PowerMockito {
 
 	@Test
