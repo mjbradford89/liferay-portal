@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.dynamicdatamapping.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,15 +22,16 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.RandomTestUtil;
 
@@ -43,23 +43,41 @@ import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLinkLocalServi
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class DDMStructureLinkPersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -71,25 +89,13 @@ public class DDMStructureLinkPersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<DDMStructureLink> iterator = _ddmStructureLinks.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<DDMStructureLink> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -135,7 +141,7 @@ public class DDMStructureLinkPersistenceTest {
 
 		newDDMStructureLink.setStructureId(RandomTestUtil.nextLong());
 
-		_persistence.update(newDDMStructureLink);
+		_ddmStructureLinks.add(_persistence.update(newDDMStructureLink));
 
 		DDMStructureLink existingDDMStructureLink = _persistence.findByPrimaryKey(newDDMStructureLink.getPrimaryKey());
 
@@ -219,7 +225,7 @@ public class DDMStructureLinkPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<DDMStructureLink> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("DDMStructureLink",
 			"structureLinkId", true, "classNameId", true, "classPK", true,
 			"structureId", true);
@@ -241,6 +247,88 @@ public class DDMStructureLinkPersistenceTest {
 		DDMStructureLink missingDDMStructureLink = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingDDMStructureLink);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		DDMStructureLink newDDMStructureLink1 = addDDMStructureLink();
+		DDMStructureLink newDDMStructureLink2 = addDDMStructureLink();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDDMStructureLink1.getPrimaryKey());
+		primaryKeys.add(newDDMStructureLink2.getPrimaryKey());
+
+		Map<Serializable, DDMStructureLink> ddmStructureLinks = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, ddmStructureLinks.size());
+		Assert.assertEquals(newDDMStructureLink1,
+			ddmStructureLinks.get(newDDMStructureLink1.getPrimaryKey()));
+		Assert.assertEquals(newDDMStructureLink2,
+			ddmStructureLinks.get(newDDMStructureLink2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, DDMStructureLink> ddmStructureLinks = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(ddmStructureLinks.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		DDMStructureLink newDDMStructureLink = addDDMStructureLink();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDDMStructureLink.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, DDMStructureLink> ddmStructureLinks = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, ddmStructureLinks.size());
+		Assert.assertEquals(newDDMStructureLink,
+			ddmStructureLinks.get(newDDMStructureLink.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, DDMStructureLink> ddmStructureLinks = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(ddmStructureLinks.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		DDMStructureLink newDDMStructureLink = addDDMStructureLink();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDDMStructureLink.getPrimaryKey());
+
+		Map<Serializable, DDMStructureLink> ddmStructureLinks = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, ddmStructureLinks.size());
+		Assert.assertEquals(newDDMStructureLink,
+			ddmStructureLinks.get(newDDMStructureLink.getPrimaryKey()));
 	}
 
 	@Test
@@ -366,13 +454,13 @@ public class DDMStructureLinkPersistenceTest {
 
 		ddmStructureLink.setStructureId(RandomTestUtil.nextLong());
 
-		_persistence.update(ddmStructureLink);
+		_ddmStructureLinks.add(_persistence.update(ddmStructureLink));
 
 		return ddmStructureLink;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(DDMStructureLinkPersistenceTest.class);
+	private List<DDMStructureLink> _ddmStructureLinks = new ArrayList<DDMStructureLink>();
 	private ModelListener<DDMStructureLink>[] _modelListeners;
-	private DDMStructureLinkPersistence _persistence = (DDMStructureLinkPersistence)PortalBeanLocatorUtil.locate(DDMStructureLinkPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private DDMStructureLinkPersistence _persistence = DDMStructureLinkUtil.getPersistence();
 }

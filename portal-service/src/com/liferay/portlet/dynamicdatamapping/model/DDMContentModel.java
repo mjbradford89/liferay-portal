@@ -18,7 +18,6 @@ import aQute.bnd.annotation.ProviderType;
 
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.bean.AutoEscape;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.model.BaseModel;
 import com.liferay.portal.model.CacheModel;
 import com.liferay.portal.model.LocalizedModel;
@@ -152,10 +151,9 @@ public interface DDMContentModel extends BaseModel<DDMContent>, LocalizedModel,
 	 * Returns the user uuid of this d d m content.
 	 *
 	 * @return the user uuid of this d d m content
-	 * @throws SystemException if a system exception occurred
 	 */
 	@Override
-	public String getUserUuid() throws SystemException;
+	public String getUserUuid();
 
 	/**
 	 * Sets the user uuid of this d d m content.
@@ -329,19 +327,19 @@ public interface DDMContentModel extends BaseModel<DDMContent>, LocalizedModel,
 	public void setDescription(String description);
 
 	/**
-	 * Returns the xml of this d d m content.
+	 * Returns the data of this d d m content.
 	 *
-	 * @return the xml of this d d m content
+	 * @return the data of this d d m content
 	 */
 	@AutoEscape
-	public String getXml();
+	public String getData();
 
 	/**
-	 * Sets the xml of this d d m content.
+	 * Sets the data of this d d m content.
 	 *
-	 * @param xml the xml of this d d m content
+	 * @param data the data of this d d m content
 	 */
-	public void setXml(String xml);
+	public void setData(String data);
 
 	@Override
 	public boolean isNew();

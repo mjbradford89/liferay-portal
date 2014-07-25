@@ -15,7 +15,6 @@
 package com.liferay.portal.service.persistence;
 
 import com.liferay.portal.NoSuchRoleException;
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -24,7 +23,9 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
@@ -35,33 +36,50 @@ import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.model.Role;
 import com.liferay.portal.model.impl.RoleModelImpl;
 import com.liferay.portal.service.RoleLocalServiceUtil;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.RandomTestUtil;
 
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class RolePersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -73,25 +91,13 @@ public class RolePersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<Role> iterator = _roles.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<Role> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -159,7 +165,7 @@ public class RolePersistenceTest {
 
 		newRole.setSubtype(RandomTestUtil.randomString());
 
-		_persistence.update(newRole);
+		_roles.add(_persistence.update(newRole));
 
 		Role existingRole = _persistence.findByPrimaryKey(newRole.getPrimaryKey());
 
@@ -365,7 +371,7 @@ public class RolePersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<Role> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("Role_", "mvccVersion",
 			true, "uuid", true, "roleId", true, "companyId", true, "userId",
 			true, "userName", true, "createDate", true, "modifiedDate", true,
@@ -389,6 +395,84 @@ public class RolePersistenceTest {
 		Role missingRole = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingRole);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		Role newRole1 = addRole();
+		Role newRole2 = addRole();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newRole1.getPrimaryKey());
+		primaryKeys.add(newRole2.getPrimaryKey());
+
+		Map<Serializable, Role> roles = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, roles.size());
+		Assert.assertEquals(newRole1, roles.get(newRole1.getPrimaryKey()));
+		Assert.assertEquals(newRole2, roles.get(newRole2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, Role> roles = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(roles.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		Role newRole = addRole();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newRole.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, Role> roles = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, roles.size());
+		Assert.assertEquals(newRole, roles.get(newRole.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, Role> roles = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(roles.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		Role newRole = addRole();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newRole.getPrimaryKey());
+
+		Map<Serializable, Role> roles = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, roles.size());
+		Assert.assertEquals(newRole, roles.get(newRole.getPrimaryKey()));
 	}
 
 	@Test
@@ -543,13 +627,13 @@ public class RolePersistenceTest {
 
 		role.setSubtype(RandomTestUtil.randomString());
 
-		_persistence.update(role);
+		_roles.add(_persistence.update(role));
 
 		return role;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(RolePersistenceTest.class);
+	private List<Role> _roles = new ArrayList<Role>();
 	private ModelListener<Role>[] _modelListeners;
-	private RolePersistence _persistence = (RolePersistence)PortalBeanLocatorUtil.locate(RolePersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private RolePersistence _persistence = RoleUtil.getPersistence();
 }

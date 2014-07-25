@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.documentlibrary.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,15 +22,16 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.RandomTestUtil;
 
@@ -43,23 +43,41 @@ import com.liferay.portlet.documentlibrary.service.DLSyncEventLocalServiceUtil;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class DLSyncEventPersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -71,25 +89,13 @@ public class DLSyncEventPersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<DLSyncEvent> iterator = _dlSyncEvents.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<DLSyncEvent> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -137,7 +143,7 @@ public class DLSyncEventPersistenceTest {
 
 		newDLSyncEvent.setTypePK(RandomTestUtil.nextLong());
 
-		_persistence.update(newDLSyncEvent);
+		_dlSyncEvents.add(_persistence.update(newDLSyncEvent));
 
 		DLSyncEvent existingDLSyncEvent = _persistence.findByPrimaryKey(newDLSyncEvent.getPrimaryKey());
 
@@ -210,7 +216,7 @@ public class DLSyncEventPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<DLSyncEvent> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("DLSyncEvent",
 			"syncEventId", true, "modifiedTime", true, "event", true, "type",
 			true, "typePK", true);
@@ -232,6 +238,88 @@ public class DLSyncEventPersistenceTest {
 		DLSyncEvent missingDLSyncEvent = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingDLSyncEvent);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		DLSyncEvent newDLSyncEvent1 = addDLSyncEvent();
+		DLSyncEvent newDLSyncEvent2 = addDLSyncEvent();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDLSyncEvent1.getPrimaryKey());
+		primaryKeys.add(newDLSyncEvent2.getPrimaryKey());
+
+		Map<Serializable, DLSyncEvent> dlSyncEvents = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, dlSyncEvents.size());
+		Assert.assertEquals(newDLSyncEvent1,
+			dlSyncEvents.get(newDLSyncEvent1.getPrimaryKey()));
+		Assert.assertEquals(newDLSyncEvent2,
+			dlSyncEvents.get(newDLSyncEvent2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, DLSyncEvent> dlSyncEvents = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(dlSyncEvents.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		DLSyncEvent newDLSyncEvent = addDLSyncEvent();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDLSyncEvent.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, DLSyncEvent> dlSyncEvents = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, dlSyncEvents.size());
+		Assert.assertEquals(newDLSyncEvent,
+			dlSyncEvents.get(newDLSyncEvent.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, DLSyncEvent> dlSyncEvents = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(dlSyncEvents.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		DLSyncEvent newDLSyncEvent = addDLSyncEvent();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newDLSyncEvent.getPrimaryKey());
+
+		Map<Serializable, DLSyncEvent> dlSyncEvents = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, dlSyncEvents.size());
+		Assert.assertEquals(newDLSyncEvent,
+			dlSyncEvents.get(newDLSyncEvent.getPrimaryKey()));
 	}
 
 	@Test
@@ -357,13 +445,13 @@ public class DLSyncEventPersistenceTest {
 
 		dlSyncEvent.setTypePK(RandomTestUtil.nextLong());
 
-		_persistence.update(dlSyncEvent);
+		_dlSyncEvents.add(_persistence.update(dlSyncEvent));
 
 		return dlSyncEvent;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(DLSyncEventPersistenceTest.class);
+	private List<DLSyncEvent> _dlSyncEvents = new ArrayList<DLSyncEvent>();
 	private ModelListener<DLSyncEvent>[] _modelListeners;
-	private DLSyncEventPersistence _persistence = (DLSyncEventPersistence)PortalBeanLocatorUtil.locate(DLSyncEventPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private DLSyncEventPersistence _persistence = DLSyncEventUtil.getPersistence();
 }

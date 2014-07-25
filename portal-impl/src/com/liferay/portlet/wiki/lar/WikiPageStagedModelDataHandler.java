@@ -15,7 +15,6 @@
 package com.liferay.portlet.wiki.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
 import com.liferay.portal.kernel.lar.ExportImportHelperUtil;
 import com.liferay.portal.kernel.lar.ExportImportPathUtil;
@@ -54,11 +53,9 @@ public class WikiPageStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		WikiPage wikiPage =
-			WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
-				uuid, groupId);
+		WikiPage wikiPage = fetchExistingStagedModel(uuid, groupId);
 
 		if (wikiPage != null) {
 			WikiPageLocalServiceUtil.deletePage(wikiPage);
@@ -101,14 +98,18 @@ public class WikiPageStagedModelDataHandler
 	}
 
 	@Override
+	protected WikiPage doFetchExistingStagedModel(String uuid, long groupId) {
+		return WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
+			uuid, groupId);
+	}
+
+	@Override
 	protected void doImportMissingReference(
 			PortletDataContext portletDataContext, String uuid, long groupId,
 			long pageId)
 		throws Exception {
 
-		WikiPage existingPage =
-			WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
-				uuid, groupId);
+		WikiPage existingPage = fetchExistingStagedModel(uuid, groupId);
 
 		Map<Long, Long> pageIds =
 			(Map<Long, Long>)portletDataContext.getNewPrimaryKeysMap(
@@ -160,9 +161,8 @@ public class WikiPageStagedModelDataHandler
 				page.getRedirectTitle(), serviceContext);
 		}
 		else {
-			existingPage =
-				WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
-					page.getUuid(), portletDataContext.getScopeGroupId());
+			existingPage = fetchExistingStagedModel(
+				page.getUuid(), portletDataContext.getScopeGroupId());
 
 			if (existingPage == null) {
 				existingPage = WikiPageLocalServiceUtil.fetchPage(
@@ -256,9 +256,8 @@ public class WikiPageStagedModelDataHandler
 
 		long userId = portletDataContext.getUserId(page.getUserUuid());
 
-		WikiPage existingPage =
-			WikiPageLocalServiceUtil.fetchWikiPageByUuidAndGroupId(
-				page.getUuid(), portletDataContext.getScopeGroupId());
+		WikiPage existingPage = fetchExistingStagedModel(
+			page.getUuid(), portletDataContext.getScopeGroupId());
 
 		if ((existingPage == null) || !existingPage.isInTrash()) {
 			return;

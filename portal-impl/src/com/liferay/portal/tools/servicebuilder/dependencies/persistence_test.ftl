@@ -29,11 +29,13 @@ import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
+import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.io.unsync.UnsyncByteArrayInputStream;
 import com.liferay.portal.kernel.test.AssertUtils;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
@@ -41,11 +43,9 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.EnvironmentExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.RandomTestUtil;
 
@@ -56,20 +56,50 @@ import java.sql.SQLException;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jboss.arquillian.junit.Arquillian;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.Test;
 
-@ExecutionTestListeners(listeners = {PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+/**
+ * @generated
+ */
+<#if osgiModule>
+	@RunWith(Arquillian.class)
+<#else>
+	@RunWith(LiferayIntegrationJUnitTestRunner.class)
+</#if>
 public class ${entity.name}PersistenceTest {
+
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
 
 	@Before
 	public void setUp() {
@@ -82,24 +112,13 @@ public class ${entity.name}PersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<${entity.name}> iterator = _${entity.varNames}.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey + " was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<${entity.name}> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -227,6 +246,8 @@ public class ${entity.name}PersistenceTest {
 					RandomTestUtil.nextDate()
 				<#elseif column.type == "Blob">
 					 new${column.methodName}Blob
+				<#elseif column.type == "Map">
+					new HashMap()
 				<#elseif column.type == "String">
 					RandomTestUtil.randomString()
 				</#if>
@@ -235,7 +256,7 @@ public class ${entity.name}PersistenceTest {
 			</#if>
 		</#list>
 
-		_persistence.update(new${entity.name});
+		_${entity.varNames}.add(_persistence.update(new${entity.name}));
 
 		${entity.name} existing${entity.name} = _persistence.findByPrimaryKey(new${entity.name}.getPrimaryKey());
 
@@ -487,7 +508,7 @@ public class ${entity.name}PersistenceTest {
 			</#if>
 		</#list>
 
-		protected OrderByComparator getOrderByComparator() {
+		protected OrderByComparator<${entity.name}> getOrderByComparator() {
 			return OrderByComparatorFactoryUtil.create(
 				"${entity.table}",
 
@@ -553,6 +574,170 @@ public class ${entity.name}PersistenceTest {
 		${entity.name} missing${entity.name} = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missing${entity.name});
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist() throws Exception {
+		${entity.name} new${entity.name}1 = add${entity.name}();
+		${entity.name} new${entity.name}2 = add${entity.name}();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(new${entity.name}1.getPrimaryKey());
+		primaryKeys.add(new${entity.name}2.getPrimaryKey());
+
+		Map<Serializable, ${entity.name}> ${entity.varNames} = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, ${entity.varNames}.size());
+		Assert.assertEquals(new${entity.name}1, ${entity.varNames}.get(new${entity.name}1.getPrimaryKey()));
+		Assert.assertEquals(new${entity.name}2, ${entity.varNames}.get(new${entity.name}2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist() throws Exception {
+		<#if entity.hasCompoundPK()>
+			${entity.PKClassName} pk1 = new ${entity.PKClassName}(
+
+			<#list entity.PKList as column>
+				<#if column.type == "int">
+					RandomTestUtil.nextInt()
+				<#elseif column.type == "long">
+					RandomTestUtil.nextLong()
+				<#elseif column.type == "String">
+					RandomTestUtil.randomString()
+				</#if>
+
+				<#if column_has_next>
+					,
+				</#if>
+			</#list>
+
+			);
+
+			${entity.PKClassName} pk2 = new ${entity.PKClassName}(
+
+			<#list entity.PKList as column>
+				<#if column.type == "int">
+					RandomTestUtil.nextInt()
+				<#elseif column.type == "long">
+					RandomTestUtil.nextLong()
+				<#elseif column.type == "String">
+					RandomTestUtil.randomString()
+				</#if>
+
+				<#if column_has_next>
+					,
+				</#if>
+			</#list>
+
+			);
+		<#else>
+			<#assign column = entity.PKList[0]>
+
+			${column.type} pk1 =
+
+			<#if column.type == "int">
+				RandomTestUtil.nextInt()
+			<#elseif column.type == "long">
+				RandomTestUtil.nextLong()
+			<#elseif column.type == "String">
+				RandomTestUtil.randomString()
+			</#if>
+
+			;
+
+			${column.type} pk2 =
+
+			<#if column.type == "int">
+				RandomTestUtil.nextInt()
+			<#elseif column.type == "long">
+				RandomTestUtil.nextLong()
+			<#elseif column.type == "String">
+				RandomTestUtil.randomString()
+			</#if>
+
+			;
+		</#if>
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, ${entity.name}> ${entity.varNames} = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(${entity.varNames}.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist() throws Exception {
+		${entity.name} new${entity.name} = add${entity.name}();
+
+		<#if entity.hasCompoundPK()>
+			${entity.PKClassName} pk = new ${entity.PKClassName}(
+
+			<#list entity.PKList as column>
+				<#if column.type == "int">
+					RandomTestUtil.nextInt()
+				<#elseif column.type == "long">
+					RandomTestUtil.nextLong()
+				<#elseif column.type == "String">
+					RandomTestUtil.randomString()
+				</#if>
+
+				<#if column_has_next>
+					,
+				</#if>
+			</#list>
+
+			);
+		<#else>
+			${column.type} pk =
+
+			<#if column.type == "int">
+				RandomTestUtil.nextInt()
+			<#elseif column.type == "long">
+				RandomTestUtil.nextLong()
+			<#elseif column.type == "String">
+				RandomTestUtil.randomString()
+			</#if>
+
+			;
+		</#if>
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(new${entity.name}.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, ${entity.name}> ${entity.varNames} = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, ${entity.varNames}.size());
+		Assert.assertEquals(new${entity.name}, ${entity.varNames}.get(new${entity.name}.getPrimaryKey()));
+	}
+
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys() throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, ${entity.name}> ${entity.varNames} = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(${entity.varNames}.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey() throws Exception {
+		${entity.name} new${entity.name} = add${entity.name}();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(new${entity.name}.getPrimaryKey());
+
+		Map<Serializable, ${entity.name}> ${entity.varNames} = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, ${entity.varNames}.size());
+		Assert.assertEquals(new${entity.name}, ${entity.varNames}.get(new${entity.name}.getPrimaryKey()));
 	}
 
 	<#if entity.hasActionableDynamicQuery()>
@@ -798,15 +983,17 @@ public class ${entity.name}PersistenceTest {
 					${column.name}Blob
 				<#elseif column.type == "Date">
 					RandomTestUtil.nextDate()
+				<#elseif column.type == "Map">
+					new HashMap()
 				<#elseif column.type == "String">
-					RandomTestUtil.randomString()
+	                RandomTestUtil.randomString()
 				</#if>
 
 				);
 			</#if>
 		</#list>
 
-		_persistence.update(${entity.varName});
+		_${entity.varNames}.add(_persistence.update(${entity.varName}));
 
 		return ${entity.varName};
 	}
@@ -1044,7 +1231,9 @@ public class ${entity.name}PersistenceTest {
 						<#elseif column.type == "Date">
 							RandomTestUtil.nextDate()
 						<#elseif column.type == "String">
-							RandomTestUtil.randomString()
+	                        RandomTestUtil.randomString()
+						<#elseif column.type == "Map">
+							new HashMap();
 						</#if>
 
 						);
@@ -1064,8 +1253,8 @@ public class ${entity.name}PersistenceTest {
 
 	private static Log _log = LogFactoryUtil.getLog(${entity.name}PersistenceTest.class);
 
+	private List<${entity.name}> _${entity.varNames} = new ArrayList<${entity.name}>();
 	private ModelListener<${entity.name}>[] _modelListeners;
-	private ${entity.name}Persistence _persistence = (${entity.name}Persistence)${beanLocatorUtilShortName}.locate(${entity.name}Persistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)${beanLocatorUtilShortName}.locate(TransactionalPersistenceAdvice.class.getName());
+	private ${entity.name}Persistence _persistence = ${entity.name}Util.getPersistence();
 
 }

@@ -14,7 +14,6 @@
 
 package com.liferay.portlet.softwarecatalog.service.persistence;
 
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil;
@@ -23,15 +22,16 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.test.ExecutionTestListeners;
+import com.liferay.portal.kernel.template.TemplateException;
+import com.liferay.portal.kernel.template.TemplateManagerUtil;
+import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.util.IntegerWrapper;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
 import com.liferay.portal.model.ModelListener;
-import com.liferay.portal.service.persistence.BasePersistence;
-import com.liferay.portal.service.persistence.PersistenceExecutionTestListener;
-import com.liferay.portal.test.LiferayPersistenceIntegrationJUnitTestRunner;
-import com.liferay.portal.test.persistence.TransactionalPersistenceAdvice;
+import com.liferay.portal.test.TransactionalTestRule;
+import com.liferay.portal.test.runners.LiferayIntegrationJUnitTestRunner;
+import com.liferay.portal.tools.DBUpgrader;
 import com.liferay.portal.util.PropsValues;
 import com.liferay.portal.util.test.RandomTestUtil;
 
@@ -43,23 +43,41 @@ import com.liferay.portlet.softwarecatalog.service.SCProductScreenshotLocalServi
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 import org.junit.runner.RunWith;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Brian Wing Shun Chan
+ * @generated
  */
-@ExecutionTestListeners(listeners =  {
-	PersistenceExecutionTestListener.class})
-@RunWith(LiferayPersistenceIntegrationJUnitTestRunner.class)
+@RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class SCProductScreenshotPersistenceTest {
+	@ClassRule
+	public static TransactionalTestRule transactionalTestRule = new TransactionalTestRule(Propagation.REQUIRED);
+
+	@BeforeClass
+	public static void setupClass() throws TemplateException {
+		try {
+			DBUpgrader.upgrade();
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		TemplateManagerUtil.init();
+	}
+
 	@Before
 	public void setUp() {
 		_modelListeners = _persistence.getListeners();
@@ -71,25 +89,13 @@ public class SCProductScreenshotPersistenceTest {
 
 	@After
 	public void tearDown() throws Exception {
-		Map<Serializable, BasePersistence<?>> basePersistences = _transactionalPersistenceAdvice.getBasePersistences();
+		Iterator<SCProductScreenshot> iterator = _scProductScreenshots.iterator();
 
-		Set<Serializable> primaryKeys = basePersistences.keySet();
+		while (iterator.hasNext()) {
+			_persistence.remove(iterator.next());
 
-		for (Serializable primaryKey : primaryKeys) {
-			BasePersistence<?> basePersistence = basePersistences.get(primaryKey);
-
-			try {
-				basePersistence.remove(primaryKey);
-			}
-			catch (Exception e) {
-				if (_log.isDebugEnabled()) {
-					_log.debug("The model with primary key " + primaryKey +
-						" was already deleted");
-				}
-			}
+			iterator.remove();
 		}
-
-		_transactionalPersistenceAdvice.reset();
 
 		for (ModelListener<SCProductScreenshot> modelListener : _modelListeners) {
 			_persistence.registerListener(modelListener);
@@ -141,7 +147,7 @@ public class SCProductScreenshotPersistenceTest {
 
 		newSCProductScreenshot.setPriority(RandomTestUtil.nextInt());
 
-		_persistence.update(newSCProductScreenshot);
+		_scProductScreenshots.add(_persistence.update(newSCProductScreenshot));
 
 		SCProductScreenshot existingSCProductScreenshot = _persistence.findByPrimaryKey(newSCProductScreenshot.getPrimaryKey());
 
@@ -244,7 +250,7 @@ public class SCProductScreenshotPersistenceTest {
 		}
 	}
 
-	protected OrderByComparator getOrderByComparator() {
+	protected OrderByComparator<SCProductScreenshot> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create("SCProductScreenshot",
 			"productScreenshotId", true, "companyId", true, "groupId", true,
 			"productEntryId", true, "thumbnailId", true, "fullImageId", true,
@@ -267,6 +273,88 @@ public class SCProductScreenshotPersistenceTest {
 		SCProductScreenshot missingSCProductScreenshot = _persistence.fetchByPrimaryKey(pk);
 
 		Assert.assertNull(missingSCProductScreenshot);
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereAllPrimaryKeysExist()
+		throws Exception {
+		SCProductScreenshot newSCProductScreenshot1 = addSCProductScreenshot();
+		SCProductScreenshot newSCProductScreenshot2 = addSCProductScreenshot();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSCProductScreenshot1.getPrimaryKey());
+		primaryKeys.add(newSCProductScreenshot2.getPrimaryKey());
+
+		Map<Serializable, SCProductScreenshot> scProductScreenshots = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(2, scProductScreenshots.size());
+		Assert.assertEquals(newSCProductScreenshot1,
+			scProductScreenshots.get(newSCProductScreenshot1.getPrimaryKey()));
+		Assert.assertEquals(newSCProductScreenshot2,
+			scProductScreenshots.get(newSCProductScreenshot2.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereNoPrimaryKeysExist()
+		throws Exception {
+		long pk1 = RandomTestUtil.nextLong();
+
+		long pk2 = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(pk1);
+		primaryKeys.add(pk2);
+
+		Map<Serializable, SCProductScreenshot> scProductScreenshots = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(scProductScreenshots.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithMultiplePrimaryKeysWhereSomePrimaryKeysExist()
+		throws Exception {
+		SCProductScreenshot newSCProductScreenshot = addSCProductScreenshot();
+
+		long pk = RandomTestUtil.nextLong();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSCProductScreenshot.getPrimaryKey());
+		primaryKeys.add(pk);
+
+		Map<Serializable, SCProductScreenshot> scProductScreenshots = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, scProductScreenshots.size());
+		Assert.assertEquals(newSCProductScreenshot,
+			scProductScreenshots.get(newSCProductScreenshot.getPrimaryKey()));
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithNoPrimaryKeys()
+		throws Exception {
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		Map<Serializable, SCProductScreenshot> scProductScreenshots = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertTrue(scProductScreenshots.isEmpty());
+	}
+
+	@Test
+	public void testFetchByPrimaryKeysWithOnePrimaryKey()
+		throws Exception {
+		SCProductScreenshot newSCProductScreenshot = addSCProductScreenshot();
+
+		Set<Serializable> primaryKeys = new HashSet<Serializable>();
+
+		primaryKeys.add(newSCProductScreenshot.getPrimaryKey());
+
+		Map<Serializable, SCProductScreenshot> scProductScreenshots = _persistence.fetchByPrimaryKeys(primaryKeys);
+
+		Assert.assertEquals(1, scProductScreenshots.size());
+		Assert.assertEquals(newSCProductScreenshot,
+			scProductScreenshots.get(newSCProductScreenshot.getPrimaryKey()));
 	}
 
 	@Test
@@ -407,13 +495,13 @@ public class SCProductScreenshotPersistenceTest {
 
 		scProductScreenshot.setPriority(RandomTestUtil.nextInt());
 
-		_persistence.update(scProductScreenshot);
+		_scProductScreenshots.add(_persistence.update(scProductScreenshot));
 
 		return scProductScreenshot;
 	}
 
 	private static Log _log = LogFactoryUtil.getLog(SCProductScreenshotPersistenceTest.class);
+	private List<SCProductScreenshot> _scProductScreenshots = new ArrayList<SCProductScreenshot>();
 	private ModelListener<SCProductScreenshot>[] _modelListeners;
-	private SCProductScreenshotPersistence _persistence = (SCProductScreenshotPersistence)PortalBeanLocatorUtil.locate(SCProductScreenshotPersistence.class.getName());
-	private TransactionalPersistenceAdvice _transactionalPersistenceAdvice = (TransactionalPersistenceAdvice)PortalBeanLocatorUtil.locate(TransactionalPersistenceAdvice.class.getName());
+	private SCProductScreenshotPersistence _persistence = SCProductScreenshotUtil.getPersistence();
 }

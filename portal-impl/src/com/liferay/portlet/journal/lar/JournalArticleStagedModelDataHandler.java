@@ -15,7 +15,6 @@
 package com.liferay.portlet.journal.lar;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.lar.BaseStagedModelDataHandler;
@@ -39,7 +38,6 @@ import com.liferay.portal.model.Image;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.User;
 import com.liferay.portal.service.ImageLocalServiceUtil;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.UserLocalServiceUtil;
 import com.liferay.portal.util.PortalUtil;
@@ -77,13 +75,11 @@ public class JournalArticleStagedModelDataHandler
 	@Override
 	public void deleteStagedModel(
 			String uuid, long groupId, String className, String extraData)
-		throws PortalException, SystemException {
+		throws PortalException {
 
-		JournalArticleResource articleResource =
-			JournalArticleResourceLocalServiceUtil.fetchArticleResource(
-				uuid, groupId);
+		JournalArticle article = fetchExistingStagedModel(uuid, groupId);
 
-		if (articleResource == null) {
+		if (article == null) {
 			return;
 		}
 
@@ -92,18 +88,15 @@ public class JournalArticleStagedModelDataHandler
 
 		if (Validator.isNull(extraData) ||
 			extraDataJSONObject.getBoolean("inTrash")) {
-
-			JournalArticleLocalServiceUtil.deleteArticle(
-				groupId, articleResource.getArticleId(), null);
 		}
 		else {
 			double version = extraDataJSONObject.getDouble("version");
 
-			JournalArticle article = JournalArticleLocalServiceUtil.getArticle(
-				groupId, articleResource.getArticleId(), version);
-
-			JournalArticleLocalServiceUtil.deleteArticle(article);
+			article = JournalArticleLocalServiceUtil.getArticle(
+				groupId, article.getArticleId(), version);
 		}
+
+		JournalArticleLocalServiceUtil.deleteArticle(article);
 	}
 
 	@Override
@@ -130,12 +123,15 @@ public class JournalArticleStagedModelDataHandler
 
 		Map<String, String> referenceAttributes = new HashMap<String, String>();
 
-		String articleResourceUuid = StringPool.BLANK;
+		String articleResourceUuid = null;
 
 		try {
 			articleResourceUuid = article.getArticleResourceUuid();
 		}
 		catch (Exception e) {
+			throw new IllegalStateException(
+				"Unable to find article resource for article " +
+					article.getArticleId());
 		}
 
 		referenceAttributes.put("article-resource-uuid", articleResourceUuid);
@@ -180,7 +176,7 @@ public class JournalArticleStagedModelDataHandler
 		long liveGroupId = GetterUtil.getLong(
 			referenceElement.attributeValue("live-group-id"));
 
-		liveGroupId = MapUtil.getLong(groupIds, liveGroupId, liveGroupId);
+		liveGroupId = MapUtil.getLong(groupIds, liveGroupId);
 
 		String articleArticleId = referenceElement.attributeValue("article-id");
 		boolean preloaded = GetterUtil.getBoolean(
@@ -188,14 +184,9 @@ public class JournalArticleStagedModelDataHandler
 
 		JournalArticle existingArticle = null;
 
-		try {
-			existingArticle = fetchExistingArticle(
-				articleResourceUuid, liveGroupId, articleArticleId, null, 0.0,
-				preloaded);
-		}
-		catch (SystemException se) {
-			throw new PortletDataException(se);
-		}
+		existingArticle = fetchExistingArticle(
+			articleResourceUuid, liveGroupId, articleArticleId, null, 0.0,
+			preloaded);
 
 		Map<String, String> articleArticleIds =
 			(Map<String, String>)portletDataContext.getNewPrimaryKeysMap(
@@ -217,11 +208,7 @@ public class JournalArticleStagedModelDataHandler
 	public boolean validateReference(
 		PortletDataContext portletDataContext, Element referenceElement) {
 
-		if (!validateMissingGroupReference(
-				portletDataContext, referenceElement)) {
-
-			return false;
-		}
+		validateMissingGroupReference(portletDataContext, referenceElement);
 
 		String articleResourceUuid = referenceElement.attributeValue(
 			"article-resource-uuid");
@@ -233,26 +220,21 @@ public class JournalArticleStagedModelDataHandler
 		long liveGroupId = GetterUtil.getLong(
 			referenceElement.attributeValue("live-group-id"));
 
-		liveGroupId = MapUtil.getLong(groupIds, liveGroupId, liveGroupId);
+		liveGroupId = MapUtil.getLong(groupIds, liveGroupId);
 
 		String articleArticleId = referenceElement.attributeValue("article-id");
 		boolean preloaded = GetterUtil.getBoolean(
 			referenceElement.attributeValue("preloaded"));
 
-		try {
-			JournalArticle existingArticle = fetchExistingArticle(
-				articleResourceUuid, liveGroupId, articleArticleId, null, 0.0,
-				preloaded);
+		JournalArticle existingArticle = fetchExistingArticle(
+			articleResourceUuid, liveGroupId, articleArticleId, null, 0.0,
+			preloaded);
 
-			if (existingArticle == null) {
-				return false;
-			}
-
-			return true;
-		}
-		catch (SystemException se) {
+		if (existingArticle == null) {
 			return false;
 		}
+
+		return true;
 	}
 
 	@Override
@@ -300,10 +282,9 @@ public class JournalArticleStagedModelDataHandler
 			portletDataContext, article, ddmTemplate,
 			PortletDataContext.REFERENCE_TYPE_STRONG);
 
-		if (Validator.isNotNull(article.getLayoutUuid())) {
-			Layout layout = LayoutLocalServiceUtil.getLayoutByUuidAndCompanyId(
-				article.getLayoutUuid(), portletDataContext.getCompanyId());
+		Layout layout = article.getLayout();
 
+		if (layout != null) {
 			portletDataContext.addReferenceElement(
 				article, articleElement, layout,
 				PortletDataContext.REFERENCE_TYPE_DEPENDENCY, true);
@@ -317,8 +298,7 @@ public class JournalArticleStagedModelDataHandler
 				String smallImageURL =
 					ExportImportHelperUtil.replaceExportContentReferences(
 						portletDataContext, article,
-						article.getSmallImageURL().concat(StringPool.SPACE),
-						true);
+						article.getSmallImageURL() + StringPool.SPACE, true);
 
 				article.setSmallImageURL(smallImageURL);
 			}
@@ -366,6 +346,23 @@ public class JournalArticleStagedModelDataHandler
 		portletDataContext.addClassedModel(
 			articleElement, ExportImportPathUtil.getModelPath(article),
 			article);
+	}
+
+	@Override
+	protected JournalArticle doFetchExistingStagedModel(
+		String uuid, long groupId) {
+
+		JournalArticleResource existingArticleResource =
+			JournalArticleResourceLocalServiceUtil.fetchArticleResource(
+				uuid, groupId);
+
+		if (existingArticleResource == null) {
+			return null;
+		}
+
+		return JournalArticleLocalServiceUtil.fetchLatestArticle(
+			existingArticleResource.getResourcePrimKey(),
+			WorkflowConstants.STATUS_ANY, false);
 	}
 
 	@Override
@@ -746,10 +743,8 @@ public class JournalArticleStagedModelDataHandler
 	}
 
 	protected void exportArticleImage(
-			PortletDataContext portletDataContext,
-			JournalArticleImage articleImage, JournalArticle article,
-			Element articleElement)
-		throws SystemException {
+		PortletDataContext portletDataContext, JournalArticleImage articleImage,
+		JournalArticle article, Element articleElement) {
 
 		Image image = ImageLocalServiceUtil.fetchImage(
 			articleImage.getArticleImageId());
@@ -790,23 +785,16 @@ public class JournalArticleStagedModelDataHandler
 	}
 
 	protected JournalArticle fetchExistingArticle(
-			String articleResourceUuid, long groupId, String articleId,
-			String newArticleId, double version, boolean preloaded)
-		throws SystemException {
-
-		JournalArticleResource existingArticleResource = null;
+		String articleResourceUuid, long groupId, String articleId,
+		String newArticleId, double version, boolean preloaded) {
 
 		if (!preloaded) {
-			existingArticleResource =
-				JournalArticleResourceLocalServiceUtil.
-					fetchJournalArticleResourceByUuidAndGroupId(
-						articleResourceUuid, groupId);
+			return fetchExistingStagedModel(articleResourceUuid, groupId);
 		}
-		else {
-			existingArticleResource =
-				JournalArticleResourceLocalServiceUtil.fetchArticleResource(
-					groupId, articleId);
-		}
+
+		JournalArticleResource existingArticleResource =
+			JournalArticleResourceLocalServiceUtil.fetchArticleResource(
+				groupId, articleId);
 
 		JournalArticle existingArticle = null;
 
@@ -821,6 +809,11 @@ public class JournalArticleStagedModelDataHandler
 
 			existingArticle = JournalArticleLocalServiceUtil.fetchArticle(
 				groupId, newArticleId, version);
+		}
+
+		if ((existingArticle == null) && Validator.isNull(newArticleId)) {
+			existingArticle = JournalArticleLocalServiceUtil.fetchArticle(
+				groupId, articleId, version);
 		}
 
 		return existingArticle;

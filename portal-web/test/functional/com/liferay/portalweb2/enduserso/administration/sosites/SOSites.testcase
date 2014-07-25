@@ -22,6 +22,8 @@
 		<execute macro="SOSite#tearDownCP" />
 
 		<execute macro="Role#tearDownCP" />
+
+		<execute macro="SOConfigurations#tearDownConfigurationsCP" />
 	</tear-down>
 
 	<command name="AcceptMemberRequestSOSitePrivateRestricted" priority="5">
@@ -194,7 +196,8 @@
 
 		<var name="key_siteName" value="${siteName}" />
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
+
 		<execute action="SOUserBar#selectFrameTop" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO" />
 		<execute action="SOUserBar#select" locator-key1="GO_TO_SITE_CATEGORY_SELECT" value1="My Sites" />
@@ -795,6 +798,144 @@
 		</execute>
 	</command>
 
+	<command name="ConfirmInviteSOSitePrivateRestricted" priority="4">
+		<var name="siteDescription" value="Private Restricted Site Description" />
+		<var name="siteName" value="Private Restricted Site Name" />
+		<var name="siteType" value="Private Restricted" />
+		<var name="soPage" value="true" />
+		<var name="userEmailAddress" value="socialoffice01@liferay.com" />
+		<var name="userFirstName" value="Social01" />
+		<var name="userLastName" value="User01" />
+		<var name="userListName" value="User01, Social01" />
+		<var name="userMiddleName" value="Office01" />
+		<var name="userName" value="Social01 Office01 User01" />
+		<var name="userScreenName" value="socialoffice01" />
+
+		<execute macro="SOUserBar#addSOSite">
+			<var name="siteDescription" value="${siteDescription}" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteType" value="${siteType}" />
+		</execute>
+
+		<execute macro="SOUser#addUserWithSORole">
+			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="password" value="test" />
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageAccess" value="Private" />
+			<var name="pageName" value="Members" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="SOMembers#inviteMember">
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userName" value="${userName}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="SOMembers#confirmMemberInvite">
+			<var name="senderName" value="${adminName}" />
+		</execute>
+
+		<execute macro="SOMembers#viewConfirmMemberInvite" />
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${adminEmailAddress}" />
+			<var name="userLoginFullName" value="${adminName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageAccess" value="Private" />
+			<var name="pageName" value="Members" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="SOMembers#viewMember" />
+	</command>
+
+	<command name="ConfirmInviteSOSitePublicRestricted" priority="4">
+		<var name="siteDescription" value="Public Restricted Site Description" />
+		<var name="siteName" value="Public Restricted Site Name" />
+		<var name="siteType" value="Public Restricted" />
+		<var name="soPage" value="true" />
+		<var name="userEmailAddress" value="socialoffice01@liferay.com" />
+		<var name="userFirstName" value="Social01" />
+		<var name="userLastName" value="User01" />
+		<var name="userListName" value="User01, Social01" />
+		<var name="userMiddleName" value="Office01" />
+		<var name="userName" value="Social01 Office01 User01" />
+		<var name="userScreenName" value="socialoffice01" />
+
+		<execute macro="SOUserBar#addSOSite">
+			<var name="siteDescription" value="${siteDescription}" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteType" value="${siteType}" />
+		</execute>
+
+		<execute macro="SOUser#addUserWithSORole">
+			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="password" value="test" />
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Members" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="SOMembers#inviteMember">
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userName" value="${userName}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="SOMembers#confirmMemberInvite">
+			<var name="senderName" value="${adminName}" />
+		</execute>
+
+		<execute macro="SOMembers#viewConfirmMemberInvite" />
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${adminEmailAddress}" />
+			<var name="userLoginFullName" value="${adminName}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Members" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="SOMembers#viewMember" />
+	</command>
+
 	<command name="DeleteSOSiteOpen" priority="5">
 		<var name="siteDescription" value="Open Site Description" />
 		<var name="siteName" value="Open Site Name" />
@@ -1018,6 +1159,181 @@
 			<var name="userMiddleName" value="${userMiddleName}" />
 			<var name="userName" value="${userName}" />
 			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+	</command>
+
+	<command name="EnableAndDisableAddSOSiteSOConfigurations" priority="5">
+		<var name="siteDescription" value="Open Site Description" />
+		<var name="siteName" value="Open Site Name" />
+		<var name="siteType" value="Open" />
+		<var name="userEmailAddress" value="socialoffice01@liferay.com" />
+		<var name="userFirstName" value="Social01" />
+		<var name="userLastName" value="User01" />
+		<var name="userListName" value="User01, Social01" />
+		<var name="userMiddleName" value="Office01" />
+		<var name="userName" value="Social01 Office01 User01" />
+		<var name="userScreenName" value="socialoffice01" />
+
+		<execute macro="SOUser#addUserWithSORole">
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="SOConfigurations#disableAddSOSiteCP" />
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute action="SOUserBar#selectFrameTop" />
+		<execute action="SOUserBar#click" locator-key1="GO_TO" />
+		<execute action="SOUserBar#assertElementNotPresent" locator-key1="GO_TO_ADD_SITE_BUTTON" />
+		<execute action="SOUserBar#sikuliAssertElementPresent" locator-key1="SCREENSHOTS_USERBAR_GO_TO_MENU_ADD_SITE_NOT_PRESENT_PNG" />
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${adminEmailAddress}" />
+			<var name="userLoginFullName" value="${adminName}" />
+		</execute>
+
+		<execute macro="SOConfigurations#enableAddSOSiteCP" />
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="SOUserBar#addSOSite">
+			<var name="siteDescription" value="${siteDescription}" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteType" value="${siteType}" />
+		</execute>
+
+		<execute action="SOUserBar#selectFrameTop" />
+		<execute action="SOUserBar#click" locator-key1="GO_TO" />
+		<execute action="SOUserBar#sikuliAssertElementPresent" locator-key1="SCREENSHOTS_USERBAR_GO_TO_MENU_ADD_SITE_PRESENT_PNG" />
+	</command>
+
+	<command name="EnableAndDisableSOSiteTypesSOConfigurations" priority="5">
+		<var name="siteType1" value="Open" />
+		<var name="siteType2" value="Private Restricted" />
+		<var name="siteType3" value="Private" />
+		<var name="siteType4" value="Public Restricted" />
+
+		<execute macro="SOConfigurations#enableSOSiteTypeCP">
+			<var name="siteType" value="${siteType1}" />
+		</execute>
+
+		<execute macro="SOConfigurations#disableSOSiteTypeCP">
+			<var name="siteTypeList" value="${siteType2},${siteType3},${siteType4}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewEnabledSOSiteTypes">
+			<var name="siteType" value="${siteType1}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewDisabledSOSiteTypes">
+			<var name="siteTypeList" value="${siteType2},${siteType3},${siteType4}" />
+		</execute>
+
+		<execute macro="SOConfigurations#enableSOSiteTypeCP">
+			<var name="siteType" value="${siteType2}" />
+		</execute>
+
+		<execute macro="SOConfigurations#disableSOSiteTypeCP">
+			<var name="siteTypeList" value="${siteType1},${siteType3},${siteType4}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewEnabledSOSiteTypes">
+			<var name="siteType" value="${siteType2}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewDisabledSOSiteTypes">
+			<var name="siteTypeList" value="${siteType1},${siteType3},${siteType4}" />
+		</execute>
+
+		<execute macro="SOConfigurations#enableSOSiteTypeCP">
+			<var name="siteType" value="${siteType3}" />
+		</execute>
+
+		<execute macro="SOConfigurations#disableSOSiteTypeCP">
+			<var name="siteTypeList" value="${siteType1},${siteType2},${siteType4}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewEnabledSOSiteTypes">
+			<var name="siteType" value="${siteType3}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewDisabledSOSiteTypes">
+			<var name="siteTypeList" value="${siteType1},${siteType2},${siteType4}" />
+		</execute>
+
+		<execute macro="SOConfigurations#enableSOSiteTypeCP">
+			<var name="siteType" value="${siteType4}" />
+		</execute>
+
+		<execute macro="SOConfigurations#disableSOSiteTypeCP">
+			<var name="siteTypeList" value="${siteType1},${siteType2},${siteType3}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewEnabledSOSiteTypes">
+			<var name="siteType" value="${siteType4}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewDisabledSOSiteTypes">
+			<var name="siteTypeList" value="${siteType1},${siteType2},${siteType3}" />
+		</execute>
+
+		<execute macro="SOConfigurations#enableSOSiteTypeCP">
+			<var name="siteTypeList" value="${siteType1},${siteType2}" />
+		</execute>
+
+		<execute macro="SOConfigurations#disableSOSiteTypeCP">
+			<var name="siteTypeList" value="${siteType3},${siteType4}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewEnabledSOSiteTypes">
+			<var name="siteTypeList" value="${siteType1},${siteType2}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewDisabledSOSiteTypes">
+			<var name="siteTypeList" value="${siteType3},${siteType4}" />
+		</execute>
+
+		<execute macro="SOConfigurations#enableSOSiteTypeCP">
+			<var name="siteTypeList" value="${siteType1},${siteType2},${siteType3}" />
+		</execute>
+
+		<execute macro="SOConfigurations#disableSOSiteTypeCP">
+			<var name="siteType" value="${siteType4}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewEnabledSOSiteTypes">
+			<var name="siteTypeList" value="${siteType1},${siteType2},${siteType3}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewDisabledSOSiteTypes">
+			<var name="siteType" value="${siteType4}" />
+		</execute>
+
+		<execute macro="SOConfigurations#disableSOSiteTypeCP">
+			<var name="siteTypeList" value="${siteType1},${siteType2},${siteType3},${siteType4}" />
+		</execute>
+
+		<execute action="SOUserBar#selectFrameTop" />
+		<execute action="SOUserBar#click" locator-key1="GO_TO" />
+		<execute action="SOUserBar#assertElementNotPresent" locator-key1="GO_TO_ADD_SITE_BUTTON" />
+		<execute action="SOUserBar#sikuliAssertElementPresent" locator-key1="SCREENSHOTS_USERBAR_GO_TO_MENU_ADD_SITE_NOT_PRESENT_PNG" />
+
+		<execute macro="SOConfigurations#enableSOSiteTypeCP">
+			<var name="siteTypeList" value="${siteType1},${siteType2},${siteType3},${siteType4}" />
+		</execute>
+
+		<execute macro="SOUserBar#viewEnabledSOSiteTypes">
+			<var name="siteTypeList" value="${siteType1},${siteType2},${siteType3},${siteType4}" />
 		</execute>
 	</command>
 
@@ -1304,6 +1620,133 @@
 
 		<execute macro="Page#gotoPG">
 			<var name="pageAccess" value="Private" />
+			<var name="pageName" value="Members" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="SOMembers#inviteMember">
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="SOMembers#ignoreMemberInvite">
+			<var name="senderName" value="${adminName}" />
+		</execute>
+
+		<execute macro="SOSite#viewSOSiteNonMembership">
+			<var name="siteDescription" value="${siteDescription}" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteType" value="${siteType}" />
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userListName" value="${userListName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userName" value="${userName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+	</command>
+
+	<command name="IgnoreInviteSOSitePrivateRestricted" priority="4">
+		<var name="siteDescription" value="Private Restricted Site Description" />
+		<var name="siteName" value="Private Restricted Site Name" />
+		<var name="siteType" value="Private Restricted" />
+		<var name="soPage" value="true" />
+		<var name="userEmailAddress" value="socialoffice01@liferay.com" />
+		<var name="userFirstName" value="Social01" />
+		<var name="userLastName" value="User01" />
+		<var name="userListName" value="User01, Social01" />
+		<var name="userMiddleName" value="Office01" />
+		<var name="userName" value="Social01 Office01 User01" />
+		<var name="userScreenName" value="socialoffice01" />
+
+		<execute macro="SOUser#addUserWithSORole">
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="SOUserBar#addSOSite">
+			<var name="siteDescription" value="${siteDescription}" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteType" value="${siteType}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageAccess" value="Private" />
+			<var name="pageName" value="Members" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="SOMembers#inviteMember">
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="SOMembers#ignoreMemberInvite">
+			<var name="senderName" value="${adminName}" />
+		</execute>
+
+		<execute macro="SOSite#viewSOSiteNonMembership">
+			<var name="siteDescription" value="${siteDescription}" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteType" value="${siteType}" />
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userListName" value="${userListName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userName" value="${userName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+	</command>
+
+	<command name="IgnoreInviteSOSitePublicRestricted" priority="4">
+		<var name="siteDescription" value="Public Restricted Site Description" />
+		<var name="siteName" value="Public Restricted Site Name" />
+		<var name="siteType" value="Public Restricted" />
+		<var name="soPage" value="true" />
+		<var name="userEmailAddress" value="socialoffice01@liferay.com" />
+		<var name="userFirstName" value="Social01" />
+		<var name="userLastName" value="User01" />
+		<var name="userListName" value="User01, Social01" />
+		<var name="userMiddleName" value="Office01" />
+		<var name="userName" value="Social01 Office01 User01" />
+		<var name="userScreenName" value="socialoffice01" />
+
+		<execute macro="SOUser#addUserWithSORole">
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="SOUserBar#addSOSite">
+			<var name="siteDescription" value="${siteDescription}" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteType" value="${siteType}" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Members" />
 			<var name="siteName" value="${siteName}" />
 			<var name="siteURL" value="true" />
@@ -1763,7 +2206,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${entryTitle}" />
@@ -1802,7 +2245,7 @@
 		</execute>
 	</command>
 
-	<command name="SearchBookmarksEntrySOSiteOpenDeleted" priority="4">
+	<command known-issues="SOS-2355" name="SearchBookmarksEntrySOSiteOpenDeleted" priority="4">
 		<var name="bookmarksEntryDescription" value="Bookmarks Entry Description" />
 		<var name="bookmarksEntryName" value="Bookmarks Entry Name" />
 		<var name="bookmarksEntryUrl" value="http://www.google.com" />
@@ -1866,7 +2309,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${bookmarksEntryDescription}" />
@@ -2084,7 +2527,7 @@
 			<var name="userLoginFullName" value="${userName}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute action="SOActivities#click" locator-key1="NAVIGATION_ALL" />
 		<execute action="SOActivities#assertTextEquals" locator-key1="NO_ACTIVITIES" value1="There are no activities." />
@@ -2480,7 +2923,7 @@
 			<var name="userLoginFullName" value="${userName}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute action="SOActivities#click" locator-key1="NAVIGATION_ALL" />
 		<execute action="SOActivities#assertTextEquals" locator-key1="NO_ACTIVITIES" value1="There are no activities." />
@@ -2788,7 +3231,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${dmDocumentDescription}" />
@@ -2934,7 +3377,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${dmDocumentDescription}" />
@@ -3084,7 +3527,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${dmDocumentDescription}" />
@@ -3232,7 +3675,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${dmDocumentDescription}" />
@@ -3343,7 +3786,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${threadBody}" />
@@ -3469,7 +3912,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${threadBody}" />
@@ -3599,7 +4042,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${threadBody}" />
@@ -3728,7 +4171,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${threadBody}" />
@@ -4055,7 +4498,7 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
 
 		<execute macro="Search#searchNoPG">
 			<var name="searchAssetSummary" value="${wikiPageContent}" />
@@ -4091,6 +4534,220 @@
 			<var name="searchNoResults" value="true" />
 			<var name="searchSocialOffice" value="true" />
 			<var name="searchTerm" value="Content" />
+		</execute>
+	</command>
+
+	<command name="ViewSOSiteLocalized" priority="4">
+		<var name="siteDescription" value="Open Site Description" />
+		<var name="siteName" value="Open Site Name" />
+		<var name="siteType" value="Open" />
+		<var name="userEmailAddress" value="socialoffice01@liferay.com" />
+		<var name="userFirstName" value="Social01" />
+		<var name="userLastName" value="User01" />
+		<var name="userMiddleName" value="Office01" />
+		<var name="userScreenName" value="socialoffice01" />
+
+		<execute macro="SOUser#addUserWithSORole">
+			<var name="userEmailAddress" value="${userEmailAddress}" />
+			<var name="userFirstName" value="${userFirstName}" />
+			<var name="userLastName" value="${userLastName}" />
+			<var name="userMiddleName" value="${userMiddleName}" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="SOUserBar#addSOSite">
+			<var name="siteDescription" value="${siteDescription}" />
+			<var name="siteName" value="${siteName}" />
+			<var name="siteType" value="${siteType}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${adminEmailAddress}" />
+			<var name="userLoginFullName" value="${adminName}" />
+		</execute>
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Users and Organizations" />
+		</execute>
+
+		<execute macro="User#editDisplaySettingsCP">
+			<var name="languageName" value="Spanish (Spain)" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="SOSite#viewLocalizedPG">
+			<var name="activitiesPortletLocalized" value="Actividades" />
+			<var name="announcementsPortletLocalized" value="Avisos" />
+			<var name="blogsPageLocalized" value="Blogs" />
+			<var name="blogsPortletLocalized" value="Blogs" />
+			<var name="bookmarksPortletLocalized" value="Enlaces" />
+			<var name="breadcrumbPortletLocalized" value="Camino de migas" />
+			<var name="calendarPageLocalized" value="Calendario" />
+			<var name="calendarPortletLocalized" value="Calendario" />
+			<var name="documentsAndMediaPortletLocalized" value="Documentos y multimedia" />
+			<var name="documentsPageLocalized" value="Documentos" />
+			<var name="eventsPortletLocalized" value="Eventos" />
+			<var name="forumsPageLocalized" value="Foros" />
+			<var name="homePageLocalized" value="Inicio" />
+			<var name="inviteMembersPortletLocalized" value="Invitar miembros" />
+			<var name="membersPageLocalized" value="Miembros" />
+			<var name="membersPortletLocalized" value="Miembros" />
+			<var name="messageBoardsPortletLocalized" value="Foro de discusión" />
+			<var name="recentBlogsPortletLocalized" value="Recientes Blogs" />
+			<var name="recentDownloadsPortletLocalized" value="Descargas recientes" />
+			<var name="rssPortletLocalized" value="RSS" />
+			<var name="siteName" value="${siteName}" />
+			<var name="welcomePortletLocalized" value="Bienvenido" />
+			<var name="wikiPageLocalized" value="Wiki" />
+			<var name="wikiPortletLocalized" value="Wiki" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${adminEmailAddress}" />
+			<var name="userLoginFullName" value="${adminName}" />
+		</execute>
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Users and Organizations" />
+		</execute>
+
+		<execute macro="User#editDisplaySettingsCP">
+			<var name="languageName" value="French (France)" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="SOSite#viewLocalizedPG">
+			<var name="activitiesPortletLocalized" value="Activités" />
+			<var name="announcementsPortletLocalized" value="Annonces" />
+			<var name="blogsPageLocalized" value="Blogues" />
+			<var name="blogsPortletLocalized" value="Blogues" />
+			<var name="bookmarksPortletLocalized" value="Signets" />
+			<var name="breadcrumbPortletLocalized" value="Fil d'ariane" />
+			<var name="calendarPageLocalized" value="Calendrier" />
+			<var name="calendarPortletLocalized" value="Calendrier" />
+			<var name="documentsAndMediaPortletLocalized" value="Documents and Media" />
+			<var name="documentsPageLocalized" value="Mes Documents" />
+			<var name="eventsPortletLocalized" value="Événements" />
+			<var name="forumsPageLocalized" value="Forum" />
+			<var name="homePageLocalized" value="Accueil" />
+			<var name="inviteMembersPortletLocalized" value="Inviter des membres" />
+			<var name="membersPageLocalized" value="Membres" />
+			<var name="membersPortletLocalized" value="Membres" />
+			<var name="messageBoardsPortletLocalized" value="Forum" />
+			<var name="recentBlogsPortletLocalized" value="Articles récents" />
+			<var name="recentDownloadsPortletLocalized" value="Recent Downloads" />
+			<var name="rssPortletLocalized" value="Flux RSS" />
+			<var name="siteName" value="${siteName}" />
+			<var name="welcomePortletLocalized" value="Bienvenue" />
+			<var name="wikiPageLocalized" value="Wiki" />
+			<var name="wikiPortletLocalized" value="Wiki" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${adminEmailAddress}" />
+			<var name="userLoginFullName" value="${adminName}" />
+		</execute>
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Users and Organizations" />
+		</execute>
+
+		<execute macro="User#editDisplaySettingsCP">
+			<var name="languageName" value="German (Germany)" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="SOSite#viewLocalizedPG">
+			<var name="activitiesPortletLocalized" value="Aktivitäten" />
+			<var name="announcementsPortletLocalized" value="Ankündigungen" />
+			<var name="blogsPageLocalized" value="Blogs" />
+			<var name="blogsPortletLocalized" value="Blogs" />
+			<var name="bookmarksPortletLocalized" value="Lesezeichen" />
+			<var name="breadcrumbPortletLocalized" value="Brotkrumennavigation" />
+			<var name="calendarPageLocalized" value="Kalender" />
+			<var name="calendarPortletLocalized" value="Kalender" />
+			<var name="documentsAndMediaPortletLocalized" value="Dokumente und Medien" />
+			<var name="documentsPageLocalized" value="Dokumente" />
+			<var name="eventsPortletLocalized" value="Ereignis" />
+			<var name="forumsPageLocalized" value="Foren" />
+			<var name="homePageLocalized" value="Startseite" />
+			<var name="inviteMembersPortletLocalized" value="Mitglieder einladen" />
+			<var name="membersPageLocalized" value="Mitglieder" />
+			<var name="membersPortletLocalized" value="Members" />
+			<var name="messageBoardsPortletLocalized" value="Foren" />
+			<var name="recentBlogsPortletLocalized" value="Recent Blogs" />
+			<var name="recentDownloadsPortletLocalized" value="Letzte Downloads" />
+			<var name="rssPortletLocalized" value="RSS" />
+			<var name="siteName" value="${siteName}" />
+			<var name="welcomePortletLocalized" value="Willkommen" />
+			<var name="wikiPageLocalized" value="Wiki" />
+			<var name="wikiPortletLocalized" value="Wiki" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${adminEmailAddress}" />
+			<var name="userLoginFullName" value="${adminName}" />
+		</execute>
+
+		<execute macro="Page#gotoCP">
+			<var name="portletName" value="Users and Organizations" />
+		</execute>
+
+		<execute macro="User#editDisplaySettingsCP">
+			<var name="languageName" value="Chinese (China)" />
+			<var name="userScreenName" value="${userScreenName}" />
+		</execute>
+
+		<execute macro="User#logoutAndLoginPG">
+			<var name="userLoginEmailAddress" value="${userEmailAddress}" />
+			<var name="userLoginFullName" value="${userName}" />
+		</execute>
+
+		<execute macro="SOSite#viewLocalizedPG">
+			<var name="activitiesPortletLocalized" value="活动" />
+			<var name="announcementsPortletLocalized" value="公告" />
+			<var name="blogsPageLocalized" value="博客" />
+			<var name="blogsPortletLocalized" value="博客" />
+			<var name="bookmarksPortletLocalized" value="书签" />
+			<var name="breadcrumbPortletLocalized" value="路径导航" />
+			<var name="calendarPageLocalized" value="日历" />
+			<var name="calendarPortletLocalized" value="日历" />
+			<var name="documentsAndMediaPortletLocalized" value="文档媒体库" />
+			<var name="documentsPageLocalized" value="文档" />
+			<var name="eventsPortletLocalized" value="事件" />
+			<var name="forumsPageLocalized" value="论坛" />
+			<var name="homePageLocalized" value="主页" />
+			<var name="inviteMembersPortletLocalized" value="邀请成员" />
+			<var name="membersPageLocalized" value="成员" />
+			<var name="membersPortletLocalized" value="成员" />
+			<var name="messageBoardsPortletLocalized" value="留言板" />
+			<var name="recentBlogsPortletLocalized" value="最近博客" />
+			<var name="recentDownloadsPortletLocalized" value="最近下载" />
+			<var name="rssPortletLocalized" value="RSS" />
+			<var name="siteName" value="${siteName}" />
+			<var name="welcomePortletLocalized" value="欢迎" />
+			<var name="wikiPageLocalized" value="Wiki" />
+			<var name="wikiPortletLocalized" value="Wiki" />
 		</execute>
 	</command>
 
@@ -4132,7 +4789,8 @@
 			<var name="siteType" value="${siteType4}" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
+
 		<execute action="SOUserBar#selectFrameTop" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO_SITES_DIRECTORY_BUTTON" />
@@ -4191,7 +4849,8 @@
 
 		<var name="key_siteName" value="${siteName2}" />
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
+
 		<execute action="SOUserBar#selectFrameTop" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO_SITES_DIRECTORY_BUTTON" />
@@ -4206,7 +4865,8 @@
 
 		<var name="key_siteName" value="${siteName3}" />
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
+
 		<execute action="SOUserBar#selectFrameTop" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO_SITES_DIRECTORY_BUTTON" />
@@ -4221,7 +4881,8 @@
 
 		<var name="key_siteName" value="${siteName4}" />
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
+
 		<execute action="SOUserBar#selectFrameTop" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO_SITES_DIRECTORY_BUTTON" />
@@ -4302,7 +4963,11 @@
 			<var name="siteType" value="Open" />
 		</execute>
 
-		<execute action="SOUserBar#click" locator-key1="DASHBOARD" />
+		<execute macro="SOUserBar#gotoDashboardPG" />
+
+		<execute action="SOUserBar#selectFrameTop" />
+		<execute action="SOUserBar#click" locator-key1="GO_TO" />
+		<execute action="SOUserBar#select" locator-key1="GO_TO_SITE_CATEGORY_SELECT" value1="All Sites" />
 		<execute action="SOUserBar#selectFrameTop" />
 		<execute action="SOUserBar#click" locator-key1="GO_TO" />
 		<execute action="SOUserBar#assertClick" locator-key1="GO_TO_VIEW_ALL" value1="View All (12)" />
