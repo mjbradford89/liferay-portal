@@ -852,6 +852,14 @@
 							'uploader'
 						]
 					},
+					'liferay-upload-folders': {
+						path: 'upload-folders.js',
+						requires: [
+							'file-html5',
+							'liferay-upload-base',
+							'promise'
+						]
+					},
 					'liferay-upload-data-queue': {
 						path: 'upload-data-queue.js',
 						requires: [

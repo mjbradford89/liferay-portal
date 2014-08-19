@@ -52,32 +52,28 @@ AUI.add(
 				EXTENDS: A.Uploader,
 
 				prototype: {
-					initializer: function() {
-						var dragAndDropArea = A.one(this.get('dragAndDropArea'));
-
-						this.set('dragAndDropArea', dragAndDropArea);
-
-						this.docElement = A.getDoc().get('documentElement');
-
-						this.on('drop', this._onDrop, this);
-
-						this._bindUIFileSelect();
+					bindUI: function() {
+						this.on('drop', this._onDropFile, this);
 					},
 
-					_onDrop: function(event) {
+					_onDropFile: function(event) {
+						var instance = this;
+
 						var dataTransfer = event._event.dataTransfer;
 
 						if (dataTransfer) {
 							var dataTransferTypes = dataTransfer.types || [];
 
-							if ((AArray.indexOf(dataTransferTypes, 'Files') > -1) && (AArray.indexOf(dataTransferTypes, 'text/html') === -1)) {
+							// file.size > 0
+
+							if ((A.Array.indexOf(dataTransferTypes, 'Files') > -1) && (A.Array.indexOf(dataTransferTypes, 'text/html') === -1)) {
 								event.halt();
 
-								var dragDropFiles = AArray(dataTransfer.files);
+								var dragDropFiles = A.Array(dataTransfer.files);
 
-								event.fileList = AArray.map(
+								event.fileList = A.Array.map(
 									dragDropFiles,
-									function(item, index) {
+									function(item) {
 										return new A.FileHTML5(item);
 									}
 								);

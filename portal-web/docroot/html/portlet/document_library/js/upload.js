@@ -360,34 +360,42 @@ AUI.add(
 							}
 						);
 
-						var onDropHandle = docElement.delegate(
-							'drop',
-							function(event) {
-								var dataTransfer = event._event.dataTransfer;
+						var onDropHandle;
+						var uploader = instance._getUploader();
 
-								if (dataTransfer) {
-									var dataTransferTypes = dataTransfer.types || [];
+						if (false && uploader.uploadDataTree) {
+							console.log('test worked');
+							onDropHandle = docElement.delegate('drop', uploader.onDrop, uploader);
+						}
+						else if (false) {
+							// console.log('nope');
+							onDropHandle = docElement.delegate(
+								'drop',
+								function(event) {
+									var dataTransfer = event._event.dataTransfer;
 
-									if ((AArray.indexOf(dataTransferTypes, 'Files') > -1) && (AArray.indexOf(dataTransferTypes, 'text/html') === -1)) {
-										event.halt();
+									if (dataTransfer) {
+										var dataTransferTypes = dataTransfer.types || [];
 
-										var dragDropFiles = AArray(dataTransfer.files);
+										if ((AArray.indexOf(dataTransferTypes, 'Files') > -1) && (AArray.indexOf(dataTransferTypes, 'text/html') === -1)) {
+											event.halt();
 
-										event.fileList = AArray.map(
-											dragDropFiles,
-											function(item, index) {
-												return new A.FileHTML5(item);
-											}
-										);
+											var dragDropFiles = A.Array(dataTransfer.files);
 
-										var uploader = instance._getUploader();
+											event.fileList = AArray.map(
+												dragDropFiles,
+												function(item) {
+													return new A.FileHTML5(item);
+												}
+											);
 
-										uploader.fire('fileselect', event);
+											uploader.fire('fileselect', event);
+										}
 									}
-								}
-							},
-							'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]'
-						);
+								},
+								'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]'
+							);
+						}
 
 						var entriesDragDelegateHandle = entriesContainer.delegate(
 							['dragleave', 'dragover'],
@@ -850,6 +858,7 @@ AUI.add(
 
 						if (!uploader) {
 							uploader = new Liferay.UploadBase(
+							// uploader = new A.Uploader(
 								{
 									appendNewFiles: false,
 									fileFieldName: 'file',
@@ -1302,6 +1311,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['liferay-upload-base', 'liferay-upload-data-validation', 'aui-component', 'aui-data-set-deprecated', 'aui-overlay-manager-deprecated', 'aui-overlay-mask-deprecated', 'aui-parse-content', 'aui-progressbar', 'aui-template-deprecated', 'aui-tooltip', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-search-container', 'liferay-storage-formatter', 'querystring-parse-simple', 'uploader']
+		requires: ['liferay-upload-base', 'liferay-upload-data-validation', 'aui-component', 'aui-data-set-deprecated', 'aui-overlay-manager-deprecated', 'aui-overlay-mask-deprecated', 'aui-parse-content', 'aui-progressbar', 'aui-template-deprecated', 'aui-tooltip', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-search-container', 'liferay-storage-formatter', 'querystring-parse-simple', 'uploader', 'liferay-upload-folders']
 	}
 );
