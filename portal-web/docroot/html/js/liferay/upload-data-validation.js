@@ -3,76 +3,58 @@ AUI.add(
 	function(A) {
 		var Lang = A.Lang;
 
-		var UploadDataValidation = A.Component.create(
-			{
-				NAME: 'uploaddatavalidation',
-				ATTRS: {
-					maxFileSize: {
-						validator: Lang.isNumber
-					},
+		var UploadDataValidation = function() {};
 
-					strings: {
-						value: {
-							invalidFileSize: '',
-							invalidFileType: '',
-							zeroByteFile: ''
-						}
-					}
+		UploadDataValidation.prototype =
+			{
+				_bindUIFileSelect: function() {
+					//this.after('fileselect', this._onFileSelect, this);
 				},
 
-				AUGMENTS: [Liferay.StorageFormatter],
+				_onFileSelect: function(event) {
+					var filesPartition = this.validateFiles(event.fileList);
 
-				prototype: {
-					initializer: function() {
-						this.after('fileSelect', this._onFileSelect, this);
-					},
+					console.log(filesPartition);
+				},
 
-					_onFileSelect: function(event) {
-						var filesPartition = this.validateFiles(event.fileList);
+				validateFiles: function(data) {
+					var instance = this;
 
-						console.log(filesPartition);
+					var maxFileSize = instance.get('maxFileSize');
 
-						debugger;
-					},
+					return A.Array.partition(
+						data,
+						function(item, index) {
+							var errorMessage;
 
-					validateFiles: function(data) {
-						var instance = this;
+							var size = item.get('size') || 0;
+							var type = item.get('type') || '';
 
-						var maxFileSize = instance._maxFileSize;
+							var strings = instance.get('strings');
 
-						return A.Array.partition(
-							data,
-							function(item, index) {
-								var errorMessage;
-
-								var size = item.get(STR_SIZE) || 0;
-								var type = item.get('type') || STR_BLANK;
-
-								var strings = instance._strings;
-
-								if ((maxFileSize !== 0) && (size > maxFileSize)) {
-									errorMessage = sub(strings.invalidFileSize, [instance.formatStorage(instance._maxFileSize)]);
-								}
-								else if (!type) {
-									errorMessage = strings.invalidFileType;
-								}
-								else if (size === 0) {
-									errorMessage = strings.zeroByteFile;
-								}
-
-								item.errorMessage = errorMessage;
-								item.size = size;
-								item.name = item.get(STR_NAME);
-
-								return !errorMessage;
+							if ((maxFileSize !== 0) && (size > maxFileSize)) {
+								errorMessage = sub(strings.invalidFileSize, [instance.formatStorage(instance._maxFileSize)]);
 							}
-						);
-					}
-				}
-			}
-		);
+							else if (!type) {
+								errorMessage = strings.invalidFileType;
+							}
+							else if (size === 0) {
+								errorMessage = strings.zeroByteFile;
+							}
 
-		A.Base.mix(Liferay.UploadBase, [UploadDataValidation]);
+							item.errorMessage = errorMessage;
+							item.size = size;
+							item.name = item.get('name');
+
+							return !errorMessage;
+						}
+					);
+				}
+			};
+
+			A.augment(UploadDataValidation, Liferay.StorageFormatter);
+
+			A.Base.mix(Liferay.UploadBase, [UploadDataValidation]);
 	},
 	'',
 	{

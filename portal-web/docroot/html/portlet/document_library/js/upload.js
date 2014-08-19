@@ -849,7 +849,7 @@ AUI.add(
 						var uploader = instance._uploader;
 
 						if (!uploader) {
-							uploader = new A.Uploader(
+							uploader = new Liferay.UploadBase(
 								{
 									appendNewFiles: false,
 									fileFieldName: 'file',
@@ -980,7 +980,7 @@ AUI.add(
 
 						var target = event.details[0].target;
 
-						var filesPartition = instance._validateFiles(event.fileList);
+						var filesPartition = instance._uploader.validateFiles(event.fileList);
 
 						instance._updateStatusUI(target, filesPartition);
 
@@ -1302,6 +1302,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-component', 'aui-data-set-deprecated', 'aui-overlay-manager-deprecated', 'aui-overlay-mask-deprecated', 'aui-parse-content', 'aui-progressbar', 'aui-template-deprecated', 'aui-tooltip', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-search-container', 'liferay-storage-formatter', 'querystring-parse-simple', 'uploader']
+		requires: ['liferay-upload-base', 'liferay-upload-data-validation', 'aui-component', 'aui-data-set-deprecated', 'aui-overlay-manager-deprecated', 'aui-overlay-mask-deprecated', 'aui-parse-content', 'aui-progressbar', 'aui-template-deprecated', 'aui-tooltip', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-search-container', 'liferay-storage-formatter', 'querystring-parse-simple', 'uploader']
 	}
 );

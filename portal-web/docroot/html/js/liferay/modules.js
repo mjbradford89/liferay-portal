@@ -852,6 +852,12 @@
 							'uploader'
 						]
 					},
+					'liferay-upload-data-queue': {
+						path: 'upload-data-queue.js',
+						requires: [
+							'liferay-upload-base'
+						]
+					},
 					'liferay-upload-data-validation': {
 						path: 'upload-data-validation.js',
 						requires: [
