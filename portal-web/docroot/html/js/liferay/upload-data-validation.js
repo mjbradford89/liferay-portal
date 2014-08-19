@@ -5,18 +5,7 @@ AUI.add(
 
 		var UploadDataValidation = function() {};
 
-		UploadDataValidation.prototype =
-			{
-				_bindUIFileSelect: function() {
-					//this.after('fileselect', this._onFileSelect, this);
-				},
-
-				_onFileSelect: function(event) {
-					var filesPartition = this.validateFiles(event.fileList);
-
-					console.log(filesPartition);
-				},
-
+		UploadDataValidation.prototype = {
 				validateFiles: function(data) {
 					var instance = this;
 
@@ -33,7 +22,7 @@ AUI.add(
 							var strings = instance.get('strings');
 
 							if ((maxFileSize !== 0) && (size > maxFileSize)) {
-								errorMessage = sub(strings.invalidFileSize, [instance.formatStorage(instance._maxFileSize)]);
+								errorMessage = Lang.sub(strings.invalidFileSize, [instance.formatStorage(instance._maxFileSize)]);
 							}
 							else if (!type) {
 								errorMessage = strings.invalidFileType;
