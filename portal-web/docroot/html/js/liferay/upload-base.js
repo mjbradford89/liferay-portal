@@ -10,6 +10,7 @@ AUI.add(
 
 		var UploadBase = A.Component.create(
 			{
+				NAME: 'uploadbase',
 				ATTRS: {
 					fileFieldName: {
 						value: 'file'
@@ -38,19 +39,13 @@ AUI.add(
 					initializer: function() {
 						this.docElement = A.getDoc().get('documentElement');
 
-						this.after('fileSelect', instance._onFileSelect, this);
-
 						this.docElement.on('drop', this._onDrop, this);
-					},
-
-					_onFileSelect: function(event) {
-						var filesPartition = this.validateFiles(event.fileList);
-
-						console.log(filesPartition);
 					},
 
 					_onDrop: function(event) {
 						var dataTransfer = event._event.dataTransfer;
+
+						debugger;
 
 						if (dataTransfer) {
 							var dataTransferTypes = dataTransfer.types || [];

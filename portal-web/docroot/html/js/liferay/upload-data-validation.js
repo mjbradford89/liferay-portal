@@ -5,6 +5,7 @@ AUI.add(
 
 		var UploadDataValidation = A.Component.create(
 			{
+				NAME: 'uploaddatavalidation',
 				ATTRS: {
 					maxFileSize: {
 						validator: Lang.isNumber
@@ -22,6 +23,18 @@ AUI.add(
 				AUGMENTS: [Liferay.StorageFormatter],
 
 				prototype: {
+					initializer: function() {
+						this.after('fileSelect', this._onFileSelect, this);
+					},
+
+					_onFileSelect: function(event) {
+						var filesPartition = this.validateFiles(event.fileList);
+
+						console.log(filesPartition);
+
+						debugger;
+					},
+
 					validateFiles: function(data) {
 						var instance = this;
 
@@ -57,10 +70,9 @@ AUI.add(
 					}
 				}
 			}
-
-			A.Base.mix(A.UploadBase, [UploadDataValidation]);
-
 		);
+
+		A.Base.mix(Liferay.UploadBase, [UploadDataValidation]);
 	},
 	'',
 	{
