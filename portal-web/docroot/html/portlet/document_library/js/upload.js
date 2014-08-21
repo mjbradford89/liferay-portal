@@ -287,7 +287,7 @@ AUI.add(
 						var handles = instance._handles;
 
 						var uploader = instance._getUploader();
-						var displayStyle = instance._getDisplayStyle();
+						var displayStyle = uploader._getDisplayStyle();
 
 						if (data.folder) {
 							handles.push(
@@ -855,7 +855,10 @@ AUI.add(
 									fileFieldName: 'file',
 									multipleFiles: true,
 									simLimit: 1,
-									entriesContainer: instance.get('entriesContainer')
+									entriesContainer: instance.get('entriesContainer'),
+									host: instance.get(STR_HOST),
+									appViewEntryTemplates: instance.get('appViewEntryTemplates'),
+									dimensions: instance.get('dimensions'),
 								}
 							);
 

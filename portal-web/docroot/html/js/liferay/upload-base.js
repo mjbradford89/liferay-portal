@@ -17,6 +17,10 @@ AUI.add(
 						value: {}
 					},
 
+					dimensions: {
+						value: {}
+					},
+
 					entriesContainer: {
 						validator: A.one,
 						value: {}
@@ -36,6 +40,11 @@ AUI.add(
 						setter: Lang.toInt,
 						validator: Lang.isNumber || Lang.isString,
 						value: null
+					},
+
+					host: {
+						value: null,
+						validator: Lang.isObject
 					},
 
 					multipleFiles: {
@@ -85,6 +94,8 @@ AUI.add(
 						this.on('drop', this._onDrop, this);
 
 						this._bindUIFileSelect();
+
+						this.initTemplates();
 					},
 
 					_onDrop: function(event) {

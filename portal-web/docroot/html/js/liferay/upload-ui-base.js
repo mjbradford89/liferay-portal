@@ -224,7 +224,7 @@ AUI.add(
 				_createProgressBar: function() {
 					var instance = this;
 
-					var dimensions = instance._dimensions;
+					var dimensions = instance.get('dimensions');
 
 					var height = dimensions.height / 5;
 
@@ -372,7 +372,7 @@ AUI.add(
 					var emptyMessage = instance._emptyMessage;
 
 					if (!emptyMessage) {
-						emptyMessage = instance._entriesContainer.one(SELECTOR_ENTRIES_EMPTY);
+						emptyMessage = instance.get('entriesContainer').one(SELECTOR_ENTRIES_EMPTY);
 
 						instance._emptyMessage = emptyMessage;
 					}
@@ -566,7 +566,7 @@ AUI.add(
 					else {
 						var displayStyle = instance._getDisplayStyle();
 
-						AArray.map(
+						A.Array.map(
 							filesPartition.matches,
 							function(file) {
 								var entryNode = instance._createEntryNode(file.name, file.size, displayStyle);
@@ -575,7 +575,7 @@ AUI.add(
 							}
 						);
 
-						AArray.map(
+						A.Array.map(
 							filesPartition.rejects,
 							function(file) {
 								var entryNode = instance._createEntryNode(file.name, file.size, displayStyle);
