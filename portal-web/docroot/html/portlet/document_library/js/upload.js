@@ -291,17 +291,17 @@ AUI.add(
 
 						if (data.folder) {
 							handles.push(
-								uploader.on('alluploadscomplete', instance._showFolderUploadComplete, instance, data, displayStyle),
-								uploader.on('totaluploadprogress', instance._showFolderUploadProgress, instance, data),
-								uploader.on('uploadcomplete', instance._detectFolderUploadError, instance, data),
-								uploader.on('uploadstart', instance._showFolderUploadStarting, instance, data)
+								uploader.on('alluploadscomplete', uploader._showFolderUploadComplete, uploader, data, displayStyle),
+								uploader.on('totaluploadprogress', uploader._showFolderUploadProgress, uploader, data),
+								uploader.on('uploadcomplete', uploader._detectFolderUploadError, uploader, data),
+								uploader.on('uploadstart', uploader._showFolderUploadStarting, uploader, data)
 							);
 						}
 						else {
 							handles.push(
-								uploader.after('fileuploadstart', instance._showFileUploadStarting, instance),
-								uploader.on('uploadcomplete', instance._showFileUploadComplete, instance, displayStyle),
-								uploader.on('uploadprogress', instance._showFileUploadProgress, instance)
+								uploader.after('fileuploadstart', uploader._showFileUploadStarting, uploader),
+								uploader.on('uploadcomplete', uploader._showFileUploadComplete, uploader, displayStyle),
+								uploader.on('uploadprogress', uploader._showFileUploadProgress, uploader)
 							);
 						}
 					},
@@ -340,6 +340,8 @@ AUI.add(
 							function(event) {
 								var dataTransfer = event._event.dataTransfer;
 
+								var uploader = instance._getUploader();
+
 								if (dataTransfer && dataTransfer.types) {
 									var dataTransferTypes = dataTransfer.types || [];
 
@@ -360,42 +362,34 @@ AUI.add(
 							}
 						);
 
-						var onDropHandle;
-						var uploader = instance._getUploader();
+/*						var onDropHandle = docElement.delegate(
+							'drop',
+							function(event) {
+								var dataTransfer = event._event.dataTransfer;
 
-						if (false && uploader.uploadDataTree) {
-							console.log('test worked');
-							onDropHandle = docElement.delegate('drop', uploader.onDrop, uploader);
-						}
-						else if (false) {
-							// console.log('nope');
-							onDropHandle = docElement.delegate(
-								'drop',
-								function(event) {
-									var dataTransfer = event._event.dataTransfer;
+								if (dataTransfer) {
+									var dataTransferTypes = dataTransfer.types || [];
 
-									if (dataTransfer) {
-										var dataTransferTypes = dataTransfer.types || [];
+									if ((AArray.indexOf(dataTransferTypes, 'Files') > -1) && (AArray.indexOf(dataTransferTypes, 'text/html') === -1)) {
+										event.halt();
 
-										if ((AArray.indexOf(dataTransferTypes, 'Files') > -1) && (AArray.indexOf(dataTransferTypes, 'text/html') === -1)) {
-											event.halt();
+										var dragDropFiles = AArray(dataTransfer.files);
 
-											var dragDropFiles = A.Array(dataTransfer.files);
+										event.fileList = AArray.map(
+											dragDropFiles,
+											function(item, index) {
+												return new A.FileHTML5(item);
+											}
+										);
 
-											event.fileList = AArray.map(
-												dragDropFiles,
-												function(item) {
-													return new A.FileHTML5(item);
-												}
-											);
+										var uploader = instance._getUploader();
 
-											uploader.fire('fileselect', event);
-										}
+										uploader.fire('fileselect', event);
 									}
-								},
-								'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]'
-							);
-						}
+								}
+							},
+							'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]'
+						);*/
 
 						var entriesDragDelegateHandle = entriesContainer.delegate(
 							['dragleave', 'dragover'],
@@ -424,7 +418,7 @@ AUI.add(
 						instance._eventHandles = [
 							onDataRequestHandle,
 							onDragOverHandle,
-							onDropHandle,
+							/*onDropHandle,*/
 							entriesDragDelegateHandle,
 							entriesClickDelegateHandle
 						];
@@ -858,7 +852,6 @@ AUI.add(
 
 						if (!uploader) {
 							uploader = new Liferay.UploadBase(
-							// uploader = new A.Uploader(
 								{
 									appendNewFiles: false,
 									fileFieldName: 'file',
@@ -868,6 +861,8 @@ AUI.add(
 									host: instance.get(STR_HOST),
 									appViewEntryTemplates: instance.get('appViewEntryTemplates'),
 									dimensions: instance.get('dimensions'),
+									viewFileEntryURL: instance.get('viewFileEntryURL'),
+									displayStyle: instance.get('displayStyle')
 								}
 							);
 
@@ -906,7 +901,7 @@ AUI.add(
 						return uploader;
 					},
 
-					_getUploadResponse: function(responseData) {
+/*					_getUploadResponse: function(responseData) {
 						var instance = this;
 
 						var error;
@@ -933,7 +928,7 @@ AUI.add(
 							error: error,
 							message: message
 						};
-					},
+					},*/
 
 					_getUploadStatus: function(key) {
 						var instance = this;
@@ -1145,9 +1140,11 @@ AUI.add(
 					_startNextUpload: function(event) {
 						var instance = this;
 
+						var uploader = instance._uploader;
+
 						instance._detachSubscriptions();
 
-						//instance._destroyEntry();
+						uploader._destroyEntry(instance._getCurrentUploadData());
 
 						var dataSet = instance._getDataSet();
 
@@ -1196,7 +1193,7 @@ AUI.add(
 						}
 					},
 
-					_updateFileLink: function(node, id, displayStyleList) {
+/*					_updateFileLink: function(node, id, displayStyleList) {
 						var instance = this;
 
 						var selector = SELECTOR_ENTRY_LINK;
@@ -1210,7 +1207,7 @@ AUI.add(
 						if (link) {
 							link.attr('href', Liferay.Util.addParams(id, instance.get('viewFileEntryURL')));
 						}
-					},
+					},*/
 
 					/*_updateProgress: function(progressBar, value) {
 						var instance = this;
@@ -1315,6 +1312,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['liferay-upload-base', 'liferay-upload-data-validation', 'liferay-upload-folders', 'liferay-upload-ui-base', 'aui-component', 'aui-data-set-deprecated', 'aui-overlay-manager-deprecated', 'aui-overlay-mask-deprecated', 'aui-parse-content', 'aui-progressbar', 'aui-template-deprecated', 'aui-tooltip', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-search-container', 'liferay-storage-formatter', 'querystring-parse-simple', 'uploader']
+		requires: ['liferay-upload-base', 'liferay-upload-data-validation', 'liferay-upload-ui-base', 'aui-component', 'aui-data-set-deprecated', 'aui-overlay-manager-deprecated', 'aui-overlay-mask-deprecated', 'aui-parse-content', 'aui-progressbar', 'aui-template-deprecated', 'aui-tooltip', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-search-container', 'liferay-storage-formatter', 'querystring-parse-simple', 'uploader']
 	}
 );

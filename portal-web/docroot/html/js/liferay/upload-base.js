@@ -3,8 +3,11 @@ AUI.add(
 	function(A) {
 		var Lang = A.Lang,
 			isBoolean = Lang.isBoolean,
+			isString = Lang.isString,
 
 			URL_SWF_UPLOADER = themeDisplay.getPathContext() + '/html/js/aui/uploader/assets/flashuploader.swf',
+
+			STR_BLANK = '',
 
 			timestampParam = '_LFR_UPLOADER_TS' + Lang.now();
 
@@ -19,6 +22,11 @@ AUI.add(
 
 					dimensions: {
 						value: {}
+					},
+
+					displayStyle: {
+						validator: isString,
+						value: STR_BLANK
 					},
 
 					entriesContainer: {
@@ -38,7 +46,7 @@ AUI.add(
 						},
 						readonly: true,
 						setter: Lang.toInt,
-						validator: Lang.isNumber || Lang.isString,
+						validator: Lang.isNumber || isString,
 						value: null
 					},
 
@@ -52,14 +60,10 @@ AUI.add(
 						value: true
 					},
 					swfURL: {
-						valueFn: function() {
-							return Liferay.Util.addParams(timestampParam, URL_SWF_UPLOADER)
-						}
+						value: URL_SWF_UPLOADER
 					},
 					uploadURL: {
-						valueFn: function() {
-							return Liferay.Util.addParams(timestampParam, this.get('uploadFile'))
-						}
+						value: ''
 					},
 
 					uploadFile: {
@@ -79,26 +83,32 @@ AUI.add(
 					dragAndDropArea: {
 						value: 'body',
 						setter: A.one
+					},
+					viewFileEntryURL: {
+						setter: '_decodeURI',
+						validator: isString,
+						value: STR_BLANK
 					}
 				},
 				EXTENDS: A.Uploader,
 
 				prototype: {
-/*					initializer: function() {
+					initializer: function() {
 						var dragAndDropArea = A.one(this.get('dragAndDropArea'));
 
 						this.set('dragAndDropArea', dragAndDropArea);
 
 						this.docElement = A.getDoc().get('documentElement');
 
-						this.on('drop', this._onDrop, this);
+						this.docElement.delegate('drop', A.bind(this._onDropFile, this), 'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]');
 
-						this._bindUIFileSelect();
-
-						this.initTemplates();*/
+						this.initTemplates();
+					},
 
 					bindUI: function() {
 						this.on('drop', this._onDropFile, this);
+
+						this.on('fileselect', this._onFileSelect, this);
 					},
 
 					_onDropFile: function(event) {
@@ -126,6 +136,11 @@ AUI.add(
 								instance.fire('fileselect', event);
 							}
 						}
+					},
+
+					_onFileSelect: function(event) {
+						event.stopPropagation();
+						console.log(event);
 					}
 				}
 			}

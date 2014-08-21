@@ -265,10 +265,8 @@ AUI.add(
 					}
 				},
 
-				_destroyEntry: function() {
+				_destroyEntry: function(currentUploadData) {
 					var instance = this;
-
-					var currentUploadData = instance._getCurrentUploadData();
 
 					var fileList = currentUploadData.fileList;
 
@@ -355,7 +353,7 @@ AUI.add(
 				_getDisplayStyle: function(style) {
 					var instance = this;
 
-					var displayStyleNamespace = instance.get(STR_HOST).ns('displayStyle');
+					var displayStyleNamespace = instance.get(STR_HOST).get(STR_HOST).ns('displayStyle');
 
 					var displayStyle = Liferay.HistoryManager.get(displayStyleNamespace) || instance._displayStyle;
 
@@ -434,6 +432,51 @@ AUI.add(
 					}
 
 					return navigationOverlays;
+				},
+
+				_getUploadResponse: function(responseData) {
+					var instance = this;
+
+					var error;
+					var message;
+
+					try {
+						responseData = A.JSON.parse(responseData);
+					}
+					catch (err) {
+					}
+
+					if (Lang.isObject(responseData)) {
+						error = responseData.status && (responseData.status >= 490 && responseData.status < 500);
+
+						if (error) {
+							message = responseData.message;
+						}
+						else {
+							message = instance.get(STR_HOST).ns('fileEntryId=') + responseData.fileEntryId;
+						}
+					}
+
+					return {
+						error: error,
+						message: message
+					};
+				},
+
+				_updateFileLink: function(node, id, displayStyleList) {
+					var instance = this;
+
+					var selector = SELECTOR_ENTRY_LINK;
+
+					if (displayStyleList) {
+						selector = SELECTOR_ENTRY_DISPLAY_STYLE + STR_SPACE + SELECTOR_TAGLIB_ICON;
+					}
+
+					var link = node.one(selector);
+
+					if (link) {
+						link.attr('href', Liferay.Util.addParams(id, instance.get('viewFileEntryURL')));
+					}
 				},
 
 				_positionProgressBar: function(overlay, progressBar) {

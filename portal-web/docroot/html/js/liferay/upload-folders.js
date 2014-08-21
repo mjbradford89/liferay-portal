@@ -15,7 +15,7 @@ AUI.add(
 		var UploadFolders = function() {};
 
 		UploadFolders.prototype = {
-			initializer: function() {
+			initFolders: function() {
 				var instance = this;
 
 				// `dataselect` should replace or envelope 'fileselect'
