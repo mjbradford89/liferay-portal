@@ -3,8 +3,6 @@ AUI.add(
 	function(A) {
 		var AArray = A.Array;
 		var Lang = A.Lang;
-		var LString = Lang.String;
-		var HistoryManager = Liferay.HistoryManager;
 		var UploaderQueue = A.Uploader.Queue;
 
 		var isNumber = Lang.isNumber;
@@ -16,67 +14,23 @@ AUI.add(
 
 		var CSS_ACTIVE_AREA = 'active-area';
 
-		var CSS_APP_VIEW_ENTRY = 'app-view-entry-taglib';
-
 		var CSS_ENTRY_DISPLAY_STYLE = 'entry-display-style';
 
-		var CSS_ICON = 'icon';
-
-		var CSS_TAGLIB_ICON = 'taglib-icon';
-
-		var CSS_TAGLIB_TEXT = 'taglib-text';
-
 		var CSS_UPLOAD_ERROR = 'upload-error';
-
-		var CSS_UPLOAD_SUCCESS = 'upload-success';
-
-		var CSS_UPLOAD_WARNING = 'upload-warning';
-
-		var ERROR_RESULTS_MIXED = 1;
-
-		var PATH_THEME_IMAGES = themeDisplay.getPathThemeImages();
-
-		var REGEX_AUDIO = /\.(aac|auif|bwf|flac|mp3|mp4|m4a|wav|wma)$/i;
-
-		var REGEX_COMPRESSED = /\.(dmg|gz|tar|tgz|zip)$/i;
-
-		var REGEX_IMAGE = /\.(bmp|gif|jpeg|jpg|png|tiff)$/i;
-
-		var REGEX_VIDEO = /\.(avi|flv|mpe|mpg|mpeg|mov|m4v|ogg|wmv)$/i;
 
 		var SELECTOR_DATA_FOLDER = '[data-folder="true"]';
 
 		var SELECTOR_DATA_FOLDER_DATA_TITLE = '[data-folder="true"][data-title]';
 
-		var SELECTOR_DISPLAY_DESCRIPTIVE = '.display-descriptive';
-
-		var SELECTOR_DISPLAY_ICON = '.display-icon';
-
-		var SELECTOR_DOCUMENT_ENTRIES_PAGINATION = '.document-entries-pagination';
-
-		var SELECTOR_ENTRIES_EMPTY = '.entries-empty';
-
 		var SELECTOR_ENTRY_LINK = '.entry-link';
-
-		var SELECTOR_ENTRY_TITLE_TEXT = '.entry-title-text';
-
-		var SELECTOR_IMAGE_ICON = 'img.icon';
-
-		var SELECTOR_SEARCH_CONTAINER = '.searchcontainer';
 
 		var STR_DOT = '.';
 
 		var SELECTOR_ENTRY_DISPLAY_STYLE = STR_DOT + CSS_ENTRY_DISPLAY_STYLE;
 
-		var SELECTOR_TAGLIB_ICON = STR_DOT + CSS_TAGLIB_ICON;
-
 		var STR_BOUNDING_BOX = 'boundingBox';
 
 		var STR_BLANK = '';
-
-		var STR_CONTENT_BOX = 'contentBox';
-
-		var STR_EXTENSION_PDF = '.pdf';
 
 		var STR_FIRST = 'first';
 
@@ -84,50 +38,11 @@ AUI.add(
 
 		var STR_HOST = 'host';
 
-		var STR_LABEL = 'label';
-
-		var STR_LIST = 'list';
-
 		var STR_NAME = 'name';
-
-		var STR_NAVIGATION_OVERLAY_BACKGROUND = '#FFF';
 
 		var STR_SIZE = 'size';
 
 		var STR_SPACE = ' ';
-
-		var STR_THUMBNAIL_EXTENSION = '.png';
-
-		var STR_THUMBNAIL_DEFAULT = 'default' + STR_THUMBNAIL_EXTENSION;
-
-		var STR_THUMBNAIL_PDF = 'pdf' + STR_THUMBNAIL_EXTENSION;
-
-		var STR_THUMBNAIL_AUDIO = 'music' + STR_THUMBNAIL_EXTENSION;
-
-		var STR_THUMBNAIL_COMPRESSED = 'compressed' + STR_THUMBNAIL_EXTENSION;
-
-		var STR_THUMBNAIL_VIDEO = 'video' + STR_THUMBNAIL_EXTENSION;
-
-		var STR_THUMBNAIL_PATH = PATH_THEME_IMAGES + '/file_system/large/';
-
-		var TPL_ENTRY_ROW_TITLE = '<span class="' + CSS_APP_VIEW_ENTRY + STR_SPACE + CSS_ENTRY_DISPLAY_STYLE + '">' +
-			'<a class="' + CSS_TAGLIB_ICON + '">' +
-				'<img alt="" class="' + CSS_ICON + '" src="' + PATH_THEME_IMAGES + '/file_system/small/page.png" />' +
-				'<span class="' + CSS_TAGLIB_TEXT + '">{0}</span>' +
-			'</a>' +
-		'</span>';
-
-		var TPL_ERROR_FOLDER = new A.Template(
-			'<span class="lfr-status-success-label">{validFilesLength}</span>',
-			'<span class="lfr-status-error-label">{invalidFilesLength}</span>',
-			'<ul class="list-unstyled">',
-				'<tpl for="invalidFiles">',
-					'<li><b>{name}</b>: {errorMessage}</li>',
-				'</tpl>',
-			'</ul>'
-		);
-
-		var TPL_IMAGE_THUMBNAIL = themeDisplay.getPathContext() + '/documents/' + themeDisplay.getScopeGroupId() + '/{0}/{1}';
 
 		var DocumentLibraryUpload = A.Component.create(
 			{
@@ -143,8 +58,6 @@ AUI.add(
 
 					columnNames: {
 						setter: function(val) {
-							var instance = this;
-
 							val.push(STR_BLANK);
 							val.unshift(STR_BLANK);
 
@@ -222,8 +135,6 @@ AUI.add(
 					initializer: function() {
 						var instance = this;
 
-						//var appViewEntryTemplates = instance.get('appViewEntryTemplates');
-
 						instance._columnNames = instance.get('columnNames');
 						instance._dimensions = instance.get('dimensions');
 						instance._displayStyle = instance.get('displayStyle');
@@ -231,9 +142,6 @@ AUI.add(
 						instance._maxFileSize = instance.get('maxFileSize');
 
 						instance._handles = [];
-
-						//instance._invisibleDescriptiveEntry = appViewEntryTemplates.one(SELECTOR_ENTRY_DISPLAY_STYLE + SELECTOR_DISPLAY_DESCRIPTIVE);
-						//instance._invisibleIconEntry = appViewEntryTemplates.one(SELECTOR_ENTRY_DISPLAY_STYLE + SELECTOR_DISPLAY_ICON);
 
 						instance._strings = {
 							invalidFileSize: Liferay.Language.get('please-enter-a-file-with-a-valid-file-size-no-larger-than-x'),
@@ -362,35 +270,6 @@ AUI.add(
 							}
 						);
 
-/*						var onDropHandle = docElement.delegate(
-							'drop',
-							function(event) {
-								var dataTransfer = event._event.dataTransfer;
-
-								if (dataTransfer) {
-									var dataTransferTypes = dataTransfer.types || [];
-
-									if ((AArray.indexOf(dataTransferTypes, 'Files') > -1) && (AArray.indexOf(dataTransferTypes, 'text/html') === -1)) {
-										event.halt();
-
-										var dragDropFiles = AArray(dataTransfer.files);
-
-										event.fileList = AArray.map(
-											dragDropFiles,
-											function(item, index) {
-												return new A.FileHTML5(item);
-											}
-										);
-
-										var uploader = instance._getUploader();
-
-										uploader.fire('fileselect', event);
-									}
-								}
-							},
-							'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]'
-						);*/
-
 						var entriesDragDelegateHandle = entriesContainer.delegate(
 							['dragleave', 'dragover'],
 							function(event) {
@@ -418,15 +297,12 @@ AUI.add(
 						instance._eventHandles = [
 							onDataRequestHandle,
 							onDragOverHandle,
-							/*onDropHandle,*/
 							entriesDragDelegateHandle,
 							entriesClickDelegateHandle
 						];
 					},
 
 					_combineFileLists: function(fileList, queuedFiles) {
-						var instance = this;
-
 						AArray.each(
 							queuedFiles,
 							function(item, index) {
@@ -443,168 +319,9 @@ AUI.add(
 						}
 					},
 
-/*					_createEntryNode: function(name, size, displayStyle) {
-						var instance = this;
-
-						var entryNode;
-
-						var entriesContainer = instance.get('entriesContainer');
-
-						if (displayStyle == STR_LIST) {
-							var searchContainer = entriesContainer.one(SELECTOR_SEARCH_CONTAINER);
-
-							entriesContainer = searchContainer.one('tbody');
-
-							entryNode = instance._createEntryRow(name, size);
-						}
-						else {
-							var invisibleEntry = instance._invisibleDescriptiveEntry;
-
-							if (displayStyle == CSS_ICON) {
-								invisibleEntry = instance._invisibleIconEntry;
-							}
-
-							entryNode = invisibleEntry.clone();
-
-							var entryLink = entryNode.one(SELECTOR_ENTRY_LINK);
-
-							var entryTitle = entryLink.one(SELECTOR_ENTRY_TITLE_TEXT);
-
-							entryLink.attr('title', name);
-
-							entryTitle.setContent(name);
-						}
-
-						entryNode.attr(
-							{
-								'data-title': name,
-								id: A.guid()
-							}
-						);
-
-						entriesContainer.append(entryNode);
-
-						entryNode.show().scrollIntoView();
-
-						return entryNode;
-					},*/
-
-/*					_createEntryRow: function(name, size) {
-						var instance = this;
-
-						var searchContainerNode = instance._entriesContainer.one(SELECTOR_SEARCH_CONTAINER);
-
-						var searchContainer = Liferay.SearchContainer.get(searchContainerNode.attr('id'));
-
-						var columnValues = AArray.map(
-							instance._columnNames,
-							function(item, index) {
-								var value = STR_BLANK;
-
-								if (item == STR_NAME) {
-									value = sub(TPL_ENTRY_ROW_TITLE, [name]);
-								}
-								else if (item == STR_SIZE) {
-									value = instance.formatStorage(size);
-								}
-								else if (item == 'downloads') {
-									value = '0';
-								}
-
-								return value;
-							}
-						);
-
-						var row = searchContainer.addRow(columnValues, A.guid());
-
-						row.attr('data-draggable', true);
-
-						return row;
-					},*/
-
-/*					_createOverlay: function(target, background) {
-						var instance = this;
-
-						var overlay = new A.OverlayMask(
-							{
-								background: background || null,
-								target: target
-							}
-						).render();
-
-						overlay.get(STR_BOUNDING_BOX).addClass('portlet-document-library-upload-mask');
-
-						return overlay;
-					},*/
-
-/*					_createProgressBar: function() {
-						var instance = this;
-
-						var dimensions = instance._dimensions;
-
-						var height = dimensions.height / 5;
-
-						var width = dimensions.width / 0.64;
-
-						return new A.ProgressBar(
-							{
-								height: height,
-								on: {
-									complete: function(event) {
-										this.set(STR_LABEL, 'complete!');
-									},
-									valueChange: function(event) {
-										this.set(STR_LABEL, event.newVal + '%');
-									}
-								},
-								width: width
-							}
-						);
-					},
-
-					_createUploadStatus: function(target, file) {
-						var instance = this;
-
-						var overlay = instance._createOverlay(target);
-						var progressBar = instance._createProgressBar();
-
-						overlay.show();
-
-						if (file) {
-							file.overlay = overlay;
-							file.progressBar = progressBar;
-							file.target = target;
-						}
-						else {
-							target.overlay = overlay;
-							target.progressBar = progressBar;
-						}
-					},*/
-
 					_decodeURI: function(val) {
 						return decodeURI(val);
 					},
-
-/*					_destroyEntry: function() {
-						var instance = this;
-
-						var currentUploadData = instance._getCurrentUploadData();
-
-						var fileList = currentUploadData.fileList;
-
-						if (!currentUploadData.folder) {
-							AArray.each(
-								fileList,
-								function(item, index) {
-									item.overlay.destroy();
-
-									item.progressBar.destroy();
-								}
-							);
-						}
-
-						AArray.invoke(fileList, 'destroy');
-					},*/
 
 					_detachSubscriptions: function() {
 						var instance = this;
@@ -630,74 +347,6 @@ AUI.add(
 						}
 					},
 
-/*					_displayEntryError: function(node, message, displayStyle) {
-						var instance = this;
-
-						if (displayStyle == STR_LIST) {
-							var imageIcon = node.one(SELECTOR_IMAGE_ICON);
-
-							imageIcon.attr('src', PATH_THEME_IMAGES + '/common/close.png');
-						}
-						else {
-							node.addClass(CSS_UPLOAD_ERROR);
-						}
-
-						instance._displayError(node, message);
-					},
-
-					_displayError: function(node, message) {
-						var instance = this;
-
-						node.attr('data-message', message);
-
-						var tooltipDelegate = instance._tooltipDelegate;
-
-						if (!tooltipDelegate) {
-							tooltipDelegate = new A.TooltipDelegate(
-								{
-									formatter: function() {
-										var tooltip = this;
-
-										tooltip.set('zIndex', 2);
-
-										var node = tooltip.get('trigger');
-
-										return node.attr('data-message');
-									},
-									trigger: '.app-view-entry.upload-error',
-									visible: false
-								}
-							);
-
-							instance._tooltipDelegate = tooltipDelegate;
-						}
-
-						return node;
-					},
-*/
-/*					_displayResult: function(node, displayStyle, error) {
-						var instance = this;
-
-						var resultsNode = node;
-
-						if (resultsNode) {
-							var uploadResultClass = CSS_UPLOAD_SUCCESS;
-
-							if (error) {
-								resultsNode.removeClass(CSS_UPLOAD_ERROR).removeClass(CSS_UPLOAD_WARNING);
-
-								if (error === true) {
-									uploadResultClass = CSS_UPLOAD_ERROR;
-								}
-								else if (error == ERROR_RESULTS_MIXED) {
-									uploadResultClass = CSS_UPLOAD_WARNING;
-								}
-							}
-
-							resultsNode.addClass(uploadResultClass);
-						}
-					},*/
-
 					_getCurrentUploadData: function() {
 						var instance = this;
 
@@ -720,37 +369,7 @@ AUI.add(
 						return dataSet;
 					},
 
-/*					_getDisplayStyle: function(style) {
-						var instance = this;
-
-						var displayStyleNamespace = instance.get(STR_HOST).ns('displayStyle');
-
-						var displayStyle = HistoryManager.get(displayStyleNamespace) || instance._displayStyle;
-
-						if (style) {
-							displayStyle = (style == displayStyle);
-						}
-
-						return displayStyle;
-					},*/
-
-/*					_getEmptyMessage: function() {
-						var instance = this;
-
-						var emptyMessage = instance._emptyMessage;
-
-						if (!emptyMessage) {
-							emptyMessage = instance._entriesContainer.one(SELECTOR_ENTRIES_EMPTY);
-
-							instance._emptyMessage = emptyMessage;
-						}
-
-						return emptyMessage;
-					},*/
-
 					_getFolderEntryNode: function(target) {
-						var instance = this;
-
 						var folderEntry;
 
 						var overlayContentBox = target.hasClass('overlay-content');
@@ -779,62 +398,6 @@ AUI.add(
 						return folderEntry;
 					},
 
-/*					_getMediaThumbnail: function(fileName) {
-						var instance = this;
-
-						var thumbnailName = STR_THUMBNAIL_DEFAULT;
-
-						if (REGEX_IMAGE.test(fileName)) {
-							thumbnailName = sub(TPL_IMAGE_THUMBNAIL, [instance.get(STR_FOLDER_ID), fileName]);
-						}
-						else {
-							if (LString.endsWith(fileName.toLowerCase(), STR_EXTENSION_PDF)) {
-								thumbnailName = STR_THUMBNAIL_PDF;
-							}
-							else if (REGEX_AUDIO.test(fileName)) {
-								thumbnailName = STR_THUMBNAIL_AUDIO;
-							}
-							else if (REGEX_VIDEO.test(fileName)) {
-								thumbnailName = STR_THUMBNAIL_VIDEO;
-							}
-							else if (REGEX_COMPRESSED.test(fileName)) {
-								thumbnailName = STR_THUMBNAIL_COMPRESSED;
-							}
-
-							thumbnailName = STR_THUMBNAIL_PATH + thumbnailName;
-						}
-
-						return thumbnailName;
-					},*/
-/*
-					_getNavigationOverlays: function() {
-						var instance = this;
-
-						var navigationOverlays = instance._navigationOverlays;
-
-						if (!navigationOverlays) {
-							navigationOverlays = [];
-
-							var createNavigationOverlay = function(target) {
-								if (target) {
-									var overlay = instance._createOverlay(target, STR_NAVIGATION_OVERLAY_BACKGROUND);
-
-									navigationOverlays.push(overlay);
-								}
-							};
-
-							var entriesContainer = instance.get('entriesContainer');
-
-							createNavigationOverlay(entriesContainer.one(SELECTOR_DOCUMENT_ENTRIES_PAGINATION));
-							createNavigationOverlay(entriesContainer.one('.app-view-taglib.lfr-header-row'));
-							createNavigationOverlay(instance.get('listViewContainer'));
-
-							instance._navigationOverlays = navigationOverlays;
-						}
-
-						return navigationOverlays;
-					},*/
-
 					_getTargetFolderId: function(target) {
 						var instance = this;
 
@@ -862,7 +425,8 @@ AUI.add(
 									appViewEntryTemplates: instance.get('appViewEntryTemplates'),
 									dimensions: instance.get('dimensions'),
 									viewFileEntryURL: instance.get('viewFileEntryURL'),
-									displayStyle: instance.get('displayStyle')
+									displayStyle: instance.get('displayStyle'),
+									dropSelector: 'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]'
 								}
 							);
 
@@ -900,35 +464,6 @@ AUI.add(
 
 						return uploader;
 					},
-
-/*					_getUploadResponse: function(responseData) {
-						var instance = this;
-
-						var error;
-						var message;
-
-						try {
-							responseData = A.JSON.parse(responseData);
-						}
-						catch (err) {
-						}
-
-						if (Lang.isObject(responseData)) {
-							error = responseData.status && (responseData.status >= 490 && responseData.status < 500);
-
-							if (error) {
-								message = responseData.message;
-							}
-							else {
-								message = instance.get(STR_HOST).ns('fileEntryId=') + responseData.fileEntryId;
-							}
-						}
-
-						return {
-							error: error,
-							message: message
-						};
-					},*/
 
 					_getUploadStatus: function(key) {
 						var instance = this;
@@ -995,16 +530,6 @@ AUI.add(
 						instance._queueSelectedFiles(target, filesPartition);
 					},
 
-/*					_positionProgressBar: function(overlay, progressBar) {
-						var instance = this;
-
-						var progressBarBoundingBox = progressBar.get(STR_BOUNDING_BOX);
-
-						progressBar.render(overlay.get(STR_BOUNDING_BOX));
-
-						progressBarBoundingBox.center(overlay.get(STR_CONTENT_BOX));
-					},*/
-
 					_queueSelectedFiles: function(target, filesPartition) {
 						var instance = this;
 
@@ -1044,98 +569,6 @@ AUI.add(
 							instance._startUpload();
 						}
 					},
-
-/*					_showFileUploadComplete: function(event, displayStyle) {
-						var instance = this;
-
-						var file = event.file;
-
-						var fileNode = file.target;
-
-						var response = instance._getUploadResponse(event.data);
-
-						if (response) {
-							var hasErrors = !!response.error;
-
-							if (hasErrors) {
-								instance._displayEntryError(fileNode, response.message, displayStyle);
-							}
-							else {
-								var displayStyleList = (displayStyle == STR_LIST);
-
-								if (!displayStyleList) {
-									instance._updateThumbnail(fileNode, file.name);
-								}
-
-								instance._updateFileLink(fileNode, response.message, displayStyleList);
-							}
-
-							instance._displayResult(fileNode, displayStyle, hasErrors);
-						}
-
-						file.overlay.hide();
-					},*/
-
-/*					_showFileUploadProgress: function(event) {
-						var instance = this;
-
-						instance._updateProgress(event.file.progressBar, event.percentLoaded);
-					},
-
-					_showFileUploadStarting: function(event) {
-						var instance = this;
-
-						var file = event.file;
-
-						instance._positionProgressBar(file.overlay, file.progressBar);
-					},*/
-
-/*					_showFolderUploadComplete: function(event, uploadData, displayStyle) {
-						var instance = this;
-
-						var folderEntry = uploadData.target;
-						var invalidFiles = uploadData.invalidFiles;
-						var totalFilesLength = uploadData.fileList.length;
-
-						var invalidFilesLength = invalidFiles.length;
-
-						var hasErrors = (invalidFilesLength !== 0);
-
-						if (hasErrors && (invalidFilesLength !== totalFilesLength)) {
-							hasErrors = ERROR_RESULTS_MIXED;
-						}
-
-						instance._displayResult(folderEntry, displayStyle, hasErrors);
-
-						if (hasErrors) {
-							instance._displayError(
-								folderEntry,
-								TPL_ERROR_FOLDER.parse(
-									{
-										invalidFiles: invalidFiles,
-										invalidFilesLength: invalidFilesLength,
-										validFilesLength: totalFilesLength - invalidFilesLength
-									}
-								)
-							);
-						}
-
-						folderEntry.overlay.hide();
-					},*/
-
-/*					_showFolderUploadProgress: function(event, uploadData) {
-						var instance = this;
-
-						instance._updateProgress(uploadData.target.progressBar, event.percentLoaded);
-					},
-
-					_showFolderUploadStarting: function(event, uploadData) {
-						var instance = this;
-
-						var target = uploadData.target;
-
-						instance._positionProgressBar(target.overlay, target.progressBar);
-					},*/
 
 					_startNextUpload: function(event) {
 						var instance = this;
@@ -1192,84 +625,6 @@ AUI.add(
 							dataSet.replace(key, data);
 						}
 					},
-
-/*					_updateFileLink: function(node, id, displayStyleList) {
-						var instance = this;
-
-						var selector = SELECTOR_ENTRY_LINK;
-
-						if (displayStyleList) {
-							selector = SELECTOR_ENTRY_DISPLAY_STYLE + STR_SPACE + SELECTOR_TAGLIB_ICON;
-						}
-
-						var link = node.one(selector);
-
-						if (link) {
-							link.attr('href', Liferay.Util.addParams(id, instance.get('viewFileEntryURL')));
-						}
-					},*/
-
-					/*_updateProgress: function(progressBar, value) {
-						var instance = this;
-
-						progressBar.set('value', Math.ceil(value));
-					},
-
-					_updateStatusUI: function(target, filesPartition) {
-						var instance = this;
-
-						var folderId = instance._getTargetFolderId(target);
-
-						var folder = (folderId !== instance.get(STR_FOLDER_ID));
-
-						if (folder) {
-							var folderEntryNode = instance._getFolderEntryNode(target);
-
-							var folderEntryNodeOverlay = folderEntryNode.overlay;
-
-							if (folderEntryNodeOverlay) {
-								folderEntryNodeOverlay.show();
-
-								instance._updateProgress(folderEntryNode.progressBar, 0);
-							}
-							else {
-								instance._createUploadStatus(folderEntryNode);
-							}
-
-							folderEntryNode.removeClass(CSS_ACTIVE_AREA);
-						}
-						else {
-							var displayStyle = instance._getDisplayStyle();
-
-							AArray.map(
-								filesPartition.matches,
-								function(file) {
-									var entryNode = instance._createEntryNode(file.name, file.size, displayStyle);
-
-									instance._createUploadStatus(entryNode, file);
-								}
-							);
-
-							AArray.map(
-								filesPartition.rejects,
-								function(file) {
-									var entryNode = instance._createEntryNode(file.name, file.size, displayStyle);
-
-									instance._displayEntryError(entryNode, file.errorMessage, instance._getDisplayStyle());
-								}
-							);
-						}
-					},
-
-					_updateThumbnail: function(node, fileName) {
-						var instance = this;
-
-						var imageNode = node.one('img');
-
-						var thumbnailPath = instance._getMediaThumbnail(fileName);
-
-						imageNode.attr('src', thumbnailPath);
-					},*/
 
 					_validateFiles: function(data) {
 						var instance = this;

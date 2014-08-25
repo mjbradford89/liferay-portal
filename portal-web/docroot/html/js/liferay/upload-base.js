@@ -20,6 +20,11 @@ AUI.add(
 						value: {}
 					},
 
+					dropSelector: {
+						validator: isString,
+						value: 'body'
+					},
+
 					dimensions: {
 						value: {}
 					},
@@ -100,16 +105,18 @@ AUI.add(
 
 						this.docElement = A.getDoc().get('documentElement');
 
-						this.docElement.delegate('drop', A.bind(this._onDropFile, this), 'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]');
+						this.bindUI();
 
 						this.initTemplates();
 					},
 
 					bindUI: function() {
-						this.on('drop', this._onDropFile, this);
+						this.docElement.delegate('drop', A.bind(this._onDropFile, this), this.get('dropSelector'));
 
 						this.on('fileselect', this._onFileSelect, this);
 					},
+
+					initTemplates: function() {},
 
 					_onDropFile: function(event) {
 						var instance = this;

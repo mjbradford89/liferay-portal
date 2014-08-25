@@ -302,7 +302,7 @@ AUI.add(
 
 						var docElement = A.getDoc().get('documentElement');
 
-						docElement.on('drop', instance._handleDrop, instance);
+						//docElement.on('drop', uploader._onDropFile, instance);
 
 						var uploaderBoundingBox = instance._uploaderBoundingBox;
 
@@ -1013,7 +1013,8 @@ AUI.add(
 
 						var timestampParam = '_LFR_UPLOADER_TS=' + Lang.now();
 
-						var uploader = new A.Uploader(
+						//var uploader = new A.Uploader(
+						var uploader = new Liferay.UploadBase(
 							{
 								boundingBox: instance._uploaderBoundingBox,
 								contentBox: instance._uploaderContentBox,
@@ -1162,6 +1163,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-io-request', 'aui-template-deprecated', 'collection', 'liferay-portlet-base', 'liferay-storage-formatter', 'uploader']
+		requires: ['aui-io-request', 'aui-template-deprecated', 'collection', 'liferay-portlet-base', 'liferay-storage-formatter', 'uploader', 'liferay-upload-base']
 	}
 );

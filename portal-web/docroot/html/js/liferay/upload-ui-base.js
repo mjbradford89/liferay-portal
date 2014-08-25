@@ -97,21 +97,21 @@ AUI.add(
 			STR_THUMBNAIL_PATH = PATH_THEME_IMAGES + '/file_system/large/',
 
 			TPL_ENTRY_ROW_TITLE = '<span class="' + CSS_APP_VIEW_ENTRY + STR_SPACE + CSS_ENTRY_DISPLAY_STYLE + '">' +
-			'<a class="' + CSS_TAGLIB_ICON + '">' +
-				'<img alt="" class="' + CSS_ICON + '" src="' + PATH_THEME_IMAGES + '/file_system/small/page.png" />' +
-				'<span class="' + CSS_TAGLIB_TEXT + '">{0}</span>' +
-			'</a>' +
-		'</span>',
+				'<a class="' + CSS_TAGLIB_ICON + '">' +
+					'<img alt="" class="' + CSS_ICON + '" src="' + PATH_THEME_IMAGES + '/file_system/small/page.png" />' +
+					'<span class="' + CSS_TAGLIB_TEXT + '">{0}</span>' +
+				'</a>' +
+			'</span>',
 
 			TPL_ERROR_FOLDER = new A.Template(
-			'<span class="lfr-status-success-label">{validFilesLength}</span>',
-			'<span class="lfr-status-error-label">{invalidFilesLength}</span>',
-			'<ul class="list-unstyled">',
-				'<tpl for="invalidFiles">',
-					'<li><b>{name}</b>: {errorMessage}</li>',
-				'</tpl>',
-			'</ul>'
-		),
+				'<span class="lfr-status-success-label">{validFilesLength}</span>',
+				'<span class="lfr-status-error-label">{invalidFilesLength}</span>',
+				'<ul class="list-unstyled">',
+					'<tpl for="invalidFiles">',
+						'<li><b>{name}</b>: {errorMessage}</li>',
+					'</tpl>',
+				'</ul>'
+			),
 
 			TPL_IMAGE_THUMBNAIL = themeDisplay.getPathContext() + '/documents/' + themeDisplay.getScopeGroupId() + '/{0}/{1}';
 
@@ -353,9 +353,9 @@ AUI.add(
 				_getDisplayStyle: function(style) {
 					var instance = this;
 
-					var displayStyleNamespace = instance.get(STR_HOST).get(STR_HOST).ns('displayStyle');
+					var displayStyleNamespace = instance.get(STR_HOST).ns('displayStyle');
 
-					var displayStyle = Liferay.HistoryManager.get(displayStyleNamespace) || instance._displayStyle;
+					var displayStyle = Liferay.HistoryManager.get(displayStyleNamespace) || instance.get('displayStyle');
 
 					if (style) {
 						displayStyle = (style == displayStyle);
