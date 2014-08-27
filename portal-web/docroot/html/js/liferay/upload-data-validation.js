@@ -3,9 +3,17 @@ AUI.add(
 	function(A) {
 		var Lang = A.Lang;
 
-		var UploadDataValidation = function() {};
+		var UploadBase = A.Component.create({
 
-		UploadDataValidation.prototype = {
+			NAME: 'UploadDataValidation',
+
+			ATTRS: {
+				maxFileSize: {
+					validator: Lang.isNumber
+				}
+			},
+
+			prototype: {
 				validateFiles: function(data) {
 					var instance = this;
 
@@ -39,14 +47,15 @@ AUI.add(
 						}
 					);
 				}
-			};
+			}
+		};
 
 			A.augment(UploadDataValidation, Liferay.StorageFormatter);
 
-			A.Base.mix(Liferay.UploadBase, [UploadDataValidation]);
+			Liferay.UploadDataValidation = UploadDataValidation;
 	},
 	'',
 	{
-		requires: ['aui-component', 'liferay-storage-formatter', 'liferay-upload-base', 'array-extras']
+		requires: ['liferay-storage-formatter', 'array-extras']
 	}
 );

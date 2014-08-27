@@ -97,7 +97,7 @@ AUI.add(
 				'<h4>{[ this.strings.uploadsCompleteText ]}</h4>',
 			'</div>',
 
-			'<div class="pending-files-info alert alert-block hide">{[ this.strings.pendingFileText ]}</div>',
+			'<div class="pending-files-info alert alert-warning hide">{[ this.strings.pendingFileText ]}</div>',
 
 			'<div class="hide float-container manage-upload-target" id="{$ns}manageUploadTarget">',
 				'<tpl if="multipleFiles">',
@@ -302,7 +302,7 @@ AUI.add(
 
 						var docElement = A.getDoc().get('documentElement');
 
-						//docElement.on('drop', uploader._onDropFile, instance);
+						docElement.on('drop', instance._handleDrop, instance);
 
 						var uploaderBoundingBox = instance._uploaderBoundingBox;
 
@@ -1013,7 +1013,6 @@ AUI.add(
 
 						var timestampParam = '_LFR_UPLOADER_TS=' + Lang.now();
 
-						//var uploader = new A.Uploader(
 						var uploader = new Liferay.UploadBase(
 							{
 								boundingBox: instance._uploaderBoundingBox,

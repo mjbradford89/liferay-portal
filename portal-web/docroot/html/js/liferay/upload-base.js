@@ -14,6 +14,7 @@ AUI.add(
 		var UploadBase = A.Component.create(
 			{
 				NAME: 'uploadbase',
+
 				ATTRS: {
 					appViewEntryTemplates: {
 						validator: A.one,
@@ -74,9 +75,6 @@ AUI.add(
 					uploadFile: {
 						value: ''
 					},
-					maxFileSize: {
-						validator: Lang.isNumber
-					},
 
 					strings: {
 						value: {
@@ -97,57 +95,72 @@ AUI.add(
 				},
 				EXTENDS: A.Uploader,
 
+				AUGMENTS: [Liferay.UploadDataValidation],
+
 				prototype: {
 					initializer: function() {
-						var dragAndDropArea = A.one(this.get('dragAndDropArea'));
+						var instance = this;
 
-						this.set('dragAndDropArea', dragAndDropArea);
+						var strings = instance.get(STRINGS);
 
-						this.docElement = A.getDoc().get('documentElement');
+						var fallback = instance.get('fallback');
 
-						this.bindUI();
+						var useFallback = (location.hash.indexOf(STR_PARAM_FALLBACK) > -1) && fallback;
 
-						this.initTemplates();
+						if (useFallback ||
+							UPLOADER_TYPE == 'none' ||
+							(UPLOADER_TYPE == 'flash' && !A.SWFDetect.isFlashVersionAtLeast(10, 1))) {
+
+							if (fallback) {
+								fallback.show();
+							}
+							else {
+								instance.one('#fileUpload').append(Lang.sub(TPL_ERROR_MESSAGE, [strings.notAvailableText]));
+							}
+
+							instance._preventRenderHandle = instance.on(
+								'render',
+								function(event) {
+									event.preventDefault();
+								}
+							);
+						}
+						else {
+							var maxFileSize = instance.formatStorage(instance.get('maxFileSize'));
+
+							instance._invalidFileSizeText = Lang.sub(strings.invalidFileSizeText, [maxFileSize]);
+
+							instance._metadataContainer = instance.get('metadataContainer');
+							instance._metadataExplanationContainer = instance.get('metadataExplanationContainer');
+
+							instance._fileListBuffer = [];
+							instance._renderFileListTask = A.debounce(instance._renderFileList, 10, instance);
+						}
+
+						instance._fallback = fallback;
+					},
+
+					destructor: function() {
+
 					},
 
 					bindUI: function() {
-						this.docElement.delegate('drop', A.bind(this._onDropFile, this), this.get('dropSelector'));
-
-						this.on('fileselect', this._onFileSelect, this);
 					},
 
-					initTemplates: function() {},
+					_renderUploader: function() {
 
-					_onDropFile: function(event) {
-						var instance = this;
+					},
 
-						var dataTransfer = event._event.dataTransfer;
+					_getUploader: function() {
 
-						if (dataTransfer) {
-							var dataTransferTypes = dataTransfer.types || [];
+					},
 
-							// file.size > 0
+					renderUI: function() {
 
-							if ((A.Array.indexOf(dataTransferTypes, 'Files') > -1) && (A.Array.indexOf(dataTransferTypes, 'text/html') === -1)) {
-								event.halt();
-
-								var dragDropFiles = A.Array(dataTransfer.files);
-
-								event.fileList = A.Array.map(
-									dragDropFiles,
-									function(item) {
-										return new A.FileHTML5(item);
-									}
-								);
-
-								instance.fire('fileselect', event);
-							}
-						}
 					},
 
 					_onFileSelect: function(event) {
-						event.stopPropagation();
-						console.log(event);
+
 					}
 				}
 			}
