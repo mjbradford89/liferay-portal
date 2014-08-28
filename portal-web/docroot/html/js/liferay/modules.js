@@ -842,7 +842,7 @@
 							'collection',
 							'liferay-portlet-base',
 							'liferay-storage-formatter',
-							'uploader'
+							'uploader',
 							'liferay-upload-base'
 						]
 					},

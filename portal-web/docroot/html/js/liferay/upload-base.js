@@ -191,18 +191,20 @@ AUI.add(
 				}
 				catch (err) {
 				}
+
+				instance.get('host')._onUploadComplete(event);
 			},
 
 			//TODO override in data validation
 			_getValidFiles: function() {},
 
 			//TODO override in ui-base
-			_onUploadStart: function() {},
-			_onFileUploadStart: function() {},
-			_onUploadProgress: function() {},
-			_afterFilesSaved: function() {},
-			_onTotalUploadProgress: function() {},
-			_handleDeleteResponse: function() {},
+			_onUploadStart: function(event) {this.get('host')._onUploadComplete(event);},
+			_onFileUploadStart: function(event) {this.get('host')._onUploadComplete(event);},
+			_onUploadProgress: function(event) {this.get('host')._onUploadComplete(event);},
+			_afterFilesSaved: function(event) {this.get('host')._onUploadComplete(event);},
+			_onTotalUploadProgress: function(event) {this.get('host')._onUploadComplete(event);},
+			_handleDeleteResponse: function(event) {this.get('host')._onUploadComplete(event);},
 
 			_handleDrop: function(event) {
 				var instance = this;
