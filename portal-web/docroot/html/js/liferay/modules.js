@@ -843,6 +843,7 @@
 							'liferay-portlet-base',
 							'liferay-storage-formatter',
 							'uploader'
+							'liferay-upload-base'
 						]
 					},
 					'liferay-upload-base': {

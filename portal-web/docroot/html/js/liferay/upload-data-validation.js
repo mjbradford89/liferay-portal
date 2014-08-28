@@ -3,7 +3,7 @@ AUI.add(
 	function(A) {
 		var Lang = A.Lang;
 
-		var UploadBase = A.Component.create({
+		var UploadDataValidation = A.Component.create({
 
 			NAME: 'UploadDataValidation',
 
@@ -30,7 +30,7 @@ AUI.add(
 							var strings = instance.get('strings');
 
 							if ((maxFileSize !== 0) && (size > maxFileSize)) {
-								errorMessage = Lang.sub(strings.invalidFileSize, [instance.formatStorage(instance._maxFileSize)]);
+								errorMessage = Lang.sub(strings.invalidFileSize, [Liferay.StorageFormatter.formatStorage(instance._maxFileSize)]);
 							}
 							else if (!type) {
 								errorMessage = strings.invalidFileType;
@@ -50,9 +50,7 @@ AUI.add(
 			}
 		};
 
-			A.augment(UploadDataValidation, Liferay.StorageFormatter);
-
-			Liferay.UploadDataValidation = UploadDataValidation;
+		Liferay.UploadDataValidation = UploadDataValidation;
 	},
 	'',
 	{
