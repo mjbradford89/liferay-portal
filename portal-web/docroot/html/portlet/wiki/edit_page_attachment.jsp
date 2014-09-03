@@ -134,8 +134,10 @@ Date expirationDate = new Date(System.currentTimeMillis() + PropsValues.SESSION_
 Ticket ticket = TicketLocalServiceUtil.addTicket(user.getCompanyId(), User.class.getName(), user.getUserId(), TicketConstants.TYPE_IMPERSONATE, null, expirationDate, new ServiceContext());
 %>
 
-<aui:script use="liferay-upload">
-	new Liferay.Upload(
+<aui:script use="liferay-upload-base,liferay-upload-ui-base,liferay-upload-data-validation">
+	var timestampParam = '_LFR_UPLOADER_TS=' + A.Lang.now();
+
+	new Liferay.UploadBase(
 		{
 			boundingBox: '#<portlet:namespace />fileUpload',
 
@@ -144,12 +146,10 @@ Ticket ticket = TicketLocalServiceUtil.addTicket(user.getCompanyId(), User.class
 			%>
 
 			decimalSeparator: '<%= decimalFormatSymbols.getDecimalSeparator() %>',
-			deleteFile: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/wiki/edit_page_attachment" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE_TEMP %>" /><portlet:param name="nodeId" value="<%= String.valueOf(node.getNodeId()) %>" /><portlet:param name="title" value="<%= wikiPage.getTitle() %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= WikiPage.class.getName() %>" />',
+			deleteFileURL: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/wiki/edit_page_attachment" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE_TEMP %>" /><portlet:param name="nodeId" value="<%= String.valueOf(node.getNodeId()) %>" /><portlet:param name="title" value="<%= wikiPage.getTitle() %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= WikiPage.class.getName() %>" />',
 			fallback: '#<portlet:namespace />fallback',
 			fileDescription: '<%= StringUtil.merge(PrefsPropsUtil.getStringArray(PropsKeys.DL_FILE_EXTENSIONS, StringPool.COMMA)) %>',
-			maxFileSize: '<%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE) %> B',
-			metadataContainer: '#<portlet:namespace />selectedFileNameMetadataContainer',
-			metadataExplanationContainer: '#<portlet:namespace />metadataExplanationContainer',
+			multipleFiles: true,
 			namespace: '<portlet:namespace />',
 			tempFileURL: {
 				method: Liferay.Service.bind('/wikipage/get-temp-page-attachment-names'),
@@ -158,7 +158,18 @@ Ticket ticket = TicketLocalServiceUtil.addTicket(user.getCompanyId(), User.class
 					tempFolderName: 'com.liferay.portlet.wiki.action.EditPageAttachmentsAction'
 				}
 			},
-			uploadFile: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/wiki/edit_page_attachment" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.ADD_TEMP %>" /><portlet:param name="nodeId" value="<%= String.valueOf(node.getNodeId()) %>" /><portlet:param name="title" value="<%= wikiPage.getTitle() %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= WikiPage.class.getName() %>" />'
+			uploadURL: Liferay.Util.addParams(timestampParam, '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/wiki/edit_page_attachment" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.ADD_TEMP %>" /><portlet:param name="nodeId" value="<%= String.valueOf(node.getNodeId()) %>" /><portlet:param name="title" value="<%= wikiPage.getTitle() %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= WikiPage.class.getName() %>" />'),
+			userInterface: new Liferay.UploadUIBase(
+				{
+					metadataContainer: '#<portlet:namespace />selectedFileNameMetadataContainer',
+					metadataExplanationContainer: '#<portlet:namespace />metadataExplanationContainer'
+				}
+			),
+			dataValidation: new Liferay.UploadDataValidation(
+				{
+					maxFileSize: '<%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE) %> B',
+				}
+			)
 		}
 	);
 </aui:script>

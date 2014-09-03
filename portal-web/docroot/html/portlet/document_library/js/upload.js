@@ -222,19 +222,26 @@ AUI.add(
 					initializer: function() {
 						var instance = this;
 
+						//dl-ui-base
 						var appViewEntryTemplates = instance.get('appViewEntryTemplates');
 
+						//dl-ui-base
 						instance._columnNames = instance.get('columnNames');
 						instance._dimensions = instance.get('dimensions');
 						instance._displayStyle = instance.get('displayStyle');
 						instance._entriesContainer = instance.get('entriesContainer');
+
+						//data-validation
 						instance._maxFileSize = instance.get('maxFileSize');
 
+						//UI handles go in dl-ui-base. lifecycle handles go in base
 						instance._handles = [];
 
+						//dl-ui-base
 						instance._invisibleDescriptiveEntry = appViewEntryTemplates.one(SELECTOR_ENTRY_DISPLAY_STYLE + SELECTOR_DISPLAY_DESCRIPTIVE);
 						instance._invisibleIconEntry = appViewEntryTemplates.one(SELECTOR_ENTRY_DISPLAY_STYLE + SELECTOR_DISPLAY_ICON);
 
+						//dl-ui-base
 						instance._strings = {
 							invalidFileSize: Liferay.Language.get('please-enter-a-file-with-a-valid-file-size-no-larger-than-x'),
 							invalidFileType: Liferay.Language.get('please-enter-a-file-with-a-valid-file-type'),
@@ -251,14 +258,17 @@ AUI.add(
 							instance._dataSet.destroy();
 						}
 
+						//dl-ui-base
 						if (instance._navigationOverlays) {
 							AArray.invoke(instance._navigationOverlays, 'destroy');
 						}
 
+						//base
 						if (instance._uploader) {
 							instance._uploader.destroy();
 						}
 
+						//dl-ui-base
 						if (instance._tooltipDelegate) {
 							instance._tooltipDelegate.destroy();
 						}
@@ -268,6 +278,7 @@ AUI.add(
 						(new A.EventHandle(instance._eventHandles)).detach();
 					},
 
+					//base
 					_addFilesToQueueBottom: function(files) {
 						var instance = this;
 
@@ -281,6 +292,7 @@ AUI.add(
 						);
 					},
 
+					//base
 					_attachSubscriptions: function(data) {
 						var instance = this;
 
@@ -306,6 +318,7 @@ AUI.add(
 						}
 					},
 
+					//dl-ui-base
 					_bindDragDropUI: function() {
 						var instance = this;
 
@@ -422,6 +435,7 @@ AUI.add(
 						];
 					},
 
+					//base
 					_combineFileLists: function(fileList, queuedFiles) {
 						var instance = this;
 
@@ -433,6 +447,7 @@ AUI.add(
 						);
 					},
 
+					//dl-ui-base
 					_confirmUnload: function() {
 						var instance = this;
 
@@ -441,6 +456,7 @@ AUI.add(
 						}
 					},
 
+					//dl-entry instance
 					_createEntryNode: function(name, size, displayStyle) {
 						var instance = this;
 
@@ -487,6 +503,7 @@ AUI.add(
 						return entryNode;
 					},
 
+					//dl-ui-base
 					_createEntryRow: function(name, size) {
 						var instance = this;
 
@@ -520,6 +537,7 @@ AUI.add(
 						return row;
 					},
 
+					//dl-ui-base
 					_createOverlay: function(target, background) {
 						var instance = this;
 
@@ -535,6 +553,7 @@ AUI.add(
 						return overlay;
 					},
 
+					//dl-ui-base
 					_createProgressBar: function() {
 						var instance = this;
 
@@ -560,6 +579,7 @@ AUI.add(
 						);
 					},
 
+					//dl-ui-base
 					_createUploadStatus: function(target, file) {
 						var instance = this;
 
@@ -579,10 +599,12 @@ AUI.add(
 						}
 					},
 
+					//???
 					_decodeURI: function(val) {
 						return decodeURI(val);
 					},
 
+					//dl-ui-base
 					_destroyEntry: function() {
 						var instance = this;
 
@@ -604,6 +626,7 @@ AUI.add(
 						AArray.invoke(fileList, 'destroy');
 					},
 
+					//base
 					_detachSubscriptions: function() {
 						var instance = this;
 
@@ -614,6 +637,7 @@ AUI.add(
 						handles.length = 0;
 					},
 
+					//base
 					_detectFolderUploadError: function(event, data) {
 						var instance = this;
 
@@ -628,6 +652,7 @@ AUI.add(
 						}
 					},
 
+					//dl-ui-base
 					_displayEntryError: function(node, message, displayStyle) {
 						var instance = this;
 
@@ -643,6 +668,7 @@ AUI.add(
 						instance._displayError(node, message);
 					},
 
+					//dl-ui-base
 					_displayError: function(node, message) {
 						var instance = this;
 
@@ -673,6 +699,7 @@ AUI.add(
 						return node;
 					},
 
+					//dl-ui-base
 					_displayResult: function(node, displayStyle, error) {
 						var instance = this;
 
@@ -696,6 +723,7 @@ AUI.add(
 						}
 					},
 
+					//base
 					_getCurrentUploadData: function() {
 						var instance = this;
 
@@ -704,6 +732,7 @@ AUI.add(
 						return dataSet.get(STR_FIRST);
 					},
 
+					//base   what is liferay-upload using in place of a dataset?
 					_getDataSet: function() {
 						var instance = this;
 
@@ -718,6 +747,7 @@ AUI.add(
 						return dataSet;
 					},
 
+					//dl-ui-base
 					_getDisplayStyle: function(style) {
 						var instance = this;
 
@@ -732,6 +762,7 @@ AUI.add(
 						return displayStyle;
 					},
 
+					//dl-ui-base
 					_getEmptyMessage: function() {
 						var instance = this;
 
@@ -746,6 +777,7 @@ AUI.add(
 						return emptyMessage;
 					},
 
+					//dl-ui-base
 					_getFolderEntryNode: function(target) {
 						var instance = this;
 
@@ -777,6 +809,7 @@ AUI.add(
 						return folderEntry;
 					},
 
+					//dl-ui-base
 					_getMediaThumbnail: function(fileName) {
 						var instance = this;
 
@@ -805,6 +838,7 @@ AUI.add(
 						return thumbnailName;
 					},
 
+					//dl-ui-base
 					_getNavigationOverlays: function() {
 						var instance = this;
 
@@ -833,6 +867,7 @@ AUI.add(
 						return navigationOverlays;
 					},
 
+					//dl-ui-base
 					_getTargetFolderId: function(target) {
 						var instance = this;
 
@@ -843,6 +878,7 @@ AUI.add(
 						return (dataFolder && Lang.toInt(dataFolder.attr('data-folder-id')) || instance.get(STR_FOLDER_ID));
 					},
 
+					//base
 					_getUploader: function() {
 						var instance = this;
 
@@ -858,8 +894,10 @@ AUI.add(
 								}
 							);
 
+							//dl-ui-base
 							var navigationOverlays = instance._getNavigationOverlays();
 
+							//dl-ui-base
 							uploader.on(
 								'uploadstart',
 								function(event) {
@@ -867,6 +905,7 @@ AUI.add(
 								}
 							);
 
+							//dl-ui-base
 							uploader.after(
 								'alluploadscomplete',
 								function(event) {
@@ -880,8 +919,10 @@ AUI.add(
 								}
 							);
 
+							//dl-ui-base
 							uploader.get(STR_BOUNDING_BOX).hide();
 
+							//dl-ui-base
 							uploader.render();
 
 							uploader.after('alluploadscomplete', instance._startNextUpload, instance);
@@ -893,6 +934,7 @@ AUI.add(
 						return uploader;
 					},
 
+					//base
 					_getUploadResponse: function(responseData) {
 						var instance = this;
 
@@ -922,6 +964,7 @@ AUI.add(
 						};
 					},
 
+					//base
 					_getUploadStatus: function(key) {
 						var instance = this;
 
@@ -930,6 +973,7 @@ AUI.add(
 						return dataSet.item(String(key));
 					},
 
+					//base
 					_getUploadURL: function(folderId) {
 						var instance = this;
 
@@ -957,6 +1001,7 @@ AUI.add(
 						);
 					},
 
+					//base
 					_isUploading: function() {
 						var instance = this;
 
@@ -967,6 +1012,7 @@ AUI.add(
 						return !!(queue && ((queue.queuedFiles.length > 0) || (queue.numberOfUploads > 0) || !A.Object.isEmpty(queue.currentFiles)) && (queue._currentState == UploaderQueue.UPLOADING));
 					},
 
+					//base?
 					_onDataRequest: function(event) {
 						var instance = this;
 
@@ -975,6 +1021,7 @@ AUI.add(
 						}
 					},
 
+					//base
 					_onFileSelect: function(event) {
 						var instance = this;
 
@@ -982,11 +1029,13 @@ AUI.add(
 
 						var filesPartition = instance._validateFiles(event.fileList);
 
+						//dl-ui-base
 						instance._updateStatusUI(target, filesPartition);
 
 						instance._queueSelectedFiles(target, filesPartition);
 					},
 
+					//dl-ui-base
 					_positionProgressBar: function(overlay, progressBar) {
 						var instance = this;
 
@@ -997,6 +1046,7 @@ AUI.add(
 						progressBarBoundingBox.center(overlay.get(STR_CONTENT_BOX));
 					},
 
+					//base and some dl-ui-base
 					_queueSelectedFiles: function(target, filesPartition) {
 						var instance = this;
 
@@ -1037,6 +1087,7 @@ AUI.add(
 						}
 					},
 
+					//dl-ui-base
 					_showFileUploadComplete: function(event, displayStyle) {
 						var instance = this;
 
@@ -1068,12 +1119,14 @@ AUI.add(
 						file.overlay.hide();
 					},
 
+					//dl-ui-base
 					_showFileUploadProgress: function(event) {
 						var instance = this;
 
 						instance._updateProgress(event.file.progressBar, event.percentLoaded);
 					},
 
+					//dl-ui-base
 					_showFileUploadStarting: function(event) {
 						var instance = this;
 
@@ -1082,6 +1135,7 @@ AUI.add(
 						instance._positionProgressBar(file.overlay, file.progressBar);
 					},
 
+					//dl-ui-base
 					_showFolderUploadComplete: function(event, uploadData, displayStyle) {
 						var instance = this;
 
@@ -1115,12 +1169,14 @@ AUI.add(
 						folderEntry.overlay.hide();
 					},
 
+					//dl-ui-base
 					_showFolderUploadProgress: function(event, uploadData) {
 						var instance = this;
 
 						instance._updateProgress(uploadData.target.progressBar, event.percentLoaded);
 					},
 
+					//dl-ui-base
 					_showFolderUploadStarting: function(event, uploadData) {
 						var instance = this;
 
@@ -1129,6 +1185,8 @@ AUI.add(
 						instance._positionProgressBar(target.overlay, target.progressBar);
 					},
 
+					//base
+					//alluploadscomeplete handler
 					_startNextUpload: function(event) {
 						var instance = this;
 
@@ -1145,6 +1203,7 @@ AUI.add(
 						}
 					},
 
+					//base
 					_startUpload: function() {
 						var instance = this;
 
@@ -1166,6 +1225,7 @@ AUI.add(
 						}
 					},
 
+					//base
 					_updateDataSetEntry: function(key, data, unmergedData) {
 						var instance = this;
 
@@ -1183,6 +1243,7 @@ AUI.add(
 						}
 					},
 
+					//dl-ui-base
 					_updateFileLink: function(node, id, displayStyleList) {
 						var instance = this;
 
@@ -1199,12 +1260,14 @@ AUI.add(
 						}
 					},
 
+					//dl-ui-base
 					_updateProgress: function(progressBar, value) {
 						var instance = this;
 
 						progressBar.set('value', Math.ceil(value));
 					},
 
+					//dl-ui-base
 					_updateStatusUI: function(target, filesPartition) {
 						var instance = this;
 
@@ -1251,6 +1314,7 @@ AUI.add(
 						}
 					},
 
+					//dl-ui-base
 					_updateThumbnail: function(node, fileName) {
 						var instance = this;
 
@@ -1261,6 +1325,7 @@ AUI.add(
 						imageNode.attr('src', thumbnailPath);
 					},
 
+					//data-validation
 					_validateFiles: function(data) {
 						var instance = this;
 
