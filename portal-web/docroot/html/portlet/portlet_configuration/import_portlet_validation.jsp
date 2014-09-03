@@ -41,8 +41,10 @@ Layout exportableLayout = ExportImportHelperUtil.getExportableLayout(themeDispla
 	Ticket ticket = TicketLocalServiceUtil.addTicket(user.getCompanyId(), User.class.getName(), user.getUserId(), TicketConstants.TYPE_IMPERSONATE, null, expirationDate, new ServiceContext());
 	%>
 
-	<aui:script use="liferay-upload">
-		var liferayUpload = new Liferay.Upload(
+	<aui:script use="liferay-upload-base,liferay-upload-ui-base,liferay-upload-data-validation">
+		var timestampParam = '_LFR_UPLOADER_TS=' + A.Lang.now();
+
+		var liferayUpload = new Liferay.UploadBase(
 			{
 				boundingBox: '#<portlet:namespace />fileUpload',
 
@@ -52,17 +54,11 @@ Layout exportableLayout = ExportImportHelperUtil.getExportableLayout(themeDispla
 
 				decimalSeparator: '<%= decimalFormatSymbols.getDecimalSeparator() %>',
 
-				deleteFile: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/portlet_configuration/export_import" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE_TEMP %>" /><portlet:param name="redirect" value="<%= redirect %>" /><portlet:param name="portletResource" value="<%= portletResource %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= Group.class.getName() %>" />',
+				deleteFileURL: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/portlet_configuration/export_import" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE_TEMP %>" /><portlet:param name="redirect" value="<%= redirect %>" /><portlet:param name="portletResource" value="<%= portletResource %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= Group.class.getName() %>" />',
 				fileDescription: '<%= StringUtil.merge(PrefsPropsUtil.getStringArray(PropsKeys.DL_FILE_EXTENSIONS, StringPool.COMMA)) %>',
-				maxFileSize: '<%= PrefsPropsUtil.getLong(PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE) %> B',
-				metadataContainer: '#<portlet:namespace />commonFileMetadataContainer',
-				metadataExplanationContainer: '#<portlet:namespace />metadataExplanationContainer',
+				fileFieldName: 'file',
 				multipleFiles: false,
 				namespace: '<portlet:namespace />',
-				'strings.dropFileText': '<liferay-ui:message key="drop-a-lar-file-here-to-import" />',
-				'strings.fileCannotBeSavedText': '<liferay-ui:message key="the-file-x-cannot-be-imported" />',
-				'strings.pendingFileText': '<liferay-ui:message key="this-file-was-previously-uploaded-but-not-actually-imported" />',
-				'strings.uploadsCompleteText': '<liferay-ui:message key="the-file-is-ready-to-be-imported" />',
 				tempFileURL: {
 					method: Liferay.Service.bind('/layout/get-temp-file-entry-names'),
 					params: {
@@ -70,13 +66,28 @@ Layout exportableLayout = ExportImportHelperUtil.getExportableLayout(themeDispla
 						tempFolderName: '<%= HtmlUtil.escapeJS(ExportImportHelper.TEMP_FOLDER_NAME + selPortlet.getPortletId()) %>'
 					}
 				},
-				uploadFile: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/portlet_configuration/export_import" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.ADD_TEMP %>" /><portlet:param name="redirect" value="<%= redirect %>" /><portlet:param name="plid" value="<%= String.valueOf(exportableLayout.getPlid()) %>" /><portlet:param name="groupId" value="<%= String.valueOf(themeDisplay.getScopeGroupId()) %>" /><portlet:param name="portletResource" value="<%= portletResource %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= Group.class.getName() %>" />'
+				uploadURL: Liferay.Util.addParams(timestampParam, '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/portlet_configuration/export_import" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.ADD_TEMP %>" /><portlet:param name="redirect" value="<%= redirect %>" /><portlet:param name="plid" value="<%= String.valueOf(exportableLayout.getPlid()) %>" /><portlet:param name="groupId" value="<%= String.valueOf(themeDisplay.getScopeGroupId()) %>" /><portlet:param name="portletResource" value="<%= portletResource %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= Group.class.getName() %>" />'),
+				userInterface: new Liferay.UploadUIBase(
+					{
+						metadataContainer: '#<portlet:namespace />commonFileMetadataContainer',
+						metadataExplanationContainer: '#<portlet:namespace />metadataExplanationContainer',
+						'strings.dropFileText': '<liferay-ui:message key="drop-a-lar-file-here-to-import" />',
+						'strings.fileCannotBeSavedText': '<liferay-ui:message key="the-file-x-cannot-be-imported" />',
+						'strings.pendingFileText': '<liferay-ui:message key="this-file-was-previously-uploaded-but-not-actually-imported" />',
+						'strings.uploadsCompleteText': '<liferay-ui:message key="the-file-is-ready-to-be-imported" />'
+					}
+				),
+				dataValidation: new Liferay.UploadDataValidation(
+					{
+						maxFileSize: '<%= PrefsPropsUtil.getLong(PropsKeys.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE) %> B'
+					}
+				)
 			}
 		);
 
 		var continueButton = A.one('#<portlet:namespace />continueButton');
 
-		liferayUpload._uploader.on(
+		liferayUpload.on(
 			'alluploadscomplete',
 			function(event) {
 				toggleContinueButton();
@@ -91,7 +102,7 @@ Layout exportableLayout = ExportImportHelperUtil.getExportableLayout(themeDispla
 		);
 
 		function toggleContinueButton() {
-			var uploadedFiles = liferayUpload._fileListContent.all('.upload-file.upload-complete');
+			var uploadedFiles = liferayUpload._UI._fileListContent.all('.upload-file.upload-complete');
 
 			if (uploadedFiles.size() == 1) {
 				continueButton.show();

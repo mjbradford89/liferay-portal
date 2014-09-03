@@ -148,6 +148,7 @@ Ticket ticket = TicketLocalServiceUtil.addTicket(user.getCompanyId(), User.class
 			decimalSeparator: '<%= decimalFormatSymbols.getDecimalSeparator() %>',
 			deleteFileURL: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/wiki/edit_page_attachment" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE_TEMP %>" /><portlet:param name="nodeId" value="<%= String.valueOf(node.getNodeId()) %>" /><portlet:param name="title" value="<%= wikiPage.getTitle() %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= WikiPage.class.getName() %>" />',
 			fallback: '#<portlet:namespace />fallback',
+			fileFieldName: 'file',
 			fileDescription: '<%= StringUtil.merge(PrefsPropsUtil.getStringArray(PropsKeys.DL_FILE_EXTENSIONS, StringPool.COMMA)) %>',
 			multipleFiles: true,
 			namespace: '<portlet:namespace />',
