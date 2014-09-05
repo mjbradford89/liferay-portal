@@ -187,11 +187,11 @@ AUI.add(
 					bindUI: function() {
 						var instance = this;
 
-						var docElement = A.getDoc().get('documentElement');
-
 						if (instance._allRowIdsCheckbox) {
 							instance._allRowIdsCheckbox.on('click', instance._onAllRowIdsClick, instance);
 						}
+
+						instance._bindDragDropUI();
 
 						instance._cancelButton.on('click', instance._cancelAllFiles, instance);
 						instance._clearUploadsButton.on('click', instance._clearUploads, instance);
@@ -200,59 +200,58 @@ AUI.add(
 
 						Liferay.after('filesSaved', instance._afterFilesSaved, instance);
 
-						Liferay.after('allUploadsComplete', instance._onAllUploadsComplete, instance);
-
-						docElement.on('drop', instance._handleDrop, instance);
-
+						instance._host.after('alluploadscomplete', instance._onAllUploadsComplete, instance);
 						instance._host.after('fileselect', instance._afterFileSelect, instance);
 						instance._host.after('uploadcomplete', instance._afterUploadComplete, instance);
 
 						instance._selectFilesButton.on('click', instance.openFileSelectDialog, instance);
 
-						var uploaderBoundingBox = instance._uploaderBoundingBox;
-
-						var removeCssClassTask = A.debounce(
-							function() {
-								docElement.removeClass('upload-drop-intent');
-								docElement.removeClass('upload-drop-active');
-							},
-							500
-						);
-
-						docElement.on(
-							'dragover',
-							function(event) {
-								var originalEvent = event._event;
-
-								var dataTransfer = originalEvent.dataTransfer;
-
-								if (dataTransfer && AArray.indexOf(dataTransfer.types, 'Files') > -1) {
-									event.halt();
-
-									docElement.addClass('upload-drop-intent');
-
-									var target = event.target;
-
-									var inDropArea = target.compareTo(uploaderBoundingBox) || uploaderBoundingBox.contains(target);
-
-									var dropEffect = 'none';
-
-									if (inDropArea) {
-										dropEffect = 'copy';
-									}
-
-									docElement.toggleClass('upload-drop-active', inDropArea);
-
-									dataTransfer.dropEffect = dropEffect;
-								}
-
-								removeCssClassTask();
-							}
-						);
-
 						instance._bindFileInputField();
 
 						instance._bindSelectFilesButton();
+					},
+
+					_bindDragDropUI: function() {
+						var instance = this;
+
+						var docElement = A.getDoc().get('documentElement');
+
+						docElement.on('dragover', instance._handleDragOver, instance);
+						docElement.on('drop', instance._handleDrop, instance);
+					},
+
+					_handleDragOver: function(event) {
+						var instance = this;
+
+						var docElement = A.getDoc().get('documentElement');
+
+						var originalEvent = event._event;
+
+						var dataTransfer = originalEvent.dataTransfer;
+
+						var uploaderBoundingBox = instance._uploaderBoundingBox;
+
+						if (dataTransfer && AArray.indexOf(dataTransfer.types, 'Files') > -1) {
+							event.halt();
+
+							docElement.addClass('upload-drop-intent');
+
+							var target = event.target;
+
+							var inDropArea = target.compareTo(uploaderBoundingBox) || uploaderBoundingBox.contains(target);
+
+							var dropEffect = 'none';
+
+							if (inDropArea) {
+								dropEffect = 'copy';
+							}
+
+							docElement.toggleClass('upload-drop-active', inDropArea);
+
+							dataTransfer.dropEffect = dropEffect;
+						}
+
+						instance._host.removeCssClassTask();
 					},
 
 					_afterFilesSaved: function(event) {

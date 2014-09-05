@@ -66,6 +66,8 @@ AUI.add(
 					initializer: function() {
 						var instance = this;
 
+						var docElement = A.getDoc().get('documentElement');
+
 						instance._UI = instance.get('userInterface');
 
 						instance._dataValidation = instance.get('dataValidation');
@@ -109,6 +111,14 @@ AUI.add(
 							instance.bindEvents();
 
 							instance._UI.bindUI();
+
+							instance.removeCssClassTask = A.debounce(
+								function() {
+									docElement.removeClass('upload-drop-intent');
+									docElement.removeClass('upload-drop-active');
+								},
+								500
+							);
 						}
 					},
 
@@ -213,10 +223,12 @@ AUI.add(
 
 						var fileList = event.fileList;
 
-						var validFiles = instance._dataValidation.getValidFiles(fileList);
+						var filesPartition = instance._dataValidation.getValidFiles(fileList);
+
+						event.filesPartition = filesPartition;
 
 						A.each(
-							validFiles,
+							filesPartition.matches,
 							function(item, index) {
 								instance._fileListBuffer.push(item);
 							}
@@ -224,20 +236,20 @@ AUI.add(
 
 						instance._renderFileListTask();
 
-						var validFilesLength = validFiles.length;
+						var validFilesLength = filesPartition.matches.length;
 
 						if (validFilesLength) {
-							instance.set('fileList', validFiles);
+							instance.set('fileList', filesPartition.matches);
 
 							instance._filesTotal += validFilesLength;
 
 							if (instance._isUploading()) {
 								var uploadQueue = instance.queue;
 
-								A.Array.each(validFiles, uploadQueue.addToQueueBottom, uploadQueue);
+								A.Array.each(filesPartition.matches, uploadQueue.addToQueueBottom, uploadQueue);
 
 								instance.fire('addFilesToQueue', {
-									validFiles: validFiles,
+									validFiles: filesPartition.matches,
 									uploadQueue: uploadQueue
 								});
 							}
@@ -246,55 +258,6 @@ AUI.add(
 							}
 						}
 					},
-
-/*					//TODO move to data validation
-					_getValidFiles: function(data) {
-						var instance = this;
-
-						var strings = instance.get('strings');
-
-						var maxFileSize = instance.get('maxFileSize');
-
-						return A.Array.filter(
-							data,
-							function(item, index) {
-
-								var id = item.get('id') || A.guid();
-								var name = item.get('name');
-								var size = item.get('size') || 0;
-
-								var error;
-								var file;
-
-								if (size === 0) {
-									error = strings.zeroByteSizeText;
-								}
-								else if (name.length > 240) {
-									error = strings.invalidFileNameText;
-								}
-								else if (maxFileSize > 0 && (size > maxFileSize)) {
-									error = instance._invalidFileSizeText;
-								}
-
-								if (error) {
-									item.error = error;
-								}
-								else {
-									file = item;
-								}
-
-								item.id = id;
-								item.name = name;
-								item.size = size;
-
-								instance._fileListBuffer.push(file);
-
-								instance._renderFileListTask();
-
-								return file;
-							}
-						);
-					},*/
 
 					_isUploading: function() {
 						var instance = this;
@@ -319,64 +282,7 @@ AUI.add(
 						queue.cancelUpload();
 
 						instance.queue = null;
-					},
-
-					_getUploadResponse: function(responseData) {
-						var instance = this;
-
-						var error;
-						var message;
-
-						try {
-							responseData = A.JSON.parse(responseData);
-						}
-						catch (err) {
-						}
-
-						if (Lang.isObject(responseData)) {
-							error = responseData.status && (responseData.status >= 490 && responseData.status < 500);
-
-							if (error) {
-								message = responseData.message;
-							}
-							else {
-								message = Liferay.Util.ns(instance.get('namespace', 'fileEntryId=')) + responseData.fileEntryId;
-							}
-						}
-
-						return {
-							error: error,
-							message: message
-						};
-					},
-
-					getUploaderURL: function(folderId) {
-						var instance = this;
-
-						var uploadURL = instance._uploadURL;
-
-						if (!uploadURL) {
-							var redirect = instance.get('redirect');
-
-							uploadURL = instance.get('uploadURL');
-
-							instance._uploadURL = Liferay.Util.addParams(
-								{
-									redirect: redirect,
-									ts: Lang.now()
-								},
-								uploadURL
-							);
-						}
-
-						return Lang.sub(
-							uploadURL,
-							{
-								folderId: folderId
-							}
-						);
-					}
-				}
+					}				}
 			}
 		);
 
