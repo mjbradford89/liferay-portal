@@ -905,7 +905,8 @@ AUI.add(
 											dimensions: instance.get('dimensions'),
 											displayStyle: instance.get('displayStyle'),
 											entriesContainer: instance.get('entriesContainer'),
-											listViewContainer: instance.get('listViewContainer')
+											listViewContainer: instance.get('listViewContainer'),
+											viewFileEntryURL: instance.get('viewFileEntryURL')
 										}
 									),
 									dataValidation: new Liferay.UploadDataValidation(

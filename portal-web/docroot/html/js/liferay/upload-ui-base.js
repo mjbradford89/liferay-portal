@@ -335,6 +335,8 @@ AUI.add(
 
 						event.halt();
 
+						instance._dropTarget = event.target;
+
 						var dataTransfer = event._event.dataTransfer;
 
 						var dragDropFiles = dataTransfer && A.Array(dataTransfer.files);

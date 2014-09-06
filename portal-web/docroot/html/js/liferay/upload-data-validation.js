@@ -24,6 +24,7 @@ AUI.add(
 						function(item, index) {
 							var errorMessage;
 
+							var id = item.get('id') || A.guid();
 							var size = item.get('sixe') || 0;
 							var type = item.get('type') || '';
 
@@ -42,10 +43,14 @@ AUI.add(
 							item.errorMessage = errorMessage;
 							item.size = size;
 							item.name = item.get('name');
+							item.id = id;
 
 							return !errorMessage;
 						}
 					);
+
+
+
 /*					var instance = this;
 
 					var strings = instance.get('strings');
@@ -56,7 +61,6 @@ AUI.add(
 						data,
 						function(item, index) {
 
-							var id = item.get('id') || A.guid();
 							var name = item.get('name');
 							var size = item.get('size') || 0;
 
@@ -80,7 +84,6 @@ AUI.add(
 								file = item;
 							}
 
-							item.id = id;
 							item.name = name;
 							item.size = size;
 

@@ -6,6 +6,8 @@ AUI.add(
 		var LString = Lang.String;
 		var HistoryManager = Liferay.HistoryManager;
 
+		var isString = Lang.isString;
+
 		var sub = Lang.sub;
 
 		var CSS_ACTIVE_AREA = 'active-area';
@@ -155,7 +157,7 @@ AUI.add(
 					},
 
 					displayStyle: {
-						validator: Lang.isString,
+						validator: isString,
 						value: STR_BLANK
 					},
 
@@ -167,6 +169,12 @@ AUI.add(
 					listViewContainer: {
 						validator: A.one,
 						value: {}
+					},
+
+					viewFileEntryURL: {
+						setter: '_decodeURI',
+						validator: isString,
+						value: STR_BLANK
 					}
 				},
 
@@ -236,8 +244,6 @@ AUI.add(
 
 						host.get(STR_BOUNDING_BOX).hide();
 
-						instance._host.after('fileselect', instance._afterFileSelect, instance);
-
 						host.render();
 					},
 
@@ -263,7 +269,7 @@ AUI.add(
 						}
 						else {
 							handles.push(
-								host.after('fileuploadstart', instance._onFileUploadStart, instance),
+								//host.after('fileuploadstart', instance._onFileUploadStart, instance),
 								host.on('uploadcomplete', instance._showFileUploadComplete, instance, displayStyle),
 								host.on('uploadprogress', instance._showFileUploadProgress, instance)
 							);
@@ -280,16 +286,6 @@ AUI.add(
 
 							handles.length = 0;
 						}
-					},
-
-					_afterFileSelect: function(event) {
-						var instance = this;
-
-						var target = event.details[0].target;
-
-						//var filesPartition = instance._validateFiles(event.fileList);
-
-						instance._updateStatusUI(target, event.filesPartition);
 					},
 
 					_getTargetFolderId: function(target, defaultFolderId) {
@@ -325,7 +321,7 @@ AUI.add(
 
 					_renderFileList: function() {},
 
-					_createEntryNode: function(name, size, displayStyle) {
+					_createEntryNode: function(name, size, id, displayStyle) {
 						var instance = this;
 
 						var entryNode;
@@ -360,7 +356,7 @@ AUI.add(
 						entryNode.attr(
 							{
 								'data-title': name,
-								id: A.guid()
+								id: id
 							}
 						);
 
@@ -446,8 +442,6 @@ AUI.add(
 
 					_createUploadStatus: function(target, file) {
 						var instance = this;
-
-						debugger;
 
 						var overlay = instance._createOverlay(target);
 						var progressBar = instance._createProgressBar();
@@ -588,9 +582,9 @@ AUI.add(
 					_getDisplayStyle: function(style) {
 						var instance = this;
 
-						//var displayStyleNamespace = instance.get(STR_HOST).ns('displayStyle');
+						var displayStyleNamespace = Liferay.Util.ns(instance._host.get('namespace'), 'displayStyle');
 
-						var displayStyle = /*HistoryManager.get(displayStyleNamespace) ||*/ instance._displayStyle;
+						var displayStyle = HistoryManager.get(displayStyleNamespace) || instance._displayStyle;
 
 						if (style) {
 							displayStyle = (style == displayStyle);
@@ -701,12 +695,12 @@ AUI.add(
 					},
 
 					_positionProgressBar: function(overlay, progressBar) {
-						/*var instance = this;
+						var instance = this;
 
 						var progressBarBoundingBox = progressBar.get(STR_BOUNDING_BOX);
 
 						progressBar.render(overlay.get(STR_BOUNDING_BOX));
-						progressBarBoundingBox.center(overlay.get(STR_CONTENT_BOX));*/
+						progressBarBoundingBox.center(overlay.get(STR_CONTENT_BOX));
 					},
 
 					_showFileUploadComplete: function(event, displayStyle) {
@@ -751,6 +745,10 @@ AUI.add(
 
 						var file = event.file;
 
+						if (!file.overlay || file.progressBar) {
+							instance._updateStatusUI(instance._dropTarget, instance._host._currentFilesPartition);
+						}
+
 						instance._positionProgressBar(file.overlay, file.progressBar);
 					},
 
@@ -764,6 +762,10 @@ AUI.add(
 						var instance = this;
 
 						var target = uploadData.target;
+
+						if (!target.overlay || target.progressBar) {
+							instance._updateStatusUI(instance._dropTarget);
+						}
 
 						instance._positionProgressBar(target.overlay, target.progressBar);
 					},
@@ -826,8 +828,6 @@ AUI.add(
 					_updateStatusUI: function(target, filesPartition) {
 						var instance = this;
 
-						debugger;
-
 						var folderId = instance._getTargetFolderId(target);
 
 						var folder = (folderId !== instance.get(STR_FOLDER_ID));
@@ -854,18 +854,22 @@ AUI.add(
 							AArray.map(
 								filesPartition.matches,
 								function(file) {
-									var entryNode = instance._createEntryNode(file.name, file.size, displayStyle);
+									if (!A.one('#' + file.id)) {
+										var entryNode = instance._createEntryNode(file.name, file.size, file.id, displayStyle);
 
-									instance._createUploadStatus(entryNode, file);
+										instance._createUploadStatus(entryNode, file);
+									}
 								}
 							);
 
 							AArray.map(
 								filesPartition.rejects,
 								function(file) {
-									var entryNode = instance._createEntryNode(file.name, file.size, displayStyle);
+									if (!A.one('#' + file.id)) {
+										var entryNode = instance._createEntryNode(file.name, file.size, file.id, displayStyle);
 
-									instance._displayEntryError(entryNode, file.errorMessage, instance._getDisplayStyle());
+										instance._displayEntryError(entryNode, file.errorMessage, instance._getDisplayStyle());
+									}
 								}
 							);
 						}

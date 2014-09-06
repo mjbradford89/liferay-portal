@@ -112,8 +112,6 @@ AUI.add(
 
 							var folder = (key !== instance.get('folderId'));
 
-							folder = true;
-
 							if (folder) {
 								folderNode = instance._UI._getFolderEntryNode(target);
 							}
@@ -238,6 +236,8 @@ AUI.add(
 						var target = event.details[0].target;
 
 						var filesPartition = instance._dataValidation.getValidFiles(fileList);
+
+						instance._currentFilesPartition = filesPartition;
 
 						event.filesPartition = filesPartition;
 

@@ -135,8 +135,8 @@ AUI.add(
 
 						instance._uploaderHandles = [
 							instance.on('alluploadscomplete', instance._onAllUploadsComplete, instance),
+							instance.on('uploadcomplete', instance._onUploadComplete, instance),
 							instance.on('totaluploadprogress', instance._onTotalUploadProgress, instance),
-							instance.on('uploadstart', instance._onUploadStart, instance),
 							instance.on('fileuploadstart', instance._UI._onFileUploadStart, instance._UI),
 							instance.on('uploadprogress', instance._UI._onUploadProgress, instance._UI),
 							instance.after('fileselect', instance._onFileSelect, instance),
@@ -244,18 +244,24 @@ AUI.add(
 							instance._filesTotal += validFilesLength;
 
 							if (instance._isUploading()) {
-								var uploadQueue = instance.queue;
-
-								A.Array.each(filesPartition.matches, uploadQueue.addToQueueBottom, uploadQueue);
-
-								instance.fire('addFilesToQueue', {
-									validFiles: filesPartition.matches,
-									uploadQueue: uploadQueue
-								});
+								instance._addFilesToQueueBottom(filesPartition.matches);
 							}
 							else {
 								instance.uploadAll(instance.get('uploadURL'));
 							}
+						}
+					},
+
+					_addFilesToQueueBottom: function(files) {
+						var instance = this;
+
+						var uploadQueue = instance.queue;
+
+						if (uploadQueue) {
+							A.Array.each(files, uploadQueue.addToQueueBottom, uploadQueue);
+						}
+						else {
+							instance.uploadThese(files);
 						}
 					},
 
@@ -282,7 +288,8 @@ AUI.add(
 						queue.cancelUpload();
 
 						instance.queue = null;
-					}				}
+					}
+				}
 			}
 		);
 
