@@ -1,7 +1,9 @@
 AUI.add(
 	'document-library-upload-base',
 	function(A) {
-		var Lang = A.Lang;
+		var Lang = A.Lang,
+
+		STR_BLANK = '';
 
 		var  DocumentLibraryUploadBase = A.Component.create(
 			{
@@ -12,33 +14,19 @@ AUI.add(
 
 				ATTRS: {
 					folderId: {
+						setter: Lang.toInt,
+						readonly: true,
+						validator: Lang.isNumber || Lang.isString,
 						value: 0
+					},
+
+					redirect: {
+						validator: Lang.isString,
+						value: STR_BLANK
 					}
 				},
 
 				prototype: {
-					_getDataSet: function() {
-						var instance = this;
-
-						var dataSet = instance._dataSet;
-
-						if (!dataSet) {
-							dataSet = new A.DataSet();
-
-							instance._dataSet = dataSet;
-						}
-
-						return dataSet;
-					},
-
-					_getCurrentUploadData: function() {
-						var instance = this;
-
-						var dataSet = instance._getDataSet();
-
-						return dataSet.get('first');
-					},
-
 					_combineFileLists: function(fileList, queuedFiles) {
 						var instance = this;
 
@@ -62,6 +50,28 @@ AUI.add(
 
 							data.invalidFiles.push(file);
 						}
+					},
+
+					_getDataSet: function() {
+						var instance = this;
+
+						var dataSet = instance._dataSet;
+
+						if (!dataSet) {
+							dataSet = new A.DataSet();
+
+							instance._dataSet = dataSet;
+						}
+
+						return dataSet;
+					},
+
+					_getCurrentUploadData: function() {
+						var instance = this;
+
+						var dataSet = instance._getDataSet();
+
+						return dataSet.get('first');
 					},
 
 					_getUploadResponse: function(responseData) {
@@ -91,6 +101,69 @@ AUI.add(
 							error: error,
 							message: message
 						};
+					},
+
+					_getUploadStatus: function(key) {
+						var instance = this;
+
+						var dataSet = instance._getDataSet();
+
+						return dataSet.item(String(key));
+					},
+
+					_getUploadURL: function(folderId) {
+						var instance = this;
+
+						var uploadURL = instance._uploadURL;
+
+						if (!uploadURL) {
+							var redirect = instance.get('redirect');
+
+							uploadURL = instance.get('uploadURL');
+
+							instance._uploadURL = Liferay.Util.addParams(
+								{
+									redirect: redirect,
+									ts: Lang.now()
+								},
+								uploadURL
+							);
+						}
+
+						return Lang.sub(
+							uploadURL,
+							{
+								folderId: folderId
+							}
+						);
+					},
+
+					_afterAllUploadsComplete: function(event) {
+						var instance = this;
+
+						instance.set('enabled', true);
+
+						instance.set('fileList', []);
+
+						Liferay.fire('allUploadsComplete');
+
+						instance._startNextUpload();
+					},
+
+					_onFileSelect: function(event) {
+						var instance = this;
+
+						var fileList = event.fileList;
+
+						var target = event.details[0].target;
+
+						var filesPartition = instance._dataValidation.getValidFiles(fileList);
+
+						instance._currentFilesPartition = filesPartition;
+
+						event.filesPartition = filesPartition;
+
+						instance._queueSelectedFiles(target, filesPartition);
 					},
 
 					_queueSelectedFiles: function(target, filesPartition) {
@@ -133,7 +206,7 @@ AUI.add(
 						}
 					},
 
-					_startNextUpload: function(event) {
+					_startNextUpload: function() {
 						var instance = this;
 
 						instance._UI._detachSubscriptions();
@@ -147,66 +220,6 @@ AUI.add(
 						if (dataSet.length) {
 							instance._startUpload();
 						}
-					},
-
-					_updateDataSetEntry: function(key, data, unmergedData) {
-						var instance = this;
-
-						var currentUploadData = instance._getCurrentUploadData();
-
-						if (currentUploadData.folderId === key) {
-							instance._addFilesToQueueBottom(unmergedData);
-						}
-						else {
-							instance._combineFileLists(data.fileList, unmergedData);
-
-							var dataSet = instance._getDataSet();
-
-							dataSet.replace(key, data);
-						}
-					},
-
-					_getUploadStatus: function(key) {
-						var instance = this;
-
-						var dataSet = instance._getDataSet();
-
-						return dataSet.item(String(key));
-					},
-
-					_onDataRequest: function(event) {
-						var instance = this;
-
-						if (instance._isUploading()) {
-							event.halt();
-						}
-					},
-
-					_getUploadURL: function(folderId) {
-						var instance = this;
-
-						var uploadURL = instance._uploadURL;
-
-						if (!uploadURL) {
-							var redirect = instance.get('redirect');
-
-							uploadURL = instance.get('uploadURL');
-
-							instance._uploadURL = Liferay.Util.addParams(
-								{
-									redirect: redirect,
-									ts: Lang.now()
-								},
-								uploadURL
-							);
-						}
-
-						return Lang.sub(
-							uploadURL,
-							{
-								folderId: folderId
-							}
-						);
 					},
 
 					_startUpload: function() {
@@ -228,20 +241,21 @@ AUI.add(
 						}
 					},
 
-					_onFileSelect: function(event) {
+					_updateDataSetEntry: function(key, data, unmergedData) {
 						var instance = this;
 
-						var fileList = event.fileList;
+						var currentUploadData = instance._getCurrentUploadData();
 
-						var target = event.details[0].target;
+						if (currentUploadData.folderId === key) {
+							instance._addFilesToQueueBottom(unmergedData);
+						}
+						else {
+							instance._combineFileLists(data.fileList, unmergedData);
 
-						var filesPartition = instance._dataValidation.getValidFiles(fileList);
+							var dataSet = instance._getDataSet();
 
-						instance._currentFilesPartition = filesPartition;
-
-						event.filesPartition = filesPartition;
-
-						instance._queueSelectedFiles(target, filesPartition);
+							dataSet.replace(key, data);
+						}
 					}
 				}
 			}
@@ -251,6 +265,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['liferay-upload-base', 'aui-component']
+		requires: ['liferay-upload-base', 'aui-component', 'aui-data-set-deprecated']
 	}
 );

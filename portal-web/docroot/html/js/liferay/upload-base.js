@@ -3,9 +3,14 @@ AUI.add(
 	function(A) {
 		var Lang = A.Lang,
 
+			isObject = Lang.isObject,
+			isString = Lang.isString,
+
 			UploaderQueue = A.Uploader.Queue,
 
 			STR_PARAM_FALLBACK = 'uploader=fallback',
+
+			STR_BLANK = '',
 
 			UPLOADER_TYPE = A.Uploader.TYPE || 'none',
 
@@ -19,23 +24,18 @@ AUI.add(
 				EXTENDS: A.Uploader,
 
 				ATTRS: {
-					fallback: {
-						setter: A.one,
-						value: null
-					},
-
 					dataValidation: {
 						value: null,
-						validator: Lang.isObject
+						validator: isObject
 					},
 
 					deleteFileURL: {
 						value: ''
 					},
 
-					tempRandomSuffix: {
-						validator: Lang.isString,
-						value: null
+					namespace: {
+						value: '',
+						validator: isString
 					},
 
 					swfURL: {
@@ -47,18 +47,24 @@ AUI.add(
 						writeOnce: true
 					},
 
-					userInterface: {
-						value: null,
-						validator: Lang.isObject
-					},
-
-					namespace: {
-						value: '',
-						validator: Lang.isString
-					},
-
 					tempFileURL: {
 						value: ''
+					},
+
+					tempRandomSuffix: {
+						validator: isString,
+						value: null
+					},
+
+					userInterface: {
+						value: null,
+						validator: isObject
+					},
+
+					uploadURL: {
+						setter: '_decodeURI',
+						validator: isString,
+						value: STR_BLANK
 					}
 				},
 
@@ -66,13 +72,13 @@ AUI.add(
 					initializer: function() {
 						var instance = this;
 
-						var docElement = A.getDoc().get('documentElement');
+						instance.NS = instance.get('namespace');
 
 						instance._UI = instance.get('userInterface');
 
 						instance._dataValidation = instance.get('dataValidation');
 
-						instance._UI.set('host', instance);
+						instance._UI.set('base', instance);
 
 						instance._filesTotal = 0;
 
@@ -84,41 +90,16 @@ AUI.add(
 							UPLOADER_TYPE == 'none' ||
 							(UPLOADER_TYPE == 'flash' && !A.SWFDetect.isFlashVersionAtLeast(10, 1))) {
 
-							if (fallback) {
-								fallback.show();
-							}
-							else {
-								instance._UI._handleNotSupported();
-							}
-
-							instance._preventRenderHandle = instance.on(
-								'render',
-								function(event) {
-									event.preventDefault();
-								}
-							);
+							instance._UI.renderFallback(fallback);
 						}
 						else {
 							instance._fileListBuffer = [];
-							instance._renderFileListTask = A.debounce(instance._UI._renderFileList, 10, instance._UI);
-
-							instance._fallback = fallback;
-
-							instance._UI.renderUI();
-
-							instance.get('boundingBox').setContent(instance._UI._uploadFragment);
 
 							instance.bindEvents();
 
-							instance._UI.bindUI();
+							instance._UI.renderUI(instance.get('boundingBox'));
 
-							instance.removeCssClassTask = A.debounce(
-								function() {
-									docElement.removeClass('upload-drop-intent');
-									docElement.removeClass('upload-drop-active');
-								},
-								500
-							);
+							instance._UI.bindUI();
 						}
 					},
 
@@ -134,18 +115,115 @@ AUI.add(
 						var instance = this;
 
 						instance._uploaderHandles = [
-							instance.on('alluploadscomplete', instance._onAllUploadsComplete, instance),
+							instance.after('alluploadscomplete', instance._afterAllUploadsComplete, instance),
 							instance.on('uploadcomplete', instance._onUploadComplete, instance),
 							instance.on('totaluploadprogress', instance._onTotalUploadProgress, instance),
-							instance.on('fileuploadstart', instance._UI._onFileUploadStart, instance._UI),
-							instance.on('uploadprogress', instance._UI._onUploadProgress, instance._UI),
 							instance.after('fileselect', instance._onFileSelect, instance),
 							A.getWin().on('beforeunload', instance._onBeforeUnload, instance),
 							instance.on('cancelFile', instance._onCancelFile, instance)
 						];
 					},
 
-					_onAllUploadsComplete: function(event) {
+					cancelAll: function() {
+						var instance = this;
+
+						var queue = instance.queue;
+
+						A.each(
+							queue.queuedFiles,
+							function(item, index) {
+								instance._cancelFile(item);
+							}
+						);
+
+						queue.cancelUpload();
+
+						instance.queue = null;
+					},
+
+					_addFilesToQueueBottom: function(files) {
+						var instance = this;
+
+						var uploadQueue = instance.queue;
+
+						if (uploadQueue) {
+							A.Array.each(files, uploadQueue.addToQueueBottom, uploadQueue);
+						}
+						else {
+							instance.uploadThese(files);
+						}
+					},
+
+					_cancelFile: function(file) {
+						var instance = this;
+
+						var queue = instance.queue;
+
+						if (file) {
+							queue.cancelUpload(file);
+						}
+
+						if (queue.queuedFiles.length === 0 && queue.numberOfUploads <= 0) {
+							instance.queue = null;
+						}
+					},
+
+					_decodeURI: function(val) {
+						return decodeURI(val);
+					},
+
+					_deleteFile: function(fileName) {
+						var instance = this;
+
+						var deleteFileURL = instance.get('deleteFileURL');
+
+						if (deleteFileURL) {
+							A.io.request(
+								deleteFileURL,
+								{
+									data: Liferay.Util.ns(instance.get('namespace'),
+										{
+											fileName: fileName
+										}
+									),
+									dataType: 'JSON',
+									on: {
+										failure: function(event) {
+											instance._deleteFileResponseHandler(event, fileName);
+										},
+										success: function(event) {
+											instance._deleteFileResponseHandler(event, fileName, this.get('responseData'));
+										}
+									}
+								}
+							);
+						}
+						else {
+							instance._deleteFileResponseHandler(null, fileName);
+						}
+					},
+
+					_deleteFileResponseHandler: function(event, fileName, responseData) {
+						var instance = this;
+
+						instance.fire(Liferay.Util.ns(instance.NS, 'deleteFileResponse'),
+							{
+								originalEvent: event,
+								fileName: fileName,
+								json: responseData
+							}
+						);
+					},
+
+					_isUploading: function() {
+						var instance = this;
+
+						var queue = instance.queue;
+
+						return !!(queue && (queue.queuedFiles.length > 0 || queue.numberOfUploads > 0 || !A.Object.isEmpty(queue.currentFiles)) && queue._currentState === UploaderQueue.UPLOADING);
+					},
+
+					_afterAllUploadsComplete: function(event) {
 						var instance = this;
 
 						instance.set('enabled', true);
@@ -173,51 +251,6 @@ AUI.add(
 						}
 					},
 
-					_cancelFile: function(file) {
-						var instance = this;
-
-						var queue = instance.queue;
-
-						if (file) {
-							queue.cancelUpload(file);
-						}
-
-						if (queue.queuedFiles.length === 0 && queue.numberOfUploads <= 0) {
-							instance.queue = null;
-						}
-					},
-
-					_deleteFile: function(fileName) {
-						var instance = this;
-
-						var deleteFileURL = instance.get('deleteFileURL');
-
-						if (deleteFileURL) {
-							A.io.request(
-								deleteFileURL,
-								{
-									data: Liferay.Util.ns(instance.get('namespace'),
-										{
-											fileName: fileName
-										}
-									),
-									dataType: 'JSON',
-									on: {
-										failure: function(event) {
-											instance._UI._handleDeleteResponse(event, fileName);
-										},
-										success: function(event) {
-											instance._UI._handleDeleteResponse(this.get('responseData'), fileName);
-										}
-									}
-								}
-							);
-						}
-						else {
-							instance._UI._handleDeleteResponse();
-						}
-					},
-
 					_onFileSelect: function(event) {
 						var instance = this;
 
@@ -234,8 +267,6 @@ AUI.add(
 							}
 						);
 
-						instance._renderFileListTask();
-
 						var validFilesLength = filesPartition.matches.length;
 
 						if (validFilesLength) {
@@ -250,44 +281,6 @@ AUI.add(
 								instance.uploadAll(instance.get('uploadURL'));
 							}
 						}
-					},
-
-					_addFilesToQueueBottom: function(files) {
-						var instance = this;
-
-						var uploadQueue = instance.queue;
-
-						if (uploadQueue) {
-							A.Array.each(files, uploadQueue.addToQueueBottom, uploadQueue);
-						}
-						else {
-							instance.uploadThese(files);
-						}
-					},
-
-					_isUploading: function() {
-						var instance = this;
-
-						var queue = instance.queue;
-
-						return !!(queue && (queue.queuedFiles.length > 0 || queue.numberOfUploads > 0 || !A.Object.isEmpty(queue.currentFiles)) && queue._currentState === UploaderQueue.UPLOADING);
-					},
-
-					cancelAll: function() {
-						var instance = this;
-
-						var queue = instance.queue;
-
-						A.each(
-							queue.queuedFiles,
-							function(item, index) {
-								instance._cancelFile(item);
-							}
-						);
-
-						queue.cancelUpload();
-
-						instance.queue = null;
 					}
 				}
 			}

@@ -834,18 +834,6 @@
 							'base'
 						]
 					},
-					'liferay-upload': {
-						path: 'upload.js',
-						requires: [
-							'aui-io-request',
-							'aui-template-deprecated',
-							'collection',
-							'liferay-portlet-base',
-							'liferay-storage-formatter',
-							'uploader',
-							'liferay-upload-base'
-						]
-					},
 					'liferay-upload-base': {
 						path: 'upload-base.js',
 						requires: [
@@ -853,20 +841,7 @@
 							'uploader'
 						]
 					},
-					'liferay-upload-folders': {
-						path: 'upload-folders.js',
-						requires: [
-							'file-html5',
-							'liferay-upload-base',
-							'promise'
-						]
-					},
-					'liferay-upload-data-queue': {
-						path: 'upload-data-queue.js',
-						requires: [
-							'liferay-upload-base'
-						]
-					},
+
 					'liferay-upload-data-validation': {
 						path: 'upload-data-validation.js',
 						requires: [
@@ -879,6 +854,7 @@
 						path: 'upload-ui-base.js',
 						requires: [
 							'liferay-upload-base',
+							'liferay-portlet-base',
 							'aui-template-deprecated'
 						]
 					},

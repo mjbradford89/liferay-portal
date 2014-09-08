@@ -257,7 +257,6 @@
 		<footer-portlet-javascript>/html/portlet/dynamic_data_mapping/js/main.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/html/portlet/dynamic_data_mapping/js/custom_fields.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/html/portlet/document_library/js/main.js</footer-portlet-javascript>
-		<footer-portlet-javascript>/html/portlet/document_library/js/upload.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/html/portlet/document_library/js/document-library-upload-base.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/html/portlet/document_library/js/document-library-upload-ui-base.js</footer-portlet-javascript>
 		<css-class-wrapper>portlet-document-library</css-class-wrapper>
