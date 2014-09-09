@@ -840,15 +840,28 @@
 							'base'
 						]
 					},
-					'liferay-upload': {
-						path: 'upload.js',
+					'liferay-upload-base': {
+						path: 'upload-base.js',
 						requires: [
-							'aui-io-request',
-							'aui-template-deprecated',
-							'collection',
-							'liferay-portlet-base',
-							'liferay-storage-formatter',
+							'aui-componenet',
 							'uploader'
+						]
+					},
+
+					'liferay-upload-data-validation': {
+						path: 'upload-data-validation.js',
+						requires: [
+							'liferay-upload-base',
+							'liferay-storage-formatter',
+							'array-extras'
+						]
+					},
+					'liferay-upload-ui-base': {
+						path: 'upload-ui-base.js',
+						requires: [
+							'liferay-upload-base',
+							'liferay-portlet-base',
+							'aui-template-deprecated'
 						]
 					},
 					'liferay-util-list-fields': {

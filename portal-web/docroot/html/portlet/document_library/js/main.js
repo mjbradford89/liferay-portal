@@ -205,7 +205,7 @@ AUI.add(
 						if (HTML5_UPLOAD && hasPermission && instance._entriesContainer.inDoc()) {
 							config.appViewEntryTemplates = instance.byId('appViewEntryTemplates');
 
-							A.getDoc().once('dragenter', instance._plugUpload, instance, config);
+							A.getDoc().once('dragenter', instance._initUploader, instance, config);
 						}
 					},
 
@@ -457,24 +457,35 @@ AUI.add(
 						);
 					},
 
-					_plugUpload: function(event, config) {
+					_initUploader: function(event, config) {
 						var instance = this;
 
-						instance.plug(
-							Liferay.DocumentLibraryUpload,
+						new Liferay.DocumentLibraryUploadBase(
 							{
-								appViewEntryTemplates: config.appViewEntryTemplates,
-								appViewMove: instance._appViewMove,
-								columnNames: config.columnNames,
-								dimensions: config.folders.dimensions,
-								displayStyle: config.displayStyle,
-								entriesContainer: instance._entriesContainer,
-								folderId: instance._folderId,
-								listViewContainer: instance.byId('listViewContainer'),
-								maxFileSize: config.maxFileSize,
-								redirect: config.redirect,
+								appendNewFiles: false,
+								fileFieldName: 'file',
+								multipleFiles: true,
+								simLimit: 1,
 								uploadURL: config.uploadURL,
-								viewFileEntryURL: config.viewFileEntryURL
+								folderId: instance._folderId,
+								namespace: instance.NS,
+								userInterface: new Liferay.DocumentLibraryUploadUIBase(
+									{
+										appViewEntryTemplates: config.appViewEntryTemplates,
+										appViewMove: instance._appViewMove,
+										columnNames: config.columnNames,
+										dimensions: config.folders.dimensions,
+										displayStyle: config.displayStyle,
+										entriesContainer: instance._entriesContainer,
+										listViewContainer: instance.byId('listViewContainer'),
+										viewFileEntryURL: config.viewFileEntryURL
+									}
+								),
+								dataValidation: new Liferay.UploadDataValidation(
+									{
+										maxFileSize: config.maxFileSize
+									}
+								)
 							}
 						);
 					},
@@ -662,6 +673,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-loading-mask-deprecated', 'document-library-upload', 'event-simulate', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-history-manager', 'liferay-message', 'liferay-portlet-base']
+		requires: ['aui-loading-mask-deprecated', 'document-library-upload-base', 'document-library-upload-ui-base', 'liferay-upload-data-validation', 'event-simulate', 'liferay-app-view-folders', 'liferay-app-view-move', 'liferay-app-view-paginator', 'liferay-app-view-select', 'liferay-history-manager', 'liferay-message', 'liferay-portlet-base']
 	}
 );

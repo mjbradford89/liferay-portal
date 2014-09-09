@@ -60,8 +60,10 @@ long folderId = BeanParamUtil.getLong(fileEntry, request, "folderId");
 				Ticket ticket = TicketLocalServiceUtil.addTicket(user.getCompanyId(), User.class.getName(), user.getUserId(), TicketConstants.TYPE_IMPERSONATE, null, expirationDate, new ServiceContext());
 				%>
 
-				<aui:script use="liferay-upload">
-					new Liferay.Upload(
+				<aui:script use="liferay-upload-base,liferay-upload-ui-base,liferay-upload-data-validation">
+					var timestampParam = '_LFR_UPLOADER_TS=' + A.Lang.now();
+
+					new Liferay.UploadBase(
 						{
 							boundingBox: '#<portlet:namespace />fileUpload',
 
@@ -71,12 +73,12 @@ long folderId = BeanParamUtil.getLong(fileEntry, request, "folderId");
 
 							decimalSeparator: '<%= decimalFormatSymbols.getDecimalSeparator() %>',
 
-							deleteFile: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/document_library/upload_multiple_file_entries" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE_TEMP %>" /><portlet:param name="folderId" value="<%= String.valueOf(folderId) %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= DLFileEntryConstants.getClassName() %>" />',
+							deleteFileURL: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/document_library/upload_multiple_file_entries" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE_TEMP %>" /><portlet:param name="folderId" value="<%= String.valueOf(folderId) %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= DLFileEntryConstants.getClassName() %>" />',
 							fileDescription: '<%= StringUtil.merge(PrefsPropsUtil.getStringArray(PropsKeys.DL_FILE_EXTENSIONS, StringPool.COMMA)) %>',
-							maxFileSize: '<%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE) %> B',
-							metadataContainer: '#<portlet:namespace />commonFileMetadataContainer',
-							metadataExplanationContainer: '#<portlet:namespace />metadataExplanationContainer',
+							fileFieldName: 'file',
+							multipleFiles: true,
 							namespace: '<portlet:namespace />',
+							simLimit: 2,
 							tempFileURL: {
 								method: Liferay.Service.bind('/dlapp/get-temp-file-entry-names'),
 								params: {
@@ -86,7 +88,18 @@ long folderId = BeanParamUtil.getLong(fileEntry, request, "folderId");
 								}
 							},
 							tempRandomSuffix: '<%= EditFileEntryAction.TEMP_RANDOM_SUFFIX %>',
-							uploadFile: '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/document_library/upload_multiple_file_entries" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.ADD_TEMP %>" /><portlet:param name="folderId" value="<%= String.valueOf(folderId) %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= DLFileEntryConstants.getClassName() %>" />'
+							uploadURL: Liferay.Util.addParams(timestampParam, '<liferay-portlet:actionURL doAsUserId="<%= user.getUserId() %>"><portlet:param name="struts_action" value="/document_library/upload_multiple_file_entries" /><portlet:param name="<%= Constants.CMD %>" value="<%= Constants.ADD_TEMP %>" /><portlet:param name="folderId" value="<%= String.valueOf(folderId) %>" /></liferay-portlet:actionURL>&ticketKey=<%= ticket.getKey() %><liferay-ui:input-permissions-params modelName="<%= DLFileEntryConstants.getClassName() %>" />'),
+							userInterface: new Liferay.UploadUIBase(
+								{
+									metadataContainer: '#<portlet:namespace />commonFileMetadataContainer',
+									metadataExplanationContainer: '#<portlet:namespace />metadataExplanationContainer'
+								}
+							),
+							dataValidation: new Liferay.UploadDataValidation(
+								{
+									maxFileSize: '<%= PrefsPropsUtil.getLong(PropsKeys.DL_FILE_MAX_SIZE) %> B',
+								}
+							)
 						}
 					);
 				</aui:script>
