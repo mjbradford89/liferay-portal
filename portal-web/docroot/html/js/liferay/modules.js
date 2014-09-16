@@ -851,6 +851,35 @@
 							'uploader'
 						]
 					},
+					'liferay-upload-base': {
+						path: 'upload-base.js',
+						requires: [
+							'aui-componenet',
+							'uploader'
+						]
+					},
+					'liferay-upload-folders': {
+						path: 'upload-folders.js',
+						requires: [
+							'file-html5',
+							'liferay-upload-base',
+							'promise'
+						]
+					},
+					'liferay-upload-data-queue': {
+						path: 'upload-data-queue.js',
+						requires: [
+							'liferay-upload-base'
+						]
+					},
+					'liferay-upload-data-validation': {
+						path: 'upload-data-validation.js',
+						requires: [
+							'liferay-upload-base',
+							'liferay-storage-formatter',
+							'array-extras'
+						]
+					},
 					'liferay-util-list-fields': {
 						path: 'util_list_fields.js',
 						requires: [

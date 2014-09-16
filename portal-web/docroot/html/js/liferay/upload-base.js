@@ -1,0 +1,95 @@
+AUI.add(
+	'liferay-upload-base',
+	function(A) {
+		var Lang = A.Lang,
+			isBoolean = Lang.isBoolean,
+
+			URL_SWF_UPLOADER = themeDisplay.getPathContext() + '/html/js/aui/uploader/assets/flashuploader.swf',
+
+			timestampParam = '_LFR_UPLOADER_TS' + Lang.now();
+
+		var UploadBase = A.Component.create(
+			{
+				NAME: 'uploadbase',
+				ATTRS: {
+					fileFieldName: {
+						value: 'file'
+					},
+					multipleFiles: {
+						validator: isBoolean,
+						value: true
+					},
+					swfURL: {
+						valueFn: function() {
+							return Liferay.Util.addParams(timestampParam, URL_SWF_UPLOADER)
+						}
+					},
+					uploadURL: {
+						valueFn: function() {
+							return Liferay.Util.addParams(timestampParam, this.get('uploadFile'))
+						}
+					},
+
+					uploadFile: {
+						value: ''
+					},
+					maxFileSize: {
+						validator: Lang.isNumber
+					},
+
+					strings: {
+						value: {
+							invalidFileSize: Liferay.Language.get('please-enter-a-file-with-a-valid-file-size-no-larger-than-x'),
+							invalidFileType: Liferay.Language.get('please-enter-a-file-with-a-valid-file-type'),
+							zeroByteFile: Liferay.Language.get('the-file-contains-no-data-and-cannot-be-uploaded.-please-use-the-classic-uploader')
+						}
+					},
+					dragAndDropArea: {
+						value: 'body',
+						setter: A.one
+					}
+				},
+				EXTENDS: A.Uploader,
+
+				prototype: {
+					bindUI: function() {
+						this.on('drop', this._onDropFile, this);
+					},
+
+					_onDropFile: function(event) {
+						var instance = this;
+
+						var dataTransfer = event._event.dataTransfer;
+
+						if (dataTransfer) {
+							var dataTransferTypes = dataTransfer.types || [];
+
+							// file.size > 0
+
+							if ((A.Array.indexOf(dataTransferTypes, 'Files') > -1) && (A.Array.indexOf(dataTransferTypes, 'text/html') === -1)) {
+								event.halt();
+
+								var dragDropFiles = A.Array(dataTransfer.files);
+
+								event.fileList = A.Array.map(
+									dragDropFiles,
+									function(item) {
+										return new A.FileHTML5(item);
+									}
+								);
+
+								instance.fire('fileselect', event);
+							}
+						}
+					}
+				}
+			}
+		);
+
+		Liferay.UploadBase = UploadBase;
+	},
+	'',
+	{
+		requires: ['uploader', 'aui-component']
+	}
+);
