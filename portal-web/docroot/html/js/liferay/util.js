@@ -1386,7 +1386,7 @@
 				}
 			}
 		},
-		['aui-base']
+		['aui-base', 'aui-selector']
 	);
 
 	Liferay.provide(
