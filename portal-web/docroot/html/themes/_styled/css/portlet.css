@@ -1,4 +1,4 @@
-@import "compass";
+@import "bourbon";
 @import "mixins";
 
 /* ---------- Portlet wrapper and icons ---------- */
@@ -671,7 +671,7 @@ body.portlet {
 		background: url(@theme_image_path@/arrows/07_down.png) no-repeat 50% 100%;
 		display: block;
 
-		@include hide-text(right);
+		@include hide-text;
 
 		height: 10px;
 	}

@@ -1,7 +1,6 @@
 @import "aui/alloy-font-awesome/scss/mixins-alloy";
 @import "aui/alloy-font-awesome/scss/variables";
-@import "compass";
-@import "compass/css3/user-interface";
+@import "bourbon";
 @import "mixins";
 
 @import url(custom_responsive.css);
@@ -382,7 +381,7 @@ $dockbarOpenGradientStart: #0EA6F9;
 								background: #2FA4F5;
 								color: #FFF;
 
-								@include filter-gradient(#2FA4F5, #2FA4F5, vertical);
+								@include linear-gradient(#2FA4F5, #2FA4F5, 0deg);
 							}
 
 							[class^="icon-"], [class*=" icon-"] {

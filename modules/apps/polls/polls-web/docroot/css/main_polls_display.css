@@ -1,4 +1,4 @@
-@import "compass";
+@import "mixins";
 
 .portlet-polls-display {
 	.no-progress {
