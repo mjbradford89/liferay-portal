@@ -37,6 +37,8 @@
 
 		<action path="/portal/flash" forward="/portal/flash.jsp" />
 
+		<action path="/portal/image_selector" type="com.liferay.portal.action.ImageSelectorAction" />
+
 		<action path="/portal/j_login" forward="/portal/j_login.jsp" />
 
 		<action path="/portal/j_login_error" forward="portal.j_login_error" />
@@ -924,8 +926,6 @@
 
 		<action path="/journal/view_feeds" forward="portlet.journal.view_feeds" />
 
-		<action path="/journal/view_recent" forward="portlet.journal.view_recent" />
-
 		<!-- Journal Articles -->
 
 		<action path="/journal_articles/view" type="com.liferay.portlet.journalarticles.action.ViewAction">
@@ -1460,10 +1460,6 @@
 		<action path="/nested_portlets/view" type="com.liferay.portlet.nestedportlets.action.ViewAction">
 			<forward name="portlet.nested_portlets.view" path="portlet.nested_portlets.view" />
 		</action>
-
-		<!-- Network -->
-
-		<action path="/network/view" forward="portlet.network.view" />
 
 		<!-- News -->
 

@@ -158,7 +158,7 @@
 	</bean>
 	<bean id="com.liferay.portal.kernel.image.ImageToolUtil" class="com.liferay.portal.kernel.image.ImageToolUtil">
 		<property name="imageTool">
-			<bean class="com.liferay.portal.image.ImageToolImpl" />
+			<bean class="com.liferay.portal.image.ImageToolImpl" factory-method="getInstance" />
 		</property>
 	</bean>
 	<bean id="com.liferay.portal.kernel.image.SpriteProcessorUtil" class="com.liferay.portal.kernel.image.SpriteProcessorUtil">
@@ -547,12 +547,19 @@
 		<property name="legacyExternalRepositoryFactory">
 			<bean class="com.liferay.portal.repository.external.LegacyExternalRepositoryFactory" />
 		</property>
-		<property name="liferayRepositoryDefiner">
-			<bean class="com.liferay.portal.repository.liferayrepository.LiferayRepositoryDefiner">
-				<property name="repositoryFactory">
-					<bean class="com.liferay.portal.repository.liferayrepository.LiferayRepositoryFactory" />
-				</property>
-			</bean>
+		<property name="repositoryDefiners">
+			<list>
+				<bean class="com.liferay.portal.repository.liferayrepository.LiferayRepositoryDefiner">
+					<property name="repositoryFactory">
+						<bean class="com.liferay.portal.repository.liferayrepository.LiferayRepositoryFactory" />
+					</property>
+				</bean>
+				<bean class="com.liferay.portal.repository.temporaryrepository.TemporaryRepositoryDefiner">
+					<property name="repositoryFactory">
+						<bean class="com.liferay.portal.repository.liferayrepository.LiferayRepositoryFactory" />
+					</property>
+				</bean>
+			</list>
 		</property>
 	</bean>
 	<bean id="com.liferay.portal.repository.registry.RepositoryClassDefinitionCatalogUtil" class="com.liferay.portal.repository.registry.RepositoryClassDefinitionCatalogUtil">
@@ -782,6 +789,7 @@
 			</set>
 		</property>
 	</bean>
+	<bean id="com.liferay.portal.struts.DoIncludeJSPDynamicInclude" class="com.liferay.portal.struts.DoIncludeJSPDynamicInclude" />
 	<bean id="com.liferay.portal.util.CustomJspRegistryUtil" class="com.liferay.portal.util.CustomJspRegistryUtil">
 		<property name="customJspRegistry">
 			<bean class="com.liferay.portal.util.CustomJspRegistryImpl" />

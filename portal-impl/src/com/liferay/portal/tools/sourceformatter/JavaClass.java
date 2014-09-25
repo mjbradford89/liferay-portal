@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -39,28 +40,28 @@ public class JavaClass {
 		JavaClass.TYPE_CLASS_PUBLIC, JavaClass.TYPE_CLASS_PUBLIC_STATIC
 	};
 
-	public static final int TYPE_CLASS_PRIVATE = 21;
+	public static final int TYPE_CLASS_PRIVATE = 24;
 
-	public static final int TYPE_CLASS_PRIVATE_STATIC = 20;
+	public static final int TYPE_CLASS_PRIVATE_STATIC = 23;
 
-	public static final int TYPE_CLASS_PROTECTED = 14;
+	public static final int TYPE_CLASS_PROTECTED = 16;
 
-	public static final int TYPE_CLASS_PROTECTED_STATIC = 13;
+	public static final int TYPE_CLASS_PROTECTED_STATIC = 15;
 
-	public static final int TYPE_CLASS_PUBLIC = 7;
+	public static final int TYPE_CLASS_PUBLIC = 8;
 
-	public static final int TYPE_CLASS_PUBLIC_STATIC = 6;
+	public static final int TYPE_CLASS_PUBLIC_STATIC = 7;
 
 	public static final int[] TYPE_CONSTRUCTOR = {
 		JavaClass.TYPE_CONSTRUCTOR_PRIVATE,
 		JavaClass.TYPE_CONSTRUCTOR_PROTECTED, JavaClass.TYPE_CONSTRUCTOR_PUBLIC
 	};
 
-	public static final int TYPE_CONSTRUCTOR_PRIVATE = 16;
+	public static final int TYPE_CONSTRUCTOR_PRIVATE = 18;
 
-	public static final int TYPE_CONSTRUCTOR_PROTECTED = 9;
+	public static final int TYPE_CONSTRUCTOR_PROTECTED = 10;
 
-	public static final int TYPE_CONSTRUCTOR_PUBLIC = 3;
+	public static final int TYPE_CONSTRUCTOR_PUBLIC = 4;
 
 	public static final int[] TYPE_METHOD = {
 		JavaClass.TYPE_METHOD_PRIVATE, JavaClass.TYPE_METHOD_PRIVATE_STATIC,
@@ -68,59 +69,79 @@ public class JavaClass {
 		JavaClass.TYPE_METHOD_PUBLIC, JavaClass.TYPE_METHOD_PUBLIC_STATIC
 	};
 
-	public static final int TYPE_METHOD_PRIVATE = 17;
+	public static final int TYPE_METHOD_PRIVATE = 19;
 
-	public static final int TYPE_METHOD_PRIVATE_STATIC = 15;
+	public static final int TYPE_METHOD_PRIVATE_STATIC = 17;
 
-	public static final int TYPE_METHOD_PROTECTED = 10;
+	public static final int TYPE_METHOD_PROTECTED = 11;
 
-	public static final int TYPE_METHOD_PROTECTED_STATIC = 8;
+	public static final int TYPE_METHOD_PROTECTED_STATIC = 9;
 
-	public static final int TYPE_METHOD_PUBLIC = 4;
+	public static final int TYPE_METHOD_PUBLIC = 5;
 
-	public static final int TYPE_METHOD_PUBLIC_STATIC = 2;
+	public static final int TYPE_METHOD_PUBLIC_STATIC = 3;
+
+	public static final int TYPE_STATIC_BLOCK = 21;
 
 	public static final int[] TYPE_VARIABLE = {
 		JavaClass.TYPE_VARIABLE_PRIVATE, JavaClass.TYPE_VARIABLE_PRIVATE_STATIC,
 		JavaClass.TYPE_VARIABLE_PROTECTED,
 		JavaClass.TYPE_VARIABLE_PROTECTED_STATIC,
-		JavaClass.TYPE_VARIABLE_PUBLIC, JavaClass.TYPE_VARIABLE_PUBLIC_STATIC
+		JavaClass.TYPE_VARIABLE_PUBLIC, JavaClass.TYPE_VARIABLE_PUBLIC_STATIC,
 	};
 
-	public static final int TYPE_VARIABLE_PRIVATE = 19;
+	public static final int[] TYPE_VARIABLE_STATIC = {
+		JavaClass.TYPE_VARIABLE_PRIVATE_STATIC,
+		JavaClass.TYPE_VARIABLE_PROTECTED_STATIC,
+		JavaClass.TYPE_VARIABLE_PUBLIC_STATIC
+	};
 
-	public static final int TYPE_VARIABLE_PRIVATE_STATIC = 18;
+	public static final int TYPE_VARIABLE_PRIVATE = 22;
 
-	public static final int TYPE_VARIABLE_PROTECTED = 12;
+	public static final int TYPE_VARIABLE_PRIVATE_STATIC = 20;
 
-	public static final int TYPE_VARIABLE_PROTECTED_STATIC = 11;
+	public static final int TYPE_VARIABLE_PROTECTED = 14;
 
-	public static final int TYPE_VARIABLE_PUBLIC = 5;
+	public static final int TYPE_VARIABLE_PROTECTED_STATIC = 12;
+
+	public static final int TYPE_VARIABLE_PUBLIC = 6;
 
 	public static final int TYPE_VARIABLE_PUBLIC_STATIC = 1;
 
 	public JavaClass(
-			String fileName, String absolutePath, String content, String indent)
+			String fileName, String absolutePath, String content, int lineCount,
+			String indent)
 		throws Exception {
 
 		_fileName = fileName;
 		_absolutePath = absolutePath;
 		_content = content;
+		_lineCount = lineCount;
 		_indent = indent;
+
+		_staticBlocks = new ArrayList<JavaTerm>();
 	}
 
 	public String formatJavaTerms(
+			List<String> javaTermAccessLevelModifierExclusions,
 			List<String> javaTermSortExclusions,
 			List<String> testAnnotationsExclusions)
 		throws Exception {
 
-		Set<JavaTerm> javaTerms = getJavaTerms();
+		Set<JavaTerm> javaTerms = getJavaTerms(
+			javaTermAccessLevelModifierExclusions);
 
 		if (javaTerms == null) {
 			return _content;
 		}
 
 		String originalContent = _content;
+
+		javaTerms = addStaticBlocks(javaTerms);
+
+		if (!originalContent.equals(_content)) {
+			return _content;
+		}
 
 		JavaTerm previousJavaTerm = null;
 
@@ -140,9 +161,10 @@ public class JavaClass {
 
 				JavaClass innerClass = new JavaClass(
 					_fileName, _absolutePath, javaTermContent,
-					_indent + StringPool.TAB);
+					javaTerm.getLineCount(), _indent + StringPool.TAB);
 
 				String newJavaTermContent = innerClass.formatJavaTerms(
+					javaTermAccessLevelModifierExclusions,
 					javaTermSortExclusions, testAnnotationsExclusions);
 
 				if (!javaTermContent.equals(newJavaTermContent)) {
@@ -179,6 +201,49 @@ public class JavaClass {
 		}
 
 		return false;
+	}
+
+	protected Set<JavaTerm> addStaticBlocks(Set<JavaTerm> javaTerms) {
+		Set<JavaTerm> newJavaTerms = new TreeSet<JavaTerm>(
+			new JavaTermComparator());
+
+		Iterator<JavaTerm> javaTermsIterator = javaTerms.iterator();
+
+		while (javaTermsIterator.hasNext()) {
+			JavaTerm javaTerm = javaTermsIterator.next();
+
+			if (!isInJavaTermTypeGroup(
+				javaTerm.getType(), TYPE_VARIABLE_STATIC)) {
+
+				newJavaTerms.add(javaTerm);
+
+				continue;
+			}
+
+			Iterator<JavaTerm> staticBlocksIterator = _staticBlocks.iterator();
+
+			while (staticBlocksIterator.hasNext()) {
+				JavaTerm staticBlock = staticBlocksIterator.next();
+
+				String staticBlockContent = staticBlock.getContent();
+
+				if (staticBlockContent.contains(javaTerm.getName())) {
+					staticBlock.setType(javaTerm.getType() + 1);
+
+					newJavaTerms.add(staticBlock);
+
+					staticBlocksIterator.remove();
+				}
+			}
+
+			newJavaTerms.add(javaTerm);
+		}
+
+		if (!_staticBlocks.isEmpty()) {
+			newJavaTerms.addAll(_staticBlocks);
+		}
+
+		return newJavaTerms;
 	}
 
 	protected void checkAnnotationForMethod(
@@ -262,9 +327,7 @@ public class JavaClass {
 
 			String javaTermContent = javaTerm.getContent();
 
-			if (javaTermContent.startsWith(_indent + "//") ||
-				javaTermContent.contains(_indent + "static {")) {
-
+			if (javaTermContent.startsWith(_indent + "//")) {
 				previousJavaTerm = javaTerm;
 
 				continue;
@@ -272,9 +335,7 @@ public class JavaClass {
 
 			String previousJavaTermContent = previousJavaTerm.getContent();
 
-			if (previousJavaTermContent.startsWith(_indent + "//") ||
-				previousJavaTermContent.contains(_indent + "static {")) {
-
+			if (previousJavaTermContent.startsWith(_indent + "//")) {
 				previousJavaTerm = javaTerm;
 
 				continue;
@@ -507,10 +568,10 @@ public class JavaClass {
 	}
 
 	protected String getClassName(String line) {
-		int pos = line.indexOf(" implements ");
+		int pos = line.indexOf(" extends ");
 
 		if (pos == -1) {
-			pos = line.indexOf(" extends ");
+			pos = line.indexOf(" implements ");
 		}
 
 		if (pos == -1) {
@@ -542,15 +603,18 @@ public class JavaClass {
 		return line.substring(x + 1);
 	}
 
-	protected Set<JavaTerm> getJavaTerms() throws Exception {
+	protected Set<JavaTerm> getJavaTerms(
+			List<String> javaTermAccessLevelModifierExclusions)
+		throws Exception {
+
 		Set<JavaTerm> javaTerms = new TreeSet<JavaTerm>(
-			new JavaTermComparator());
+			new JavaTermComparator(false));
 
 		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
 			new UnsyncStringReader(_content));
 
 		int index = 0;
-		int lineCount = 0;
+		int lineCount = _lineCount - 1;
 
 		String line = null;
 
@@ -566,14 +630,23 @@ public class JavaClass {
 		while ((line = unsyncBufferedReader.readLine()) != null) {
 			lineCount++;
 
+			if (JavaSourceProcessor.getLeadingTabCount(line) !=
+					_indent.length()) {
+
+				index = index + line.length() + 1;
+
+				continue;
+			}
+
 			if (line.startsWith(_indent + "private ") ||
 				line.equals(_indent + "private") ||
 				line.startsWith(_indent + "protected ") ||
 				line.equals(_indent + "protected") ||
 				line.startsWith(_indent + "public ") ||
-				line.equals(_indent + "public")) {
+				line.equals(_indent + "public") ||
+				line.equals(_indent + "static {")) {
 
-				Tuple tuple = getJavaTermTuple(line, _content, index, 1, 3);
+				Tuple tuple = getJavaTermTuple(line, _content, index);
 
 				if (tuple == null) {
 					return null;
@@ -603,7 +676,12 @@ public class JavaClass {
 							javaTermName, javaTermType, javaTermContent,
 							javaTermLineCount);
 
-						javaTerms.add(javaTerm);
+						if (javaTermType == JavaClass.TYPE_STATIC_BLOCK) {
+							_staticBlocks.add(javaTerm);
+						}
+						else {
+							javaTerms.add(javaTerm);
+						}
 					}
 				}
 
@@ -617,6 +695,27 @@ public class JavaClass {
 			else if (hasAnnotationCommentOrJavadoc(line)) {
 				if (lastCommentOrAnnotationPos == -1) {
 					lastCommentOrAnnotationPos = index;
+				}
+			}
+			else if (!line.startsWith(_indent + StringPool.CLOSE_CURLY_BRACE) &&
+					 !line.startsWith(_indent + StringPool.CLOSE_PARENTHESIS) &&
+					 !line.startsWith(_indent + "extends") &&
+					 !line.startsWith(_indent + "implements") &&
+					 !BaseSourceProcessor.isExcluded(
+						 javaTermAccessLevelModifierExclusions, _absolutePath,
+						 lineCount)) {
+
+				Matcher matcher = _classPattern.matcher(_content);
+
+				if (matcher.find()) {
+					String insideClass = _content.substring(matcher.end());
+
+					if (insideClass.contains(line)) {
+						BaseSourceProcessor.processErrorMessage(
+							_fileName,
+							"Missing access level modifier: " + _fileName +
+								" " + lineCount);
+					}
 				}
 			}
 
@@ -638,14 +737,41 @@ public class JavaClass {
 			javaTerm = new JavaTerm(
 				javaTermName, javaTermType, javaTermContent, javaTermLineCount);
 
-			javaTerms.add(javaTerm);
+			if (javaTermType == JavaClass.TYPE_STATIC_BLOCK) {
+				_staticBlocks.add(javaTerm);
+			}
+			else {
+				javaTerms.add(javaTerm);
+			}
 		}
 
 		return javaTerms;
 	}
 
-	protected Tuple getJavaTermTuple(
-		String line, String content, int index, int numLines, int maxLines) {
+	protected Tuple getJavaTermTuple(String line, String content, int index) {
+		int posStartNextLine = index;
+
+		while (!line.endsWith(StringPool.OPEN_CURLY_BRACE) &&
+			   !line.endsWith(StringPool.SEMICOLON)) {
+
+			posStartNextLine =
+				content.indexOf(StringPool.NEW_LINE, posStartNextLine) + 1;
+
+			int posEndNextline = content.indexOf(
+				StringPool.NEW_LINE, posStartNextLine);
+
+			String nextLine = content.substring(
+				posStartNextLine, posEndNextline);
+
+			nextLine = StringUtil.trimLeading(nextLine);
+
+			if (line.endsWith(StringPool.OPEN_PARENTHESIS)) {
+				line += nextLine;
+			}
+			else {
+				line += StringPool.SPACE + nextLine;
+			}
+		}
 
 		line = StringUtil.replace(line, " synchronized " , StringPool.SPACE);
 
@@ -794,30 +920,11 @@ public class JavaClass {
 				}
 			}
 		}
-
-		if (numLines < maxLines) {
-			int posStartNextLine =
-				content.indexOf(StringPool.NEW_LINE, index) + 1;
-
-			int posEndNextline = content.indexOf(
-				StringPool.NEW_LINE, posStartNextLine);
-
-			String nextLine = content.substring(
-				posStartNextLine, posEndNextline);
-
-			if (Validator.isNull(nextLine)) {
-				return null;
-			}
-
-			nextLine = StringUtil.trimLeading(nextLine);
-
-			return getJavaTermTuple(
-				line + StringPool.SPACE + nextLine, content, posStartNextLine,
-				numLines + 1, maxLines);
+		else if (line.startsWith(_indent + "static {")) {
+			return new Tuple("static", TYPE_STATIC_BLOCK);
 		}
-		else {
-			return null;
-		}
+
+		return null;
 	}
 
 	protected String getVariableName(String line) {
@@ -842,7 +949,8 @@ public class JavaClass {
 
 	protected boolean hasAnnotationCommentOrJavadoc(String s) {
 		if (s.startsWith(_indent + StringPool.AT) ||
-			s.startsWith(_indent + "/**") || s.startsWith(_indent + "//")) {
+			s.startsWith(_indent + StringPool.SLASH) ||
+			s.startsWith(_indent + " *")) {
 
 			return true;
 		}
@@ -852,6 +960,10 @@ public class JavaClass {
 	}
 
 	protected boolean isValidJavaTerm(String content) {
+		if (content.startsWith(_indent + "static {")) {
+			return true;
+		}
+
 		while (!content.startsWith(_indent + "private") &&
 			   !content.startsWith(_indent + "protected") &&
 			   !content.startsWith(_indent + "public")) {
@@ -886,8 +998,6 @@ public class JavaClass {
 		JavaTerm previousJavaTerm, JavaTerm javaTerm,
 		List<String> javaTermSortExclusions) {
 
-		String javaTermContent = javaTerm.getContent();
-
 		if (previousJavaTerm == null) {
 			return;
 		}
@@ -899,8 +1009,6 @@ public class JavaClass {
 
 			return;
 		}
-
-			String previousJavaTermContent = previousJavaTerm.getContent();
 
 		if (previousJavaTerm.getLineCount() <= javaTerm.getLineCount()) {
 			return;
@@ -928,17 +1036,21 @@ public class JavaClass {
 		}
 		else {
 			_content = StringUtil.replaceFirst(
-				_content, "\n" + javaTermContent,
-				"\n" + previousJavaTermContent);
+				_content, "\n" + javaTerm.getContent(),
+				"\n" + previousJavaTerm.getContent());
 			_content = StringUtil.replaceLast(
-				_content, "\n" + previousJavaTermContent,
-				"\n" + javaTermContent);
+				_content, "\n" + previousJavaTerm.getContent(),
+				"\n" + javaTerm.getContent());
 		}
 	}
 
 	private String _absolutePath;
+	private Pattern _classPattern = Pattern.compile(
+		"(private |protected |public )(static )*class ([\\s\\S]*?) \\{\n");
 	private String _content;
 	private String _fileName;
 	private String _indent;
+	private int _lineCount;
+	private List<JavaTerm> _staticBlocks;
 
 }

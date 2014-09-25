@@ -44,18 +44,6 @@
 				base: PATH_JAVASCRIPT + '/liferay/',
 				combine: COMBINE,
 				modules: {
-					'liferay-app-view-folders': {
-						path: 'app_view_folders.js',
-						requires: [
-							'aui-base',
-							'aui-parse-content',
-							'liferay-app-view-move',
-							'liferay-history-manager',
-							'liferay-list-view',
-							'liferay-node',
-							'liferay-portlet-base'
-						]
-					},
 					'liferay-app-view-move': {
 						path: 'app_view_move.js',
 						plugins: {
@@ -83,15 +71,6 @@
 						path: 'app_view_move_touch.js',
 						requires: [
 							'aui-base'
-						]
-					},
-					'liferay-app-view-paginator': {
-						path: 'app_view_paginator.js',
-						requires: [
-							'aui-parse-content',
-							'liferay-history-manager',
-							'liferay-pagination',
-							'liferay-portlet-base'
 						]
 					},
 					'liferay-app-view-select': {
@@ -209,12 +188,14 @@
 						path: 'browser_selectors.js',
 						requires: ['yui-base']
 					},
-					'liferay-ddm-repeatable-fields': {
-						path: 'ddm_repeatable_fields.js',
+					'liferay-ddm-form': {
+						path: 'ddm_form.js',
 						requires: [
 							'aui-base',
+							'aui-datatype',
 							'aui-io-request',
-							'aui-parse-content'
+							'aui-parse-content',
+							'liferay-translation-manager'
 						]
 					},
 					'liferay-diff-version-comparator': {
@@ -414,6 +395,14 @@
 						path: 'icon.js',
 						requires: [
 							'aui-base'
+						]
+					},
+					'liferay-image-selector': {
+						path: 'image_selector.js',
+						requires: [
+							'aui-base',
+							'liferay-portlet-base',
+							'uploader'
 						]
 					},
 					'liferay-inline-editor-base': {

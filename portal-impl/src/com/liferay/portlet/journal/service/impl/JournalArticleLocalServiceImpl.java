@@ -344,9 +344,12 @@ public class JournalArticleLocalServiceImpl
 
 		long id = counterLocalService.increment();
 
+		String articleResourceUuid = GetterUtil.getString(
+			serviceContext.getAttribute("articleResourceUuid"));
+
 		long resourcePrimKey =
 			journalArticleResourceLocalService.getArticleResourcePrimKey(
-				serviceContext.getUuid(), groupId, articleId);
+				articleResourceUuid, groupId, articleId);
 
 		JournalArticle article = journalArticlePersistence.create(id);
 
@@ -358,6 +361,7 @@ public class JournalArticleLocalServiceImpl
 			user, groupId, articleId, version, false, content, ddmStructureKey,
 			images);
 
+		article.setUuid(serviceContext.getUuid());
 		article.setResourcePrimKey(resourcePrimKey);
 		article.setGroupId(groupId);
 		article.setCompanyId(user.getCompanyId());
@@ -1034,6 +1038,7 @@ public class JournalArticleLocalServiceImpl
 		if (articleResource != null) {
 			JSONObject extraDataJSONObject = JSONFactoryUtil.createJSONObject();
 
+			extraDataJSONObject.put("uuid", article.getUuid());
 			extraDataJSONObject.put("version", article.getVersion());
 
 			systemEventLocalService.addSystemEvent(
@@ -3300,12 +3305,8 @@ public class JournalArticleLocalServiceImpl
 
 			// Article
 
-			TrashEntry trashEntry = article.getTrashEntry();
-
-			TrashVersion trashVersion =
-				trashVersionLocalService.fetchVersion(
-					trashEntry.getEntryId(), JournalArticle.class.getName(),
-					article.getResourcePrimKey());
+			TrashVersion trashVersion = trashVersionLocalService.fetchVersion(
+				JournalArticle.class.getName(), article.getResourcePrimKey());
 
 			int status = WorkflowConstants.STATUS_APPROVED;
 
@@ -4968,21 +4969,7 @@ public class JournalArticleLocalServiceImpl
 		boolean addNewVersion = false;
 
 		if (imported) {
-			if (latestVersion > version) {
-				JournalArticle existingArticle =
-					journalArticlePersistence.fetchByG_A_V(
-						groupId, articleId, version);
-
-				if (existingArticle != null) {
-					article = existingArticle;
-				}
-				else {
-					addNewVersion = true;
-				}
-			}
-			else if (latestVersion < version) {
-				addNewVersion = true;
-			}
+			article = getArticle(groupId, articleId, version);
 		}
 		else {
 			if ((version > 0) && (version != latestVersion)) {

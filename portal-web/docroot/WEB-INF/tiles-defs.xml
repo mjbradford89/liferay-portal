@@ -764,10 +764,6 @@
 		<put name="portlet_content" value="/portlet/journal/view_feeds.jsp" />
 	</definition>
 
-	<definition name="portlet.journal.view_recent" extends="portlet.journal">
-		<put name="portlet_content" value="/portlet/journal/view_recent.jsp" />
-	</definition>
-
 	<!-- Journal Articles -->
 
 	<definition name="portlet.journal_articles" extends="portlet" />
@@ -1056,14 +1052,6 @@
 
 	<definition name="portlet.nested_portlets.view" extends="portlet.nested_portlets">
 		<put name="portlet_content" value="/portlet/nested_portlets/view.jsp" />
-	</definition>
-
-	<!-- Network -->
-
-	<definition name="portlet.network" extends="portlet" />
-
-	<definition name="portlet.network.view" extends="portlet.network">
-		<put name="portlet_content" value="/portlet/network/view.jsp" />
 	</definition>
 
 	<!-- News -->

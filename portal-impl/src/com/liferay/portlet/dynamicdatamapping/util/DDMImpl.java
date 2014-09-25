@@ -45,10 +45,12 @@ import com.liferay.portal.util.PropsValues;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
 import com.liferay.portlet.dynamicdatamapping.NoSuchTemplateException;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormValuesJSONDeserializerUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
 import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLocalServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.storage.DDMFormValues;
 import com.liferay.portlet.dynamicdatamapping.storage.Field;
 import com.liferay.portlet.dynamicdatamapping.storage.FieldConstants;
 import com.liferay.portlet.dynamicdatamapping.storage.Fields;
@@ -95,6 +97,8 @@ public class DDMImpl implements DDM {
 	public static final String TYPE_DDM_IMAGE = "ddm-image";
 
 	public static final String TYPE_DDM_LINK_TO_PAGE = "ddm-link-to-page";
+
+	public static final String TYPE_DDM_TEXT_HTML = "ddm-text-html";
 
 	public static final String TYPE_RADIO = "radio";
 
@@ -256,6 +260,13 @@ public class DDMImpl implements DDM {
 	public Fields getFields(long ddmStructureId, ServiceContext serviceContext)
 		throws PortalException {
 
+		String serializedDDMFormValues = GetterUtil.getString(
+			serviceContext.getAttribute("ddmFormValues"));
+
+		if (Validator.isNotNull(serializedDDMFormValues)) {
+			return getFields(ddmStructureId, serializedDDMFormValues);
+		}
+
 		return getFields(ddmStructureId, 0, serviceContext);
 	}
 
@@ -264,6 +275,13 @@ public class DDMImpl implements DDM {
 			long ddmStructureId, String fieldNamespace,
 			ServiceContext serviceContext)
 		throws PortalException {
+
+		String serializedDDMFormValues = GetterUtil.getString(
+			serviceContext.getAttribute(fieldNamespace + "ddmFormValues"));
+
+		if (Validator.isNotNull(serializedDDMFormValues)) {
+			return getFields(ddmStructureId, serializedDDMFormValues);
+		}
 
 		return getFields(ddmStructureId, 0, fieldNamespace, serviceContext);
 	}
@@ -530,6 +548,21 @@ public class DDMImpl implements DDM {
 		}
 
 		return fieldNames;
+	}
+
+	protected Fields getFields(
+			long ddmStructureId, String serializedDDMFormValues)
+		throws PortalException {
+
+		DDMStructure ddmStructure = DDMStructureLocalServiceUtil.getStructure(
+			ddmStructureId);
+
+		DDMFormValues ddmFormValues =
+			DDMFormValuesJSONDeserializerUtil.deserialize(
+				serializedDDMFormValues);
+
+		return DDMFormValuesToFieldsConverterUtil.convert(
+			ddmStructure, ddmFormValues);
 	}
 
 	protected int getFieldValueIndex(

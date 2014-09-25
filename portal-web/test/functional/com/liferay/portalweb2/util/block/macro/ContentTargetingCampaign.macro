@@ -67,7 +67,6 @@
 
 		<execute action="CPContenttargetingAddcampaign#type" locator-key1="CAMPAIGN_TRACKING_ACTIONS_PAGE_ALIAS_FIELD" value1="${pageAlias}" />
 		<execute action="CPContenttargetingAddcampaign#type" locator-key1="CAMPAIGN_TRACKING_ACTIONS_PAGE_FRIENDLY_URL_FIELD" value1="${pageFriendlyURL}" />
-		<execute action="CPContenttargetingAddcampaign#select" locator-key1="CAMPAIGN_TRACKING_ACTIONS_PAGE_TRACKING_ACTION_SELECT" value1="${pageTrackingActionSelect}" />
 	</command>
 
 	<command name="addTrackingActionsCmd">
@@ -247,6 +246,15 @@
 		<execute action="CPContenttargeting#assertTextEquals" locator-key1="CAMPAIGN_TABLE_DESCRIPTION" value1="${campaignDescription}" />
 		<execute action="CPContenttargeting#assertTextEquals" locator-key1="CAMPAIGN_TABLE_PRIORITY" value1="${campaignPriority}" />
 		<execute action="CPContenttargeting#assertTextEquals" locator-key1="CAMPAIGN_TABLE_STATUS" value1="${campaignStatus}" />
+
+		<if>
+			<isset var="userSegmentSelect" />
+			<then>
+				<execute action="CPContenttargeting#click" locator-key1="CAMPAIGN_TABLE_ACTIONS" />
+				<execute action="CPContenttargeting#click" locator-key1="CAMPAIGN_TABLE_ACTIONS_MENULIST_EDIT" />
+				<execute action="CPContenttargetingAddcampaign#assertSelectedLabel" locator-key1="CAMPAIGN_USER_SEGMENT_SELECT" value1="${userSegmentSelect}" />
+			</then>
+		</if>
 	</command>
 
 	<command name="viewTrackingActionsCP">

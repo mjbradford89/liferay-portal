@@ -38,22 +38,19 @@ public class DistributedRegistryTest {
 
 	@Before
 	public void setUp() {
-		_exactDirections =
-			(Map<String, Direction>)ReflectionTestUtil.getFieldValue(
-				DistributedRegistry.class, "_exactDirections");
-		_postfixDirections =
-			(Map<String, Direction>)ReflectionTestUtil.getFieldValue(
-				DistributedRegistry.class, "_postfixDirections");
-		_prefixDirections =
-			(Map<String, Direction>)ReflectionTestUtil.getFieldValue(
-				DistributedRegistry.class, "_prefixDirections");
+		_exactDirections = ReflectionTestUtil.getFieldValue(
+			DistributedRegistry.class, "_exactDirections");
+		_postfixDirections = ReflectionTestUtil.getFieldValue(
+			DistributedRegistry.class, "_postfixDirections");
+		_prefixDirections = ReflectionTestUtil.getFieldValue(
+			DistributedRegistry.class, "_prefixDirections");
 	}
 
 	@Test
 	public void testClassRegisterAndUnregister() {
 		DistributedRegistry.registerDistributed(ChildClass.class);
 
-		Assert.assertEquals(3, _exactDirections.size());
+		Assert.assertEquals(4, _exactDirections.size());
 		Assert.assertEquals(
 			Direction.REQUEST, _exactDirections.get(ChildClass.name1));
 		Assert.assertEquals(
@@ -312,10 +309,11 @@ public class DistributedRegistryTest {
 		public static final String name12 = "name12";
 
 		@Distributed
-		public final String name13 = "name13";
+		public static final String name14 = "name14";
 
 		@Distributed
-		static final String name14 = "name14";
+		public final String name13 = "name13";
+
 	}
 
 	private static class ParentClass implements ParentInterface {
@@ -332,6 +330,10 @@ public class DistributedRegistryTest {
 
 		@Distributed
 		public static String name9 = "name9";
+
+		@Distributed
+		public static String name15 = "name15";
+
 	}
 
 	private interface ParentInterface {

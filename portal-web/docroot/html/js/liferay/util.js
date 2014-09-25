@@ -22,6 +22,8 @@
 
 	var STR_CHECKED = 'checked';
 
+	var REGEX_PORTLET_ID = /^(?:p_p_id)?_(.*)_.*$/;
+
 	var Window = {
 		_map: {}
 	};
@@ -42,71 +44,6 @@
 			);
 
 			Util.addInputCancel = function(){};
-		},
-
-		addInputFocus: function() {
-			A.use(
-				'aui-base',
-				function(A) {
-					var handleFocus = function(event) {
-						var target = event.target;
-
-						var tagName = target.get('tagName');
-
-						if (tagName) {
-							tagName = tagName.toLowerCase();
-						}
-
-						var nodeType = target.get('type');
-
-						if (((tagName == 'input') && (/text|password/).test(nodeType)) ||
-							(tagName == 'textarea')) {
-
-							var action = 'addClass';
-
-							if (/blur|focusout/.test(event.type)) {
-								action = 'removeClass';
-							}
-
-							target[action]('focus');
-						}
-					};
-
-					A.on('focus', handleFocus, document);
-					A.on('blur', handleFocus, document);
-				}
-			);
-
-			Util.addInputFocus = function(){};
-		},
-
-		addInputType: function(el) {
-			Util.addInputType = Lang.emptyFn;
-
-			if (Browser.isIe() && Browser.getMajorVersion() < 7) {
-				Util.addInputType = function(el) {
-					var item;
-
-					if (el) {
-						el = A.one(el);
-					}
-					else {
-						el = A.one(document.body);
-					}
-
-					var defaultType = 'text';
-
-					el.all('input').each(
-						function(item, index) {
-							var type = item.get('type') || defaultType;
-
-							item.addClass(type);
-						}
-					);
-				};
-			}
-
-			return Util.addInputType(el);
 		},
 
 		addParams: function(params, url) {
@@ -305,10 +242,7 @@
 		},
 
 		getPortletId: function(portletId) {
-			portletId = portletId.replace(/^p_p_id_/i, '');
-			portletId = portletId.replace(/_$/, '');
-
-			return portletId;
+			return String(portletId).replace(REGEX_PORTLET_ID, '$1');
 		},
 
 		getPortletNamespace: function(portletId) {
@@ -1051,8 +985,6 @@
 		Util,
 		'focusFormField',
 		function(el, caretPosition) {
-			Util.addInputFocus();
-
 			var interacting = false;
 
 			var clickHandle = A.getDoc().on(
@@ -1386,7 +1318,7 @@
 				}
 			}
 		},
-		['aui-base']
+		['aui-base', 'aui-selector']
 	);
 
 	Liferay.provide(
@@ -1442,13 +1374,28 @@
 				dialog.show();
 			}
 			else {
+				var destroyDialog = function(event) {
+					var dialogId = config.id;
+
+					var dialogWindow = Util.getWindow(dialogId);
+
+					if (dialogWindow && Util.getPortletId(dialogId) === event.portletId) {
+						dialogWindow.destroy();
+
+						Liferay.detach('destroyPortlet', destroyDialog);
+					}
+				}
+
 				Util.openWindow(
 					config,
 					function(dialogWindow) {
 						eventHandles.push(dialogWindow.after(['destroy', 'visibleChange'], detachSelectionOnHideFn));
+
+						Liferay.on('destroyPortlet', destroyDialog);
 					}
 				);
 			}
+
 		},
 		['aui-base', 'liferay-util-window']
 	);

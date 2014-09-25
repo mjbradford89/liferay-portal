@@ -211,7 +211,7 @@ if (feed != null) {
 								<c:if test="<%= tableIteratorObj.isSmallImage() %>">
 									<br />
 
-									<img alt="" hspace="0" src="<%= Validator.isNotNull(tableIteratorObj.getSmallImageURL()) ? tableIteratorObj.getSmallImageURL() : themeDisplay.getPathImage() + "/journal/template?img_id=" + tableIteratorObj.getSmallImageId() + "&t=" + WebServerServletTokenUtil.getToken(tableIteratorObj.getSmallImageId()) %>" vspace="0" />
+									<img alt="" hspace="0" src="<%= HtmlUtil.escapeAttribute(tableIteratorObj.getTemplateImageURL(themeDisplay)) %>" vspace="0" />
 								</c:if>
 							</liferay-ui:table-iterator>
 						</aui:field-wrapper>
@@ -407,7 +407,7 @@ if (feed != null) {
 	Liferay.Util.disableToggleBoxes('<portlet:namespace />autoFeedId','<portlet:namespace />newFeedId', true);
 </aui:script>
 
-<aui:script use="aui-base">
+<aui:script use="aui-base,aui-selector">
 	var feedItemContentSelector = A.one('select#<portlet:namespace />contentFieldSelector');
 
 	var changeFeedItemContent = function() {

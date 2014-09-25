@@ -16,13 +16,11 @@ package com.liferay.portalweb.portal.util.liferayselenium;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portalweb.portal.BaseTestCase;
-import com.liferay.portalweb.portal.util.TestPropsValues;
 
 import com.thoughtworks.selenium.Selenium;
 
@@ -49,7 +47,6 @@ import javax.xml.xpath.XPathFactory;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebDriver;
@@ -61,8 +58,6 @@ import org.openqa.selenium.internal.WrapsDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
-import org.sikuli.script.Screen;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -204,18 +199,7 @@ public class WebDriverToSeleniumBridge
 			open(url);
 		}
 		else {
-			WebElement webElement = getWebElement(locator);
-
-			try {
-				webElement.click();
-			}
-			catch (Exception e) {
-				if (!webElement.isDisplayed()) {
-					scrollWebElementIntoView(webElement);
-				}
-
-				webElement.click();
-			}
+			WebDriverHelper.click(this, locator);
 		}
 	}
 
@@ -501,15 +485,7 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public String getAttribute(String attributeLocator) {
-		int pos = attributeLocator.lastIndexOf(CharPool.AT);
-
-		String locator = attributeLocator.substring(0, pos);
-
-		WebElement webElement = getWebElement(locator);
-
-		String attribute = attributeLocator.substring(pos + 1);
-
-		return webElement.getAttribute(attribute);
+		return WebDriverHelper.getAttribute(this, attributeLocator);
 	}
 
 	@Override
@@ -592,15 +568,7 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public String getEval(String script) {
-		WebElement webElement = getWebElement("//body");
-
-		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
-
-		WebDriver webDriver = wrapsDriver.getWrappedDriver();
-
-		JavascriptExecutor javascriptExecutor = (JavascriptExecutor)webDriver;
-
-		return (String)javascriptExecutor.executeScript(script);
+		return WebDriverHelper.getEval(this, script);
 	}
 
 	@Override
@@ -781,17 +749,7 @@ public class WebDriverToSeleniumBridge
 			return getHtmlNodeText(locator);
 		}
 
-		WebElement webElement = getWebElement(locator, timeout);
-
-		if (!webElement.isDisplayed()) {
-			scrollWebElementIntoView(webElement);
-		}
-
-		String text = webElement.getText();
-
-		text = text.trim();
-
-		return text.replace("\n", " ");
+		return WebDriverHelper.getText(this, locator, timeout);
 	}
 
 	@Override
@@ -927,13 +885,7 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public boolean isVisible(String locator) {
-		WebElement webElement = getWebElement(locator, "1");
-
-		if (!webElement.isDisplayed()) {
-			scrollWebElementIntoView(webElement);
-		}
-
-		return webElement.isDisplayed();
+		return WebDriverHelper.isVisible(this, locator);
 	}
 
 	@Override
@@ -1208,10 +1160,6 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public void mouseOver(String locator) {
-		if (TestPropsValues.MOBILE_DEVICE_ENABLED) {
-			return;
-		}
-
 		WebElement webElement = getWebElement(locator);
 
 		if (!webElement.isDisplayed()) {
@@ -1527,32 +1475,7 @@ public class WebDriverToSeleniumBridge
 
 	@Override
 	public void type(String locator, String value) {
-		WebElement webElement = getWebElement(locator);
-
-		if (!webElement.isEnabled()) {
-			return;
-		}
-
-		if (TestPropsValues.MOBILE_DEVICE_ENABLED) {
-			webElement.clear();
-
-			webElement.click();
-
-			try {
-				Thread.sleep(1000);
-			}
-			catch (Exception e) {
-			}
-
-			Screen screen = new Screen();
-
-			screen.type(value);
-		}
-		else {
-			webElement.clear();
-
-			webElement.sendKeys(value);
-		}
+		WebDriverHelper.type(this, locator, value);
 	}
 
 	@Override
@@ -1573,6 +1496,8 @@ public class WebDriverToSeleniumBridge
 
 		for (int specialCharIndex : specialCharIndexes) {
 			webElement.sendKeys(value.substring(i, specialCharIndex));
+
+			webElement.sendKeys(Keys.ESCAPE);
 
 			String specialChar = String.valueOf(value.charAt(specialCharIndex));
 
@@ -1704,8 +1629,6 @@ public class WebDriverToSeleniumBridge
 		}
 
 		for (String specialChar : _keysSpecialChars.keySet()) {
-			specialChar = "\\" + specialChar;
-
 			while (value.contains(specialChar)) {
 				specialCharIndexes.add(value.indexOf(specialChar));
 
@@ -1813,14 +1736,7 @@ public class WebDriverToSeleniumBridge
 	}
 
 	protected void scrollWebElementIntoView(WebElement webElement) {
-		WrapsDriver wrapsDriver = (WrapsDriver)webElement;
-
-		WebDriver webDriver = wrapsDriver.getWrappedDriver();
-
-		JavascriptExecutor javascriptExecutor = (JavascriptExecutor)webDriver;
-
-		javascriptExecutor.executeScript(
-			"arguments[0].scrollIntoView();", webElement);
+		WebDriverHelper.scrollWebElementIntoView(this, webElement);
 	}
 
 	protected void selectByRegexpText(String selectLocator, String regexp) {

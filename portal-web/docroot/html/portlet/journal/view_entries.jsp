@@ -19,8 +19,6 @@
 <%
 long folderId = GetterUtil.getLong((String)request.getAttribute("view.jsp-folderId"));
 
-String displayStyle = JournalUtil.getDisplayStyle(liferayPortletRequest, displayViews);
-
 long ddmStructureId = 0;
 
 String ddmStructureName = LanguageUtil.get(request, "basic-web-content");
@@ -29,7 +27,6 @@ PortletURL portletURL = liferayPortletResponse.createRenderURL();
 
 portletURL.setParameter("struts_action", "/journal/view");
 portletURL.setParameter("folderId", String.valueOf(folderId));
-portletURL.setParameter("displayStyle", displayStyle);
 
 ArticleSearch articleSearchContainer = new ArticleSearch(liferayPortletRequest, portletURL);
 
@@ -118,8 +115,8 @@ if (permissionChecker.isContentReviewer(user.getCompanyId(), scopeGroupId)) {
 	status = WorkflowConstants.STATUS_ANY;
 }
 
-List resultsList = null;
-int totalVar = 0;
+List results = null;
+int total = 0;
 %>
 
 <c:choose>
@@ -134,53 +131,53 @@ int totalVar = 0;
 			status = WorkflowConstants.STATUS_ANY;
 		}
 
-		totalVar = JournalArticleServiceUtil.getGroupArticlesCount(scopeGroupId, userId, folderId, status);
+		total = JournalArticleServiceUtil.getGroupArticlesCount(scopeGroupId, userId, folderId, status);
 
-		articleSearchContainer.setTotal(totalVar);
+		articleSearchContainer.setTotal(total);
 
-		resultsList = JournalArticleServiceUtil.getGroupArticles(scopeGroupId, userId, folderId, status, articleSearchContainer.getStart(), articleSearchContainer.getEnd(), articleSearchContainer.getOrderByComparator());
+		results = JournalArticleServiceUtil.getGroupArticles(scopeGroupId, userId, folderId, status, articleSearchContainer.getStart(), articleSearchContainer.getEnd(), articleSearchContainer.getOrderByComparator());
 		%>
 
 	</c:when>
 	<c:when test="<%= Validator.isNotNull(displayTerms.getStructureId()) %>">
 
 		<%
-		totalVar = JournalArticleServiceUtil.getArticlesCountByStructureId(displayTerms.getGroupId(), searchTerms.getStructureId());
+		total = JournalArticleServiceUtil.getArticlesCountByStructureId(displayTerms.getGroupId(), searchTerms.getStructureId());
 
-		articleSearchContainer.setTotal(totalVar);
+		articleSearchContainer.setTotal(total);
 
-		resultsList = JournalArticleServiceUtil.getArticlesByStructureId(displayTerms.getGroupId(), displayTerms.getStructureId(), articleSearchContainer.getStart(), articleSearchContainer.getEnd(), articleSearchContainer.getOrderByComparator());
+		results = JournalArticleServiceUtil.getArticlesByStructureId(displayTerms.getGroupId(), displayTerms.getStructureId(), articleSearchContainer.getStart(), articleSearchContainer.getEnd(), articleSearchContainer.getOrderByComparator());
 		%>
 
 	</c:when>
 	<c:when test="<%= Validator.isNotNull(displayTerms.getTemplateId()) %>">
 
 		<%
-		totalVar = JournalArticleServiceUtil.searchCount(company.getCompanyId(), searchTerms.getGroupId(), searchTerms.getFolderIds(), JournalArticleConstants.CLASSNAME_ID_DEFAULT, searchTerms.getKeywords(), searchTerms.getVersionObj(), null, searchTerms.getStructureId(), searchTerms.getTemplateId(), searchTerms.getDisplayDateGT(), searchTerms.getDisplayDateLT(), searchTerms.getStatus(), searchTerms.getReviewDate());
+		total = JournalArticleServiceUtil.searchCount(company.getCompanyId(), searchTerms.getGroupId(), searchTerms.getFolderIds(), JournalArticleConstants.CLASSNAME_ID_DEFAULT, searchTerms.getKeywords(), searchTerms.getVersionObj(), null, searchTerms.getStructureId(), searchTerms.getTemplateId(), searchTerms.getDisplayDateGT(), searchTerms.getDisplayDateLT(), searchTerms.getStatus(), searchTerms.getReviewDate());
 
-		articleSearchContainer.setTotal(totalVar);
+		articleSearchContainer.setTotal(total);
 
-		resultsList = JournalArticleServiceUtil.search(company.getCompanyId(), searchTerms.getGroupId(), searchTerms.getFolderIds(), JournalArticleConstants.CLASSNAME_ID_DEFAULT, searchTerms.getKeywords(), searchTerms.getVersionObj(), null, searchTerms.getStructureId(), searchTerms.getTemplateId(), searchTerms.getDisplayDateGT(), searchTerms.getDisplayDateLT(), searchTerms.getStatus(), searchTerms.getReviewDate(), articleSearchContainer.getStart(), articleSearchContainer.getEnd(), articleSearchContainer.getOrderByComparator());
+		results = JournalArticleServiceUtil.search(company.getCompanyId(), searchTerms.getGroupId(), searchTerms.getFolderIds(), JournalArticleConstants.CLASSNAME_ID_DEFAULT, searchTerms.getKeywords(), searchTerms.getVersionObj(), null, searchTerms.getStructureId(), searchTerms.getTemplateId(), searchTerms.getDisplayDateGT(), searchTerms.getDisplayDateLT(), searchTerms.getStatus(), searchTerms.getReviewDate(), articleSearchContainer.getStart(), articleSearchContainer.getEnd(), articleSearchContainer.getOrderByComparator());
 		%>
 
 	</c:when>
 	<c:otherwise>
 
 		<%
-		totalVar = JournalFolderServiceUtil.getFoldersAndArticlesCount(scopeGroupId, folderId, status);
+		total = JournalFolderServiceUtil.getFoldersAndArticlesCount(scopeGroupId, folderId, status);
 
-		articleSearchContainer.setTotal(totalVar);
+		articleSearchContainer.setTotal(total);
 
-		resultsList = JournalFolderServiceUtil.getFoldersAndArticles(scopeGroupId, folderId, status, articleSearchContainer.getStart(), articleSearchContainer.getEnd(), articleSearchContainer.getOrderByComparator());
+		results = JournalFolderServiceUtil.getFoldersAndArticles(scopeGroupId, folderId, status, articleSearchContainer.getStart(), articleSearchContainer.getEnd(), articleSearchContainer.getOrderByComparator());
 		%>
 
 	</c:otherwise>
 </c:choose>
 
 <%
-articleSearchContainer.setResults(resultsList);
+articleSearchContainer.setResults(results);
 
-request.setAttribute("view.jsp-total", String.valueOf(totalVar));
+request.setAttribute("view.jsp-total", String.valueOf(total));
 
 request.setAttribute("view_entries.jsp-entryStart", String.valueOf(articleSearchContainer.getStart()));
 request.setAttribute("view_entries.jsp-entryEnd", String.valueOf(articleSearchContainer.getEnd()));
@@ -269,16 +266,16 @@ request.setAttribute("view_entries.jsp-entryEnd", String.valueOf(articleSearchCo
 	</c:if>
 </div>
 
-<c:if test="<%= resultsList.isEmpty() %>">
+<c:if test="<%= results.isEmpty() %>">
 	<div class="alert alert-info entries-empty">
 		<c:choose>
 			<c:when test="<%= Validator.isNotNull(displayTerms.getStructureId()) %>">
-				<c:if test="<%= totalVar == 0 %>">
+				<c:if test="<%= total == 0 %>">
 					<liferay-ui:message arguments="<%= HtmlUtil.escape(ddmStructureName) %>" key="there-is-no-web-content-with-structure-x" translateArguments="<%= false %>" />
 				</c:if>
 			</c:when>
 			<c:otherwise>
-				<c:if test="<%= totalVar == 0 %>">
+				<c:if test="<%= total == 0 %>">
 					<liferay-ui:message key="no-web-content-was-found" />
 				</c:if>
 			</c:otherwise>
@@ -286,12 +283,16 @@ request.setAttribute("view_entries.jsp-entryEnd", String.valueOf(articleSearchCo
 	</div>
 </c:if>
 
+<%
+String displayStyle = journalDisplayContext.getDisplayStyle();
+%>
+
 <c:choose>
 	<c:when test='<%= !displayStyle.equals("list") %>'>
 
 		<%
-		for (int i = 0; i < resultsList.size(); i++) {
-			Object result = resultsList.get(i);
+		for (int i = 0; i < results.size(); i++) {
+			Object result = results.get(i);
 		%>
 
 			<%@ include file="/html/portlet/journal/cast_result.jspf" %>
@@ -339,7 +340,6 @@ request.setAttribute("view_entries.jsp-entryEnd", String.valueOf(articleSearchCo
 					tempRowURL.setParameter("redirect", currentURL);
 					tempRowURL.setParameter("groupId", String.valueOf(curFolder.getGroupId()));
 					tempRowURL.setParameter("folderId", String.valueOf(curFolder.getFolderId()));
-					tempRowURL.setParameter("displayStyle", displayStyle);
 
 					request.setAttribute("view_entries.jsp-folder", curFolder);
 
@@ -367,10 +367,12 @@ request.setAttribute("view_entries.jsp-entryEnd", String.valueOf(articleSearchCo
 	<c:otherwise>
 		<liferay-ui:search-container
 			searchContainer="<%= articleSearchContainer %>"
+			totalVar="articleSearchContainerTotal"
 		>
 			<liferay-ui:search-container-results
-				results="<%= resultsList %>"
-				total="<%= totalVar %>"
+				results="<%= results %>"
+				resultsVar="articleSearchContainerResults"
+				total="<%= total %>"
 			/>
 
 			<liferay-ui:search-container-row
