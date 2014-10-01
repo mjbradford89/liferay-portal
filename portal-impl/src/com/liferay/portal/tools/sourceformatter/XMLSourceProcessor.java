@@ -449,8 +449,7 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		String[] excludes = new String[] {
 			"**\\.bnd\\**", "**\\.idea\\**", "**\\.ivy\\**",
 			"portal-impl\\**\\*.action", "portal-impl\\**\\*.function",
-			"portal-impl\\**\\*.macro", "portal-impl\\**\\*.testcase",
-			"tools\\sdk\\**"
+			"portal-impl\\**\\*.macro", "portal-impl\\**\\*.testcase"
 		};
 
 		String[] includes = new String[] {
@@ -459,10 +458,10 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 		};
 
 		_friendlyUrlRoutesSortExclusions = getPropertyList(
-			"friendly.url.routes.sort.excludes");
+			"friendly.url.routes.sort.excludes.files");
 		_numericalPortletNameElementExclusions = getPropertyList(
-			"numerical.portlet.name.element.excludes");
-		_xmlExclusions = getPropertyList("xml.excludes");
+			"numerical.portlet.name.element.excludes.files");
+		_xmlExclusions = getPropertyList("xml.excludes.files");
 
 		List<String> fileNames = getFileNames(excludes, includes);
 
@@ -968,43 +967,42 @@ public class XMLSourceProcessor extends BaseSourceProcessor {
 
 		StringBundler sb = new StringBundler();
 
-		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
-			new UnsyncStringReader(content));
+		try (UnsyncBufferedReader unsyncBufferedReader =
+				new UnsyncBufferedReader(new UnsyncStringReader(content))) {
 
-		String line = null;
+			String line = null;
 
-		int lineCount = 0;
+			int lineCount = 0;
 
-		boolean sortAttributes = true;
+			boolean sortAttributes = true;
 
-		while ((line = unsyncBufferedReader.readLine()) != null) {
-			lineCount++;
+			while ((line = unsyncBufferedReader.readLine()) != null) {
+				lineCount++;
 
-			String trimmedLine = StringUtil.trimLeading(line);
+				String trimmedLine = StringUtil.trimLeading(line);
 
-			if (sortAttributes) {
-				if (trimmedLine.startsWith(StringPool.LESS_THAN) &&
-					trimmedLine.endsWith(StringPool.GREATER_THAN) &&
-					!trimmedLine.startsWith("<%") &&
-					!trimmedLine.startsWith("<!")) {
+				if (sortAttributes) {
+					if (trimmedLine.startsWith(StringPool.LESS_THAN) &&
+						trimmedLine.endsWith(StringPool.GREATER_THAN) &&
+						!trimmedLine.startsWith("<%") &&
+						!trimmedLine.startsWith("<!")) {
 
-					line = sortAttributes(fileName, line, lineCount, false);
+						line = sortAttributes(fileName, line, lineCount, false);
+					}
+					else if (trimmedLine.startsWith("<![CDATA[") &&
+							 !trimmedLine.endsWith("]]>")) {
+
+						sortAttributes = false;
+					}
 				}
-				else if (trimmedLine.startsWith("<![CDATA[") &&
-						 !trimmedLine.endsWith("]]>")) {
-
-					sortAttributes = false;
+				else if (trimmedLine.endsWith("]]>")) {
+					sortAttributes = true;
 				}
-			}
-			else if (trimmedLine.endsWith("]]>")) {
-				sortAttributes = true;
-			}
 
-			sb.append(line);
-			sb.append("\n");
+				sb.append(line);
+				sb.append("\n");
+			}
 		}
-
-		unsyncBufferedReader.close();
 
 		content = sb.toString();
 

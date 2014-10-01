@@ -45,7 +45,7 @@ String contents = (String)request.getAttribute("liferay-ui:input-editor:contents
 String contentsLanguageId = (String)request.getAttribute("liferay-ui:input-editor:contentsLanguageId");
 String cssClasses = GetterUtil.getString((String)request.getAttribute("liferay-ui:input-editor:cssClasses"));
 String editorImpl = (String)request.getAttribute("liferay-ui:input-editor:editorImpl");
-String name = namespace + GetterUtil.getString((String)request.getAttribute("liferay-ui:input-editor:name"));
+String name = namespace + GetterUtil.getString((String)request.getAttribute("liferay-ui:input-editor:name")) + "Editor";
 String initMethod = (String)request.getAttribute("liferay-ui:input-editor:initMethod");
 boolean inlineEdit = GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:input-editor:inlineEdit"));
 
@@ -80,7 +80,7 @@ if (alloyEditorMode.equals("text")) {
 
 <c:if test="<%= !skipEditorLoading %>">
 	<liferay-util:html-top outputKey="js_editor_alloyeditor_skip_editor_loading">
-		<link href="<%= PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + themeDisplay.getPathJavaScript() + "/editor/alloyeditor/assets/alloy-editor.css") %>" rel="stylesheet" type="text/css" />
+		<link href="<%= PortalUtil.getStaticResourceURL(request, themeDisplay.getCDNHost() + themeDisplay.getPathJavaScript() + "/editor/alloyeditor/assets/alloy-editor-ocean.css") %>" rel="stylesheet" type="text/css" />
 
 		<%
 		long javaScriptLastModified = ServletContextUtil.getLastModified(application, "/html/js/", true);
@@ -117,7 +117,7 @@ if (alloyEditorMode.equals("text")) {
 	CKEDITOR.env.isCompatible = true;
 </script>
 
-<div class="alloy-editor-placeholder" data-placeholder="<%= LanguageUtil.get(request, placeholder) %>" id="<%= name %>" name="<%= name %>"><%= contents %></div>
+<div class="alloy-editor alloy-editor-placeholder" data-placeholder="<%= LanguageUtil.get(request, placeholder) %>" id="<%= name %>" name="<%= name %>"><%= contents %></div>
 
 <aui:script use="aui-base">
 	window['<%= name %>'] = {
@@ -153,7 +153,15 @@ if (alloyEditorMode.equals("text")) {
 				<c:when test='<%= alloyEditorMode.equals("text") %>'>
 					var editorElement = CKEDITOR.instances['<%= name %>'].element.$;
 
-					return editorElement.childElementCount ? editorElement.children[0].innerText : '';
+					var text = '';
+
+					if (editorElement.childElementCount) {
+						var childElement = editorElement.children[0];
+
+						text = childElement.textContent || childElement.innerText;
+					}
+
+					return text;
 				</c:when>
 				<c:otherwise>
 					return window['<%= name %>'].getCkData();

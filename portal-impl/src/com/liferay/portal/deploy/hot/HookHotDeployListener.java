@@ -49,21 +49,16 @@ import com.liferay.portal.kernel.security.pacl.permission.PortalHookPermission;
 import com.liferay.portal.kernel.servlet.DirectServletRegistryUtil;
 import com.liferay.portal.kernel.servlet.LiferayFilter;
 import com.liferay.portal.kernel.servlet.LiferayFilterTracker;
-import com.liferay.portal.kernel.servlet.ServletContextPool;
 import com.liferay.portal.kernel.servlet.TryFilter;
 import com.liferay.portal.kernel.servlet.TryFinallyFilter;
 import com.liferay.portal.kernel.servlet.WrapHttpServletRequestFilter;
 import com.liferay.portal.kernel.servlet.WrapHttpServletResponseFilter;
-import com.liferay.portal.kernel.servlet.filters.invoker.FilterMapping;
-import com.liferay.portal.kernel.servlet.filters.invoker.InvokerFilterConfig;
-import com.liferay.portal.kernel.servlet.filters.invoker.InvokerFilterHelper;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.struts.StrutsPortletAction;
 import com.liferay.portal.kernel.struts.path.AuthPublicPath;
 import com.liferay.portal.kernel.struts.path.DefaultAuthPublicPath;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.upgrade.util.UpgradeProcessUtil;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -77,12 +72,12 @@ import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.language.LanguageResources;
-import com.liferay.portal.model.LayoutConstants;
 import com.liferay.portal.model.ModelListener;
 import com.liferay.portal.repository.registry.RepositoryClassDefinitionCatalogUtil;
 import com.liferay.portal.repository.util.ExternalRepositoryFactory;
@@ -113,9 +108,9 @@ import com.liferay.portal.service.ServiceWrapper;
 import com.liferay.portal.service.persistence.BasePersistence;
 import com.liferay.portal.servlet.filters.cache.CacheUtil;
 import com.liferay.portal.spring.aop.ServiceBeanAopProxy;
+import com.liferay.portal.spring.context.PortalContextLoaderListener;
 import com.liferay.portal.util.CustomJspRegistryUtil;
 import com.liferay.portal.util.JavaScriptBundleUtil;
-import com.liferay.portal.util.LayoutSettings;
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PropsUtil;
@@ -158,7 +153,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.Filter;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 
 import org.springframework.aop.TargetSource;
@@ -172,6 +166,7 @@ import org.springframework.aop.framework.AdvisedSupport;
  * @author Mika Koivisto
  * @author Peter Fellwock
  * @author Raymond Augé
+ * @author Kamesh Sampath
  */
 public class HookHotDeployListener
 	extends BaseHotDeployListener implements PropsKeys {
@@ -641,25 +636,11 @@ public class HookHotDeployListener
 			hotDeployListenersContainer.unregisterHotDeployListeners();
 		}
 
-		LanguagesContainer languagesContainer = _languagesContainerMap.remove(
-			servletContextName);
-
-		if (languagesContainer != null) {
-			languagesContainer.unregisterLanguages();
-		}
-
 		Properties portalProperties = _portalPropertiesMap.remove(
 			servletContextName);
 
 		if (portalProperties != null) {
 			destroyPortalProperties(servletContextName, portalProperties);
-		}
-
-		ServletFiltersContainer servletFiltersContainer =
-			_servletFiltersContainerMap.remove(servletContextName);
-
-		if (servletFiltersContainer != null) {
-			servletFiltersContainer.unregisterFilterMappings();
 		}
 
 		unregisterClpMessageListeners(servletContext);
@@ -1213,14 +1194,11 @@ public class HookHotDeployListener
 			Element parentElement)
 		throws Exception {
 
-		LanguagesContainer languagesContainer = new LanguagesContainer();
-
-		_languagesContainerMap.put(servletContextName, languagesContainer);
-
 		List<Element> languagePropertiesElements = parentElement.elements(
 			"language-properties");
 
-		Map<String, String> baseLanguageMap = null;
+		Map<String, Object> baseLanguageMap = null;
+		String baseLanguagePropertiesLocation = null;
 
 		for (Element languagePropertiesElement : languagePropertiesElements) {
 			Properties properties = null;
@@ -1249,11 +1227,9 @@ public class HookHotDeployListener
 					continue;
 				}
 
-				InputStream is = url.openStream();
-
-				properties = PropertiesUtil.load(is, StringPool.UTF8);
-
-				is.close();
+				try (InputStream is = url.openStream()) {
+					properties = PropertiesUtil.load(is, StringPool.UTF8);
+				}
 			}
 			catch (Exception e) {
 				_log.error("Unable to read " + languagePropertiesLocation, e);
@@ -1261,7 +1237,7 @@ public class HookHotDeployListener
 				continue;
 			}
 
-			Map<String, String> languageMap = new HashMap<String, String>();
+			Map<String, Object> languageMap = new HashMap<String, Object>();
 
 			if (baseLanguageMap != null) {
 				languageMap.putAll(baseLanguageMap);
@@ -1277,17 +1253,30 @@ public class HookHotDeployListener
 			}
 
 			if (locale != null) {
-				languagesContainer.addLanguage(locale, languageMap);
+				String languageId = LocaleUtil.toLanguageId(locale);
+
+				languageMap.put("language.id", languageId);
+
+				registerService(
+					servletContextName, languagePropertiesLocation,
+					Object.class, new Object(), languageMap);
 			}
 			else if (!languageMap.isEmpty()) {
 				baseLanguageMap = languageMap;
+				baseLanguagePropertiesLocation = languagePropertiesLocation;
 			}
 		}
 
 		if (baseLanguageMap != null) {
 			Locale locale = new Locale(StringPool.BLANK);
 
-			languagesContainer.addLanguage(locale, baseLanguageMap);
+			String languageId = LocaleUtil.toLanguageId(locale);
+
+			baseLanguageMap.put("language.id", languageId);
+
+			registerService(
+				servletContextName, baseLanguagePropertiesLocation,
+				Object.class, new Object(), baseLanguageMap);
 		}
 	}
 
@@ -1982,16 +1971,6 @@ public class HookHotDeployListener
 			ClassLoader portletClassLoader, Element parentElement)
 		throws Exception {
 
-		ServletFiltersContainer servletFiltersContainer =
-			_servletFiltersContainerMap.get(servletContextName);
-
-		if (servletFiltersContainer == null) {
-			servletFiltersContainer = new ServletFiltersContainer();
-
-			_servletFiltersContainerMap.put(
-				servletContextName, servletFiltersContainer);
-		}
-
 		List<Element> servletFilterElements = parentElement.elements(
 			"servlet-filter");
 
@@ -2003,36 +1982,7 @@ public class HookHotDeployListener
 			return;
 		}
 
-		for (Element servletFilterElement : servletFilterElements) {
-			String servletFilterName = servletFilterElement.elementText(
-				"servlet-filter-name");
-			String servletFilterImpl = servletFilterElement.elementText(
-				"servlet-filter-impl");
-
-			List<Element> initParamElements = servletFilterElement.elements(
-				"init-param");
-
-			Map<String, String> initParameterMap =
-				new HashMap<String, String>();
-
-			for (Element initParamElement : initParamElements) {
-				String paramName = initParamElement.elementText("param-name");
-				String paramValue = initParamElement.elementText("param-value");
-
-				initParameterMap.put(paramName, paramValue);
-			}
-
-			Filter filter = initServletFilter(
-				servletFilterImpl, portletClassLoader);
-
-			FilterConfig filterConfig = new InvokerFilterConfig(
-				servletContext, servletFilterName, initParameterMap);
-
-			filter.init(filterConfig);
-
-			servletFiltersContainer.registerFilter(
-				servletFilterName, filter, filterConfig);
-		}
+		Map<String, Tuple> filterTuples = new HashMap<String, Tuple>();
 
 		List<Element> servletFilterMappingElements = parentElement.elements(
 			"servlet-filter-mapping");
@@ -2046,14 +1996,6 @@ public class HookHotDeployListener
 				"after-filter");
 			String beforeFilter = servletFilterMappingElement.elementText(
 				"before-filter");
-
-			String positionFilterName = beforeFilter;
-			boolean after = false;
-
-			if (Validator.isNotNull(afterFilter)) {
-				positionFilterName = afterFilter;
-				after = true;
-			}
 
 			List<Element> urlPatternElements =
 				servletFilterMappingElement.elements("url-pattern");
@@ -2079,9 +2021,46 @@ public class HookHotDeployListener
 				dispatchers.add(dispatcher);
 			}
 
-			servletFiltersContainer.registerFilterMapping(
-				servletFilterName, urlPatterns, dispatchers, positionFilterName,
-				after);
+			filterTuples.put(
+				servletFilterName,
+				new Tuple(afterFilter, beforeFilter, dispatchers, urlPatterns));
+		}
+
+		for (Element servletFilterElement : servletFilterElements) {
+			String servletFilterName = servletFilterElement.elementText(
+				"servlet-filter-name");
+			String servletFilterImpl = servletFilterElement.elementText(
+				"servlet-filter-impl");
+
+			List<Element> initParamElements = servletFilterElement.elements(
+				"init-param");
+
+			Map<String, Object> properties = new HashMap<String, Object>();
+
+			for (Element initParamElement : initParamElements) {
+				String paramName = initParamElement.elementText("param-name");
+				String paramValue = initParamElement.elementText("param-value");
+
+				properties.put("init.param." + paramName, paramValue);
+			}
+
+			Tuple filterTuple = filterTuples.get(servletFilterName);
+
+			properties.put("after-filter", filterTuple.getObject(0));
+			properties.put("before-filter", filterTuple.getObject(1));
+			properties.put("dispatcher", filterTuple.getObject(2));
+			properties.put(
+				"servlet-context-name",
+				PortalContextLoaderListener.getPortalServletContextName());
+			properties.put("servlet-filter-name", servletFilterName);
+			properties.put("url-pattern", filterTuple.getObject(3));
+
+			Filter filter = initServletFilter(
+				servletFilterImpl, portletClassLoader);
+
+			registerService(
+				servletContextName, servletFilterName, Filter.class, filter,
+				properties);
 		}
 	}
 
@@ -2367,35 +2346,6 @@ public class HookHotDeployListener
 		value = stringArraysContainer.getStringArray();
 
 		field.set(null, value);
-
-		if (key.equals(PropsKeys.LAYOUT_TYPES)) {
-			Map<String, LayoutSettings> layoutSettingsMap =
-				LayoutSettings.getLayoutSettingsMap();
-
-			Set<Map.Entry<String, LayoutSettings>> set =
-				layoutSettingsMap.entrySet();
-
-			Iterator<Map.Entry<String, LayoutSettings>> iterator =
-				set.iterator();
-
-			while (iterator.hasNext()) {
-				Map.Entry<String, LayoutSettings> entry = iterator.next();
-
-				String layoutType = entry.getKey();
-
-				if (!layoutType.equals(LayoutConstants.TYPE_CONTROL_PANEL) &&
-					!ArrayUtil.contains(value, layoutType)) {
-
-					iterator.remove();
-				}
-			}
-
-			for (String type : value) {
-				if (!layoutSettingsMap.containsKey(type)) {
-					LayoutSettings.addLayoutSetting(type);
-				}
-			}
-		}
 	}
 
 	private static final String[] _PROPS_KEYS_EVENTS = {
@@ -2458,10 +2408,9 @@ public class HookHotDeployListener
 		"convert.processes", "dockbar.add.portlets", "journal.article.form.add",
 		"journal.article.form.translate", "journal.article.form.update",
 		"layout.form.add", "layout.form.update", "layout.set.form.update",
-		"layout.static.portlets.all", "layout.types",
-		"login.form.navigation.post", "login.form.navigation.pre",
-		"organizations.form.add.identification", "organizations.form.add.main",
-		"organizations.form.add.miscellaneous",
+		"layout.static.portlets.all", "login.form.navigation.post",
+		"login.form.navigation.pre", "organizations.form.add.identification",
+		"organizations.form.add.main", "organizations.form.add.miscellaneous",
 		"portlet.add.default.resource.check.whitelist",
 		"portlet.add.default.resource.check.whitelist.actions",
 		"session.phishing.protected.attributes", "sites.form.add.advanced",
@@ -2509,8 +2458,6 @@ public class HookHotDeployListener
 	private Map<String, HotDeployListenersContainer>
 		_hotDeployListenersContainerMap =
 			new HashMap<String, HotDeployListenersContainer>();
-	private Map<String, LanguagesContainer> _languagesContainerMap =
-		new HashMap<String, LanguagesContainer>();
 	private Map<String, StringArraysContainer> _mergeStringArraysContainerMap =
 		new HashMap<String, StringArraysContainer>();
 	private Map<String, StringArraysContainer>
@@ -2525,8 +2472,6 @@ public class HookHotDeployListener
 	private Map<String, Map<Object, ServiceRegistration<?>>>
 		_serviceRegistrations = newMap();
 	private Set<String> _servletContextNames = new HashSet<String>();
-	private Map<String, ServletFiltersContainer> _servletFiltersContainerMap =
-		new HashMap<String, ServletFiltersContainer>();
 
 	private class CustomJspBag {
 
@@ -2624,33 +2569,6 @@ public class HookHotDeployListener
 
 	}
 
-	private class LanguagesContainer {
-
-		public void addLanguage(
-			Locale locale, Map<String, String> languageMap) {
-
-			Map<String, String> oldLanguageMap =
-				LanguageResources.putLanguageMap(locale, languageMap);
-
-			_languagesMap.put(locale, oldLanguageMap);
-		}
-
-		public void unregisterLanguages() {
-			for (Map.Entry<Locale, Map<String, String>> entry :
-					_languagesMap.entrySet()) {
-
-				Locale locale = entry.getKey();
-				Map<String, String> languageMap = entry.getValue();
-
-				LanguageResources.putLanguageMap(locale, languageMap);
-			}
-		}
-
-		private Map<Locale, Map<String, String>> _languagesMap =
-			new HashMap<Locale, Map<String, String>>();
-
-	}
-
 	private class MergeStringArraysContainer implements StringArraysContainer {
 
 		@Override
@@ -2737,89 +2655,6 @@ public class HookHotDeployListener
 		private String[] _pluginStringArray;
 		private String[] _portalStringArray;
 		private String _servletContextName;
-
-	}
-
-	private class ServletFiltersContainer {
-
-		public InvokerFilterHelper getInvokerFilterHelper() {
-			ServletContext portalServletContext = ServletContextPool.get(
-				PortalUtil.getServletContextName());
-
-			InvokerFilterHelper invokerFilterHelper =
-				(InvokerFilterHelper)portalServletContext.getAttribute(
-					InvokerFilterHelper.class.getName());
-
-			return invokerFilterHelper;
-		}
-
-		public void registerFilter(
-			String filterName, Filter filter, FilterConfig filterConfig) {
-
-			InvokerFilterHelper invokerFilterHelper = getInvokerFilterHelper();
-
-			Filter previousFilter = invokerFilterHelper.registerFilter(
-				filterName, filter);
-
-			_filterConfigs.put(filterName, filterConfig);
-			_filters.put(filterName, previousFilter);
-		}
-
-		public void registerFilterMapping(
-			String filterName, List<String> urlPatterns,
-			List<String> dispatchers, String positionFilterName,
-			boolean after) {
-
-			InvokerFilterHelper invokerFilterHelper = getInvokerFilterHelper();
-
-			Filter filter = invokerFilterHelper.getFilter(filterName);
-
-			FilterConfig filterConfig = _filterConfigs.get(filterName);
-
-			if (filterConfig == null) {
-				filterConfig = invokerFilterHelper.getFilterConfig(filterName);
-			}
-
-			if (filter == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"No filter exists with filter mapping " + filterName);
-				}
-
-				return;
-			}
-
-			FilterMapping filterMapping = new FilterMapping(
-				filter, filterConfig, urlPatterns, dispatchers);
-
-			invokerFilterHelper.registerFilterMapping(
-				filterMapping, positionFilterName, after);
-		}
-
-		public void unregisterFilterMappings() {
-			InvokerFilterHelper invokerFilterHelper = getInvokerFilterHelper();
-
-			for (String filterName : _filters.keySet()) {
-				Filter filter = _filters.get(filterName);
-
-				Filter previousFilter = invokerFilterHelper.registerFilter(
-					filterName, filter);
-
-				previousFilter.destroy();
-			}
-
-			for (FilterMapping filterMapping : _filterMappings) {
-				invokerFilterHelper.unregisterFilterMapping(filterMapping);
-
-				filterMapping.setFilter(null);
-			}
-		}
-
-		private Map<String, FilterConfig> _filterConfigs =
-			new HashMap<String, FilterConfig>();
-		private List<FilterMapping> _filterMappings =
-			new ArrayList<FilterMapping>();
-		private Map<String, Filter> _filters = new HashMap<String, Filter>();
 
 	}
 

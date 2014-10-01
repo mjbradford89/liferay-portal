@@ -40,7 +40,7 @@ import com.liferay.portal.kernel.util.StreamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.TempFileUtil;
+import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -367,9 +367,9 @@ public class EditFileEntryAction extends PortletAction {
 		FileEntry tempFileEntry = null;
 
 		try {
-			tempFileEntry = TempFileUtil.getTempFile(
+			tempFileEntry = TempFileEntryUtil.getTempFileEntry(
 				themeDisplay.getScopeGroupId(), themeDisplay.getUserId(),
-				selectedFileName, _TEMP_FOLDER_NAME);
+				_TEMP_FOLDER_NAME, selectedFileName);
 
 			String mimeType = tempFileEntry.getMimeType();
 
@@ -442,7 +442,8 @@ public class EditFileEntryAction extends PortletAction {
 		}
 		finally {
 			if (tempFileEntry != null) {
-				TempFileUtil.deleteTempFile(tempFileEntry.getFileEntryId());
+				TempFileEntryUtil.deleteTempFileEntry(
+					tempFileEntry.getFileEntryId());
 			}
 		}
 	}
@@ -460,6 +461,8 @@ public class EditFileEntryAction extends PortletAction {
 		long folderId = ParamUtil.getLong(uploadPortletRequest, "folderId");
 		String sourceFileName = uploadPortletRequest.getFileName("file");
 
+		String title = sourceFileName;
+
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(FileUtil.stripExtension(sourceFileName));
@@ -475,8 +478,6 @@ public class EditFileEntryAction extends PortletAction {
 
 		sourceFileName = sb.toString();
 
-		String title = sourceFileName;
-
 		InputStream inputStream = null;
 
 		try {
@@ -485,8 +486,8 @@ public class EditFileEntryAction extends PortletAction {
 			String contentType = uploadPortletRequest.getContentType("file");
 
 			DLAppServiceUtil.addTempFileEntry(
-				themeDisplay.getScopeGroupId(), folderId, sourceFileName,
-				_TEMP_FOLDER_NAME, inputStream, contentType);
+				themeDisplay.getScopeGroupId(), folderId, _TEMP_FOLDER_NAME,
+				sourceFileName, inputStream, contentType);
 
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
@@ -632,8 +633,8 @@ public class EditFileEntryAction extends PortletAction {
 
 		try {
 			DLAppServiceUtil.deleteTempFileEntry(
-				themeDisplay.getScopeGroupId(), folderId, fileName,
-				_TEMP_FOLDER_NAME);
+				themeDisplay.getScopeGroupId(), folderId, _TEMP_FOLDER_NAME,
+				fileName);
 
 			jsonObject.put("deleted", Boolean.TRUE);
 		}
@@ -810,11 +811,11 @@ public class EditFileEntryAction extends PortletAction {
 		else if (e instanceof AntivirusScannerException ||
 				 e instanceof DuplicateFileException ||
 				 e instanceof DuplicateFolderNameException ||
-				 e instanceof LiferayFileItemException ||
 				 e instanceof FileExtensionException ||
 				 e instanceof FileMimeTypeException ||
 				 e instanceof FileNameException ||
 				 e instanceof FileSizeException ||
+				 e instanceof LiferayFileItemException ||
 				 e instanceof NoSuchFolderException ||
 				 e instanceof SourceFileNameException ||
 				 e instanceof StorageFieldRequiredException) {

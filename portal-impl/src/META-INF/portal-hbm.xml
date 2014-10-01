@@ -234,7 +234,7 @@
 		<property name="name" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="servletContextNames" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="taskExecutorClassName" type="com.liferay.portal.dao.orm.hibernate.StringType" />
-		<property name="taskContext" type="com.liferay.portal.dao.orm.hibernate.StringType" />
+		<property name="taskContextMap" type="com.liferay.portal.dao.orm.hibernate.MapType" />
 		<property name="completed" type="com.liferay.portal.dao.orm.hibernate.BooleanType" />
 		<property name="completionDate" type="org.hibernate.type.TimestampType" />
 		<property name="status" type="com.liferay.portal.dao.orm.hibernate.IntegerType" />
@@ -1486,6 +1486,7 @@
 		<property name="allowTrackbacks" type="com.liferay.portal.dao.orm.hibernate.BooleanType" />
 		<property name="trackbacks" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="smallImage" type="com.liferay.portal.dao.orm.hibernate.BooleanType" />
+		<property name="smallImageFileEntryId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property name="smallImageId" type="com.liferay.portal.dao.orm.hibernate.LongType" />
 		<property name="smallImageURL" type="com.liferay.portal.dao.orm.hibernate.StringType" />
 		<property name="status" type="com.liferay.portal.dao.orm.hibernate.IntegerType" />

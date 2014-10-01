@@ -38,15 +38,12 @@
 		<portlet id="188" />
 		<portlet id="28" />
 		<portlet id="29" />
-		<portlet id="100" />
 		<portlet id="107" />
 		<portlet id="108" />
 		<portlet id="143" />
 	</category>
 	<category name="category.entertainment" />
-	<category name="category.finance">
-		<portlet id="61" />
-	</category>
+	<category name="category.finance" />
 	<category name="category.hidden">
 		<portlet id="9" />
 		<portlet id="15" />
@@ -102,7 +99,6 @@
 	</category>
 	<category name="category.sample">
 		<portlet id="47" />
-		<portlet id="50" />
 	</category>
 	<category name="category.shopping">
 		<portlet id="34" />
@@ -117,7 +113,6 @@
 		<portlet id="3" />
 		<portlet id="26" />
 		<portlet id="27" />
-		<portlet id="30" />
 		<portlet id="58" />
 		<portlet id="70" />
 		<portlet id="82" />

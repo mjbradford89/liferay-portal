@@ -94,9 +94,7 @@
 		<field name="taskExecutorClassName" type="String">
 			<hint name="max-length">200</hint>
 		</field>
-		<field name="taskContext" type="String">
-			<hint-collection name="CLOB" />
-		</field>
+		<field name="taskContextMap" type="Map" />
 		<field name="completed" type="boolean" />
 		<field name="completionDate" type="Date" />
 		<field name="status" type="int" />
@@ -1223,6 +1221,7 @@
 		<field name="title" type="String" />
 		<field name="content" type="String">
 			<hint-collection name="CLOB" />
+			<sanitize content-type="text/html" modes="ALL" />
 		</field>
 		<field name="url" type="String">
 			<hint-collection name="URL" />
@@ -1411,6 +1410,7 @@
 			<hint-collection name="CLOB" />
 		</field>
 		<field name="smallImage" type="boolean" />
+		<field name="smallImageFileEntryId" type="long" />
 		<field name="smallImageId" type="long" />
 		<field name="smallImageURL" type="String">
 			<hint-collection name="URL" />
@@ -1558,7 +1558,7 @@
 			<hint name="max-length">255</hint>
 		</field>
 		<field name="fileName" type="String">
-			<hint name="max-length">500</hint>
+			<hint name="max-length">255</hint>
 		</field>
 		<field name="extension" type="String" />
 		<field name="mimeType" type="String" />
@@ -1654,7 +1654,7 @@
 			<hint name="max-length">4000</hint>
 		</field>
 		<field name="fileName" type="String">
-			<hint name="max-length">500</hint>
+			<hint name="max-length">255</hint>
 		</field>
 		<field name="extension" type="String" />
 		<field name="mimeType" type="String" />

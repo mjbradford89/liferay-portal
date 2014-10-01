@@ -16,6 +16,8 @@ package com.liferay.portlet.journal.action;
 
 import com.liferay.portal.LocaleException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
@@ -27,6 +29,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -46,6 +49,7 @@ import com.liferay.portlet.PortletURLImpl;
 import com.liferay.portlet.asset.AssetCategoryException;
 import com.liferay.portlet.asset.AssetTagException;
 import com.liferay.portlet.assetpublisher.util.AssetPublisherUtil;
+import com.liferay.portlet.documentlibrary.FileSizeException;
 import com.liferay.portlet.dynamicdatamapping.NoSuchStructureException;
 import com.liferay.portlet.dynamicdatamapping.NoSuchTemplateException;
 import com.liferay.portlet.dynamicdatamapping.StorageFieldRequiredException;
@@ -288,6 +292,7 @@ public class EditArticleAction extends PortletAction {
 					 e instanceof ArticleTypeException ||
 					 e instanceof ArticleVersionException ||
 					 e instanceof DuplicateArticleIdException ||
+					 e instanceof FileSizeException ||
 					 e instanceof LiferayFileItemException ||
 					 e instanceof StorageFieldRequiredException) {
 
@@ -493,6 +498,12 @@ public class EditArticleAction extends PortletAction {
 
 		UploadPortletRequest uploadPortletRequest =
 			PortalUtil.getUploadPortletRequest(actionRequest);
+
+		if (_log.isDebugEnabled()) {
+			_log.debug(
+				"Updating article " +
+					MapUtil.toString(uploadPortletRequest.getParameterMap()));
+		}
 
 		String cmd = ParamUtil.getString(uploadPortletRequest, Constants.CMD);
 
@@ -778,5 +789,7 @@ public class EditArticleAction extends PortletAction {
 			layout.getGroupId(), layout.isPrivateLayout(), layout.getLayoutId(),
 			portletResource, articleId, true);
 	}
+
+	private static Log _log = LogFactoryUtil.getLog(EditArticleAction.class);
 
 }

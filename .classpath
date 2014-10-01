@@ -54,7 +54,6 @@
 	<classpathentry kind="lib" path="lib/development/jbi_rt.jar"/>
 	<classpathentry kind="lib" path="lib/development/jetty-server.jar"/>
 	<classpathentry kind="lib" path="lib/development/jetty-util.jar"/>
-	<classpathentry kind="lib" path="lib/development/jhighlight.jar"/>
 	<classpathentry kind="lib" path="lib/development/jms.jar"/>
 	<classpathentry kind="lib" path="lib/development/jndi.jar"/>
 	<classpathentry kind="lib" path="lib/development/jsch.jar"/>
@@ -187,6 +186,7 @@
 	<classpathentry kind="lib" path="lib/portal/jamwiki-core.jar"/>
 	<classpathentry kind="lib" path="lib/portal/janino.jar"/>
 	<classpathentry kind="lib" path="lib/portal/java-diff.jar"/>
+	<classpathentry kind="lib" path="lib/portal/java-libpst.jar"/>
 	<classpathentry kind="lib" path="lib/portal/javassist.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jaxb-impl.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jaxen.jar"/>
@@ -204,7 +204,9 @@
 	<classpathentry kind="lib" path="lib/portal/jets3t.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jfreechart.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jgroups.jar"/>
+	<classpathentry kind="lib" path="lib/portal/jhighlight.jar"/>	
 	<classpathentry kind="lib" path="lib/portal/jhlabs-filters.jar"/>
+	<classpathentry kind="lib" path="lib/portal/jmatio.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jodconverter.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jodd.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jrcs-diff.jar"/>
@@ -244,6 +246,7 @@
 	<classpathentry kind="lib" path="lib/portal/msnm.jar"/>
 	<classpathentry kind="lib" path="lib/portal/nekohtml.jar"/>
 	<classpathentry kind="lib" path="lib/portal/netcdf.jar"/>
+	<classpathentry kind="lib" path="lib/portal/netty-all.jar"/>
 	<classpathentry kind="lib" path="lib/portal/odmg.jar"/>
 	<classpathentry kind="lib" path="lib/portal/openid4java.jar"/>
 	<classpathentry kind="lib" path="lib/portal/oro.jar"/>

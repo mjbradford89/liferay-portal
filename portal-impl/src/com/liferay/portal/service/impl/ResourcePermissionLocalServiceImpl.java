@@ -608,6 +608,10 @@ public class ResourcePermissionLocalServiceImpl
 			List<Resource> resources, long[] roleIds, String actionId)
 		throws PortalException {
 
+		if (roleIds.length == 0) {
+			return false;
+		}
+
 		int size = resources.size();
 
 		if (size < 2) {
@@ -615,25 +619,25 @@ public class ResourcePermissionLocalServiceImpl
 				"The list of resources must contain at least two values");
 		}
 
-		Resource fristResource = resources.get(0);
+		Resource firstResource = resources.get(0);
 
-		if (fristResource.getScope() != ResourceConstants.SCOPE_INDIVIDUAL) {
+		if (firstResource.getScope() != ResourceConstants.SCOPE_INDIVIDUAL) {
 			throw new IllegalArgumentException(
-				"The first resource must be individual scope");
+				"The first resource must be an individual scope");
 		}
 
 		Resource lastResource = resources.get(size - 1);
 
 		if (lastResource.getScope() != ResourceConstants.SCOPE_COMPANY) {
 			throw new IllegalArgumentException(
-				"The last resource must be company scope");
+				"The last resource must be a company scope");
 		}
 
 		// See LPS-47464
 
 		if (resourcePermissionPersistence.countByC_N_S_P(
-				fristResource.getCompanyId(), fristResource.getName(),
-				fristResource.getScope(), fristResource.getPrimKey()) < 1) {
+				firstResource.getCompanyId(), firstResource.getName(),
+				firstResource.getScope(), firstResource.getPrimKey()) < 1) {
 
 			return false;
 		}
@@ -734,6 +738,10 @@ public class ResourcePermissionLocalServiceImpl
 			long[] roleIds, String actionId)
 		throws PortalException {
 
+		if (roleIds.length == 0) {
+			return false;
+		}
+
 		ResourceAction resourceAction =
 			resourceActionLocalService.getResourceAction(name, actionId);
 
@@ -781,14 +789,18 @@ public class ResourcePermissionLocalServiceImpl
 			long[] roleIds, String actionId)
 		throws PortalException {
 
+		boolean[] hasResourcePermissions = new boolean[roleIds.length];
+
+		if (roleIds.length == 0) {
+			return hasResourcePermissions;
+		}
+
 		ResourceAction resourceAction =
 			resourceActionLocalService.getResourceAction(name, actionId);
 
 		List<ResourcePermission> resourcePermissions =
 			resourcePermissionPersistence.findByC_N_S_P_R(
 				companyId, name, scope, primKey, roleIds);
-
-		boolean[] hasResourcePermissions = new boolean[roleIds.length];
 
 		if (resourcePermissions.isEmpty()) {
 			return hasResourcePermissions;

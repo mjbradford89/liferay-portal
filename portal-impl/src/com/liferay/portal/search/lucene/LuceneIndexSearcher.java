@@ -562,20 +562,12 @@ public class LuceneIndexSearcher extends BaseIndexSearcher {
 
 			Document subsetDocument = getDocument(document);
 
-			getSnippet(
-				document, query, Field.ASSET_CATEGORY_TITLES,
-				queryConfig.getLocale(), subsetDocument, queryTerms);
+			String[] highlightFieldNames = queryConfig.getHighlightFieldNames();
 
-			if (queryConfig.isHighlightEnabled()) {
+			for (String highlightFieldName : highlightFieldNames) {
 				getSnippet(
-					document, query, Field.CONTENT, queryConfig.getLocale(),
-					subsetDocument, queryTerms);
-				getSnippet(
-					document, query, Field.DESCRIPTION, queryConfig.getLocale(),
-					subsetDocument, queryTerms);
-				getSnippet(
-					document, query, Field.TITLE, queryConfig.getLocale(),
-					subsetDocument, queryTerms);
+					document, query, highlightFieldName,
+					queryConfig.getLocale(), subsetDocument, queryTerms);
 			}
 
 			subsetDocs.add(subsetDocument);

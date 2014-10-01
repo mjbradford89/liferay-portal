@@ -16,7 +16,12 @@ package ${packagePath}.service.persistence;
 
 <#assign noSuchEntity = serviceBuilder.getNoSuchEntityException(entity)>
 
-import ${packagePath}.${noSuchEntity}Exception;
+<#if osgiModule>
+	import ${packagePath}.exception.${noSuchEntity}Exception;
+<#else>
+	import ${packagePath}.${noSuchEntity}Exception;
+</#if>
+
 import ${packagePath}.model.${entity.name};
 import ${packagePath}.model.impl.${entity.name}ModelImpl;
 import ${packagePath}.service.${entity.name}LocalServiceUtil;
@@ -233,7 +238,7 @@ public class ${entity.name}PersistenceTest {
 				<#elseif column.type == "Blob">
 					 new${column.methodName}Blob
 				<#elseif column.type == "Map">
-					new HashMap()
+					new HashMap<String, Serializable>()
 				<#elseif column.type == "String">
 					RandomTestUtil.randomString()
 				</#if>
@@ -970,7 +975,7 @@ public class ${entity.name}PersistenceTest {
 				<#elseif column.type == "Date">
 					RandomTestUtil.nextDate()
 				<#elseif column.type == "Map">
-					new HashMap()
+					new HashMap<String, Serializable>()
 				<#elseif column.type == "String">
 	                RandomTestUtil.randomString()
 				</#if>

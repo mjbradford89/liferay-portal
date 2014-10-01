@@ -811,6 +811,8 @@ public interface PropsKeys {
 
 	public static final String DL_REPOSITORY_IMPL = "dl.repository.impl";
 
+	public static final String DL_SHOW_HIDDEN_MOUNT_FOLDERS = "dl.show.hidden.mount.folders";
+
 	public static final String DL_SHOW_LIFERAY_SYNC_MESSAGE = "dl.show.liferay.sync.message";
 
 	public static final String DL_STORE_ADVANCED_FILE_SYSTEM_ROOT_DIR = "dl.store.advanced.file.system.root.dir";
@@ -1035,6 +1037,8 @@ public interface PropsKeys {
 
 	public static final String IMAGE_HOOK_IMPL = "image.hook.impl";
 
+	public static final String IMAGE_IO_USE_DISK_CACHE = "image.io.use.disk.cache";
+
 	public static final String IMAGEMAGICK_ENABLED = "imagemagick.enabled";
 
 	public static final String IMAGEMAGICK_GLOBAL_SEARCH_PATH = "imagemagick.global.search.path";
@@ -1064,6 +1068,8 @@ public interface PropsKeys {
 	public static final String INDEX_SEARCH_HIGHLIGHT_ENABLED = "index.search.highlight.enabled";
 
 	public static final String INDEX_SEARCH_HIGHLIGHT_FRAGMENT_SIZE = "index.search.highlight.fragment.size";
+
+	public static final String INDEX_SEARCH_HIGHLIGHT_REQUIRE_FIELD_MATCH = "index.search.highlight.require.field.match";
 
 	public static final String INDEX_SEARCH_HIGHLIGHT_SNIPPET_SIZE = "index.search.highlight.snippet.size";
 
@@ -1122,12 +1128,6 @@ public interface PropsKeys {
 	public static final String INTRABAND_WELDER_SOCKET_SO_TIMEOUT = "intraband.welder.socket.so.timeout";
 
 	public static final String INTRABAND_WELDER_SOCKET_TCP_NO_DELAY = "intraband.welder.socket.tcp.no.delay";
-
-	public static final String INVITATION_EMAIL_MAX_RECIPIENTS = "invitation.email.max.recipients";
-
-	public static final String INVITATION_EMAIL_MESSAGE_BODY = "invitation.email.message.body";
-
-	public static final String INVITATION_EMAIL_MESSAGE_SUBJECT = "invitation.email.message.subject";
 
 	public static final String INVOKER_FILTER_CHAIN_SIZE = "invoker.filter.chain.cache.size";
 
@@ -1398,8 +1398,6 @@ public interface PropsKeys {
 	public static final String LAYOUT_STATIC_PORTLETS_START = "layout.static.portlets.start.";
 
 	public static final String LAYOUT_TEMPLATE_CACHE_ENABLED = "layout.template.cache.enabled";
-
-	public static final String LAYOUT_TYPES = "layout.types";
 
 	public static final String LAYOUT_URL = "layout.url";
 
@@ -2543,8 +2541,6 @@ public interface PropsKeys {
 
 	public static final String THEME_CSS_FAST_LOAD = "theme.css.fast.load";
 
-	public static final String THEME_CSS_FAST_LOAD_CHECK_MODIFIED_DATE = "theme.css.fast.load.check.modified.date";
-
 	public static final String THEME_CSS_FAST_LOAD_CHECK_REQUEST_PARAMETER = "theme.css.fast.load.check.request.parameter";
 
 	public static final String THEME_IMAGES_FAST_LOAD = "theme.images.fast.load";
@@ -2595,7 +2591,11 @@ public interface PropsKeys {
 
 	public static final String TRASH_SEARCH_LIMIT = "trash.search.limit";
 
+	public static final String TUNNELING_SERVLET_ENCRYPTION_ALGORITHM = "tunneling.servlet.encryption.algorithm";
+
 	public static final String TUNNELING_SERVLET_SHARED_SECRET = "tunneling.servlet.shared.secret";
+
+	public static final String TUNNELING_SERVLET_SHARED_SECRET_HEX = "tunneling.servlet.shared.secret.hex";
 
 	public static final String UPGRADE_DATABASE_TRANSACTIONS_DISABLED = "upgrade.database.transactions.disabled";
 
@@ -2836,6 +2836,8 @@ public interface PropsKeys {
 	public static final String WIKI_RSS_ENABLED = "wiki.rss.enabled";
 
 	public static final String XML_VALIDATION_ENABLED = "xml.validation.enabled";
+
+	public static final String XSL_TEMPLATE_SECURE_PROCESSING_ENABLED = "xsl.template.secure.processing.enabled";
 
 	public static final String XUGGLER_ENABLED = "xuggler.enabled";
 

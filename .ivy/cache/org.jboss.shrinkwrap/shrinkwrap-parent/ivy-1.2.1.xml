@@ -4,7 +4,7 @@
 		module="shrinkwrap-parent"
 		revision="1.2.1"
 		status="release"
-		publication="20131205030515"
+		publication="20131205060515"
 	>
 		<license name="Apache License, Version 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt" />
 		<description homepage="http://www.jboss.org">
@@ -27,8 +27,8 @@
 		<m:properties__jdk.min.version>${maven.compiler.source}</m:properties__jdk.min.version>
 		<m:properties__version.idea.plugin>2.2</m:properties__version.idea.plugin>
 		<m:properties__version.apt.plugin>1.0-alpha-4</m:properties__version.apt.plugin>
-		<m:properties__version.clean.plugin>2.4.1</m:properties__version.clean.plugin>
 		<m:properties__version.javacc.plugin>2.6</m:properties__version.javacc.plugin>
+		<m:properties__version.clean.plugin>2.4.1</m:properties__version.clean.plugin>
 		<m:properties__version.buildnumber.plugin>1.0</m:properties__version.buildnumber.plugin>
 		<m:properties__maven.compiler.argument.target>${maven.compiler.target}</m:properties__maven.compiler.argument.target>
 		<m:properties__downloadSources>true</m:properties__downloadSources>

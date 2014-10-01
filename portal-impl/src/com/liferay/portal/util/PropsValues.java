@@ -552,8 +552,6 @@ public class PropsValues {
 
 	public static final boolean DL_FILE_ENTRY_CONVERSIONS_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.DL_FILE_ENTRY_CONVERSIONS_ENABLED));
 
-	public static boolean DL_FILE_ENTRY_DRAFTS_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.DL_FILE_ENTRY_DRAFTS_ENABLED));
-
 	public static final boolean DL_FILE_ENTRY_IG_THUMBNAIL_GENERATION = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.DL_FILE_ENTRY_IG_THUMBNAIL_GENERATION));
 
 	public static final int DL_FILE_ENTRY_LOCK_POLICY = GetterUtil.getInteger(PropsUtil.get(PropsKeys.DL_FILE_ENTRY_LOCK_POLICY));
@@ -790,6 +788,8 @@ public class PropsValues {
 
 	public static String IMAGE_HOOK_IMPL = GetterUtil.getString(PropsUtil.get(PropsKeys.IMAGE_HOOK_IMPL));
 
+	public static final boolean IMAGE_IO_USE_DISK_CACHE = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.IMAGE_IO_USE_DISK_CACHE));
+
 	public static final boolean IMAGEMAGICK_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.IMAGEMAGICK_ENABLED));
 
 	public static final String INDEX_DATE_FORMAT_PATTERN = PropsUtil.get(PropsKeys.INDEX_DATE_FORMAT_PATTERN);
@@ -827,10 +827,6 @@ public class PropsValues {
 	public static final String INTRABAND_PROXY_DUMP_CLASSES_DIR = PropsUtil.get(PropsKeys.INTRABAND_PROXY_DUMP_CLASSES_DIR);
 
 	public static final boolean INTRABAND_PROXY_DUMP_CLASSES_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.INTRABAND_PROXY_DUMP_CLASSES_ENABLED));
-
-	public static final String INVITATION_EMAIL_MESSAGE_BODY = PropsUtil.get(PropsKeys.INVITATION_EMAIL_MESSAGE_BODY);
-
-	public static final String INVITATION_EMAIL_MESSAGE_SUBJECT = PropsUtil.get(PropsKeys.INVITATION_EMAIL_MESSAGE_SUBJECT);
 
 	public static final boolean JAVADOC_MANAGER_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.JAVADOC_MANAGER_ENABLED));
 
@@ -1023,8 +1019,6 @@ public class PropsValues {
 	public static String[] LAYOUT_STATIC_PORTLETS_ALL = PropsUtil.getArray(PropsKeys.LAYOUT_STATIC_PORTLETS_ALL);
 
 	public static boolean LAYOUT_TEMPLATE_CACHE_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.LAYOUT_TEMPLATE_CACHE_ENABLED));
-
-	public static String[] LAYOUT_TYPES = PropsUtil.getArray(PropsKeys.LAYOUT_TYPES);
 
 	public static boolean LAYOUT_USER_PRIVATE_LAYOUTS_AUTO_CREATE = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.LAYOUT_USER_PRIVATE_LAYOUTS_AUTO_CREATE));
 
@@ -1786,8 +1780,6 @@ public class PropsValues {
 
 	public static boolean THEME_CSS_FAST_LOAD = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.THEME_CSS_FAST_LOAD));
 
-	public static boolean THEME_CSS_FAST_LOAD_CHECK_MODIFIED_DATE = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.THEME_CSS_FAST_LOAD_CHECK_MODIFIED_DATE));
-
 	public static boolean THEME_CSS_FAST_LOAD_CHECK_REQUEST_PARAMETER = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.THEME_CSS_FAST_LOAD_CHECK_REQUEST_PARAMETER));
 
 	public static boolean THEME_IMAGES_FAST_LOAD = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.THEME_IMAGES_FAST_LOAD));
@@ -1832,7 +1824,11 @@ public class PropsValues {
 
 	public static final int TRASH_SEARCH_LIMIT = GetterUtil.getInteger(PropsUtil.get(PropsKeys.TRASH_SEARCH_LIMIT));
 
+	public static final String TUNNELING_SERVLET_ENCRYPTION_ALGORITHM = PropsUtil.get(PropsKeys.TUNNELING_SERVLET_ENCRYPTION_ALGORITHM);
+
 	public static final String TUNNELING_SERVLET_SHARED_SECRET = PropsUtil.get(PropsKeys.TUNNELING_SERVLET_SHARED_SECRET);
+
+	public static final boolean TUNNELING_SERVLET_SHARED_SECRET_HEX = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.TUNNELING_SERVLET_SHARED_SECRET_HEX));
 
 	public static final boolean UPGRADE_DATABASE_TRANSACTIONS_DISABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.UPGRADE_DATABASE_TRANSACTIONS_DISABLED));
 
@@ -1985,6 +1981,8 @@ public class PropsValues {
 	public static final int WIKI_RSS_ABSTRACT_LENGTH = GetterUtil.getInteger(PropsUtil.get(PropsKeys.WIKI_RSS_ABSTRACT_LENGTH));
 
 	public static final boolean XML_VALIDATION_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.XML_VALIDATION_ENABLED));
+
+	public static final boolean XSL_TEMPLATE_SECURE_PROCESSING_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.XSL_TEMPLATE_SECURE_PROCESSING_ENABLED));
 
 	public static final boolean XUGGLER_ENABLED = GetterUtil.getBoolean(PropsUtil.get(PropsKeys.XUGGLER_ENABLED));
 

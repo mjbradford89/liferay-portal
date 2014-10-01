@@ -693,15 +693,19 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 	protected String formatJavaTerms(
 			String fileName, String absolutePath, String content,
-			String javaClassContent, List<String> javaTermSortExclusions,
+			String javaClassContent, int javaClassLineCount,
+			List<String> javaTermAccessLevelModifierExclusions,
+			List<String> javaTermSortExclusions,
 			List<String> testAnnotationsExclusions)
 		throws Exception {
 
 		JavaClass javaClass = new JavaClass(
-			fileName, absolutePath, javaClassContent, StringPool.TAB);
+			fileName, absolutePath, javaClassContent, javaClassLineCount,
+			StringPool.TAB);
 
 		String newJavaClassContent = javaClass.formatJavaTerms(
-			javaTermSortExclusions, testAnnotationsExclusions);
+			javaTermAccessLevelModifierExclusions, javaTermSortExclusions,
+			testAnnotationsExclusions);
 
 		if (!javaClassContent.equals(newJavaClassContent)) {
 			return StringUtil.replaceFirst(
@@ -743,6 +747,10 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		}
 
 		for (String fileName : fileNames) {
+			if (!fileName.startsWith("shared")) {
+				break;
+			}
+
 			File file = new File(basedir + fileName);
 
 			String content = fileUtil.read(file);
@@ -1381,17 +1389,16 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 		StringBundler sb = new StringBundler();
 
-		UnsyncBufferedReader unsyncBufferedReader = new UnsyncBufferedReader(
-			new UnsyncStringReader(content));
+		try (UnsyncBufferedReader unsyncBufferedReader = 
+				new UnsyncBufferedReader(new UnsyncStringReader(content))) {
 
-		String line = null;
+			String line = null;
 
-		while ((line = unsyncBufferedReader.readLine()) != null) {
-			sb.append(trimLine(line, allowLeadingSpaces));
-			sb.append("\n");
+			while ((line = unsyncBufferedReader.readLine()) != null) {
+				sb.append(trimLine(line, allowLeadingSpaces));
+				sb.append("\n");
+			}
 		}
-
-		unsyncBufferedReader.close();
 
 		content = sb.toString();
 
@@ -1484,20 +1491,15 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 		Properties properties = new Properties();
 
-		if (portalSource) {
-			ClassLoader classLoader =
-				BaseSourceProcessor.class.getClassLoader();
-
-			properties.load(
-				classLoader.getResourceAsStream(
-					"com/liferay/portal/tools/dependencies/" + fileName));
-
-			return properties;
-		}
-
 		List<Properties> propertiesList = new ArrayList<Properties>();
 
-		for (int i = 0; i <= 2; i++) {
+		int level = 2;
+
+		if (portalSource) {
+			level = 3;
+		}
+
+		for (int i = 0; i <= level; i++) {
 			try {
 				InputStream inputStream = new FileInputStream(fileName);
 
@@ -1538,15 +1540,18 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 					continue;
 				}
 
-				if (properties.containsKey(key)) {
+				if (key.contains("excludes")) {
 					String existingValue = properties.getProperty(key);
 
 					if (Validator.isNotNull(existingValue)) {
 						value = existingValue + StringPool.COMMA + value;
 					}
-				}
 
-				properties.put(key, value);
+					properties.put(key, value);
+				}
+				else if (!properties.containsKey(key)) {
+					properties.put(key, value);
+				}
 			}
 		}
 

@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -146,7 +147,9 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 
 		DDMStructure ddmStructure = recordSet.getDDMStructure();
 
-		Fields fields = toFields(ddmStructure.getStructureId(), fieldsMap);
+		Fields fields = toFields(
+			ddmStructure.getStructureId(), fieldsMap,
+			serviceContext.getLocale(), LocaleUtil.getSiteDefault(), true);
 
 		return ddlRecordLocalService.addRecord(
 			userId, groupId, recordSetId, displayIndex, fields, serviceContext);
@@ -367,7 +370,7 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 	}
 
 	@Override
-	public void revertRecordVersion(
+	public void revertRecord(
 			long userId, long recordId, String version,
 			ServiceContext serviceContext)
 		throws PortalException {
@@ -386,6 +389,20 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 		ddlRecordLocalService.updateRecord(
 			userId, recordId, true, recordVersion.getDisplayIndex(), fields,
 			false, serviceContext);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #revertRecord(long, long,
+	 *             String, ServiceContext)}
+	 */
+	@Deprecated
+	@Override
+	public void revertRecordVersion(
+			long userId, long recordId, String version,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		revertRecord(userId, recordId, version, serviceContext);
 	}
 
 	@Override
@@ -567,11 +584,15 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 
 		DDLRecord record = ddlRecordPersistence.findByPrimaryKey(recordId);
 
+		Fields oldFields = record.getFields();
+
 		DDLRecordSet recordSet = record.getRecordSet();
 
 		DDMStructure ddmStructure = recordSet.getDDMStructure();
 
-		Fields fields = toFields(ddmStructure.getStructureId(), fieldsMap);
+		Fields fields = toFields(
+			ddmStructure.getStructureId(), fieldsMap,
+			serviceContext.getLocale(), oldFields.getDefaultLocale(), false);
 
 		return ddlRecordLocalService.updateRecord(
 			userId, recordId, false, displayIndex, fields, mergeFields,
@@ -745,14 +766,23 @@ public class DDLRecordLocalServiceImpl extends DDLRecordLocalServiceBaseImpl {
 	}
 
 	protected Fields toFields(
-		long ddmStructureId, Map<String, Serializable> fieldsMap) {
+		long ddmStructureId, Map<String, Serializable> fieldsMap,
+		Locale locale, Locale defaultLocale, boolean create) {
 
 		Fields fields = new Fields();
 
-		for (String name : fieldsMap.keySet()) {
-			String value = String.valueOf(fieldsMap.get(name));
+		for (Map.Entry<String, Serializable> entry : fieldsMap.entrySet()) {
+			Field field = new Field();
 
-			Field field = new Field(ddmStructureId, name, value);
+			field.setDDMStructureId(ddmStructureId);
+			field.setName(entry.getKey());
+			field.addValue(locale, String.valueOf(entry.getValue()));
+
+			if (create && !locale.equals(defaultLocale)) {
+				field.addValue(defaultLocale, String.valueOf(entry.getValue()));
+			}
+
+			field.setDefaultLocale(defaultLocale);
 
 			fields.put(field);
 		}
