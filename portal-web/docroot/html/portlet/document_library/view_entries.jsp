@@ -256,20 +256,19 @@ dlSearchContainer.setResults(results);
 	</c:if>
 </div>
 
-<c:if test="<%= results.isEmpty() %>">
-	<div class="alert alert-info entries-empty">
-		<c:choose>
-			<c:when test="<%= (fileEntryTypeId >= 0) %>">
-				<liferay-ui:message arguments="<%= HtmlUtil.escape(dlFileEntryTypeName) %>" key="there-are-no-documents-or-media-files-of-type-x" translateArguments="<%= false %>" />
-			</c:when>
-			<c:otherwise>
-				<liferay-ui:message key="there-are-no-documents-or-media-files-in-this-folder" />
-			</c:otherwise>
-		</c:choose>
-	</div>
-</c:if>
-
 <div class="document-container" id="<portlet:namespace />entriesContainer">
+	<c:if test="<%= results.isEmpty() %>">
+		<div class="alert alert-info entries-empty">
+			<c:choose>
+				<c:when test="<%= (fileEntryTypeId >= 0) %>">
+					<liferay-ui:message arguments="<%= HtmlUtil.escape(dlFileEntryTypeName) %>" key="there-are-no-documents-or-media-files-of-type-x" translateArguments="<%= false %>" />
+				</c:when>
+				<c:otherwise>
+					<liferay-ui:message key="there-are-no-documents-or-media-files-in-this-folder" />
+				</c:otherwise>
+			</c:choose>
+		</div>
+	</c:if>
 	<c:choose>
 		<c:when test='<%= !displayStyle.equals("list") %>'>
 
