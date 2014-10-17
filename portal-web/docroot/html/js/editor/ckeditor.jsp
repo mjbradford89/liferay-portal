@@ -571,11 +571,24 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 			);
 
 			ckEditor.on('dialogShow', window['<%= name %>creoleDialogHandlers']);
-
 		<%
 		}
 		%>
+		if (Liferay.Util.isPhone()) {
+			ckEditor.on( 'dialogShow',
+				function(event) {
+					var dialog = event.data.definition.dialog;
 
+					if (dialog.getName() === 'image') {
+						var width = Liferay.Util.getWindowWidth() / 2;
+
+						var previewBox = dialog.parts.contents.findOne('.ImagePreviewBox');
+
+						previewBox.setStyle('width', width + 'px');
+					}
+				}
+			);
+		}
 	};
 
 	<%
