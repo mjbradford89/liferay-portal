@@ -118,10 +118,10 @@ AUI.add(
 		'</span>';
 
 		var TPL_ERROR_FOLDER = new A.Template(
-			'<span class="lfr-status-success-label">{validFilesLength}</span>',
-			'<span class="lfr-status-error-label">{invalidFilesLength}</span>',
+			'<span class="lfr-status-success-label">{validItemsLength}</span>',
+			'<span class="lfr-status-error-label">{invalidItemsLength}</span>',
 			'<ul class="list-unstyled">',
-				'<tpl for="invalidFiles">',
+				'<tpl for="invalidItems">',
 					'<li><b>{name}</b>: {errorMessage}</li>',
 				'</tpl>',
 			'</ul>'
@@ -422,13 +422,13 @@ AUI.add(
 						];
 					},
 
-					_combineFileLists: function(fileList, queuedFiles) {
+					_combineItemLists: function(itemList, queuedFiles) {
 						var instance = this;
 
 						AArray.each(
-							queuedFiles,
+							queuedItems,
 							function(item, index) {
-								fileList.push(item);
+								itemList.push(item);
 							}
 						);
 					},
@@ -441,12 +441,16 @@ AUI.add(
 						}
 					},
 
-					_createEntryNode: function(name, size, displayStyle) {
+					_createEntryNode: function(item, displayStyle) {
 						var instance = this;
 
 						var entryNode;
 
 						var entriesContainer = instance.get('entriesContainer');
+
+						var name = item.name;
+
+						var size = item.size;
 
 						if (displayStyle == STR_LIST) {
 							var searchContainer = entriesContainer.one(SELECTOR_SEARCH_CONTAINER);
@@ -560,7 +564,7 @@ AUI.add(
 						);
 					},
 
-					_createUploadStatus: function(target, file) {
+					_createUploadStatus: function(target, item) {
 						var instance = this;
 
 						var overlay = instance._createOverlay(target);
@@ -568,10 +572,10 @@ AUI.add(
 
 						overlay.show();
 
-						if (file) {
-							file.overlay = overlay;
-							file.progressBar = progressBar;
-							file.target = target;
+						if (item) {
+							item.overlay = overlay;
+							item.progressBar = progressBar;
+							item.target = target;
 						}
 						else {
 							target.overlay = overlay;
@@ -588,11 +592,11 @@ AUI.add(
 
 						var currentUploadData = instance._getCurrentUploadData();
 
-						var fileList = currentUploadData.fileList;
+						var itemList = currentUploadData.itemList;
 
 						if (!currentUploadData.folder) {
 							AArray.each(
-								fileList,
+								itemList,
 								function(item, index) {
 									item.overlay.destroy();
 
@@ -601,7 +605,7 @@ AUI.add(
 							);
 						}
 
-						AArray.invoke(fileList, 'destroy');
+						AArray.invoke(itemList, 'destroy');
 					},
 
 					_detachSubscriptions: function() {
@@ -624,7 +628,7 @@ AUI.add(
 
 							file.errorMessage = response.message;
 
-							data.invalidFiles.push(file);
+							data.invalidItems.push(file);
 						}
 					},
 
@@ -980,11 +984,11 @@ AUI.add(
 
 						var target = event.details[0].target;
 
-						var filesPartition = instance._validateFiles(event.fileList);
+						var itemsPartition = instance._validateItems(event.itemList);
 
-						instance._updateStatusUI(target, filesPartition);
+						instance._updateStatusUI(target, itemsPartition);
 
-						instance._queueSelectedFiles(target, filesPartition);
+						instance._queueSelectedItems(target, itemsPartition, event.uploadFileTreeFn);
 					},
 
 					_positionProgressBar: function(overlay, progressBar) {
@@ -997,17 +1001,17 @@ AUI.add(
 						progressBarBoundingBox.center(overlay.get(STR_CONTENT_BOX));
 					},
 
-					_queueSelectedFiles: function(target, filesPartition) {
+					_queueSelectedItems: function(target, itemsPartition, uploadFileTreeFn) {
 						var instance = this;
 
 						var key = instance._getTargetFolderId(target);
 
 						var keyData = instance._getUploadStatus(key);
 
-						var validFiles = filesPartition.matches;
+						var validItems = itemsPartition.matches;
 
 						if (keyData) {
-							instance._updateDataSetEntry(key, keyData, validFiles);
+							instance._updateDataSetEntry(key, keyData, validItems);
 						}
 						else {
 							var dataSet = instance._getDataSet();
@@ -1023,11 +1027,12 @@ AUI.add(
 							dataSet.add(
 								key,
 								{
-									fileList: validFiles,
 									folder: folder,
 									folderId: key,
-									invalidFiles: filesPartition.rejects,
-									target: folderNode
+									itemList: validItems,
+									invalidItems: itemsPartition.rejects,
+									target: folderNode,
+									uploadFileTreeFn: uploadFileTreeFn
 								}
 							);
 						}
@@ -1086,14 +1091,14 @@ AUI.add(
 						var instance = this;
 
 						var folderEntry = uploadData.target;
-						var invalidFiles = uploadData.invalidFiles;
-						var totalFilesLength = uploadData.fileList.length;
+						var invalidItems = uploadData.invalidItems;
+						var totalFilesLength = uploadData.itemList.length;
 
-						var invalidFilesLength = invalidFiles.length;
+						var invalidItemsLength = invalidItems.length;
 
-						var hasErrors = (invalidFilesLength !== 0);
+						var hasErrors = (invalidItemsLength !== 0);
 
-						if (hasErrors && (invalidFilesLength !== totalFilesLength)) {
+						if (hasErrors && (invalidItemsLength !== totalFilesLength)) {
 							hasErrors = ERROR_RESULTS_MIXED;
 						}
 
@@ -1104,9 +1109,9 @@ AUI.add(
 								folderEntry,
 								TPL_ERROR_FOLDER.parse(
 									{
-										invalidFiles: invalidFiles,
-										invalidFilesLength: invalidFilesLength,
-										validFilesLength: totalFilesLength - invalidFilesLength
+										invalidItems: invalidItems,
+										invalidItemsLength: invalidItemsLength,
+										validItemsLength: totalFilesLength - invalidItemsLength
 									}
 								)
 							);
@@ -1150,11 +1155,11 @@ AUI.add(
 
 						var uploadData = instance._getCurrentUploadData();
 
-						var fileList = uploadData.fileList;
+						var itemList = uploadData.itemList;
 
 						var uploader = instance._getUploader();
 
-						if (fileList.length) {
+						if (itemList.length) {
 							var uploadURL = instance._getUploadURL(uploadData.folderId);
 
 							instance._attachSubscriptions(uploadData);
@@ -1175,7 +1180,7 @@ AUI.add(
 							instance._addFilesToQueueBottom(unmergedData);
 						}
 						else {
-							instance._combineFileLists(data.fileList, unmergedData);
+							instance._combineFileLists(data.itemList, unmergedData);
 
 							var dataSet = instance._getDataSet();
 
@@ -1205,7 +1210,7 @@ AUI.add(
 						progressBar.set('value', Math.ceil(value));
 					},
 
-					_updateStatusUI: function(target, filesPartition) {
+					_updateStatusUI: function(target, itemsPartition) {
 						var instance = this;
 
 						var folderId = instance._getTargetFolderId(target);
@@ -1231,21 +1236,21 @@ AUI.add(
 						else {
 							var displayStyle = instance._getDisplayStyle();
 
-							AArray.map(
-								filesPartition.matches,
-								function(file) {
-									var entryNode = instance._createEntryNode(file.name, file.size, displayStyle);
+							AArray.each(
+								itemsPartition.matches,
+								function(item) {
+									var entryNode = instance._createEntryNode(item, displayStyle);
 
-									instance._createUploadStatus(entryNode, file);
+									instance._createUploadStatus(entryNode, item);
 								}
 							);
 
-							AArray.map(
-								filesPartition.rejects,
-								function(file) {
-									var entryNode = instance._createEntryNode(file.name, file.size, displayStyle);
+							AArray.each(
+								itemsPartition.rejects,
+								function(item) {
+									var entryNode = instance._createEntryNode(item, displayStyle);
 
-									instance._displayEntryError(entryNode, file.errorMessage, instance._getDisplayStyle());
+									instance._displayEntryError(entryNode, item.errorMessage, instance._getDisplayStyle());
 								}
 							);
 						}
@@ -1261,7 +1266,7 @@ AUI.add(
 						imageNode.attr('src', thumbnailPath);
 					},
 
-					_validateFiles: function(data) {
+					_validateItem: function(item) {
 						var instance = this;
 
 						var maxFileSize = instance._maxFileSize;
