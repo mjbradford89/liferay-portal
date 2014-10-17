@@ -247,6 +247,7 @@
 		<footer-portlet-javascript>/html/portlet/dynamic_data_mapping/js/custom_fields.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/html/portlet/document_library/js/main.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/html/portlet/document_library/js/upload.js</footer-portlet-javascript>
+		<footer-portlet-javascript>/html/portlet/document_library/js/upload-folders.js</footer-portlet-javascript>
 		<css-class-wrapper>portlet-document-library</css-class-wrapper>
 		<add-default-resource>true</add-default-resource>
 	</portlet>
@@ -2006,6 +2007,7 @@
 		<footer-portlet-javascript>/html/portlet/dynamic_data_mapping/js/custom_fields.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/html/portlet/document_library/js/main.js</footer-portlet-javascript>
 		<footer-portlet-javascript>/html/portlet/document_library/js/upload.js</footer-portlet-javascript>
+		<footer-portlet-javascript>/html/portlet/document_library/js/upload-folders.js</footer-portlet-javascript>
 		<css-class-wrapper>portlet-document-library</css-class-wrapper>
 	</portlet>
 	<portlet>

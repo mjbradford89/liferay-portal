@@ -145,6 +145,10 @@ request.setAttribute("view.jsp-orderByType", orderByType);
 				</div>
 			</div>
 
+			<div class="hide" id="<portlet:namespace />fileTreeNotification">
+				<ul class="alert alert-danger"></ul>
+			</div>
+
 			<liferay-portlet:renderURL varImpl="editFileEntryURL">
 				<portlet:param name="struts_action" value="/document_library/edit_file_entry" />
 			</liferay-portlet:renderURL>
@@ -286,7 +290,8 @@ if (!defaultFolderView && (folder != null) && (portletName.equals(PortletKeys.DO
 			trashEnabled: <%= (scopeGroupId == repositoryId) && TrashUtil.isTrashEnabled(scopeGroupId) %>,
 			updateable: <%= DLFolderPermission.contains(permissionChecker, scopeGroupId, folderId, ActionKeys.UPDATE) %>,
 			uploadURL: '<%= uploadURL %>',
-			viewFileEntryURL: '<portlet:renderURL><portlet:param name="struts_action" value="/document_library/view_file_entry" /><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:renderURL>'
+			viewFileEntryURL: '<portlet:renderURL><portlet:param name="struts_action" value="/document_library/view_file_entry" /><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:renderURL>',
+			viewFolderEntryURL: '<portlet:renderURL><portlet:param name="struts_action" value="/document_library/view" /><portlet:param name="folderId" value="{folderId}" /><portlet:param name="redirect" value="<%= currentURL %>" /></portlet:renderURL>'
 		}
 	);
 

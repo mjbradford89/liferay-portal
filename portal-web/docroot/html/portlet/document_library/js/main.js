@@ -35,6 +35,8 @@ AUI.add(
 						instance._eventOpenDocument = instance.ns('openDocument');
 						instance._entriesContainer = instance.byId('entriesContainer');
 
+						instance.repositoryId = instance.byId('repositoryId').val();
+
 						if (!config.syncMessageDisabled) {
 							instance._syncMessage = new Liferay.Message(
 								{
@@ -166,7 +168,8 @@ AUI.add(
 								maxFileSize: config.maxFileSize,
 								redirect: config.redirect,
 								uploadURL: config.uploadURL,
-								viewFileEntryURL: config.viewFileEntryURL
+								viewFileEntryURL: config.viewFileEntryURL,
+								viewFolderEntryURL: config.viewFolderEntryURL
 							}
 						);
 					},

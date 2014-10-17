@@ -1271,7 +1271,14 @@ AUI.add(
 								instance._updateProgress(folderEntryNode.progressBar, 0);
 							}
 							else {
-								instance._createUploadStatus(folderEntryNode);
+								var item = itemsPartition.matches[0];
+
+								if (item.isDirectory) {
+									instance._createUploadStatus(folderEntryNode, item);
+								}
+								else {
+									instance._createUploadStatus(folderEntryNode);
+								}
 							}
 
 							folderEntryNode.removeClass(CSS_ACTIVE_AREA);
@@ -1369,6 +1376,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-component', 'aui-data-set-deprecated', 'aui-overlay-manager-deprecated', 'aui-overlay-mask-deprecated', 'aui-parse-content', 'aui-progressbar', 'aui-template-deprecated', 'aui-tooltip', 'liferay-app-view-move', 'liferay-app-view-select', 'liferay-search-container', 'liferay-storage-formatter', 'querystring-parse-simple', 'uploader']
+		requires: ['aui-component', 'aui-data-set-deprecated', 'aui-overlay-manager-deprecated', 'aui-overlay-mask-deprecated', 'aui-parse-content', 'aui-progressbar', 'aui-template-deprecated', 'aui-tooltip', 'document-library-upload-folders', 'liferay-app-view-move', 'liferay-app-view-select', 'liferay-search-container', 'liferay-storage-formatter', 'querystring-parse-simple', 'uploader']
 	}
 );
