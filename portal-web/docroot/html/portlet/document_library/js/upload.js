@@ -361,33 +361,7 @@ AUI.add(
 						);
 
 						var onDropHandle = docElement.delegate(
-							'drop',
-							function(event) {
-								var dataTransfer = event._event.dataTransfer;
-
-								if (dataTransfer) {
-									var dataTransferTypes = dataTransfer.types || [];
-
-									if ((AArray.indexOf(dataTransferTypes, 'Files') > -1) && (AArray.indexOf(dataTransferTypes, 'text/html') === -1)) {
-										event.halt();
-
-										var dragDropFiles = AArray(dataTransfer.files);
-
-										event.fileList = AArray.map(
-											dragDropFiles,
-											function(item, index) {
-												return new A.FileHTML5(item);
-											}
-										);
-
-										var uploader = instance._getUploader();
-
-										uploader.fire('fileselect', event);
-									}
-								}
-							},
-							'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]'
-						);
+							'drop', instance._onDrop, 'body, .document-container, .overlaymask, .progressbar, [data-folder="true"]', instance);
 
 						var entriesDragDelegateHandle = entriesContainer.delegate(
 							['dragleave', 'dragover'],
@@ -750,6 +724,38 @@ AUI.add(
 						return emptyMessage;
 					},
 
+					_getEntryByOverlay: function(overlay) {
+						var instance = this;
+
+						return overlay._originalConfig.target;
+					},
+
+					_getOverlay: function(host) {
+						var instance = this;
+
+						var overlay = host._overlay;
+
+						if (!overlay) {
+							instance._createOverlay(host);
+
+							host._overlay = overlay;
+						}
+
+						return overlay;
+					},
+
+					_getOverlayByTarget: function(target) {
+						var instance = this;
+
+						var overlay = target._overlay;
+
+						if (!overlay) {
+							overlay = A.Widget.getByNode(target);
+						}
+
+						return overlay;
+					},
+
 					_getFolderEntryNode: function(target) {
 						var instance = this;
 
@@ -758,9 +764,9 @@ AUI.add(
 						var overlayContentBox = target.hasClass('overlay-content');
 
 						if (overlayContentBox) {
-							var overlay = A.Widget.getByNode(target);
+							var overlay = instance._getOverlayByTarget(target);
 
-							folderEntry = overlay._originalConfig.target;
+							folderEntry = instance._getEntryByOverlay(overlay);
 						}
 						else {
 							if (target.attr('data-folder') === 'true') {
@@ -979,6 +985,33 @@ AUI.add(
 						}
 					},
 
+					_onDrop: function(event) {
+						var instance = this;
+
+						var dataTransfer = event._event.dataTransfer;
+
+						if (dataTransfer) {
+							var dataTransferTypes = dataTransfer.types || [];
+
+							if ((AArray.indexOf(dataTransferTypes, 'Files') > -1) && (AArray.indexOf(dataTransferTypes, 'text/html') === -1)) {
+								event.halt();
+
+								var dragDropFiles = AArray(dataTransfer.files);
+
+								event.itemList = AArray.map(
+									dragDropFiles,
+									function(item, index) {
+										return new A.FileHTML5(item);
+									}
+								);
+
+								var uploader = instance._getUploader();
+
+								uploader.fire('fileselect', event);
+							}
+						}
+					},
+
 					_onFileSelect: function(event) {
 						var instance = this;
 
@@ -1160,15 +1193,25 @@ AUI.add(
 						var uploader = instance._getUploader();
 
 						if (itemList.length) {
-							var uploadURL = instance._getUploadURL(uploadData.folderId);
-
 							instance._attachSubscriptions(uploadData);
 
-							uploader.uploadThese(fileList, uploadURL);
+							instance._uploadThese(uploadData);
 						}
 						else {
 							uploader.fire('alluploadscomplete');
 						}
+					},
+
+					_uploadThese: function(uploadData) {
+						var instance = this;
+
+						var itemList = uploadData.itemList;
+
+						var uploader = instance._getUploader();
+
+						var uploadURL = instance._getUploadURL(uploadData.folderId);
+
+						uploader.uploadThese(itemList, uploadURL);
 					},
 
 					_updateDataSetEntry: function(key, data, unmergedData) {
@@ -1269,33 +1312,52 @@ AUI.add(
 					_validateItem: function(item) {
 						var instance = this;
 
+						var errorMessage;
+
 						var maxFileSize = instance._maxFileSize;
+
+						var returnVal;
+
+						var size = item.get(STR_SIZE) || 0;
+						var type = item.get('type') || STR_BLANK;
+
+						var strings = instance._strings;
+
+						if ((maxFileSize !== 0) && (size > maxFileSize)) {
+							errorMessage = sub(strings.invalidFileSize, [instance.formatStorage(instance._maxFileSize)]);
+						}
+						else if (!type) {
+							errorMessage = strings.invalidFileType;
+						}
+						else if (size === 0) {
+							errorMessage = strings.zeroByteFile;
+						}
+
+						item.errorMessage = errorMessage;
+						item.size = size;
+						item.name = item.get(STR_NAME);
+
+						returnVal = !errorMessage;
+
+						return returnVal
+					},
+
+					_validateItems: function(data) {
+						var instance = this;
 
 						return AArray.partition(
 							data,
 							function(item, index) {
-								var errorMessage;
+								var returnVal;
 
-								var size = item.get(STR_SIZE) || 0;
-								var type = item.get('type') || STR_BLANK;
-
-								var strings = instance._strings;
-
-								if ((maxFileSize !== 0) && (size > maxFileSize)) {
-									errorMessage = sub(strings.invalidFileSize, [instance.formatStorage(instance._maxFileSize)]);
+								if (item.isDirectory) {
+									returnVal = true;
 								}
-								else if (!type) {
-									errorMessage = strings.invalidFileType;
-								}
-								else if (size === 0) {
-									errorMessage = strings.zeroByteFile;
+								else {
+									returnVal = instance._validateItem(item);
 								}
 
-								item.errorMessage = errorMessage;
-								item.size = size;
-								item.name = item.get(STR_NAME);
-
-								return !errorMessage;
+								return returnVal;
 							}
 						);
 					}
