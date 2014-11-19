@@ -407,7 +407,7 @@
 		<icon>/html/icons/rss.png</icon>
 		<struts-path>rss</struts-path>
 		<configuration-action-class>com.liferay.portlet.rss.action.ConfigurationActionImpl</configuration-action-class>
-		<portlet-data-handler-class>com.liferay.portlet.rss.lar.RSSPortletDataHandler</portlet-data-handler-class>
+		<template-handler>com.liferay.portlet.rss.template.RSSPortletDisplayTemplateHandler</template-handler>
 		<preferences-owned-by-group>true</preferences-owned-by-group>
 		<use-default-template>false</use-default-template>
 		<instanceable>true</instanceable>
@@ -495,21 +495,6 @@
 		<header-portlet-css>/html/portlet/login/css/main.css</header-portlet-css>
 		<css-class-wrapper>portlet-login</css-class-wrapper>
 		<add-default-resource>true</add-default-resource>
-	</portlet>
-	<portlet>
-		<portlet-name>62</portlet-name>
-		<icon>/html/icons/journal_articles.png</icon>
-		<struts-path>journal_articles</struts-path>
-		<configuration-action-class>com.liferay.portal.kernel.portlet.DefaultConfigurationAction</configuration-action-class>
-		<preferences-owned-by-group>true</preferences-owned-by-group>
-		<use-default-template>false</use-default-template>
-		<instanceable>true</instanceable>
-		<private-request-attributes>false</private-request-attributes>
-		<private-session-attributes>false</private-session-attributes>
-		<render-weight>50</render-weight>
-		<header-portlet-css>/html/portlet/journal_articles/css/main.css</header-portlet-css>
-		<css-class-wrapper>portlet-journal-articles</css-class-wrapper>
-		<active>false</active>
 	</portlet>
 	<portlet>
 		<portlet-name>64</portlet-name>

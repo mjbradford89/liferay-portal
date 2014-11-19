@@ -84,56 +84,6 @@ for (int i = values.size() - 1; i >= 0; i--) {
 
 			</liferay-ui:search-container-row>
 
-			<aui:script>
-				var fieldsQuantities = opener.document.<portlet:namespace />fm.<portlet:namespace />fieldsQuantities.value;
-				var itemQuantities = [];
-
-				if (fieldsQuantities) {
-					itemQuantities = fieldsQuantities.split(',');
-				}
-
-				while (itemQuantities.length < <%= searchContainer.getResultEnd() %>) {
-					itemQuantities.push(0);
-				}
-
-				<%
-				for (int i = searchContainer.getStart(); i < searchContainer.getResultEnd(); i++) {
-				%>
-
-					document.<portlet:namespace />fm.<portlet:namespace />fieldsQuantity<%= i %>.value = itemQuantities[<%= i %>];
-
-				<%
-				}
-				%>
-
-				function <portlet:namespace />setItemQuantities() {
-
-					<%
-					for (int i = searchContainer.getStart(); i < searchContainer.getResultEnd(); i++) {
-					%>
-
-						itemQuantities.splice(<%= i %>, 1, document.<portlet:namespace />fm.<portlet:namespace />fieldsQuantity<%= i %>.value);
-
-					<%
-					}
-					%>
-
-					opener.document.<portlet:namespace />fm.<portlet:namespace />fieldsQuantities.value = itemQuantities.join(',');
-				}
-
-				function <portlet:namespace />updateItemQuantities() {
-					<portlet:namespace />setItemQuantities();
-
-					self.close();
-				}
-
-				AUI().all('.taglib-page-iterator li a').each(
-					function(node) {
-						node.on('click', <portlet:namespace />setItemQuantities);
-					}
-				);
-			</aui:script>
-
 			<liferay-ui:search-iterator />
 		</liferay-ui:search-container>
 	</aui:fieldset>
@@ -141,9 +91,69 @@ for (int i = values.size() - 1; i >= 0; i--) {
 	<aui:button-row>
 		<aui:button onClick='<%= renderResponse.getNamespace() + "updateItemQuantities();" %>' value="update" />
 
-		<aui:button onClick="self.close();" type="cancel" />
+		<aui:button onClick='<%= renderResponse.getNamespace() + "closeDialog();" %>' type="cancel" />
 	</aui:button-row>
 </aui:form>
+
+<aui:script>
+	var opener = Liferay.Util.getTop();
+	var fieldsQuantities = opener.document.<portlet:namespace />fm.<portlet:namespace />fieldsQuantities.value;
+	var itemQuantities = [];
+
+	if (fieldsQuantities) {
+		itemQuantities = fieldsQuantities.split(',');
+	}
+
+	while (itemQuantities.length < <%= searchContainer.getResultEnd() %>) {
+		itemQuantities.push(0);
+	}
+
+	<%
+	for (int i = searchContainer.getStart(); i < searchContainer.getResultEnd(); i++) {
+	%>
+
+		document.<portlet:namespace />fm.<portlet:namespace />fieldsQuantity<%= i %>.value = itemQuantities[<%= i %>];
+
+	<%
+	}
+	%>
+
+	function <portlet:namespace />closeDialog() {
+		Liferay.fire(
+			'closeWindow',
+			{
+				id: '<portlet:namespace />itemQuantities'
+			}
+		);
+	}
+
+	function <portlet:namespace />setItemQuantities() {
+
+		<%
+		for (int i = searchContainer.getStart(); i < searchContainer.getResultEnd(); i++) {
+		%>
+
+			itemQuantities.splice(<%= i %>, 1, document.<portlet:namespace />fm.<portlet:namespace />fieldsQuantity<%= i %>.value);
+
+		<%
+		}
+		%>
+
+		opener.document.<portlet:namespace />fm.<portlet:namespace />fieldsQuantities.value = itemQuantities.join(',');
+	}
+
+	function <portlet:namespace />updateItemQuantities() {
+		<portlet:namespace />setItemQuantities();
+
+		<portlet:namespace />closeDialog();
+	}
+
+	AUI().all('.taglib-page-iterator li a').each(
+		function(node) {
+			node.on('click', <portlet:namespace />setItemQuantities);
+		}
+	);
+</aui:script>
 
 <%!
 private List<String[]> _getPagePermutations(List<String[]> values, int[] repeats, int start, int resultEnd) {

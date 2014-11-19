@@ -36,6 +36,7 @@ import com.liferay.portlet.dynamicdatamapping.storage.StorageType;
 import java.util.List;
 
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -46,6 +47,11 @@ import org.junit.runner.RunWith;
 @RunWith(LiferayIntegrationJUnitTestRunner.class)
 public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 
+	@BeforeClass
+	public static void setUpClass() {
+		_CLASS_NAME_ID = PortalUtil.getClassNameId(DDLRecord.class);
+	}
+
 	@Test
 	public void testAddStructureMissingRequiredElementAttribute()
 		throws Exception {
@@ -55,7 +61,7 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 		try {
 			addStructure(
 				_CLASS_NAME_ID, null, "Test Structure",
-				readText("ddm-structure-required-element-attribute.xsd"),
+				read("ddm-structure-required-element-attribute.xsd"),
 				storageType, DDMStructureConstants.TYPE_DEFAULT);
 
 			Assert.fail();
@@ -71,8 +77,8 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 		try {
 			addStructure(
 				_CLASS_NAME_ID, null, "Test Structure",
-				readText("ddm-structure-duplicate-element-name.xsd"),
-				storageType, DDMStructureConstants.TYPE_DEFAULT);
+				read("ddm-structure-duplicate-element-name.xsd"), storageType,
+				DDMStructureConstants.TYPE_DEFAULT);
 
 			Assert.fail();
 		}
@@ -89,14 +95,14 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 		try {
 			DDMStructure parentStructure = addStructure(
 				_CLASS_NAME_ID, null, "Test Parent Structure",
-				readText("ddm-structure-duplicate-element-name.xsd"),
-				storageType, DDMStructureConstants.TYPE_DEFAULT);
+				read("ddm-structure-duplicate-element-name.xsd"), storageType,
+				DDMStructureConstants.TYPE_DEFAULT);
 
 			addStructure(
 				parentStructure.getStructureId(), _CLASS_NAME_ID, null,
 				"Test Structure",
-				readText("ddm-structure-duplicate-element-name.xsd"),
-				storageType, DDMStructureConstants.TYPE_DEFAULT);
+				read("ddm-structure-duplicate-element-name.xsd"), storageType,
+				DDMStructureConstants.TYPE_DEFAULT);
 
 			Assert.fail();
 		}
@@ -133,7 +139,7 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 		try {
 			addStructure(
 				_CLASS_NAME_ID, null, "Test Structure",
-				readText("ddm-structure-invalid-element-attribute.xsd"),
+				read("ddm-structure-invalid-element-attribute.xsd"),
 				storageType, DDMStructureConstants.TYPE_DEFAULT);
 
 			Assert.fail();
@@ -322,11 +328,10 @@ public class DDMStructureServiceTest extends BaseDDMServiceTestCase {
 		return DDMStructureLocalServiceUtil.updateStructure(
 			structure.getStructureId(), structure.getParentStructureId(),
 			structure.getNameMap(), structure.getDescriptionMap(),
-			structure.getDefinition(),
+			structure.getDDMForm(),
 			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
 	}
 
-	private static final long _CLASS_NAME_ID = PortalUtil.getClassNameId(
-		DDLRecord.class);
+	private static long _CLASS_NAME_ID;
 
 }

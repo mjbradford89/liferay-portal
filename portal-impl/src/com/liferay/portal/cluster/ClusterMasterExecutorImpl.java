@@ -151,7 +151,11 @@ public class ClusterMasterExecutorImpl implements ClusterMasterExecutor {
 
 	@Override
 	public boolean isMaster() {
-		return _master;
+		if (isEnabled()) {
+			return _master;
+		}
+
+		return true;
 	}
 
 	@Override
@@ -286,6 +290,7 @@ public class ClusterMasterExecutorImpl implements ClusterMasterExecutor {
 				_log.error("Unable to update the cluster master lock", e);
 			}
 		}
+
 	}
 
 }

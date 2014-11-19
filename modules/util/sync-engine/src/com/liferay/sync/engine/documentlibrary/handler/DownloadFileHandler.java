@@ -57,13 +57,13 @@ public class DownloadFileHandler extends BaseHandler {
 
 	@Override
 	public void handleException(Exception e) {
-		_logger.error(e.getMessage(), e);
-
 		if (!(e instanceof HttpResponseException)) {
 			super.handleException(e);
 
 			return;
 		}
+
+		_logger.error(e.getMessage(), e);
 
 		HttpResponseException hre = (HttpResponseException)e;
 
@@ -107,7 +107,9 @@ public class DownloadFileHandler extends BaseHandler {
 
 		syncFile = SyncFileService.fetchSyncFile(syncFile.getSyncFileId());
 
-		if (syncFile.getState() == SyncFile.STATE_UNSYNCED) {
+		if ((syncFile == null) ||
+			(syncFile.getState() == SyncFile.STATE_UNSYNCED)) {
+
 			return;
 		}
 
