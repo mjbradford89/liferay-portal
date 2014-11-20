@@ -432,13 +432,17 @@ long orderId = BeanParamUtil.getLong(order, request, "orderId");
 	}
 
 	function <portlet:namespace />viewCoupon() {
-		dialog: {
-			height: 200,
-			width: 280
-		},
-		id: '<portlet:namespace />viewCoupon',
-		refreshWindow: window,
-		title: '<%= UnicodeLanguageUtil.get(request, "coupons") %>',
-		uri: '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/shopping/view_coupon" /><portlet:param name="code" value="<%= order.getCouponCodes() %>" /></portlet:renderURL>'
+		Liferay.Util.openWindow(
+			{
+				dialog: {
+					height: 200,
+					width: 280
+				},
+				id: '<portlet:namespace />viewCoupon',
+				refreshWindow: window,
+				title: '<%= UnicodeLanguageUtil.get(request, "coupons") %>',
+				uri: '<portlet:renderURL windowState="<%= LiferayWindowState.POP_UP.toString() %>"><portlet:param name="struts_action" value="/shopping/view_coupon" /><portlet:param name="code" value="<%= order.getCouponCodes() %>" /></portlet:renderURL>'
+			}
+		);
 	}
 </aui:script>
