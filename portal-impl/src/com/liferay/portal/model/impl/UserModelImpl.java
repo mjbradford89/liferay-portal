@@ -108,9 +108,10 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 			{ "lockoutDate", Types.TIMESTAMP },
 			{ "agreedToTermsOfUse", Types.BOOLEAN },
 			{ "emailAddressVerified", Types.BOOLEAN },
-			{ "status", Types.INTEGER }
+			{ "status", Types.INTEGER },
+			{ "preferredEditor", Types.VARCHAR }
 		};
-	public static final String TABLE_SQL_CREATE = "create table User_ (mvccVersion LONG default 0,uuid_ VARCHAR(75) null,userId LONG not null primary key,companyId LONG,createDate DATE null,modifiedDate DATE null,defaultUser BOOLEAN,contactId LONG,password_ VARCHAR(75) null,passwordEncrypted BOOLEAN,passwordReset BOOLEAN,passwordModifiedDate DATE null,digest VARCHAR(255) null,reminderQueryQuestion VARCHAR(75) null,reminderQueryAnswer VARCHAR(75) null,graceLoginCount INTEGER,screenName VARCHAR(75) null,emailAddress VARCHAR(75) null,facebookId LONG,ldapServerId LONG,openId VARCHAR(1024) null,portraitId LONG,languageId VARCHAR(75) null,timeZoneId VARCHAR(75) null,greeting VARCHAR(255) null,comments STRING null,firstName VARCHAR(75) null,middleName VARCHAR(75) null,lastName VARCHAR(75) null,jobTitle VARCHAR(100) null,loginDate DATE null,loginIP VARCHAR(75) null,lastLoginDate DATE null,lastLoginIP VARCHAR(75) null,lastFailedLoginDate DATE null,failedLoginAttempts INTEGER,lockout BOOLEAN,lockoutDate DATE null,agreedToTermsOfUse BOOLEAN,emailAddressVerified BOOLEAN,status INTEGER)";
+	public static final String TABLE_SQL_CREATE = "create table User_ (mvccVersion LONG default 0,uuid_ VARCHAR(75) null,userId LONG not null primary key,companyId LONG,createDate DATE null,modifiedDate DATE null,defaultUser BOOLEAN,contactId LONG,password_ VARCHAR(75) null,passwordEncrypted BOOLEAN,passwordReset BOOLEAN,passwordModifiedDate DATE null,digest VARCHAR(255) null,reminderQueryQuestion VARCHAR(75) null,reminderQueryAnswer VARCHAR(75) null,graceLoginCount INTEGER,screenName VARCHAR(75) null,emailAddress VARCHAR(75) null,facebookId LONG,ldapServerId LONG,openId VARCHAR(1024) null,portraitId LONG,languageId VARCHAR(75) null,timeZoneId VARCHAR(75) null,greeting VARCHAR(255) null,comments STRING null,firstName VARCHAR(75) null,middleName VARCHAR(75) null,lastName VARCHAR(75) null,jobTitle VARCHAR(100) null,loginDate DATE null,loginIP VARCHAR(75) null,lastLoginDate DATE null,lastLoginIP VARCHAR(75) null,lastFailedLoginDate DATE null,failedLoginAttempts INTEGER,lockout BOOLEAN,lockoutDate DATE null,agreedToTermsOfUse BOOLEAN,emailAddressVerified BOOLEAN,status INTEGER,preferredEditor VARCHAR(75) null)";
 	public static final String TABLE_SQL_DROP = "drop table User_";
 	public static final String ORDER_BY_JPQL = " ORDER BY user.userId ASC";
 	public static final String ORDER_BY_SQL = " ORDER BY User_.userId ASC";
@@ -194,6 +195,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		model.setAgreedToTermsOfUse(soapModel.getAgreedToTermsOfUse());
 		model.setEmailAddressVerified(soapModel.getEmailAddressVerified());
 		model.setStatus(soapModel.getStatus());
+		model.setPreferredEditor(soapModel.getPreferredEditor());
 
 		return model;
 	}
@@ -339,6 +341,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		attributes.put("agreedToTermsOfUse", getAgreedToTermsOfUse());
 		attributes.put("emailAddressVerified", getEmailAddressVerified());
 		attributes.put("status", getStatus());
+		attributes.put("preferredEditor", getPreferredEditor());
 
 		attributes.put("entityCacheEnabled", isEntityCacheEnabled());
 		attributes.put("finderCacheEnabled", isFinderCacheEnabled());
@@ -597,6 +600,12 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 
 		if (status != null) {
 			setStatus(status);
+		}
+
+		String preferredEditor = (String)attributes.get("preferredEditor");
+
+		if (preferredEditor != null) {
+			setPreferredEditor(preferredEditor);
 		}
 	}
 
@@ -1329,6 +1338,22 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		return _originalStatus;
 	}
 
+	@JSON
+	@Override
+	public String getPreferredEditor() {
+		if (_preferredEditor == null) {
+			return StringPool.BLANK;
+		}
+		else {
+			return _preferredEditor;
+		}
+	}
+
+	@Override
+	public void setPreferredEditor(String preferredEditor) {
+		_preferredEditor = preferredEditor;
+	}
+
 	@Override
 	public StagedModelType getStagedModelType() {
 		return new StagedModelType(PortalUtil.getClassNameId(
@@ -1407,6 +1432,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		userImpl.setAgreedToTermsOfUse(getAgreedToTermsOfUse());
 		userImpl.setEmailAddressVerified(getEmailAddressVerified());
 		userImpl.setStatus(getStatus());
+		userImpl.setPreferredEditor(getPreferredEditor());
 
 		userImpl.resetOriginalValues();
 
@@ -1757,12 +1783,20 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 
 		userCacheModel.status = getStatus();
 
+		userCacheModel.preferredEditor = getPreferredEditor();
+
+		String preferredEditor = userCacheModel.preferredEditor;
+
+		if ((preferredEditor != null) && (preferredEditor.length() == 0)) {
+			userCacheModel.preferredEditor = null;
+		}
+
 		return userCacheModel;
 	}
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(83);
+		StringBundler sb = new StringBundler(85);
 
 		sb.append("{mvccVersion=");
 		sb.append(getMvccVersion());
@@ -1846,6 +1880,8 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 		sb.append(getEmailAddressVerified());
 		sb.append(", status=");
 		sb.append(getStatus());
+		sb.append(", preferredEditor=");
+		sb.append(getPreferredEditor());
 		sb.append("}");
 
 		return sb.toString();
@@ -1853,7 +1889,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 
 	@Override
 	public String toXmlString() {
-		StringBundler sb = new StringBundler(127);
+		StringBundler sb = new StringBundler(130);
 
 		sb.append("<model><model-name>");
 		sb.append("com.liferay.portal.model.User");
@@ -2023,6 +2059,10 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 			"<column><column-name>status</column-name><column-value><![CDATA[");
 		sb.append(getStatus());
 		sb.append("]]></column-value></column>");
+		sb.append(
+			"<column><column-name>preferredEditor</column-name><column-value><![CDATA[");
+		sb.append(getPreferredEditor());
+		sb.append("]]></column-value></column>");
 
 		sb.append("</model>");
 
@@ -2094,6 +2134,7 @@ public class UserModelImpl extends BaseModelImpl<User> implements UserModel {
 	private int _status;
 	private int _originalStatus;
 	private boolean _setOriginalStatus;
+	private String _preferredEditor;
 	private long _columnBitmask;
 	private User _escapedModel;
 }

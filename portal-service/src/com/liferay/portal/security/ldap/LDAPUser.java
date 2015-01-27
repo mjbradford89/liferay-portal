@@ -131,6 +131,10 @@ public class LDAPUser {
 		return _user.getPortraitId();
 	}
 
+	public String getPreferredEditor() {
+		return _user.getPreferredEditor();
+	}
+
 	public int getPrefixId() {
 		return _contact.getPrefixId();
 	}
@@ -347,6 +351,10 @@ public class LDAPUser {
 
 	public void setPortraitBytes(byte[] portraitBytes) {
 		_portraitBytes = portraitBytes;
+	}
+
+	public void setPreferredEditor(String preferredEditor) {
+		_user.setPreferredEditor(preferredEditor);
 	}
 
 	public void setPrefixId(int prefixId) {

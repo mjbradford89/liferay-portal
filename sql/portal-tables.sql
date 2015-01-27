@@ -2193,7 +2193,8 @@ create table User_ (
 	lockoutDate DATE null,
 	agreedToTermsOfUse BOOLEAN,
 	emailAddressVerified BOOLEAN,
-	status INTEGER
+	status INTEGER,
+	preferredEditor VARCHAR(75) null
 );
 
 create table UserGroup (
