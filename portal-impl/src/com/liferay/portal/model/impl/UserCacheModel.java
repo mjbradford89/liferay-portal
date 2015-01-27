@@ -79,7 +79,7 @@ public class UserCacheModel implements CacheModel<User>, Externalizable,
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(83);
+		StringBundler sb = new StringBundler(85);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -163,6 +163,8 @@ public class UserCacheModel implements CacheModel<User>, Externalizable,
 		sb.append(emailAddressVerified);
 		sb.append(", status=");
 		sb.append(status);
+		sb.append(", preferredEditor=");
+		sb.append(preferredEditor);
 		sb.append("}");
 
 		return sb.toString();
@@ -372,6 +374,13 @@ public class UserCacheModel implements CacheModel<User>, Externalizable,
 		userImpl.setEmailAddressVerified(emailAddressVerified);
 		userImpl.setStatus(status);
 
+		if (preferredEditor == null) {
+			userImpl.setPreferredEditor(StringPool.BLANK);
+		}
+		else {
+			userImpl.setPreferredEditor(preferredEditor);
+		}
+
 		userImpl.resetOriginalValues();
 
 		return userImpl;
@@ -420,6 +429,7 @@ public class UserCacheModel implements CacheModel<User>, Externalizable,
 		agreedToTermsOfUse = objectInput.readBoolean();
 		emailAddressVerified = objectInput.readBoolean();
 		status = objectInput.readInt();
+		preferredEditor = objectInput.readUTF();
 	}
 
 	@Override
@@ -582,6 +592,13 @@ public class UserCacheModel implements CacheModel<User>, Externalizable,
 		objectOutput.writeBoolean(agreedToTermsOfUse);
 		objectOutput.writeBoolean(emailAddressVerified);
 		objectOutput.writeInt(status);
+
+		if (preferredEditor == null) {
+			objectOutput.writeUTF(StringPool.BLANK);
+		}
+		else {
+			objectOutput.writeUTF(preferredEditor);
+		}
 	}
 
 	public long mvccVersion;
@@ -625,4 +642,5 @@ public class UserCacheModel implements CacheModel<User>, Externalizable,
 	public boolean agreedToTermsOfUse;
 	public boolean emailAddressVerified;
 	public int status;
+	public String preferredEditor;
 }

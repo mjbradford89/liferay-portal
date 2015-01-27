@@ -93,6 +93,7 @@ public class UserWrapper implements User, ModelWrapper<User> {
 		attributes.put("agreedToTermsOfUse", getAgreedToTermsOfUse());
 		attributes.put("emailAddressVerified", getEmailAddressVerified());
 		attributes.put("status", getStatus());
+		attributes.put("preferredEditor", getPreferredEditor());
 
 		return attributes;
 	}
@@ -348,6 +349,12 @@ public class UserWrapper implements User, ModelWrapper<User> {
 
 		if (status != null) {
 			setStatus(status);
+		}
+
+		String preferredEditor = (String)attributes.get("preferredEditor");
+
+		if (preferredEditor != null) {
+			setPreferredEditor(preferredEditor);
 		}
 	}
 
@@ -1154,6 +1161,16 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	}
 
 	/**
+	* Returns the preferred editor of this user.
+	*
+	* @return the preferred editor of this user
+	*/
+	@Override
+	public java.lang.String getPreferredEditor() {
+		return _user.getPreferredEditor();
+	}
+
+	/**
 	* Returns the primary key of this user.
 	*
 	* @return the primary key of this user
@@ -1878,6 +1895,16 @@ public class UserWrapper implements User, ModelWrapper<User> {
 	@Override
 	public void setPortraitId(long portraitId) {
 		_user.setPortraitId(portraitId);
+	}
+
+	/**
+	* Sets the preferred editor of this user.
+	*
+	* @param preferredEditor the preferred editor of this user
+	*/
+	@Override
+	public void setPreferredEditor(java.lang.String preferredEditor) {
+		_user.setPreferredEditor(preferredEditor);
 	}
 
 	/**

@@ -384,6 +384,7 @@ public class EditUserAction extends PortletAction {
 		String twitterSn = ParamUtil.getString(actionRequest, "twitterSn");
 		String ymSn = ParamUtil.getString(actionRequest, "ymSn");
 		String jobTitle = ParamUtil.getString(actionRequest, "jobTitle");
+		String preferredEditor = ParamUtil.getString(actionRequest, "preferredEditor");
 		long[] groupIds = UsersAdminUtil.getGroupIds(actionRequest);
 		long[] organizationIds = UsersAdminUtil.getOrganizationIds(
 			actionRequest);
@@ -428,7 +429,7 @@ public class EditUserAction extends PortletAction {
 				jabberSn, msnSn, mySpaceSn, skypeSn, twitterSn, ymSn, jobTitle,
 				groupIds, organizationIds, roleIds, userGroupRoles,
 				userGroupIds, addresses, emailAddresses, phones, websites,
-				announcementsDeliveries, serviceContext);
+				announcementsDeliveries, serviceContext, preferredEditor);
 		}
 
 		long publicLayoutSetPrototypeId = ParamUtil.getLong(
@@ -628,6 +629,8 @@ public class EditUserAction extends PortletAction {
 		String ymSn = BeanParamUtil.getString(contact, actionRequest, "ymSn");
 		String jobTitle = BeanParamUtil.getString(
 			user, actionRequest, "jobTitle");
+		String preferredEditor = BeanParamUtil.getString(
+			user, actionRequest, "preferredEditor");
 		long[] groupIds = UsersAdminUtil.getGroupIds(actionRequest);
 		long[] organizationIds = UsersAdminUtil.getOrganizationIds(
 			actionRequest);
@@ -668,7 +671,7 @@ public class EditUserAction extends PortletAction {
 			icqSn, jabberSn, msnSn, mySpaceSn, skypeSn, twitterSn, ymSn,
 			jobTitle, groupIds, organizationIds, roleIds, userGroupRoles,
 			userGroupIds, addresses, emailAddresses, phones, websites,
-			announcementsDeliveries, serviceContext);
+			announcementsDeliveries, serviceContext, preferredEditor);
 
 		if (oldScreenName.equals(user.getScreenName())) {
 			oldScreenName = StringPool.BLANK;

@@ -186,6 +186,7 @@ public class MembershipPolicyTestUtil {
 		int birthdayDay = 1;
 		int birthdayYear = 1970;
 		String jobTitle = StringPool.BLANK;
+		String preferredEditor = StringPool.BLANK;
 		String smsSn =
 			"UserServiceTestSmsSn." + RandomTestUtil.nextInt() + "@liferay.com";
 		String aimSn = RandomTestUtil.randomString();
@@ -216,7 +217,8 @@ public class MembershipPolicyTestUtil {
 			smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn, mySpaceSn,
 			skypeSn, twitterSn, ymSn, jobTitle, siteIds, organizationIds,
 			roleIds, userGroupRoles, userGroupIds, addresses, emailAddresses,
-			phones, websites, announcementsDelivers, serviceContext);
+			phones, websites, announcementsDelivers, serviceContext,
+			preferredEditor);
 	}
 
 	protected static Map<String, Serializable> addExpandoMap(Class<?> clazz)

@@ -718,6 +718,21 @@ public interface UserModel extends BaseModel<User>, MVCCModel, StagedModel {
 	 */
 	public void setStatus(int status);
 
+	/**
+	 * Returns the preferred editor of this user.
+	 *
+	 * @return the preferred editor of this user
+	 */
+	@AutoEscape
+	public String getPreferredEditor();
+
+	/**
+	 * Sets the preferred editor of this user.
+	 *
+	 * @param preferredEditor the preferred editor of this user
+	 */
+	public void setPreferredEditor(String preferredEditor);
+
 	@Override
 	public boolean isNew();
 

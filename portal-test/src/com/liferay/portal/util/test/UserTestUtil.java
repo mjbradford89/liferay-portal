@@ -326,6 +326,7 @@ public class UserTestUtil {
 		String twitterSn = StringPool.BLANK;
 		String ymSn = StringPool.BLANK;
 		String jobTitle = StringPool.BLANK;
+		String preferredEditor = StringPool.BLANK;
 		long[] groupIds = null;
 		long[] organizationIds = null;
 		long[] roleIds = null;
@@ -342,7 +343,8 @@ public class UserTestUtil {
 			prefixId, suffixId, male, birthdayMonth, birthdayDay, birthdayYear,
 			smsSn, aimSn, facebookSn, icqSn, jabberSn, msnSn, mySpaceSn,
 			skypeSn, twitterSn, ymSn, jobTitle, groupIds, organizationIds,
-			roleIds, userGroupRoles, userGroupIds, serviceContext);
+			roleIds, userGroupRoles, userGroupIds, serviceContext,
+			preferredEditor);
 	}
 
 }
