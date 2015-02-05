@@ -61,7 +61,9 @@ ListUtil.sort(editorProperties);
 
 		<aui:select label="<%= labelStringBuilder.toString() %>" name="<%= CamelCaseUtil.toCamelCase(editorProperty, _DELIMITERS) %>">
 
-			<aui:option label="<%= defaultOptionLabelStringBuilder.toString() %>" selected='<%= selectedEditor.equals("default") || selectedEditor == null %>' value="default" />
+			<aui:option label="<%= defaultOptionLabelStringBuilder.toString() %>" selected='<%= selectedEditor.equals(editorProperty) || selectedEditor.equals("default") || selectedEditor == null %>' value="default" />
+
+			<aui:option label="None (use text box)" selected='<%= selectedEditor.equals("none")%>' value="none" />
 
 			<%
 			for (String editor : EditorUtil.getAvailableEditors(editorProperty + ".available")) {
