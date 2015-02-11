@@ -20,6 +20,8 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.model.UserGroupRole;
 import com.liferay.portal.service.ServiceContext;
 
+import java.io.Serializable;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -131,7 +133,11 @@ public class LDAPUser {
 		return _user.getPortraitId();
 	}
 
-	public int getPrefixId() {
+	public Map<String, Serializable> getPreferredEditors() {
+		return _user.getPreferredEditors();
+	}
+
+	public long getPrefixId() {
 		return _contact.getPrefixId();
 	}
 
@@ -167,7 +173,7 @@ public class LDAPUser {
 		return _user.getStatus();
 	}
 
-	public int getSuffixId() {
+	public long getSuffixId() {
 		return _contact.getSuffixId();
 	}
 
@@ -349,7 +355,13 @@ public class LDAPUser {
 		_portraitBytes = portraitBytes;
 	}
 
-	public void setPrefixId(int prefixId) {
+	public void setPreferredEditors(
+		Map<String, Serializable> preferredEditors) {
+
+		_user.setPreferredEditors(preferredEditors);
+	}
+
+	public void setPrefixId(long prefixId) {
 		_contact.setPrefixId(prefixId);
 	}
 
@@ -389,7 +401,7 @@ public class LDAPUser {
 		_user.setStatus(status);
 	}
 
-	public void setSuffixId(int suffixId) {
+	public void setSuffixId(long suffixId) {
 		_contact.setSuffixId(suffixId);
 	}
 

@@ -97,21 +97,6 @@
 		padding-left: 10px;
 	}
 
-	.alloy-editor-placeholder {
-		color: #2B4256;
-		padding-left: 10px;
-
-		&:empty:not(:focus) {
-			background: transparent;
-			border-left: 2px solid #DBDDE1;
-			color: #B0B4BB;
-		}
-
-		&.readonly {
-			color: #CCC;
-		}
-	}
-
 	.edit-entry {
 		.entry-status {
 			padding-left: 30px;
@@ -132,11 +117,11 @@
 
 	.entry-title {
 		display: block;
-		font-weight: bold;
 
 		h2 {
-			font-size: 30px;
-			margin-bottom: 30px;
+			font-size: 26px;
+			font-weight: bold;
+			margin-bottom: 24px;
 
 			.alloy-editor-placeholder {
 				color: #32A8E6;
@@ -145,6 +130,10 @@
 					margin-bottom: 0;
 				}
 			}
+		}
+
+		a {
+			font-weight: bold;
 		}
 	}
 

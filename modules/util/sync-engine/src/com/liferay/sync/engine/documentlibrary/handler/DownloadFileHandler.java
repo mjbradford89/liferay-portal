@@ -34,7 +34,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.FileTime;
 
 import java.util.List;
 
@@ -110,7 +109,9 @@ public class DownloadFileHandler extends BaseHandler {
 				syncAccount.getFilePathName(), ".data",
 				String.valueOf(syncFile.getSyncFileId()));
 
-			if (Files.exists(filePath)) {
+			boolean exists = Files.exists(filePath);
+
+			if (exists) {
 				Files.copy(
 					filePath, tempFilePath,
 					StandardCopyOption.REPLACE_EXISTING);
@@ -127,26 +128,25 @@ public class DownloadFileHandler extends BaseHandler {
 
 			downloadedFilePathNames.add(filePath.toString());
 
-			FileTime fileTime = FileTime.fromMillis(syncFile.getModifiedTime());
+			if (exists) {
+				syncFile.setUiEvent(SyncFile.UI_EVENT_DOWNLOADED_UPDATE);
+			}
+			else {
+				syncFile.setUiEvent(SyncFile.UI_EVENT_DOWNLOADED_NEW);
+			}
 
-			Files.setLastModifiedTime(tempFilePath, fileTime);
+			FileUtil.writeFileKey(
+				tempFilePath, String.valueOf(syncFile.getSyncFileId()));
+
+			FileUtil.setModifiedTime(tempFilePath, syncFile.getModifiedTime());
 
 			Files.move(
 				tempFilePath, filePath, StandardCopyOption.ATOMIC_MOVE,
 				StandardCopyOption.REPLACE_EXISTING);
 
-			if (syncFile.getFileKey() == null) {
-				syncFile.setUiEvent(SyncFile.UI_EVENT_DOWNLOADED_NEW);
-			}
-			else {
-				syncFile.setUiEvent(SyncFile.UI_EVENT_DOWNLOADED_UPDATE);
-			}
-
 			syncFile.setState(SyncFile.STATE_SYNCED);
 
 			SyncFileService.update(syncFile);
-
-			SyncFileService.updateFileKeySyncFile(syncFile);
 
 			IODeltaUtil.checksums(syncFile);
 		}
