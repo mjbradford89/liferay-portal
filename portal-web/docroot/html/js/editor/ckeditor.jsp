@@ -261,6 +261,37 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 
 		instanceReady: false,
 
+		<c:if test="<%= portletDisplay.isShowMoveIcon() %>">
+			initPortletDragListener: function() {
+				var Layout = Liferay.Layout;
+
+				Layout.on(
+					'drag:start',
+					function(event) {
+						var dragNode = event.target.get('node');
+
+						var ckEditor = CKEDITOR.instances['<%= name %>'];
+
+						if (dragNode && dragNode.contains(ckEditor.element.$)) {
+							var editorContent = ckEditor.getData();
+
+							ckEditor.destroy();
+
+							var onDragEnd = function(event) {
+								createEditor(editorContent);
+
+								var layoutHandler = Layout.getLayoutHandler();
+
+								layoutHandler.detach('drag:end', onDragEnd);
+							};
+
+							Layout.on('drag:end', onDragEnd);
+						}
+					}
+				);
+			},
+		</c:if>
+
 		<c:if test="<%= Validator.isNotNull(onBlurMethod) %>">
 			onBlurCallback: function() {
 				window['<%= HtmlUtil.escapeJS(onBlurMethod) %>'](CKEDITOR.instances['<%= name %>']);
@@ -361,6 +392,17 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 		);
 	</c:if>
 
+	<c:if test="<%= portletDisplay.isShowMoveIcon() %>">
+		if (Liferay.Layout.INITIALIZED) {
+			window['<%= name %>'].initPortletDragListener();
+		}
+		else {
+			Liferay.on(
+				'layoutInitialized',
+				window['<%= name %>'].initPortletDragListener);
+		}
+	</c:if>
+
 	var currentToolbarSet;
 
 	var initialToolbarSet = '<%= TextFormatter.format(HtmlUtil.escapeJS(toolbarSet), TextFormatter.M) %>';
@@ -378,7 +420,7 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 		return toolbarSet;
 	}
 
-	var createEditor = function() {
+	var createEditor = function(newData) {
 		var editorNode = A.one('#<%= name %>');
 
 		editorNode.attr('contenteditable', true);
@@ -386,15 +428,21 @@ if (inlineEdit && Validator.isNotNull(inlineEditSaveURL)) {
 
 		function initData() {
 			<c:if test="<%= Validator.isNotNull(initMethod) && !(inlineEdit && Validator.isNotNull(inlineEditSaveURL)) %>">
+				<c:choose>
+					<c:when test="<%= (contents != null) %>">
+						var data = '<%= UnicodeFormatter.toString(contents) %>';
+					</c:when>
+					<c:otherwise>
+						var data = window['<%= HtmlUtil.escapeJS(namespace + initMethod) %>']();
+					</c:otherwise>
+				</c:choose>
+
+				if (newData != null) {
+					data = newData;
+				}
+
 				ckEditor.setData(
-					<c:choose>
-						<c:when test="<%= (contents != null) %>">
-							'<%= UnicodeFormatter.toString(contents) %>',
-						</c:when>
-						<c:otherwise>
-							window['<%= HtmlUtil.escapeJS(namespace + initMethod) %>'](),
-						</c:otherwise>
-					</c:choose>
+					data,
 					function() {
 						ckEditor.resetDirty();
 					}

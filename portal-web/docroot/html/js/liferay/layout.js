@@ -400,6 +400,8 @@ AUI.add(
 				Liferay.on('closePortlet', Layout._onPortletClose);
 
 				Layout.INITIALIZED = true;
+
+				Liferay.fire('layoutInitialized');
 			},
 			[layoutModule]
 		);
