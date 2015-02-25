@@ -1439,7 +1439,8 @@ public class LayoutTypePortletImpl
 	}
 
 	protected List<Portlet> getEmbeddedPortlets(
-		List<Portlet> columnPortlets, List<Portlet> staticPortlets) {
+		List<Portlet> columnPortlets, List<Portlet> staticPortlets)
+		throws PortalException {
 
 		if (_embeddedPortlets != null) {
 			return _embeddedPortlets;
@@ -1470,6 +1471,7 @@ public class LayoutTypePortletImpl
 				getCompanyId(), portletId);
 
 			if (Validator.isNull(portletId) ||
+				!hasPortletId(portletId, true) ||
 				columnPortlets.contains(portlet) ||
 				staticPortlets.contains(portlet) || !portlet.isReady() ||
 				portlet.isUndeployedPortlet() || !portlet.isActive()) {
