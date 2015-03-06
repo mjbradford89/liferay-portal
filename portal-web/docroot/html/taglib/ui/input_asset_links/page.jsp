@@ -96,15 +96,16 @@
 
 <aui:input name="assetLinkEntryIds" type="hidden" />
 
-<aui:script use="aui-base,escape,liferay-search-container">
-	A.getBody().delegate(
+<aui:script use="liferay-search-container">
+	$('body').on(
 		'click',
+		'.asset-selector a',
 		function(event) {
 			event.preventDefault();
 
-			var searchContainerName = '<portlet:namespace/>assetLinksSearchContainer';
+			var assetSelector = $(event.currentTarget);
 
-			var searchContainer = Liferay.SearchContainer.get(searchContainerName);
+			var searchContainer = Liferay.SearchContainer.get('<portlet:namespace/>assetLinksSearchContainer');
 
 			var searchContainerData = searchContainer.getData();
 
@@ -122,10 +123,10 @@
 						modal: true
 					},
 					eventName: '<%= inputAssetLinksDisplayContext.getEventName() %>',
-					id: '<%= inputAssetLinksDisplayContext.getEventName() %>' + event.currentTarget.attr('id'),
+					id: '<%= inputAssetLinksDisplayContext.getEventName() %>' + assetSelector.attr('id'),
 					selectedData: searchContainerData,
-					title: event.currentTarget.attr('data-title'),
-					uri: event.currentTarget.attr('data-href')
+					title: assetSelector.data('title'),
+					uri: assetSelector.data('href')
 				},
 				function(event) {
 					var entryLink = '<a class="modify-link" data-rowId="' + event.assetentryid + '" href="javascript:;"><%= UnicodeFormatter.toString(removeLinkIcon) %></a>';
@@ -135,8 +136,7 @@
 					searchContainer.updateDataStore();
 				}
 			);
-		},
-		'.asset-selector a'
+		}
 	);
 </aui:script>
 
