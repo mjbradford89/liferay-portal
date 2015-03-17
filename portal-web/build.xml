@@ -122,7 +122,7 @@
 						<if>
 							<available file="${portal.front.end.web.path}/html/js/aui/${dir.name}/assets/skins/sam" />
 							<then>
-								<copy todir="docroot/html/themes/_unstyled/images/aui" preservelastmodified="true">
+								<copy todir="${portal.front.end.web.path}/html/themes/_unstyled/images/aui" preservelastmodified="true">
 									<fileset dir="${portal.front.end.web.path}/html/js/aui/${dir.name}/assets/skins/sam" includes="**/*.png,**/*.jpg,**/*.gif" />
 								</copy>
 							</then>
@@ -156,7 +156,7 @@
 
 				<copy
 					file="${alloy.temp.dir}/aui_deprecated.css"
-					tofile="docroot/html/css/portal/aui_deprecated.css"
+					tofile="${portal.front.end.web.path}/html/css/portal/aui_deprecated.css"
 					overwrite="true"
 				/>
 
@@ -168,7 +168,7 @@
 
 				<!-- Images -->
 
-				<copy todir="docroot/html/themes/_unstyled/images/aui" preservelastmodified="true">
+				<copy todir="${portal.front.end.web.path}/html/themes/_unstyled/images/aui" preservelastmodified="true">
 					<fileset dir="${alloy.build.dir}/aui-skin-deprecated/images" />
 				</copy>
 
@@ -182,11 +182,11 @@
 	<target name="build-alloy-bootstrap">
 		<property name="alloy.bootstrap.version" value="3.2.0-2" />
 
-		<property name="alloy.bootstrap.deploy" value="docroot/html/themes/_unstyled/css/aui" />
+		<property name="alloy.bootstrap.deploy" value="${portal.front.end.web.path}/html/themes/_unstyled/css/aui" />
 
 		<property name="alloy.bootstrap.file" value="bootstrap-sass-${alloy.bootstrap.version}.zip" />
 
-		<property name="alloy.bootstrap.tmp.dir" value="docroot/html/ALLOY_BOOTSTRAP_ZIP" />
+		<property name="alloy.bootstrap.tmp.dir" value="${portal.front.end.web.path}/html/ALLOY_BOOTSTRAP_ZIP" />
 
 		<if>
 			<not>
@@ -307,7 +307,7 @@
 	</target>
 
 	<target name="build-bourbon">
-		<property name="portal.common.dir" value="docroot/html/css/common" />
+		<property name="portal.common.dir" value="${portal.front.end.web.path}/html/css/common" />
 
 		<property name="bourbon.version" value="3.2.3" />
 
@@ -315,7 +315,7 @@
 
 		<property name="bourbon.file" value="bourbon-${bourbon.version}.zip" />
 
-		<property name="bourbon.tmp.dir" value="docroot/html/BOURBON_ZIP" />
+		<property name="bourbon.tmp.dir" value="${portal.front.end.web.path}/html/BOURBON_ZIP" />
 
 		<if>
 			<not>
@@ -541,8 +541,8 @@
 			<arg value="sass.dir.0=/html/css" />
 			<arg value="sass.dir.1=/html/portlet" />
 			<arg value="sass.dir.2=/html/themes" />
-			<arg value="sass.docroot.dir=${basedir}/docroot" />
-			<arg value="sass.portal.common.dir=${basedir}/docroot/html/css/common" />
+			<arg value="sass.docroot.dir=${portal.front.end.web.path}" />
+			<arg value="sass.portal.common.dir=${portal.front.end.web.path}/html/css/common" />
 		</java>
 
 		<delete dir="${sass.tmp.dir}" />
@@ -674,7 +674,7 @@
 	<target name="build-themes" depends="build-alloy,build-bourbon">
 		<for param="module.name">
 			<path>
-				<dirset dir="docroot/html/themes" excludes="_styled,_unstyled" includes="*" />
+				<dirset dir="${portal.front.end.web.path}/html/themes" excludes="_styled,_unstyled" includes="*" />
 			</path>
 			<sequential>
 				<if>
@@ -714,14 +714,14 @@
 
 				<copy todir="@{module.name}" overwrite="true" preservelastmodified="true">
 					<fileset
-						dir="docroot/html/themes/_unstyled"
+						dir="${portal.front.end.web.path}/html/themes/_unstyled"
 						excludes="templates/init.ftl,templates/init.vm"
 					/>
 				</copy>
 
 				<copy todir="@{module.name}" overwrite="true" preservelastmodified="true">
 					<fileset
-						dir="docroot/html/themes/_styled"
+						dir="${portal.front.end.web.path}/html/themes/_styled"
 					/>
 				</copy>
 
@@ -739,9 +739,9 @@
 		</for>
 
 		<copy
-			file="docroot/html/themes/_unstyled/images/favicon.ico"
+			file="${portal.front.end.web.path}/html/themes/_unstyled/images/favicon.ico"
 			preservelastmodified="true"
-			todir="docroot"
+			todir="${portal.front.end.web.path}"
 		/>
 	</target>
 
@@ -829,9 +829,9 @@
 
 	<target name="clean-css">
 		<delete includeemptydirs="true">
-			<fileset dir="docroot/html/css" includes="**/.sass-cache/**,**/.sass_cache_*.css,**/_sass_cache_*.css" />
-			<fileset dir="docroot/html/portlet" includes="**/.sass-cache/**,**/.sass_cache_*.css,**/_sass_cache_*.css" />
-			<fileset dir="docroot/html/themes" includes="**/.sass-cache/**,**/.sass_cache_*.css,**/_sass_cache_*.css" />
+			<fileset dir="${portal.front.end.web.path}/html/css" includes="**/.sass-cache/**,**/.sass_cache_*.css,**/_sass_cache_*.css" />
+			<fileset dir="${portal.front.end.web.path}/html/portlet" includes="**/.sass-cache/**,**/.sass_cache_*.css,**/_sass_cache_*.css" />
+			<fileset dir="${portal.front.end.web.path}/html/themes" includes="**/.sass-cache/**,**/.sass_cache_*.css,**/_sass_cache_*.css" />
 			<fileset dir="docroot/WEB-INF/tld" includes="liferay*.tld" />
 		</delete>
 	</target>
@@ -839,7 +839,7 @@
 	<target name="clean-themes">
 		<for param="module.name">
 			<path>
-				<dirset dir="docroot/html/themes" excludes="_styled,_unstyled" includes="*" />
+				<dirset dir="${portal.front.end.web.path}/html/themes" excludes="_styled,_unstyled" includes="*" />
 			</path>
 			<sequential>
 				<delete includeemptydirs="true" quiet="true" failonerror="false">
@@ -1158,7 +1158,7 @@ Please set the property "jdk.6.home" in build.properties.
 			</or>
 			<then>
 				<copy todir="${app.server.portal.dir}" preservelastmodified="true">
-					<fileset dir="docroot">
+					<fileset dir="${portal.front.end.web.path}">
 						<include name="**/*.css" />
 						<include name="**/*.dtd" />
 						<include name="**/*.ftl" />
@@ -1220,7 +1220,7 @@ Please set the property "jdk.6.home" in build.properties.
 
 	<target name="war" depends="compile,build-portal-web-dependencies">
 		<war
-			basedir="docroot"
+			basedir="${portal.front.end.web.path}"
 			destfile="${war.file}.war"
 			excludes="WEB-INF/web.xml"
 			webxml="docroot/WEB-INF/web.xml"

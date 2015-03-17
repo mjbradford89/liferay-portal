@@ -43,7 +43,7 @@ public class StrutsUtil {
 
 	public static final String STRUTS_PACKAGE = "org.apache.struts.";
 
-	public static final String TEXT_HTML_DIR = "/html";
+	public static final String TEXT_HTML_DIR = "/o/front-end-web/html";
 
 	public static final String TEXT_WAP_DIR = "/wap";
 
