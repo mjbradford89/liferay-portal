@@ -44,7 +44,7 @@ public class FileAvailabilityUtil {
 		}
 
 		//hack
-		if (path.contains("front-end-web")) {
+		if (path.contains("front-end-web") || path.contains("editors-web")) {
 			return true;
 		}
 

@@ -10,6 +10,8 @@
 
 	var PATH_JAVASCRIPT = LiferayAUI.getJavaScriptRootPath();
 
+	var PATH_EDITOR = LiferayAUI.getEditorPath();
+
 	var SUPPORTS_INPUT_SELECTION = ((typeof INPUT_EL.selectionStart === 'number') && (typeof INPUT_EL.selectionEnd === 'number'));
 
 	var testHistory = function(A) {
@@ -30,14 +32,14 @@
 		filter: Liferay.AUI.getFilter(),
 		groups: {
 			editor: {
-				base: PATH_JAVASCRIPT + '/editor/',
+				base: PATH_EDITOR + '/editor/',
 				combine: COMBINE,
 				modules: {
 					'inline-editor-ckeditor': {
 						path: 'ckeditor/main.js'
 					}
 				},
-				root: PATH_JAVASCRIPT + '/editor/'
+				root: PATH_EDITOR + '/editor/'
 			},
 
 			liferay: {
