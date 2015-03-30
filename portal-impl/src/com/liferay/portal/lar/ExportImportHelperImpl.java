@@ -1032,7 +1032,7 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 					else if (urlSBString.contains(
 								DATA_HANDLER_PRIVATE_LAYOUT_SET_SECURE_URL) ||
 							 urlSBString.contains(
-								DATA_HANDLER_PRIVATE_LAYOUT_SET_URL)) {
+								 DATA_HANDLER_PRIVATE_LAYOUT_SET_URL)) {
 
 						layoutSet = group.getPrivateLayoutSet();
 					}
@@ -1305,12 +1305,24 @@ public class ExportImportHelperImpl implements ExportImportHelper {
 				continue;
 			}
 
-			String url = DLUtil.getPreviewURL(
-				importedFileEntry, importedFileEntry.getFileVersion(), null,
-				StringPool.BLANK, false, false);
+			String reference = StringPool.BLANK;
+
+			if (entityStagedModel instanceof JournalArticle) {
+				JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+				jsonObject.put("groupId", importedFileEntry.getGroupId());
+				jsonObject.put("uuid", importedFileEntry.getUuid());
+
+				reference = jsonObject.toString();
+			}
+			else {
+				reference = DLUtil.getPreviewURL(
+					importedFileEntry, importedFileEntry.getFileVersion(), null,
+					StringPool.BLANK, false, false);
+			}
 
 			content = StringUtil.replace(
-				content, "[$dl-reference=" + path + "$]", url);
+				content, "[$dl-reference=" + path + "$]", reference);
 		}
 
 		return content;

@@ -448,6 +448,19 @@ public class LiferaySeleniumHelper {
 		}
 	}
 
+	public static void assertPartialConfirmation(
+			LiferaySelenium liferaySelenium, String pattern)
+		throws Exception {
+
+		String confirmation = liferaySelenium.getConfirmation();
+
+		if (!confirmation.contains(pattern)) {
+			throw new Exception(
+				"\"" + confirmation + "\" does not contain \"" + pattern +
+					"\"");
+		}
+	}
+
 	public static void assertPartialText(
 			LiferaySelenium liferaySelenium, String locator, String pattern)
 		throws Exception {
@@ -716,7 +729,7 @@ public class LiferaySeleniumHelper {
 				return true;
 			}
 
-			if (line.matches(".*[TrueZIP InputStream Reader].*")) {
+			if (line.matches(".*\\[TrueZIP InputStream Reader\\].*")) {
 				return true;
 			}
 		}
@@ -736,7 +749,7 @@ public class LiferaySeleniumHelper {
 		if (line.contains(
 				"Exception sending context destroyed event to listener " +
 					"instance of class com.liferay.portal.spring.context." +
-					"PortalContextLoaderListener")) {
+						"PortalContextLoaderListener")) {
 
 			return true;
 		}
@@ -889,14 +902,6 @@ public class LiferaySeleniumHelper {
 			}
 		}
 
-		// LPS-49365, temporary workaround until Mate Thurzo can fix it
-
-		if (line.contains(
-				"Portal property \"staging.lock.enabled\" is obsolete")) {
-
-			return true;
-		}
-
 		// LPS-49505
 
 		if (line.matches(
@@ -1023,6 +1028,14 @@ public class LiferaySeleniumHelper {
 					"[org.apache.xml.security.utils." +
 						"UnsyncByteArrayOutputStream$1]")) {
 
+				return true;
+			}
+		}
+
+		// LRQA-14442, temporary workaround until Kiyoshi Lee fixes it
+
+		if (line.contains("Framework Event Dispatcher: Equinox Container:")) {
+			if (line.contains("[org_eclipse_equinox_http_servlet")) {
 				return true;
 			}
 		}

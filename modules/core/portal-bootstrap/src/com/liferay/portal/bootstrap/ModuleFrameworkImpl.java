@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.spring.osgi.OSGiBeanProperties;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionary;
+import com.liferay.portal.kernel.util.Props;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ReflectionUtil;
@@ -79,6 +80,7 @@ import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 import org.osgi.framework.startlevel.BundleStartLevel;
 import org.osgi.framework.startlevel.FrameworkStartLevel;
+import org.osgi.framework.wiring.BundleRevision;
 
 import org.springframework.beans.factory.BeanIsAbstractException;
 import org.springframework.context.ApplicationContext;
@@ -86,6 +88,7 @@ import org.springframework.context.ApplicationContext;
 /**
  * @author Raymond Augé
  * @author Miguel Pastor
+ * @author Kamesh Sampath
  */
 public class ModuleFrameworkImpl implements ModuleFramework {
 
@@ -325,7 +328,9 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 		ServiceTrackerMapFactoryUtil.setServiceTrackerMapFactory(
 			new ServiceTrackerMapFactoryImpl(_framework.getBundleContext()));
 
-		_setupInitialBundles();
+		_setUpPrerequisiteFrameworkServices(_framework.getBundleContext());
+
+		_setUpInitialBundles();
 	}
 
 	@Override
@@ -757,11 +762,9 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 	}
 
 	private boolean _isFragmentBundle(Bundle bundle) {
-		Dictionary<String, String> headers = bundle.getHeaders();
+		BundleRevision bundleRevision = bundle.adapt(BundleRevision.class);
 
-		String fragmentHost = headers.get(Constants.FRAGMENT_HOST);
-
-		if (fragmentHost == null) {
+		if ((bundleRevision.getTypes() & BundleRevision.TYPE_FRAGMENT) == 0) {
 			return false;
 		}
 
@@ -775,7 +778,7 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			if (ignoredClass.equals(interfaceClassName) ||
 				(ignoredClass.endsWith(StringPool.STAR) &&
 				 interfaceClassName.startsWith(
-					ignoredClass.substring(0, ignoredClass.length() - 1)))) {
+					 ignoredClass.substring(0, ignoredClass.length() - 1)))) {
 
 				return true;
 			}
@@ -863,12 +866,20 @@ public class ModuleFrameworkImpl implements ModuleFramework {
 			properties);
 	}
 
-	private void _setupInitialBundles() throws Exception {
+	private void _setUpInitialBundles() throws Exception {
 		for (String initialBundle :
 				PropsValues.MODULE_FRAMEWORK_INITIAL_BUNDLES) {
 
 			_installInitialBundle(initialBundle);
 		}
+	}
+
+	private void _setUpPrerequisiteFrameworkServices(
+		BundleContext bundleContext) {
+
+		bundleContext.registerService(
+			Props.class, PropsUtil.getProps(),
+			new HashMapDictionary<String, Object>());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

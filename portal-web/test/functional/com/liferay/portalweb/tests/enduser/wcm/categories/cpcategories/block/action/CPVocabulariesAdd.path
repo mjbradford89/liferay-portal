@@ -64,6 +64,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>REQUIRED_CHECKBOX</td>
+	<td>//input[contains(@id,'required')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -82,6 +87,11 @@
 <tr>
 	<td>ASSOCIATED_ASSET_TYPES_SELECT_2</td>
 	<td>xpath=(//select[contains(@id,'classNameId')])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ASSOCIATED_ASSET_TYPES_REQUIRED_CHECKBOX</td>
+	<td>//input[contains(@id,'required0') and @type='checkbox']</td>
 	<td></td>
 </tr>
 <tr>

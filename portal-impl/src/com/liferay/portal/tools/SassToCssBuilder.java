@@ -22,7 +22,6 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.ModelHintsConstants;
-import com.liferay.portal.servlet.filters.dynamiccss.RTLCSSUtil;
 import com.liferay.portal.tools.sass.SassExecutorUtil;
 import com.liferay.portal.util.FastDateFormatFactoryImpl;
 import com.liferay.portal.util.FileImpl;
@@ -161,7 +160,8 @@ public class SassToCssBuilder {
 			new String[] {
 				"**\\_diffs\\**", "**\\.sass-cache*\\**",
 				"**\\.sass_cache_*\\**", "**\\_sass_cache_*\\**",
-				"**\\_styled\\**", "**\\_unstyled\\**"
+				"**\\_styled\\**", "**\\_unstyled\\**", "**\\tiny_mce\\**",
+				"**\\ckeditor\\**", "**\\alloyeditor\\**"
 			});
 		directoryScanner.setIncludes(new String[] {"**\\*.css"});
 
@@ -196,8 +196,6 @@ public class SassToCssBuilder {
 		PortalClassLoaderUtil.setClassLoader(classLoader);
 
 		PropsUtil.setProps(new PropsImpl());
-
-		RTLCSSUtil.init();
 	}
 
 	private boolean _isModified(String dirName, String[] fileNames)
