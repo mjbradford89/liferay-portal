@@ -12,13 +12,13 @@
  * details.
  */
 
-package com.liferay.frontend.js.web;
+package com.liferay.frontend.editors.web;
 
 import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Raymond Augé
  */
-@Component(property = {"editor.wysiwyg=tinymce_simple"}, service = Object.class)
-public class TinyMCESimpleEditor {
+@Component(property = {"editor.wysiwyg=bbcode"}, service = Object.class)
+public class BBCodeEditor {
 }

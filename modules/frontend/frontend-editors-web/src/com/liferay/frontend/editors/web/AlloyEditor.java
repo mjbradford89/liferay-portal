@@ -12,13 +12,13 @@
  * details.
  */
 
-package com.liferay.frontend.js.web;
+package com.liferay.frontend.editors.web;
 
 import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Raymond Augé
  */
-@Component(property = {"editor.wysiwyg=simple"}, service = Object.class)
-public class SimpleEditor {
+@Component(property = {"editor.wysiwyg=alloyeditor"}, service = Object.class)
+public class AlloyEditor {
 }

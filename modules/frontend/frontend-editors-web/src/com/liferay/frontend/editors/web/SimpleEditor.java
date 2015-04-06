@@ -12,15 +12,13 @@
  * details.
  */
 
-package com.liferay.frontend.js.web;
+package com.liferay.frontend.editors.web;
 
 import org.osgi.service.component.annotations.Component;
 
 /**
  * @author Raymond Augé
  */
-@Component(
-	property = {"editor.wysiwyg=ckeditor_bbcode"}, service = Object.class
-)
-public class CKBBCodeEditor {
+@Component(property = {"editor.wysiwyg=simple"}, service = Object.class)
+public class SimpleEditor {
 }

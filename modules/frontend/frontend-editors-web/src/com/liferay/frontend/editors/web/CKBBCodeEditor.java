@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.frontend.js.web;
+package com.liferay.frontend.editors.web;
 
 import org.osgi.service.component.annotations.Component;
 
@@ -20,7 +20,7 @@ import org.osgi.service.component.annotations.Component;
  * @author Raymond Augé
  */
 @Component(
-	property = {"editor.wysiwyg=ckeditor_creole"}, service = Object.class
+	property = {"editor.wysiwyg=ckeditor_bbcode"}, service = Object.class
 )
-public class CKCreoleEditor {
+public class CKBBCodeEditor {
 }

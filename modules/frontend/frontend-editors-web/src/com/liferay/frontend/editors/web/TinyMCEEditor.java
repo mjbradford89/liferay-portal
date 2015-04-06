@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.frontend.js.web;
+package com.liferay.frontend.editors.web;
 
 import org.osgi.service.component.annotations.Component;
 
