@@ -124,11 +124,6 @@ public class PortalWebResourcesUtil {
 
 			String resourceType = portalWebResources.getResourceType();
 
-			System.out.println(
-				"\n\n\n\n------------------------------------------------------------------------------------------------------------------");
-			System.out.println(
-				"Registering PortalWebResource: " + resourceType);
-
 			_portalWebResourcesMap.put(resourceType, portalWebResources);
 
 			return portalWebResources;
