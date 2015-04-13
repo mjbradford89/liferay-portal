@@ -1,0 +1,11 @@
+Bundle-Name: Liferay Front End Layouttpl Web
+Bundle-SymbolicName: com.liferay.frontend.layouttpl.web
+Bundle-Version: 1.0.0
+Import-Package:\
+	com.liferay.portal,\
+	*
+Include-Resource:\
+	classes,\
+	META-INF/resources=src/META-INF/resources
+
+Web-ContextPath: /frontend-layouttpl-web
