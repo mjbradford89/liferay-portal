@@ -43,6 +43,8 @@ import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.web.PortalWebResourceConstants;
+import com.liferay.portal.kernel.web.PortalWebResourcesUtil;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.DocumentException;
 import com.liferay.portal.kernel.xml.Element;
@@ -805,6 +807,10 @@ public class MainServlet extends ActionServlet {
 
 		ServletContext servletContext = getServletContext();
 
+		ServletContext layoutBundleServletContext =
+			PortalWebResourcesUtil.getServletContext(
+				PortalWebResourceConstants.RESOURCE_TYPE_LAYOUT);
+
 		String[] xmls = new String[] {
 			HttpUtil.URLtoString(
 				servletContext.getResource(
@@ -816,7 +822,7 @@ public class MainServlet extends ActionServlet {
 
 		List<LayoutTemplate> layoutTemplates =
 			LayoutTemplateLocalServiceUtil.init(
-				servletContext, xmls, pluginPackage);
+				layoutBundleServletContext, xmls, pluginPackage);
 
 		servletContext.setAttribute(
 			WebKeys.PLUGIN_LAYOUT_TEMPLATES, layoutTemplates);

@@ -123,7 +123,7 @@ public class PortalWebResourcesUtil {
 				serviceReference);
 
 			String resourceType = portalWebResources.getResourceType();
-
+			
 			_portalWebResourcesMap.put(resourceType, portalWebResources);
 
 			return portalWebResources;

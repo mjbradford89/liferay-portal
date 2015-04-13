@@ -281,7 +281,7 @@
 
 	<target name="clean-css">
  		<delete includeemptydirs="true">
-			<fileset dir="docroot/html/css/common/bourbon" />
+			<fileset dir="docroot/html/css/common" includes="bourbon" />
 			<fileset dir="docroot/html/portlet" includes="**/.sass-cache/**,**/.sass_cache_*.css,**/_sass_cache_*.css" />
 		</delete>
 	</target>

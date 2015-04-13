@@ -25,11 +25,14 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.web.PortalWebResourcesUtil;
 import com.liferay.portal.model.LayoutTemplate;
 import com.liferay.portal.model.Plugin;
 import com.liferay.portal.util.PortalUtil;
 
 import java.io.IOException;
+
+import java.net.URL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -198,8 +201,10 @@ public class LayoutTemplateImpl
 					getTemplatePath());
 		}
 
-		String content = HttpUtil.URLtoString(
-			_servletContext.getResource(getTemplatePath()));
+		URL templateResource =
+			PortalWebResourcesUtil.getServletContextResource(getTemplatePath());
+
+		String content = HttpUtil.URLtoString(templateResource);
 
 		setContent(content);
 
