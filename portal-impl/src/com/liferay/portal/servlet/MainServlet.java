@@ -807,9 +807,9 @@ public class MainServlet extends ActionServlet {
 
 		ServletContext servletContext = getServletContext();
 
-		ServletContext layoutBundleServletContext =
+/*		ServletContext layoutBundleServletContext =
 			PortalWebResourcesUtil.getServletContext(
-				PortalWebResourceConstants.RESOURCE_TYPE_LAYOUT);
+				PortalWebResourceConstants.RESOURCE_TYPE_LAYOUT);*/
 
 		String[] xmls = new String[] {
 			HttpUtil.URLtoString(
@@ -822,7 +822,7 @@ public class MainServlet extends ActionServlet {
 
 		List<LayoutTemplate> layoutTemplates =
 			LayoutTemplateLocalServiceUtil.init(
-				layoutBundleServletContext, xmls, pluginPackage);
+				servletContext, xmls, pluginPackage);
 
 		servletContext.setAttribute(
 			WebKeys.PLUGIN_LAYOUT_TEMPLATES, layoutTemplates);

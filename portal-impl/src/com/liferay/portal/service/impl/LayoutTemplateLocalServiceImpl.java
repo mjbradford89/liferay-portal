@@ -30,6 +30,8 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.web.PortalWebResourceConstants;
+import com.liferay.portal.kernel.web.PortalWebResourcesUtil;
 import com.liferay.portal.kernel.xml.Document;
 import com.liferay.portal.kernel.xml.Element;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
@@ -267,6 +269,9 @@ public class LayoutTemplateLocalServiceImpl
 		PluginPackage pluginPackage) {
 
 		Set<LayoutTemplate> layoutTemplates = new LinkedHashSet<>();
+
+		servletContext = PortalWebResourcesUtil.getServletContext(
+			PortalWebResourceConstants.RESOURCE_TYPE_LAYOUT);
 
 		try {
 			for (String xml : xmls) {
