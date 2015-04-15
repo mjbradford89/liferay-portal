@@ -55,6 +55,7 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.use-default-template=true",
 		"javax.portlet.display-name=Currency Converter",
 		"javax.portlet.expiration-cache=0",
+		"javax.portlet.init-param.copy-request-parameters=true",
 		"javax.portlet.init-param.edit-guest-template=/edit.jsp",
 		"javax.portlet.init-param.edit-template=/edit.jsp",
 		"javax.portlet.init-param.template-path=/",
@@ -65,6 +66,18 @@ import org.osgi.service.component.annotations.Reference;
 	service = Portlet.class
 )
 public class CurrencyConverterPortlet extends MVCPortlet {
+
+	@Override
+	public void doEdit(
+			RenderRequest renderRequest, RenderResponse renderResponse)
+		throws IOException, PortletException {
+
+		renderRequest.setAttribute(
+			CurrencyConverterConfiguration.class.getName(),
+			_currencyConverterConfiguration);
+
+		super.doEdit(renderRequest, renderResponse);
+	}
 
 	@Override
 	public void doView(
@@ -83,6 +96,18 @@ public class CurrencyConverterPortlet extends MVCPortlet {
 	protected void activate(Map<String, Object> properties) {
 		_currencyConverterConfiguration = Configurable.createConfigurable(
 			CurrencyConverterConfiguration.class, properties);
+	}
+
+	@Override
+	protected void doDispatch(
+			RenderRequest renderRequest, RenderResponse renderResponse)
+		throws IOException, PortletException {
+
+		renderRequest.setAttribute(
+			CurrencyConverterConfiguration.class.getName(),
+			_currencyConverterConfiguration);
+
+		super.doDispatch(renderRequest, renderResponse);
 	}
 
 	@Reference(unbind = "-")
