@@ -52,6 +52,36 @@ public class PortalWebResourcesUtil {
 		return getPortalWebResources(resourceType).getServletContext();
 	}
 
+	public static ServletContext getServletContextByResource(
+		String resourceName) {
+
+		for (PortalWebResources portalWebResources :
+				_instance._getPortalWebResourcesList() ) {
+
+			ServletContext servletContext =
+				portalWebResources.getServletContext();
+
+			String contextPath = servletContext.getContextPath();
+
+			if (resourceName.startsWith(contextPath)) {
+				resourceName = resourceName.substring(
+					contextPath.length(), resourceName.length());
+			}
+
+			try {
+				URL url = servletContext.getResource(resourceName);
+
+				if (url != null) {
+					return servletContext;
+				}
+			}
+			catch (MalformedURLException murle) {
+			}
+		}
+
+		return null;
+	}
+
 	public static URL getServletContextResource(String resourceName) {
 		for (PortalWebResources portalWebResources :
 				_instance._getPortalWebResourcesList() ) {
