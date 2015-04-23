@@ -44,10 +44,6 @@ public class FileAvailabilityUtil {
 			return true;
 		}
 
-		if (PortalWebResourcesUtil.isResourceAvailable(path)) {
-			return true;
-		}
-
 		Map<String, Boolean> availabilities = _getAvailabilities(
 			servletContext);
 

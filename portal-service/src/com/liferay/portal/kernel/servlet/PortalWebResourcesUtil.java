@@ -44,28 +44,6 @@ public class PortalWebResourcesUtil {
 		return getPortalWebResources().getServletContext();
 	}
 
-	public static boolean isResourceAvailable(String path) {
-		String contextPath = getContextPath();
-
-		if (path.startsWith(contextPath)) {
-			path = path.substring(contextPath.length());
-		}
-
-		try {
-			ServletContext servletContext = getServletContext();
-
-			URL url = servletContext.getResource(path);
-
-			if (url != null) {
-				return true;
-			}
-		}
-		catch (MalformedURLException murle) {
-		}
-
-		return false;
-	}
-
 	private PortalWebResourcesUtil() {
 		Registry registry = RegistryUtil.getRegistry();
 
