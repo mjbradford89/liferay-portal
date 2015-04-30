@@ -10,6 +10,8 @@
 	<property name="vaadin.file" value="vaadin-6.8.12-liferay.zip" />
 
 	<target name="build-vaadin">
+		<mkdir dir="src" />
+
 		<if>
 			<not>
 				<uptodate
