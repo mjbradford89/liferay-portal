@@ -48,31 +48,54 @@ public class PortalWebResourcesUtil {
 		return _instance._portalWebResourcesMap.get(resourceType);
 	}
 
+	public static URL getResource(
+		ServletContext servletContext, String resourceName) {
+
+		try {
+			resourceName = stripContextPath(servletContext, resourceName);
+
+			URL url = servletContext.getResource(resourceName);
+
+			if (url != null) {
+				return url;
+			}
+		}
+		catch (MalformedURLException e) {
+		}
+
+		return null;
+	}
+
+	public static URL getResource(String resourceName) {
+		ServletContext servletContext = getServletContextByResource(
+			resourceName);
+
+		if (servletContext != null) {
+			return getResource(servletContext, resourceName);
+		}
+
+		return null;
+	}
+
 	public static ServletContext getServletContext(String resourceType) {
 		return getPortalWebResources(resourceType).getServletContext();
 	}
 
-	public static URL getServletContextResource(String resourceName) {
+	public static ServletContext getServletContextByResource(
+		String resourceName) {
+
 		for (PortalWebResources portalWebResources :
 				_instance._getPortalWebResourcesList() ) {
-
-			String contextPath = portalWebResources.getContextPath();
-
-			if (resourceName.startsWith(contextPath)) {
-				resourceName = resourceName.substring(contextPath.length());
-			}
 
 			ServletContext servletContext =
 				portalWebResources.getServletContext();
 
-			try {
-				URL url = servletContext.getResource(resourceName);
+			resourceName = stripContextPath(servletContext, resourceName);
 
-				if (url != null) {
-					return url;
-				}
-			}
-			catch (MalformedURLException e) {
+			URL url = getResource(servletContext, resourceName);
+
+			if (url != null) {
+				return servletContext;
 			}
 		}
 
@@ -80,7 +103,7 @@ public class PortalWebResourcesUtil {
 	}
 
 	public static boolean isResourceAvailable(String path) {
-		URL url = getServletContextResource(path);
+		URL url = getResource(path);
 
 		if (url != null) {
 			return true;
@@ -99,6 +122,18 @@ public class PortalWebResourcesUtil {
 		}
 
 		return false;
+	}
+
+	public static String stripContextPath(
+		ServletContext servletContext, String resourceName) {
+
+		String contextPath = servletContext.getContextPath();
+
+		if (resourceName.startsWith(contextPath)) {
+			resourceName = resourceName.substring(contextPath.length());
+		}
+
+		return resourceName;
 	}
 
 	private PortalWebResourcesUtil() {
