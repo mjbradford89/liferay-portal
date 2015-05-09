@@ -74,6 +74,7 @@ import com.liferay.portlet.asset.service.persistence.AssetTagPersistence;
 import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMStructureFinder;
 import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMStructurePersistence;
 import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMTemplateFinder;
+import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMTemplateLinkPersistence;
 import com.liferay.portlet.dynamicdatamapping.service.persistence.DDMTemplatePersistence;
 import com.liferay.portlet.expando.service.persistence.ExpandoRowPersistence;
 import com.liferay.portlet.journal.model.JournalArticle;
@@ -344,9 +345,9 @@ public abstract class JournalArticleLocalServiceBaseImpl
 		exportActionableDynamicQuery.setAddCriteriaMethod(new ActionableDynamicQuery.AddCriteriaMethod() {
 				@Override
 				public void addCriteria(DynamicQuery dynamicQuery) {
-					Criterion modifiedDateCriterion = portletDataContext.getDateRangeCriteria(dynamicQuery,
+					Criterion modifiedDateCriterion = portletDataContext.getDateRangeCriteria(
 							"modifiedDate");
-					Criterion statusDateCriterion = portletDataContext.getDateRangeCriteria(dynamicQuery,
+					Criterion statusDateCriterion = portletDataContext.getDateRangeCriteria(
 							"statusDate");
 
 					if ((modifiedDateCriterion != null) &&
@@ -502,7 +503,7 @@ public abstract class JournalArticleLocalServiceBaseImpl
 	 *
 	 * @return the journal article local service
 	 */
-	public com.liferay.portlet.journal.service.JournalArticleLocalService getJournalArticleLocalService() {
+	public JournalArticleLocalService getJournalArticleLocalService() {
 		return journalArticleLocalService;
 	}
 
@@ -512,7 +513,7 @@ public abstract class JournalArticleLocalServiceBaseImpl
 	 * @param journalArticleLocalService the journal article local service
 	 */
 	public void setJournalArticleLocalService(
-		com.liferay.portlet.journal.service.JournalArticleLocalService journalArticleLocalService) {
+		JournalArticleLocalService journalArticleLocalService) {
 		this.journalArticleLocalService = journalArticleLocalService;
 	}
 
@@ -1625,6 +1626,44 @@ public abstract class JournalArticleLocalServiceBaseImpl
 	}
 
 	/**
+	 * Returns the d d m template link local service.
+	 *
+	 * @return the d d m template link local service
+	 */
+	public com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLinkLocalService getDDMTemplateLinkLocalService() {
+		return ddmTemplateLinkLocalService;
+	}
+
+	/**
+	 * Sets the d d m template link local service.
+	 *
+	 * @param ddmTemplateLinkLocalService the d d m template link local service
+	 */
+	public void setDDMTemplateLinkLocalService(
+		com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLinkLocalService ddmTemplateLinkLocalService) {
+		this.ddmTemplateLinkLocalService = ddmTemplateLinkLocalService;
+	}
+
+	/**
+	 * Returns the d d m template link persistence.
+	 *
+	 * @return the d d m template link persistence
+	 */
+	public DDMTemplateLinkPersistence getDDMTemplateLinkPersistence() {
+		return ddmTemplateLinkPersistence;
+	}
+
+	/**
+	 * Sets the d d m template link persistence.
+	 *
+	 * @param ddmTemplateLinkPersistence the d d m template link persistence
+	 */
+	public void setDDMTemplateLinkPersistence(
+		DDMTemplateLinkPersistence ddmTemplateLinkPersistence) {
+		this.ddmTemplateLinkPersistence = ddmTemplateLinkPersistence;
+	}
+
+	/**
 	 * Returns the expando row local service.
 	 *
 	 * @return the expando row local service
@@ -2215,8 +2254,8 @@ public abstract class JournalArticleLocalServiceBaseImpl
 		}
 	}
 
-	@BeanReference(type = com.liferay.portlet.journal.service.JournalArticleLocalService.class)
-	protected com.liferay.portlet.journal.service.JournalArticleLocalService journalArticleLocalService;
+	@BeanReference(type = JournalArticleLocalService.class)
+	protected JournalArticleLocalService journalArticleLocalService;
 	@BeanReference(type = com.liferay.portlet.journal.service.JournalArticleService.class)
 	protected com.liferay.portlet.journal.service.JournalArticleService journalArticleService;
 	@BeanReference(type = JournalArticlePersistence.class)
@@ -2335,6 +2374,10 @@ public abstract class JournalArticleLocalServiceBaseImpl
 	protected DDMTemplatePersistence ddmTemplatePersistence;
 	@BeanReference(type = DDMTemplateFinder.class)
 	protected DDMTemplateFinder ddmTemplateFinder;
+	@BeanReference(type = com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLinkLocalService.class)
+	protected com.liferay.portlet.dynamicdatamapping.service.DDMTemplateLinkLocalService ddmTemplateLinkLocalService;
+	@BeanReference(type = DDMTemplateLinkPersistence.class)
+	protected DDMTemplateLinkPersistence ddmTemplateLinkPersistence;
 	@BeanReference(type = com.liferay.portlet.expando.service.ExpandoRowLocalService.class)
 	protected com.liferay.portlet.expando.service.ExpandoRowLocalService expandoRowLocalService;
 	@BeanReference(type = ExpandoRowPersistence.class)

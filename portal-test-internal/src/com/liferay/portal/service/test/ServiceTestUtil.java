@@ -15,7 +15,6 @@
 package com.liferay.portal.service.test;
 
 import com.liferay.portal.jcr.JCRFactoryUtil;
-import com.liferay.portal.kernel.bean.PortalBeanLocatorUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.messaging.BaseDestination;
@@ -23,7 +22,6 @@ import com.liferay.portal.kernel.messaging.DestinationNames;
 import com.liferay.portal.kernel.messaging.MessageBus;
 import com.liferay.portal.kernel.messaging.MessageBusUtil;
 import com.liferay.portal.kernel.messaging.SynchronousDestination;
-import com.liferay.portal.kernel.messaging.sender.MessageSender;
 import com.liferay.portal.kernel.messaging.sender.SynchronousMessageSender;
 import com.liferay.portal.kernel.scheduler.SchedulerEngineHelperUtil;
 import com.liferay.portal.kernel.search.SearchEngineUtil;
@@ -38,7 +36,6 @@ import com.liferay.portal.model.User;
 import com.liferay.portal.model.impl.PortletImpl;
 import com.liferay.portal.repository.liferayrepository.LiferayRepository;
 import com.liferay.portal.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.security.lang.DoPrivilegedUtil;
 import com.liferay.portal.security.permission.PermissionChecker;
 import com.liferay.portal.security.permission.PermissionCheckerFactoryUtil;
 import com.liferay.portal.security.permission.PermissionThreadLocal;
@@ -146,19 +143,10 @@ public class ServiceTestUtil {
 
 		// Messaging
 
-		MessageBus messageBus = (MessageBus)PortalBeanLocatorUtil.locate(
-			MessageBus.class.getName());
-		MessageSender messageSender =
-			(MessageSender)PortalBeanLocatorUtil.locate(
-				MessageSender.class.getName());
-		SynchronousMessageSender synchronousMessageSender =
-			(SynchronousMessageSender)PortalBeanLocatorUtil.locate(
-				SynchronousMessageSender.class.getName());
+		MessageBusUtil messageBusUtil = new MessageBusUtil();
 
-		MessageBusUtil.init(
-			DoPrivilegedUtil.wrap(messageBus),
-			DoPrivilegedUtil.wrap(messageSender),
-			DoPrivilegedUtil.wrap(synchronousMessageSender));
+		messageBusUtil.setSynchronousMessageSenderMode(
+			SynchronousMessageSender.Mode.DEFAULT);
 
 		// Scheduler
 
@@ -255,12 +243,9 @@ public class ServiceTestUtil {
 
 		_deleteDirectories();
 
-		// Lucene
+		// Search engine
 
 		try {
-			FileUtil.mkdirs(
-				PropsValues.LUCENE_DIR + TestPropsValues.getCompanyId());
-
 			SearchEngineUtil.initialize(TestPropsValues.getCompanyId());
 		}
 		catch (Exception e) {
@@ -332,14 +317,6 @@ public class ServiceTestUtil {
 
 		FileUtil.deltree(
 			PropsUtil.get(PropsKeys.JCR_JACKRABBIT_REPOSITORY_ROOT));
-
-		try {
-			FileUtil.deltree(
-				PropsValues.LUCENE_DIR + TestPropsValues.getCompanyId());
-		}
-		catch (Exception e) {
-			_log.error(e, e);
-		}
 	}
 
 	private static void _replaceWithSynchronousDestination(String name) {

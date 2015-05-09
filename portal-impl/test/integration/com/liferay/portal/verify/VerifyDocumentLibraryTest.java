@@ -15,6 +15,7 @@
 package com.liferay.portal.verify;
 
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.FileShortcut;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
@@ -37,7 +38,6 @@ import com.liferay.portal.verify.test.BaseVerifyProcessTestCase;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryMetadata;
 import com.liferay.portlet.documentlibrary.model.DLFileEntryType;
-import com.liferay.portlet.documentlibrary.model.DLFileShortcut;
 import com.liferay.portlet.documentlibrary.model.DLFileVersion;
 import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
 import com.liferay.portlet.documentlibrary.service.DLAppLocalServiceUtil;
@@ -46,6 +46,7 @@ import com.liferay.portlet.documentlibrary.service.DLFileEntryLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryMetadataLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
+import com.liferay.portlet.dynamicdatamapping.io.DDMFormXSDDeserializerUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMForm;
 import com.liferay.portlet.dynamicdatamapping.model.DDMFormField;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
@@ -222,13 +223,13 @@ public class VerifyDocumentLibraryTest extends BaseVerifyProcessTestCase {
 
 		FileEntry fileEntry = addFileEntry(parentFolder.getFolderId());
 
-		DLFileShortcut dlFileShortcut = DLAppLocalServiceUtil.addFileShortcut(
+		FileShortcut fileShortcut = DLAppLocalServiceUtil.addFileShortcut(
 			TestPropsValues.getUserId(), _group.getGroupId(),
 			parentFolder.getFolderId(), fileEntry.getFileEntryId(),
 			serviceContext);
 
 		DLAppServiceUtil.moveFileShortcutToTrash(
-			dlFileShortcut.getFileShortcutId());
+			fileShortcut.getFileShortcutId());
 
 		DLFolderLocalServiceUtil.deleteFolder(
 			parentFolder.getFolderId(), false);
@@ -329,7 +330,10 @@ public class VerifyDocumentLibraryTest extends BaseVerifyProcessTestCase {
 			"/com/liferay/portlet/documentlibrary/service/dependencies" +
 				"/ddmstructure.xml");
 
-		serviceContext.setAttribute("definition", new String(bytes));
+		DDMForm ddmForm = DDMFormXSDDeserializerUtil.deserialize(
+			new String(bytes));
+
+		serviceContext.setAttribute("ddmForm", ddmForm);
 
 		User user = TestPropsValues.getUser();
 

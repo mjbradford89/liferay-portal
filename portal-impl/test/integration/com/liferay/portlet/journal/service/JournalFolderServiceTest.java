@@ -31,7 +31,6 @@ import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portal.util.PortalUtil;
 import com.liferay.portlet.dynamicdatamapping.model.DDMStructure;
 import com.liferay.portlet.dynamicdatamapping.model.DDMTemplate;
-import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUtil;
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMStructureTestUtil;
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMTemplateTestUtil;
 import com.liferay.portlet.journal.InvalidDDMStructureException;
@@ -96,23 +95,21 @@ public class JournalFolderServiceTest {
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
 
 		JournalFolderLocalServiceUtil.updateFolder(
-			TestPropsValues.getUserId(), folder.getFolderId(),
-			folder.getParentFolderId(), folder.getName(),
+			TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+			folder.getFolderId(), folder.getParentFolderId(), folder.getName(),
 			folder.getDescription(), ddmStructureIds,
 			JournalFolderConstants.RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW,
 			false, serviceContext);
 
 		List<DDMStructure> ddmStructures =
-			DDMStructureLocalServiceUtil.getJournalFolderStructures(
+			JournalFolderLocalServiceUtil.getDDMStructures(
 				PortalUtil.getCurrentAndAncestorSiteGroupIds(
 					_group.getGroupId()),
 				folder.getFolderId(),
 				JournalFolderConstants.
 					RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW);
 
-		if (ddmStructures.isEmpty()) {
-			Assert.fail();
-		}
+		Assert.assertFalse(ddmStructures.isEmpty());
 
 		String xml = DDMStructureTestUtil.getSampleStructuredContent(
 			"Test Article");
@@ -151,15 +148,13 @@ public class JournalFolderServiceTest {
 
 		JournalFolderLocalServiceUtil.deleteFolder(folder.getFolderId());
 
-		ddmStructures = DDMStructureLocalServiceUtil.getJournalFolderStructures(
+		ddmStructures = JournalFolderLocalServiceUtil.getDDMStructures(
 			PortalUtil.getCurrentAndAncestorSiteGroupIds(_group.getGroupId()),
 			folder.getFolderId(),
 			JournalFolderConstants.
 				RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW);
 
-		if (!ddmStructures.isEmpty()) {
-			Assert.fail();
-		}
+		Assert.assertTrue(ddmStructures.isEmpty());
 	}
 
 	@Test
@@ -168,6 +163,7 @@ public class JournalFolderServiceTest {
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
 
 		JournalFolderServiceUtil.updateFolder(
+			serviceContext.getScopeGroupId(),
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID, null, null,
 			new long[0], JournalFolderConstants.RESTRICTION_TYPE_WORKFLOW,
@@ -199,9 +195,9 @@ public class JournalFolderServiceTest {
 		long[] ddmStructureIds = {ddmStructure1.getStructureId()};
 
 		JournalFolderServiceUtil.updateFolder(
-			spainFolder.getFolderId(), spainFolder.getParentFolderId(),
-			spainFolder.getName(), spainFolder.getDescription(),
-			ddmStructureIds,
+			serviceContext.getScopeGroupId(), spainFolder.getFolderId(),
+			spainFolder.getParentFolderId(), spainFolder.getName(),
+			spainFolder.getDescription(), ddmStructureIds,
 			JournalFolderConstants.RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW,
 			false, serviceContext);
 
@@ -256,9 +252,9 @@ public class JournalFolderServiceTest {
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
 
 		JournalFolderLocalServiceUtil.updateFolder(
-			TestPropsValues.getUserId(), folder2.getFolderId(),
-			folder2.getParentFolderId(), folder2.getName(),
-			folder2.getDescription(), ddmStructureIds,
+			TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+			folder2.getFolderId(), folder2.getParentFolderId(),
+			folder2.getName(), folder2.getDescription(), ddmStructureIds,
 			JournalFolderConstants.RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW,
 			false, serviceContext);
 
@@ -318,8 +314,8 @@ public class JournalFolderServiceTest {
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
 
 		JournalFolderLocalServiceUtil.updateFolder(
-			TestPropsValues.getUserId(), folder.getFolderId(),
-			folder.getParentFolderId(), folder.getName(),
+			TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+			folder.getFolderId(), folder.getParentFolderId(), folder.getName(),
 			folder.getDescription(), ddmStructureIds,
 			JournalFolderConstants.RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW,
 			false, serviceContext);
@@ -388,9 +384,9 @@ public class JournalFolderServiceTest {
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
 
 		JournalFolderLocalServiceUtil.updateFolder(
-			TestPropsValues.getUserId(), folder3.getFolderId(),
-			folder3.getParentFolderId(), folder3.getName(),
-			folder3.getDescription(), ddmStructureIds,
+			TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+			folder3.getFolderId(), folder3.getParentFolderId(),
+			folder3.getName(), folder3.getDescription(), ddmStructureIds,
 			JournalFolderConstants.RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW,
 			false, serviceContext);
 
@@ -453,9 +449,9 @@ public class JournalFolderServiceTest {
 			ServiceContextTestUtil.getServiceContext(_group.getGroupId());
 
 		JournalFolderLocalServiceUtil.updateFolder(
-			TestPropsValues.getUserId(), folder2.getFolderId(),
-			folder2.getParentFolderId(), folder2.getName(),
-			folder2.getDescription(), ddmStructureIds,
+			TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+			folder2.getFolderId(), folder2.getParentFolderId(),
+			folder2.getName(), folder2.getDescription(), ddmStructureIds,
 			JournalFolderConstants.RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW,
 			false, serviceContext);
 
@@ -533,9 +529,9 @@ public class JournalFolderServiceTest {
 
 		try {
 			JournalFolderLocalServiceUtil.updateFolder(
-				TestPropsValues.getUserId(), folder.getFolderId(),
-				folder.getParentFolderId(), folder.getName(),
-				folder.getDescription(), ddmStructureIds,
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				folder.getFolderId(), folder.getParentFolderId(),
+				folder.getName(), folder.getDescription(), ddmStructureIds,
 				JournalFolderConstants.
 					RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW,
 				false, serviceContext);
@@ -555,9 +551,9 @@ public class JournalFolderServiceTest {
 
 		try {
 			JournalFolderLocalServiceUtil.updateFolder(
-				TestPropsValues.getUserId(), folder.getFolderId(),
-				folder.getParentFolderId(), folder.getName(),
-				folder.getDescription(), ddmStructureIds,
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				folder.getFolderId(), folder.getParentFolderId(),
+				folder.getName(), folder.getDescription(), ddmStructureIds,
 				JournalFolderConstants.
 					RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW,
 				false, serviceContext);

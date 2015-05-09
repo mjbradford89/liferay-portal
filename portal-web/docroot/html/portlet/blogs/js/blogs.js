@@ -69,7 +69,7 @@ AUI.add(
 
 						var userEntry = entry && entry.userId === themeDisplay.getUserId();
 
-						if (!entry || (userEntry && draftEntry)) {
+						if (!entry || userEntry && draftEntry) {
 							instance._initDraftSaveInterval();
 						}
 
@@ -78,7 +78,7 @@ AUI.add(
 						instance._customDescription = customDescriptionEnabled ? entry.description : STR_BLANK;
 						instance._shortenDescription = !customDescriptionEnabled;
 
-						instance.setDescription(window[instance.ns('contentEditor')].getHTML());
+						instance.setDescription(window[instance.ns('contentEditor')].getText());
 					},
 
 					destructor: function() {
@@ -129,14 +129,6 @@ AUI.add(
 							);
 						}
 
-						var previewButton = instance.one('#previewButton');
-
-						if (previewButton) {
-							eventHandles.push(
-								previewButton.on(STR_CLICK, instance._previewEntry, instance)
-							);
-						}
-
 						var customAbstractOptions = instance.one('#entryAbstractOptions');
 
 						if (customAbstractOptions) {
@@ -175,12 +167,12 @@ AUI.add(
 
 						var description = instance._customDescription;
 
-						instance._shortenDescription = (target.val() === 'false');
+						instance._shortenDescription = target.val() === 'false';
 
 						if (instance._shortenDescription) {
 							instance._customDescription = window[instance.ns('descriptionEditor')].getHTML();
 
-							description = window[instance.ns('contentEditor')].getHTML();
+							description = window[instance.ns('contentEditor')].getText();
 						}
 
 						instance._setDescriptionReadOnly(instance._shortenDescription);
@@ -228,51 +220,6 @@ AUI.add(
 						instance._oldTitle = entry ? entry.title : STR_BLANK;
 					},
 
-					_previewEntry: function() {
-						var instance = this;
-
-						var constants = instance.get('constants');
-
-						var form = instance._getPrincipalForm();
-
-						instance.one('#' + constants.CMD).val(instance.get('entry') ? constants.UPDATE : constants.ADD);
-
-						instance.one('#preview').val('true');
-						instance.one('#workflowAction').val(constants.ACTION_SAVE_DRAFT);
-
-						var contentEditor = window[instance.ns('contentEditor')];
-
-						if (contentEditor) {
-							instance.one('#content').val(contentEditor.getHTML());
-						}
-
-						var coverImageCaptionEditor = window[instance.ns('coverImageCaptionEditor')];
-
-						if (coverImageCaptionEditor) {
-							instance.one('#coverImageCaption').val(coverImageCaptionEditor.getHTML());
-						}
-
-						var descriptionEditor = window[instance.ns('descriptionEditor')];
-
-						if (descriptionEditor) {
-							instance.one('#description').val(descriptionEditor.getHTML());
-						}
-
-						var subtitleEditor = window[instance.ns('subtitleEditor')];
-
-						if (subtitleEditor) {
-							instance.one('#subtitle').val(subtitleEditor.getHTML());
-						}
-
-						var titleEditor = window[instance.ns('titleEditor')];
-
-						if (titleEditor) {
-							instance.one('#title').val(titleEditor.getHTML());
-						}
-
-						submitForm(form);
-					},
-
 					_removeCaption: function() {
 						var instance = this;
 
@@ -298,9 +245,9 @@ AUI.add(
 						var form = instance._getPrincipalForm();
 
 						if (draft && ajax) {
-							var hasData = (content !== STR_BLANK) && (title !== STR_BLANK);
+							var hasData = content !== STR_BLANK && title !== STR_BLANK;
 
-							var hasChanged = (instance._oldContent !== content) || (instance._oldSubtitle !== subtitle) || (instance._oldTitle !== title);
+							var hasChanged = instance._oldContent !== content || instance._oldSubtitle !== subtitle || instance._oldTitle !== title;
 
 							if (hasData && hasChanged) {
 								var strings = instance.get('strings');
@@ -387,7 +334,7 @@ AUI.add(
 													if (saveStatus) {
 														var entry = instance.get('entry');
 
-														var saveText = (entry && entry.pending) ? strings.savedAtMessage : strings.savedDraftAtMessage;
+														var saveText = entry && entry.pending ? strings.savedAtMessage : strings.savedDraftAtMessage;
 
 														var now = saveText.replace(/\{0\}/gim, (new Date()).toString());
 
@@ -437,7 +384,7 @@ AUI.add(
 							text = text.substring(0, descriptionLength);
 
 							if (STR_SUFFIX.length < descriptionLength) {
-								var spaceIndex = text.lastIndexOf(' ', (descriptionLength - STR_SUFFIX.length));
+								var spaceIndex = text.lastIndexOf(' ', descriptionLength - STR_SUFFIX.length);
 
 								text = text.substring(0, spaceIndex).concat(STR_SUFFIX);
 							}

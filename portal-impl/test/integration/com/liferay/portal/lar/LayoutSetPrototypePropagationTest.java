@@ -685,18 +685,16 @@ public class LayoutSetPrototypePropagationTest
 		try {
 			LayoutTestUtil.addLayout(group, layout.getPlid());
 
-			if (layoutSetPrototypeLinkEnabled) {
-				Assert.fail(
-					"Able to add a child page to a page associated to a site " +
-						"template with link enabled");
-			}
+			Assert.assertFalse(
+				"Able to add a child page to a page associated to a site " +
+					"template with link enabled",
+				layoutSetPrototypeLinkEnabled);
 		}
 		catch (LayoutParentLayoutIdException lplie) {
-			if (!layoutSetPrototypeLinkEnabled) {
-				Assert.fail(
-					"Unable to add a child page to a page associated to a " +
-						"template with link disabled");
-			}
+			Assert.assertTrue(
+				"Unable to add a child page to a page associated to a " +
+					"template with link disabled",
+				layoutSetPrototypeLinkEnabled);
 		}
 	}
 
@@ -708,8 +706,6 @@ public class LayoutSetPrototypePropagationTest
 	private LayoutSetPrototype _layoutSetPrototype;
 
 	private Group _layoutSetPrototypeGroup;
-
-	@DeleteAfterTestRun
 	private JournalArticle _layoutSetPrototypeJournalArticle;
 
 	@DeleteAfterTestRun

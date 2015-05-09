@@ -41,6 +41,7 @@ import com.liferay.portlet.documentlibrary.service.DLFolderLocalServiceUtil;
 import com.liferay.portlet.documentlibrary.service.permission.DLFileEntryPermission;
 import com.liferay.portlet.documentlibrary.service.permission.DLFolderPermission;
 import com.liferay.portlet.documentlibrary.util.DLUtil;
+import com.liferay.portlet.documentlibrary.util.DLValidatorUtil;
 import com.liferay.portlet.trash.RestoreEntryException;
 import com.liferay.portlet.trash.TrashEntryConstants;
 import com.liferay.portlet.trash.model.TrashEntry;
@@ -209,7 +210,7 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 		if ((dlFileEntry == null) ||
 			((dlFileEntry.getFolderId() > 0) &&
 			 (DLFolderLocalServiceUtil.fetchFolder(
-				dlFileEntry.getFolderId()) == null))) {
+				 dlFileEntry.getFolderId()) == null))) {
 
 			return false;
 		}
@@ -288,6 +289,18 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 			String originalFileName, String originalTitle, String newName)
 		throws PortalException {
 
+		if (Validator.isNotNull(newName) &&
+			!DLValidatorUtil.isValidName(newName)) {
+
+			RestoreEntryException ree = new RestoreEntryException(
+				RestoreEntryException.INVALID_NAME);
+
+			ree.setErrorMessage("please-enter-a-valid-name");
+			ree.setTrashEntryId(entryId);
+
+			throw ree;
+		}
+
 		DLFileEntry dlFileEntry = getDLFileEntry(classPK);
 
 		if (containerModelId == TrashEntryConstants.DEFAULT_CONTAINER_ID) {
@@ -342,7 +355,7 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 		throws PortalException {
 
 		Repository repository = RepositoryServiceUtil.getRepositoryImpl(
-			0, classPK, 0);
+			0, classPK, 0, 0);
 
 		if (!repository.isCapabilityProvided(TrashCapability.class)) {
 			return null;
@@ -355,7 +368,7 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 
 	protected DLFileEntry getDLFileEntry(long classPK) throws PortalException {
 		Repository repository = RepositoryServiceUtil.getRepositoryImpl(
-			0, classPK, 0);
+			0, classPK, 0, 0);
 
 		if (!repository.isCapabilityProvided(TrashCapability.class)) {
 			throw new InvalidRepositoryException(
@@ -371,7 +384,7 @@ public class DLFileEntryTrashHandler extends DLBaseTrashHandler {
 	@Override
 	protected Repository getRepository(long classPK) throws PortalException {
 		Repository repository = RepositoryServiceUtil.getRepositoryImpl(
-			0, classPK, 0);
+			0, classPK, 0, 0);
 
 		if (!repository.isCapabilityProvided(TrashCapability.class)) {
 			throw new InvalidRepositoryException(

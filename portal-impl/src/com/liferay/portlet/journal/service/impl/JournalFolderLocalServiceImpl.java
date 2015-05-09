@@ -277,6 +277,36 @@ public class JournalFolderLocalServiceImpl
 	}
 
 	@Override
+	public List<DDMStructure> getDDMStructures(
+			long[] groupIds, long folderId, int restrictionType)
+		throws PortalException {
+
+		if (restrictionType ==
+				JournalFolderConstants.
+					RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW) {
+
+			return journalFolderPersistence.getDDMStructures(folderId);
+		}
+
+		List<DDMStructure> ddmStructures = null;
+
+		folderId = getOverridedDDMStructuresFolderId(folderId);
+
+		if (folderId != JournalFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			ddmStructures = journalFolderPersistence.getDDMStructures(folderId);
+		}
+		else {
+			long classNameId = classNameLocalService.getClassNameId(
+				JournalArticle.class);
+
+			ddmStructures = ddmStructurePersistence.findByG_C(
+				groupIds, classNameId);
+		}
+
+		return ddmStructures;
+	}
+
+	@Override
 	public JournalFolder getFolder(long folderId) throws PortalException {
 		return journalFolderPersistence.findByPrimaryKey(folderId);
 	}
@@ -730,7 +760,7 @@ public class JournalFolderLocalServiceImpl
 			folder.getFolderId(), folder.getUuid(), 0, assetCategoryIds,
 			assetTagNames, true, null, null, null, ContentTypes.TEXT_PLAIN,
 			folder.getName(), folder.getDescription(), null, null, null, 0, 0,
-			null, false);
+			null);
 
 		assetLinkLocalService.updateLinks(
 			userId, assetEntry.getEntryId(), assetLinkEntryIds,
@@ -740,23 +770,24 @@ public class JournalFolderLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public JournalFolder updateFolder(
-			long userId, long folderId, long parentFolderId, String name,
-			String description, boolean mergeWithParentFolder,
+			long userId, long groupId, long folderId, long parentFolderId,
+			String name, String description, boolean mergeWithParentFolder,
 			ServiceContext serviceContext)
 		throws PortalException {
 
 		return updateFolder(
-			userId, folderId, parentFolderId, name, description, new long[0],
-			JournalFolderConstants.RESTRICTION_TYPE_INHERIT,
+			userId, groupId, folderId, parentFolderId, name, description,
+			new long[0], JournalFolderConstants.RESTRICTION_TYPE_INHERIT,
 			mergeWithParentFolder, serviceContext);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public JournalFolder updateFolder(
-			long userId, long folderId, long parentFolderId, String name,
-			String description, long[] ddmStructureIds, int restrictionType,
-			boolean mergeWithParentFolder, ServiceContext serviceContext)
+			long userId, long groupId, long folderId, long parentFolderId,
+			String name, String description, long[] ddmStructureIds,
+			int restrictionType, boolean mergeWithParentFolder,
+			ServiceContext serviceContext)
 		throws PortalException {
 
 		JournalFolder folder = null;
@@ -829,9 +860,8 @@ public class JournalFolderLocalServiceImpl
 		}
 
 		workflowDefinitionLinkLocalService.updateWorkflowDefinitionLinks(
-			serviceContext.getUserId(), serviceContext.getCompanyId(),
-			serviceContext.getScopeGroupId(), JournalFolder.class.getName(),
-			folderId, workflowDefinitionOVPs);
+			userId, serviceContext.getCompanyId(), groupId,
+			JournalFolder.class.getName(), folderId, workflowDefinitionOVPs);
 
 		return folder;
 	}
@@ -916,11 +946,9 @@ public class JournalFolderLocalServiceImpl
 			restrictionType = parentFolder.getRestrictionType();
 		}
 
-		List<DDMStructure> folderDDMStructures =
-			ddmStructureLocalService.getJournalFolderStructures(
-				PortalUtil.getCurrentAndAncestorSiteGroupIds(
-					folder.getGroupId()),
-				parentFolderId, restrictionType);
+		List<DDMStructure> folderDDMStructures = getDDMStructures(
+			PortalUtil.getCurrentAndAncestorSiteGroupIds(folder.getGroupId()),
+			parentFolderId, restrictionType);
 
 		long[] ddmStructureIds = new long[folderDDMStructures.size()];
 
