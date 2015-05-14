@@ -20,6 +20,7 @@ import com.liferay.sync.engine.model.ModelListener;
 import com.liferay.sync.engine.model.SyncFile;
 import com.liferay.sync.engine.model.SyncFileModelListener;
 import com.liferay.sync.engine.service.persistence.SyncFilePersistence;
+import com.liferay.sync.engine.util.FileKeyUtil;
 import com.liferay.sync.engine.util.FileUtil;
 import com.liferay.sync.engine.util.IODeltaUtil;
 
@@ -121,8 +122,9 @@ public class SyncFileService {
 
 		_syncFilePersistence.create(syncFile);
 
-		FileUtil.writeFileKey(
-			Paths.get(filePathName), String.valueOf(syncFile.getSyncFileId()));
+		FileKeyUtil.writeFileKey(
+			Paths.get(filePathName), String.valueOf(syncFile.getSyncFileId()),
+			true);
 
 		IODeltaUtil.checksums(syncFile);
 
@@ -197,12 +199,14 @@ public class SyncFileService {
 
 				@Override
 				public Object call() throws Exception {
-					List<SyncFile> syncFiles =
+					List<SyncFile> childSyncFiles =
 						_syncFilePersistence.findByParentFilePathName(
 							syncFile.getFilePathName());
 
-					for (SyncFile syncFile : syncFiles) {
-						doDeleteSyncFile(syncFile, notify);
+					for (SyncFile childSyncFile : childSyncFiles) {
+						childSyncFile.setUiEvent(syncFile.getUiEvent());
+
+						doDeleteSyncFile(childSyncFile, notify);
 					}
 
 					return null;
@@ -569,8 +573,8 @@ public class SyncFileService {
 
 		// Local sync file
 
-		FileUtil.writeFileKey(
-			filePath, String.valueOf(syncFile.getSyncFileId()));
+		FileKeyUtil.writeFileKey(
+			filePath, String.valueOf(syncFile.getSyncFileId()), true);
 
 		Path deltaFilePath = null;
 

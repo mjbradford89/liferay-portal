@@ -7,7 +7,7 @@ update AssetEntry set listable = TRUE;
 drop table AssetTagProperty;
 
 alter table BlogsEntry add subtitle STRING null;
-alter table BlogsEntry add coverImageCaption String null;
+alter table BlogsEntry add coverImageCaption STRING null;
 alter table BlogsEntry add coverImageFileEntryId LONG;
 alter table BlogsEntry add coverImageURL STRING null;
 alter table BlogsEntry add smallImageFileEntryId LONG;
@@ -57,6 +57,8 @@ create table DDMTemplateVersion (
 	userId LONG,
 	userName VARCHAR(75) null,
 	createDate DATE null,
+	classNameId LONG,
+	classPK LONG,
 	templateId LONG,
 	version VARCHAR(75) null,
 	name STRING null,
@@ -64,6 +66,10 @@ create table DDMTemplateVersion (
 	language VARCHAR(75) null,
 	script TEXT null
 );
+
+alter table DLFileEntryMetadata drop column fileEntryTypeId;
+
+drop index IX_F8E90438 on DLFileEntryMetadata;
 
 alter table DLFolder add restrictionType INTEGER;
 

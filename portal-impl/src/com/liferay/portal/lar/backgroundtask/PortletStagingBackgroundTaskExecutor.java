@@ -14,26 +14,26 @@
 
 package com.liferay.portal.lar.backgroundtask;
 
+import static com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants.EVENT_PUBLICATION_PORTLET_LOCAL_FAILED;
+import static com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants.EVENT_PUBLICATION_PORTLET_LOCAL_STARTED;
+import static com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants.EVENT_PUBLICATION_PORTLET_LOCAL_SUCCEEDED;
+import static com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants.PROCESS_FLAG_PORTLET_STAGING_IN_PROCESS;
+
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskResult;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.lar.ExportImportThreadLocal;
 import com.liferay.portal.kernel.lar.MissingReferences;
-import com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleConstants;
 import com.liferay.portal.kernel.lar.lifecycle.ExportImportLifecycleManager;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.model.BackgroundTask;
 import com.liferay.portal.model.ExportImportConfiguration;
 import com.liferay.portal.service.LayoutLocalServiceUtil;
 import com.liferay.portal.spring.transaction.TransactionHandlerUtil;
 
 import java.io.File;
-import java.io.Serializable;
 
-import java.util.Date;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
@@ -56,31 +56,42 @@ public class PortletStagingBackgroundTaskExecutor
 		ExportImportConfiguration exportImportConfiguration =
 			getExportImportConfiguration(backgroundTask);
 
+		File file = null;
 		MissingReferences missingReferences = null;
 
 		try {
 			ExportImportThreadLocal.setPortletStagingInProcess(true);
 
 			ExportImportLifecycleManager.fireExportImportLifecycleEvent(
-				ExportImportLifecycleConstants.
-					EVENT_PUBLICATION_PORTLET_LOCAL_STARTED,
+				EVENT_PUBLICATION_PORTLET_LOCAL_STARTED,
+				PROCESS_FLAG_PORTLET_STAGING_IN_PROCESS,
 				exportImportConfiguration);
+
+			file = LayoutLocalServiceUtil.exportPortletInfoAsFile(
+				exportImportConfiguration);
+
+			markBackgroundTask(
+				backgroundTask.getBackgroundTaskId(), "exported");
 
 			missingReferences = TransactionHandlerUtil.invoke(
 				transactionAttribute,
 				new PortletStagingCallable(
 					backgroundTask.getBackgroundTaskId(),
-					exportImportConfiguration));
+					exportImportConfiguration, file));
+
+			ExportImportThreadLocal.setPortletStagingInProcess(false);
 
 			ExportImportLifecycleManager.fireExportImportLifecycleEvent(
-				ExportImportLifecycleConstants.
-					EVENT_PUBLICATION_PORTLET_LOCAL_SUCCEEDED,
+				EVENT_PUBLICATION_PORTLET_LOCAL_SUCCEEDED,
+				PROCESS_FLAG_PORTLET_STAGING_IN_PROCESS,
 				exportImportConfiguration);
 		}
 		catch (Throwable t) {
+			ExportImportThreadLocal.setPortletStagingInProcess(false);
+
 			ExportImportLifecycleManager.fireExportImportLifecycleEvent(
-				ExportImportLifecycleConstants.
-					EVENT_PUBLICATION_PORTLET_LOCAL_FAILED,
+				EVENT_PUBLICATION_PORTLET_LOCAL_FAILED,
+				PROCESS_FLAG_PORTLET_STAGING_IN_PROCESS,
 				exportImportConfiguration);
 
 			if (_log.isDebugEnabled()) {
@@ -90,11 +101,12 @@ public class PortletStagingBackgroundTaskExecutor
 				_log.warn("Unable to publish portlet: " + t.getMessage());
 			}
 
+			deleteTempLarOnFailure(file);
+
 			throw new SystemException(t);
 		}
-		finally {
-			ExportImportThreadLocal.setPortletStagingInProcess(false);
-		}
+
+		deleteTempLarOnSuccess(file);
 
 		return processMissingReferences(
 			backgroundTask.getBackgroundTaskId(), missingReferences);
@@ -108,59 +120,33 @@ public class PortletStagingBackgroundTaskExecutor
 
 		public PortletStagingCallable(
 			long backgroundTaskId,
-			ExportImportConfiguration exportImportConfiguration) {
+			ExportImportConfiguration exportImportConfiguration, File file) {
 
 			_backgroundTaskId = backgroundTaskId;
 			_exportImportConfiguration = exportImportConfiguration;
+			_file = file;
 		}
 
 		@Override
 		public MissingReferences call() throws PortalException {
-			Map<String, Serializable> settingsMap =
-				_exportImportConfiguration.getSettingsMap();
+			LayoutLocalServiceUtil.importPortletDataDeletions(
+				_exportImportConfiguration, _file);
 
-			long userId = MapUtil.getLong(settingsMap, "userId");
-			long targetPlid = MapUtil.getLong(settingsMap, "targetPlid");
-			long targetGroupId = MapUtil.getLong(settingsMap, "targetGroupId");
-			String portletId = MapUtil.getString(settingsMap, "portletId");
-			Map<String, String[]> parameterMap =
-				(Map<String, String[]>)settingsMap.get("parameterMap");
+			MissingReferences missingReferences =
+				LayoutLocalServiceUtil.validateImportPortletInfo(
+					_exportImportConfiguration, _file);
 
-			long sourcePlid = MapUtil.getLong(settingsMap, "sourcePlid");
-			long sourceGroupId = MapUtil.getLong(settingsMap, "sourceGroupId");
-			Date startDate = (Date)settingsMap.get("startDate");
-			Date endDate = (Date)settingsMap.get("endDate");
+			markBackgroundTask(_backgroundTaskId, "validated");
 
-			File larFile = null;
-			MissingReferences missingReferences = null;
-
-			try {
-				larFile = LayoutLocalServiceUtil.exportPortletInfoAsFile(
-					sourcePlid, sourceGroupId, portletId, parameterMap,
-					startDate, endDate);
-
-				markBackgroundTask(_backgroundTaskId, "exported");
-
-				missingReferences =
-					LayoutLocalServiceUtil.validateImportPortletInfo(
-						userId, targetPlid, targetGroupId, portletId,
-						parameterMap, larFile);
-
-				markBackgroundTask(_backgroundTaskId, "validated");
-
-				LayoutLocalServiceUtil.importPortletInfo(
-					userId, targetPlid, targetGroupId, portletId, parameterMap,
-					larFile);
-			}
-			finally {
-				larFile.delete();
-			}
+			LayoutLocalServiceUtil.importPortletInfo(
+				_exportImportConfiguration, _file);
 
 			return missingReferences;
 		}
 
 		private final long _backgroundTaskId;
 		private final ExportImportConfiguration _exportImportConfiguration;
+		private final File _file;
 
 	}
 

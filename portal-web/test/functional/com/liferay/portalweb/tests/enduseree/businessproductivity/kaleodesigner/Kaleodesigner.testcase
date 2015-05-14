@@ -1,7 +1,7 @@
 <definition component-name="portal-business-productivity-ee">
 	<property name="portlet.plugins.includes" value="kaleo-designer-portlet,kaleo-forms-portlet" />
+	<property name="testray.main.component.name" value="Kaleo Designer" />
 	<property name="web.plugins.includes" value="kaleo-web" />
-	<property name="testray.main.component.name" value="Business Productivity" />
 
 	<set-up>
 		<execute macro="User#firstLoginPG" />
@@ -799,7 +799,7 @@
 		<execute macro="KaleoDesigner#publishInvalidWorkflowDefinitionViaWorkflowCP" />
 	</command>
 
-	<command known-issues="LIFERAYQA-11686" name="PublishWorkflowDefinitionWithInvalidConditionNodeSettingsAndViewErrorMessage" priority="5">
+	<command name="PublishWorkflowDefinitionWithInvalidConditionNodeSettingsAndViewErrorMessage" priority="5">
 		<var name="nodeScript" >
 <![CDATA[
 	import com.liferay.portal.kernel.util.GetterUtil;${line.separator}
