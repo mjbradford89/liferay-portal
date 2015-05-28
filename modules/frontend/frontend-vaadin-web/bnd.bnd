@@ -1,0 +1,8 @@
+Bundle-Name: Liferay Frontend Vaadin Web
+Bundle-SymbolicName: com.liferay.frontend.vaadin.web
+Bundle-Version: 1.0.0
+Include-Resource:\
+	classes,\
+	META-INF/resources=src/META-INF/resources,\
+	META-INF/resources/html/VAADIN=tmp/META-INF/resources/html/VAADIN
+Web-ContextPath: /frontend-vaadin-web
