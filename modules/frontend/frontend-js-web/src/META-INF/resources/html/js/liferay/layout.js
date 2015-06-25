@@ -287,7 +287,15 @@ AUI.add(
 				var column = event.column;
 
 				if (column) {
+					var layoutHandler = Layout.getLayoutHandler();
+
+					var drag = layoutHandler.delegate.dd;
+
 					Layout.syncEmptyColumnClassUI(column);
+
+					if (drag) {
+						drag.set('node', Layout.PROXY_NODE);
+					}
 				}
 			},
 
