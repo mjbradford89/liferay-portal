@@ -1,7 +1,7 @@
 <definition component-name="social-office-communication">
 	<property name="hook.plugins.includes" value="deploy-listener-hook,portal-compat-hook,so-activities-hook,so-hook" />
 	<property name="portlet.plugins.includes" value="calendar-portlet,chat-portlet,contacts-portlet,events-display-portlet,marketplace-portlet,microblogs-portlet,notifications-portlet,private-messaging-portlet,so-announcements-portlet,so-configurations-portlet,so-portlet,tasks-portlet,wysiwyg-portlet" />
-	<property name="testray.main.component.name" value="Social Office" />
+	<property name="testray.main.component.name" value="Social Office EE" />
 	<property name="theme.plugins.includes" value="so-theme" />
 	<property name="web.plugins.includes" value="resources-importer-web" />
 
@@ -70,6 +70,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress1}" />
 			<var name="userFirstName" value="${userFirstName1}" />
@@ -289,6 +290,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress1}" />
 			<var name="userFirstName" value="${userFirstName1}" />
@@ -306,6 +308,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress2}" />
 			<var name="userFirstName" value="${userFirstName2}" />
@@ -323,6 +326,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress3}" />
 			<var name="userFirstName" value="${userFirstName3}" />
@@ -340,6 +344,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress4}" />
 			<var name="userFirstName" value="${userFirstName4}" />
@@ -357,6 +362,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress5}" />
 			<var name="userFirstName" value="${userFirstName5}" />
@@ -374,6 +380,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress6}" />
 			<var name="userFirstName" value="${userFirstName6}" />
@@ -391,6 +398,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress7}" />
 			<var name="userFirstName" value="${userFirstName7}" />
@@ -408,6 +416,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress8}" />
 			<var name="userFirstName" value="${userFirstName8}" />
@@ -425,6 +434,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress9}" />
 			<var name="userFirstName" value="${userFirstName9}" />
@@ -442,6 +452,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress10}" />
 			<var name="userFirstName" value="${userFirstName10}" />
@@ -459,6 +470,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress11}" />
 			<var name="userFirstName" value="${userFirstName11}" />
@@ -476,6 +488,7 @@
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
+			<var name="adminName" value="${adminName}" />
 			<var name="senderName" value="${adminName}" />
 			<var name="userEmailAddress" value="${userEmailAddress12}" />
 			<var name="userFirstName" value="${userFirstName12}" />

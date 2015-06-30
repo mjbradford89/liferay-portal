@@ -105,7 +105,7 @@
 		</execute>
 	</command>
 
-	<command name="AddCustomTitleViaAP" priority="5">
+	<command name="AddCustomTitleViaAP" priority="4">
 		<execute macro="Page#addPG">
 			<var name="pageName" value="Test Page" />
 		</execute>
@@ -137,7 +137,7 @@
 		</execute>
 	</command>
 
-	<command name="AssertViewPermissionsViaCPAndPG" priority="4">
+	<command known-issues="LPS-56665" name="AssertViewPermissionsViaCPAndPG" priority="4">
 		<var name="roleType1" value="Regular" />
 		<var name="roleType2" value="Regular" />
 
@@ -362,9 +362,22 @@
 			<var name="siteScopeName" value="Site Name" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoManageStructures" />
+
 		<execute macro="WebContentStructures#addCP">
 			<var name="structureDescription" value="Advertisement Structure Description" />
-			<var name="structureFieldNames" value="Text,Text Box" />
+			<var name="structureName" value="Advertisement WC Structure Name" />
+		</execute>
+
+		<for list="Text,Text Box" param="structureFieldName">
+			<execute macro="DynamicDataMapping#addField">
+				<var name="field" value="${structureFieldName}" />
+				<var name="fieldFieldLabel" value="${structureFieldName}" />
+				<var method="StringUtil#replace('${structureFieldName}', ' ', '_')" name="fieldName" />
+			</execute>
+		</for>
+
+		<execute macro="WebContentStructures#saveCP">
 			<var name="structureName" value="Advertisement WC Structure Name" />
 		</execute>
 
@@ -388,9 +401,22 @@
 			<var name="siteScopeName" value="Site Name" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoManageStructures" />
+
 		<execute macro="WebContentStructures#addCP">
 			<var name="structureDescription" value="Press Release Structure Description" />
-			<var name="structureFieldNames" value="Text,Text Box" />
+			<var name="structureName" value="Press Release Structure Name" />
+		</execute>
+
+		<for list="Text,Text Box" param="structureFieldName">
+			<execute macro="DynamicDataMapping#addField">
+				<var name="field" value="${structureFieldName}" />
+				<var name="fieldFieldLabel" value="${structureFieldName}" />
+				<var method="StringUtil#replace('${structureFieldName}', ' ', '_')" name="fieldName" />
+			</execute>
+		</for>
+
+		<execute macro="WebContentStructures#saveCP">
 			<var name="structureName" value="Press Release Structure Name" />
 		</execute>
 
@@ -601,6 +627,8 @@
 			<var name="siteScopeName" value="Site Name" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoManageStructures" />
+
 		<execute macro="WebContentStructures#viewCP">
 			<var name="structureDescription" value="Advertisement Structure Description" />
 			<var name="structureFieldNames" value="Text,Text Box" />
@@ -678,6 +706,8 @@
 			<var name="siteScopeName" value="Site Name" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoManageStructures" />
+
 		<execute macro="WebContentStructures#viewCP">
 			<var name="structureDescription" value="Press Release Structure Description" />
 			<var name="structureFieldNames" value="Text,Text Box" />
@@ -747,7 +777,7 @@
 		<execute macro="AssetPublisherPortlet#configureDisplayPagePG" />
 	</command>
 
-	<command name="ConfigureAPPortletDisplaytemplateFullContentWithBookmarks" priority="4">
+	<command known-issues="LPS-56541" name="ConfigureAPPortletDisplaytemplateFullContentWithBookmarks" priority="4">
 		<var name="bookmarkURL" value="http://www.liferay.com" />
 
 		<execute macro="Page#addPG">
@@ -960,8 +990,9 @@
 		<execute macro="AssetPublisherPortlet#rate4StarsPG" />
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="Asset Publisher Page" />
-		</execute>
+			<var name="assetTitle" value="${assetTitle}" />
+		<var name="pageName" value="Asset Publisher Page" />
+</execute>
 
 		<execute macro="AssetPublisherPortlet#viewRate4StarsPG" />
 	</command>
@@ -1027,7 +1058,7 @@
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
-		<execute macro="AssetPublisherPortlet#viewSelectedPG">.
+		<execute macro="AssetPublisherPortlet#viewSelectedPG">
 			<var name="selectedAsset" value="Bookmarks Entry" />
 			<var name="selectedAssetConfiguration" value="Bookmarks Entry" />
 		</execute>
@@ -1228,7 +1259,7 @@
 		</execute>
 	</command>
 
-	<command name="OrderWCByModifiedDateViaAP" priority="3">
+	<command known-issues="LPS-56665" name="OrderWCByModifiedDateViaAP" priority="3">
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
@@ -1304,7 +1335,7 @@
 		</execute>
 	</command>
 
-	<command name="OrderWCByPublishDateViaAP" priority="3">
+	<command known-issues="LPS-56665" name="OrderWCByPublishDateViaAP" priority="3">
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>

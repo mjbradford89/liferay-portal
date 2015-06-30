@@ -211,6 +211,11 @@ public abstract class BaseSeleniumImpl
 	}
 
 	@Override
+	public void assertPartialConfirmation(String pattern) throws Exception {
+		LiferaySeleniumHelper.assertPartialConfirmation(this, pattern);
+	}
+
+	@Override
 	public void assertPartialText(String locator, String pattern)
 		throws Exception {
 
@@ -733,6 +738,11 @@ public abstract class BaseSeleniumImpl
 	@Override
 	public void typeAceEditor(String locator, String value) {
 		LiferaySeleniumHelper.typeAceEditor(this, locator, value);
+	}
+
+	@Override
+	public void typeCKEditor(String locator, String value) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
