@@ -20,7 +20,7 @@
 		<execute macro="Workflow#tearDownSiteWorkflow" />
 	</tear-down>
 
-	<command name="AddWebContentCP" priority="5">
+	<command known-issues="LPS-51687" name="AddWebContentCP" priority="4">
 		<var name="webContentContent" value="WC WebContent Content" />
 		<var name="webContentTitle" value="WC WebContent Title" />
 
@@ -31,6 +31,8 @@
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Web Content" />
 		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
 
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="${webContentContent}" />
@@ -47,7 +49,7 @@
 			<var name="portletName" value="My Workflow Tasks" />
 		</execute>
 
-		<execute macro="Workflow#viewAssignedToMyRolesTasksCP">
+		<execute macro="Workflow#viewTaskAssignedToMyRoles">
 			<var name="workflowAssetTitle" value="${webContentTitle}" />
 			<var name="workflowAssetType" value="${workflowAssetType}" />
 			<var name="workflowTask" value="Review" />
@@ -57,7 +59,7 @@
 			<var name="portletName" value="My Submissions" />
 		</execute>
 
-		<execute macro="Workflow#viewMySubmissionsCP">
+		<execute macro="Workflow#viewMySubmissions">
 			<var name="workflowAssetTitle" value="${webContentTitle}" />
 			<var name="workflowAssetType" value="${workflowAssetType}" />
 			<var name="workflowDefinition" value="Single Approver" />
@@ -65,7 +67,7 @@
 		</execute>
 	</command>
 
-	<command name="AddWebContentDraftCP" priority="5">
+	<command known-issues="LPS-51687" name="AddWebContentDraftCP" priority="4">
 		<var name="webContentContent" value="WC WebContent Content" />
 		<var name="webContentTitle" value="WC WebContent Title" />
 
@@ -77,6 +79,8 @@
 			<var name="portletName" value="Web Content" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
 		<execute macro="WebContent#addDraftCP">
 			<var name="webContentContent" value="${webContentContent}" />
 			<var name="webContentTitle" value="${webContentTitle}" />
@@ -86,8 +90,14 @@
 			<var name="portletName" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContent#viewDraftCP">
+		<execute macro="WebContentNavigator#gotoViewStatus">
+			<var name="webContentStatus" value="Draft" />
+			<var name="webContentTitle" value="${webContentTitle}" />
+		</execute>
+
+		<execute macro="WebContent#viewStatus">
 			<var name="webContentContent" value="${webContentContent}" />
+			<var name="webContentStatus" value="Draft" />
 			<var name="webContentTitle" value="${webContentTitle}" />
 		</execute>
 
@@ -104,7 +114,7 @@
 		<execute macro="Workflow#viewDefaultMySubmissionsCP" />
 	</command>
 
-	<command name="AddWebContentNoWorkflowCP" priority="5">
+	<command name="AddWebContentNoWorkflowCP" priority="4">
 		<var name="webContentContent" value="WC WebContent Content" />
 		<var name="webContentTitle" value="WC WebContent Title" />
 
@@ -118,8 +128,16 @@
 			<var name="portletName" value="Web Content" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
 		<execute macro="WebContent#addCP">
 			<var name="webContentContent" value="${webContentContent}" />
+			<var name="webContentTitle" value="${webContentTitle}" />
+		</execute>
+
+		<execute macro="WebContent#publish" />
+
+		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="${webContentTitle}" />
 		</execute>
 
@@ -136,7 +154,7 @@
 		<execute macro="Workflow#viewDefaultMySubmissionsCP" />
 	</command>
 
-	<command name="ApproveInWebContentFolderNoWorkflowWithHomeFolderSingleApproverWorkflowCP" priority="4">
+	<command known-issues="LPS-51687" name="ApproveInWebContentFolderNoWorkflowWithHomeFolderSingleApproverWorkflowCP" priority="4">
 		<execute macro="Workflow#configureWebContentWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>
@@ -157,19 +175,28 @@
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
 		<execute macro="WebContent#addCP">
 			<var name="webContentContent" value="WC Folder WebContent Content" />
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#publish" />
+
+		<execute macro="WebContent#viewTitle">
+			<var name="webContentTitle" value="WC Folder WebContent Title" />
+		</execute>
+
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
 		</execute>
 
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Web Content" />
 		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
 
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="WC WebContent Content" />
@@ -216,16 +243,26 @@
 			<var name="portletName" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 	</command>
 
-	<command name="ApproveInWebContentFolderSingleApproverStructureSpecificWorkflowCP" priority="4">
+	<command known-issues="LPS-56092" name="ApproveInWebContentFolderSingleApproverStructureSpecificWorkflowCP" priority="4">
+		<execute macro="WebContentNavigator#gotoManageStructures" />
+
 		<execute macro="WebContentStructures#addCP">
 			<var name="structureDescription" value="WC Structure Description" />
-			<var name="structureFieldNames" value="Text" />
+			<var name="structureName" value="WC Structure Name" />
+		</execute>
+
+		<execute macro="DynamicDataMapping#addField">
+			<var name="field" value="Text" />
+			<var name="fieldFieldLabel" value="Text" />
+			<var name="fieldName" value="Text" />
+		</execute>
+
+		<execute macro="WebContentStructures#saveCP">
 			<var name="structureName" value="WC Structure Name" />
 		</execute>
 
@@ -270,6 +307,10 @@
 		<execute macro="WebContentFolder#gotoCP">
 			<var name="folderName" value="WC Folder Name" />
 			<var name="webContentTitle" value="WC Folder Name" />
+		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddWithStructureCP">
+			<var name="structureName" value="WC Structure Name" />
 		</execute>
 
 		<execute macro="WebContent#addWithStructureAndWorkflowCP">
@@ -279,6 +320,10 @@
 			<var name="webContentTitle" value="WC Folder WCWithStructure Title" />
 		</execute>
 
+		<execute macro="WebContent#viewTitle">
+			<var name="webContentTitle" value="WC Folder WCWithStructure Title" />
+		</execute>
+
 		<execute macro="WebContent#viewStructureWithWorkflowCP">
 			<var name="webContentTitle" value="WC Folder WCWithStructure Title" />
 			<var name="workflowTask" value="Review" />
@@ -293,18 +338,29 @@
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
 		<execute macro="WebContent#addCP">
 			<var name="webContentContent" value="WC Folder WebContent Content" />
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#publish" />
+
+		<execute macro="WebContent#viewTitle">
+			<var name="webContentTitle" value="WC Folder WebContent Title" />
+		</execute>
+
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
 		</execute>
 
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Web Content" />
+		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddWithStructureCP">
+			<var name="structureName" value="WC Structure Name" />
 		</execute>
 
 		<execute macro="WebContent#addWithStructureCP">
@@ -314,8 +370,13 @@
 			<var name="webContentTitle" value="WC WebContent Structure Title" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#publish" />
+
+		<execute macro="WebContent#viewTitle">
+			<var name="webContentTitle" value="WC WebContent Structure Title" />
+		</execute>
+
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC WebContent Structure Title" />
 		</execute>
 
@@ -362,13 +423,12 @@
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC Folder WCWithStructure Title" />
 		</execute>
 	</command>
 
-	<command name="ApproveInWebContentFolderSingleApproverWorkflowWithNoHomeFolderWorkflowCP" priority="4">
+	<command known-issues="LPS-51687" name="ApproveInWebContentFolderSingleApproverWorkflowWithNoHomeFolderWorkflowCP" priority="4">
 		<execute macro="Workflow#configureWebContentWorkflow">
 			<var name="workflowDefinition" value="No Workflow" />
 		</execute>
@@ -384,13 +444,20 @@
 			<var name="workflowRestriction" value="Default Workflow" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
 		<execute macro="WebContent#addCP">
 			<var name="webContentContent" value="WC WebContent Content" />
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#publish" />
+
+		<execute macro="WebContent#viewTitle">
+			<var name="webContentTitle" value="WC WebContent Title" />
+		</execute>
+
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
@@ -402,6 +469,8 @@
 			<var name="folderName" value="WC Folder Name" />
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
 
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="WC Folder WebContent Content" />
@@ -458,13 +527,12 @@
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
 		</execute>
 	</command>
 
-	<command name="ApproveInWebContentFolderWithParentFolderSingleApproverWorkflowCP" priority="4">
+	<command known-issues="LPS-51687" name="ApproveInWebContentFolderWithParentFolderSingleApproverWorkflowCP" priority="4">
 		<execute macro="Workflow#configureWebContentWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>
@@ -488,6 +556,8 @@
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="WC Folder WebContent Content" />
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
@@ -502,6 +572,8 @@
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Web Content" />
 		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
 
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="WC WebContent Content" />
@@ -584,8 +656,7 @@
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
 		</execute>
 
@@ -593,13 +664,12 @@
 			<var name="portletName" value="Web Content" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 	</command>
 
-	<command name="ApproveWebContentCP" priority="5">
+	<command known-issues="LPS-51687" name="ApproveWebContentCP" priority="4">
 		<var name="webContentContent" value="WC WebContent Content" />
 		<var name="webContentTitle" value="WC WebContent Title" />
 
@@ -610,6 +680,8 @@
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Web Content" />
 		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
 
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="${webContentContent}" />
@@ -650,13 +722,17 @@
 			<var name="portletName" value="Web Content" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoEditCP">
+			<var name="webContentTitle" value="${webContentTitle}" />
+		</execute>
+
 		<execute macro="WebContent#viewCP">
 			<var name="webContentContent" value="${webContentContent}" />
 			<var name="webContentTitle" value="${webContentTitle}" />
 		</execute>
 	</command>
 
-	<command name="RejectInWebContentFolderNoWorkflowWithHomeFolderSingleApproverWorkflowCP" priority="4">
+	<command known-issues="LPS-51687" name="RejectInWebContentFolderNoWorkflowWithHomeFolderSingleApproverWorkflowCP" priority="4">
 		<execute macro="Workflow#configureWebContentWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>
@@ -677,19 +753,28 @@
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
 		<execute macro="WebContent#addCP">
 			<var name="webContentContent" value="WC Folder WebContent Content" />
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#publish" />
+
+		<execute macro="WebContent#viewTitle">
+			<var name="webContentTitle" value="WC Folder WebContent Title" />
+		</execute>
+
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
 		</execute>
 
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Web Content" />
 		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
 
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="WC WebContent Content" />
@@ -736,7 +821,7 @@
 			<var name="portletName" value="My Workflow Tasks" />
 		</execute>
 
-		<execute macro="Workflow#viewRejectTask">
+		<execute macro="Workflow#viewRejectedTask">
 			<var name="workflowAssetTitle" value="WC WebContent Title" />
 			<var name="workflowAssetType" value="Web Content Article" />
 		</execute>
@@ -752,10 +837,21 @@
 		</execute>
 	</command>
 
-	<command name="RejectInWebContentFolderSingleApproverStructureSpecificWorkflowCP" priority="4">
+	<command known-issues="LPS-51687" name="RejectInWebContentFolderSingleApproverStructureSpecificWorkflowCP" priority="4">
+		<execute macro="WebContentNavigator#gotoManageStructures" />
+
 		<execute macro="WebContentStructures#addCP">
 			<var name="structureDescription" value="WC Structure Description" />
-			<var name="structureFieldNames" value="Text" />
+			<var name="structureName" value="WC Structure Name" />
+		</execute>
+
+		<execute macro="DynamicDataMapping#addField">
+			<var name="field" value="Text" />
+			<var name="fieldFieldLabel" value="Text" />
+			<var name="fieldName" value="Text" />
+		</execute>
+
+		<execute macro="WebContentStructures#saveCP">
 			<var name="structureName" value="WC Structure Name" />
 		</execute>
 
@@ -802,20 +898,35 @@
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
 		<execute macro="WebContent#addCP">
 			<var name="webContentContent" value="WC Folder WebContent Content" />
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#publish" />
+
+		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
+		</execute>
+
+		<execute macro="WebContent#viewApprovedStatus">
+			<var name="webContentTitle" value="WC Folder WebContent Title" />
+		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddWithStructureCP">
+			<var name="structureName" value="WC Structure Name" />
 		</execute>
 
 		<execute macro="WebContent#addWithStructureAndWorkflowCP">
 			<var name="structureName" value="WC Structure Name" />
 			<var name="templateName" value="WC Template Name" />
 			<var name="webContentText" value="WC Folder WebContent Structure Text" />
+			<var name="webContentTitle" value="WC Folder WebContent Structure Title" />
+		</execute>
+
+		<execute macro="WebContent#viewTitle">
 			<var name="webContentTitle" value="WC Folder WebContent Structure Title" />
 		</execute>
 
@@ -828,6 +939,10 @@
 			<var name="portletName" value="Web Content" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddWithStructureCP">
+			<var name="structureName" value="WC Structure Name" />
+		</execute>
+
 		<execute macro="WebContent#addWithStructureCP">
 			<var name="structureName" value="WC Structure Name" />
 			<var name="templateName" value="WC Template Name" />
@@ -835,8 +950,13 @@
 			<var name="webContentTitle" value="WC WebContent Structure Title" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#publish" />
+
+		<execute macro="WebContent#viewTitle">
+			<var name="webContentTitle" value="WC WebContent Structure Title" />
+		</execute>
+
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC WebContent Structure Title" />
 		</execute>
 
@@ -878,7 +998,7 @@
 			<var name="portletName" value="My Workflow Tasks" />
 		</execute>
 
-		<execute macro="Workflow#viewRejectTask">
+		<execute macro="Workflow#viewRejectedTask">
 			<var name="workflowAssetTitle" value="WC Folder WebContent Structure Title" />
 			<var name="workflowAssetType" value="Web Content Article" />
 		</execute>
@@ -898,7 +1018,7 @@
 		</execute>
 	</command>
 
-	<command name="RejectInWebContentFolderSingleApproverWorkflowWithNoHomeFolderWorkflowCP" priority="4">
+	<command known-issues="LPS-51687" name="RejectInWebContentFolderSingleApproverWorkflowWithNoHomeFolderWorkflowCP" priority="4">
 		<execute macro="Workflow#configureWebContentWorkflow">
 			<var name="workflowDefinition" value="No Workflow" />
 		</execute>
@@ -914,13 +1034,20 @@
 			<var name="workflowRestriction" value="Default Workflow" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
 		<execute macro="WebContent#addCP">
 			<var name="webContentContent" value="WC WebContent Content" />
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="WebContent#viewCPStatus">
-			<var name="webContentStatus" value="Approved" />
+		<execute macro="WebContent#publish" />
+
+		<execute macro="WebContent#viewTitle">
+			<var name="webContentTitle" value="WC WebContent Title" />
+		</execute>
+
+		<execute macro="WebContent#viewApprovedStatus">
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
@@ -932,6 +1059,8 @@
 			<var name="folderName" value="WC Folder Name" />
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
 
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="WC Folder WebContent Content" />
@@ -983,7 +1112,7 @@
 			<var name="portletName" value="My Workflow Tasks" />
 		</execute>
 
-		<execute macro="Workflow#viewRejectTask">
+		<execute macro="Workflow#viewRejectedTask">
 			<var name="workflowAssetTitle" value="WC Folder WebContent Title" />
 			<var name="workflowAssetType" value="Web Content Article" />
 		</execute>
@@ -1004,7 +1133,7 @@
 		</execute>
 	</command>
 
-	<command name="RejectInWebContentFolderWithParentFolderSingleApproverWorkflowCP" priority="4">
+	<command known-issues="LPS-51687" name="RejectInWebContentFolderWithParentFolderSingleApproverWorkflowCP" priority="4">
 		<execute macro="Workflow#configureWebContentWorkflow">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>
@@ -1028,6 +1157,8 @@
 			<var name="webContentTitle" value="WC Folder Name" />
 		</execute>
 
+		<execute macro="WebContentNavigator#gotoAddCP" />
+
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="WC Folder WebContent Content" />
 			<var name="webContentTitle" value="WC Folder WebContent Title" />
@@ -1042,6 +1173,8 @@
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Web Content" />
 		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
 
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="WC WebContent Content" />
@@ -1119,7 +1252,7 @@
 			<var name="portletName" value="My Workflow Tasks" />
 		</execute>
 
-		<execute macro="Workflow#viewRejectTask">
+		<execute macro="Workflow#viewRejectedTask">
 			<var name="workflowAssetTitle" value="WC Folder WebContent Title" />
 			<var name="workflowAssetType" value="Web Content Article" />
 		</execute>
@@ -1128,7 +1261,7 @@
 			<var name="portletName" value="My Workflow Tasks" />
 		</execute>
 
-		<execute macro="Workflow#viewRejectTask">
+		<execute macro="Workflow#viewRejectedTask">
 			<var name="workflowAssetTitle" value="WC WebContent Title" />
 			<var name="workflowAssetType" value="Web Content Article" />
 		</execute>
@@ -1159,7 +1292,7 @@
 		</execute>
 	</command>
 
-	<command name="RejectWebContentCP" priority="5">
+	<command known-issues="LPS-51687" name="RejectWebContentCP" priority="4">
 		<var name="webContentContent" value="WC WebContent Content" />
 		<var name="webContentTitle" value="WC WebContent Title" />
 
@@ -1170,6 +1303,8 @@
 		<execute macro="Page#gotoContentCP">
 			<var name="portletName" value="Web Content" />
 		</execute>
+
+		<execute macro="WebContentNavigator#gotoAddCP" />
 
 		<execute macro="WebContent#addWithWorkflowCP">
 			<var name="webContentContent" value="${webContentContent}" />
@@ -1200,7 +1335,7 @@
 			<var name="portletName" value="My Workflow Tasks" />
 		</execute>
 
-		<execute macro="Workflow#viewRejectTask">
+		<execute macro="Workflow#viewRejectedTask">
 			<var name="workflowAssetTitle" value="${webContentTitle}" />
 			<var name="workflowAssetType" value="${workflowAssetType}" />
 		</execute>

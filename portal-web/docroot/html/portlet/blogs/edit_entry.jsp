@@ -44,10 +44,7 @@ String coverImageCaption = BeanParamUtil.getString(entry, request, "coverImageCa
 long coverImageFileEntryId = BeanParamUtil.getLong(entry, request, "coverImageFileEntryId");
 long smallImageFileEntryId = BeanParamUtil.getLong(entry, request, "smallImageFileEntryId");
 
-boolean preview = ParamUtil.getBoolean(request, "preview");
 boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
-
-BlogsEntryEditorDisplayContext blogsEntryEditorDisplayContext = new BlogsEntryEditorDisplayContext(liferayPortletResponse);
 %>
 
 <c:if test="<%= showHeader %>">
@@ -58,8 +55,8 @@ BlogsEntryEditorDisplayContext blogsEntryEditorDisplayContext = new BlogsEntryEd
 	/>
 </c:if>
 
-<portlet:actionURL var="editEntryURL">
-	<portlet:param name="struts_action" value="/blogs/edit_entry" />
+<portlet:actionURL name="/blogs/edit_entry" var="editEntryURL">
+	<portlet:param name="mvcPath" value="/html/portlet/blogs/edit_entry.jsp" />
 </portlet:actionURL>
 
 <div class="edit-entry">
@@ -69,7 +66,6 @@ BlogsEntryEditorDisplayContext blogsEntryEditorDisplayContext = new BlogsEntryEd
 		<aui:input name="backURL" type="hidden" value="<%= backURL %>" />
 		<aui:input name="referringPortletResource" type="hidden" value="<%= referringPortletResource %>" />
 		<aui:input name="entryId" type="hidden" value="<%= entryId %>" />
-		<aui:input name="preview" type="hidden" value="<%= false %>" />
 		<aui:input name="workflowAction" type="hidden" value="<%= WorkflowConstants.ACTION_PUBLISH %>" />
 
 		<liferay-ui:error exception="<%= EntryContentException.class %>" message="please-enter-valid-content" />
@@ -118,9 +114,7 @@ BlogsEntryEditorDisplayContext blogsEntryEditorDisplayContext = new BlogsEntryEd
 						<aui:workflow-status showIcon="<%= false %>" showLabel="<%= false %>" status="<%= entry.getStatus() %>" />
 					</c:if>
 
-					<portlet:actionURL var="coverImageSelectorURL">
-						<portlet:param name="struts_action" value="/blogs/cover_image_selector" />
-					</portlet:actionURL>
+					<portlet:actionURL name="/blogs/cover_image_selector" var="coverImageSelectorURL" />
 
 					<div class="lfr-blogs-cover-image-selector">
 						<liferay-ui:image-selector draggableImage="vertical" fileEntryId="<%= coverImageFileEntryId %>" maxFileSize="<%= PrefsPropsUtil.getLong(PropsKeys.BLOGS_IMAGE_COVER_MAX_SIZE) %>" paramName="coverImageFileEntry" uploadURL="<%= coverImageSelectorURL %>" validExtensions='<%= StringUtil.merge(imageExtensions, ", ") %>' />
@@ -129,23 +123,23 @@ BlogsEntryEditorDisplayContext blogsEntryEditorDisplayContext = new BlogsEntryEd
 					<aui:input name="coverImageCaption" type="hidden" />
 
 					<div class="entry-cover-image-caption <%= (coverImageFileEntryId == 0) ? "invisible" : "" %>">
-						<liferay-ui:input-editor contents="<%= coverImageCaption %>" data="<%= blogsEntryEditorDisplayContext.getCoverImageCaptionEditorData() %>" editorImpl="<%= EDITOR_IMPL_KEY %>" name="coverImageCaptionEditor" placeholder="caption" showSource="<%= false %>" />
+						<liferay-ui:input-editor contents="<%= coverImageCaption %>" editorName="alloyeditor" name="coverImageCaptionEditor" placeholder="caption" showSource="<%= false %>" />
 					</div>
 
 					<div class="entry-title">
-						<h2><liferay-ui:input-editor contents="<%= title %>" data="<%= blogsEntryEditorDisplayContext.getTextEditorData() %>" editorImpl="<%= EDITOR_IMPL_KEY %>" name="titleEditor" placeholder="title" showSource="<%= false %>" /></h2>
+						<h2><liferay-ui:input-editor contents="<%= title %>" editorName="alloyeditor" name="titleEditor" placeholder="title" showSource="<%= false %>" /></h2>
 					</div>
 
 					<aui:input name="title" type="hidden" />
 
 					<div class="entry-subtitle">
-						<liferay-ui:input-editor contents="<%= subtitle %>" data="<%= blogsEntryEditorDisplayContext.getTextEditorData() %>" editorImpl="<%= EDITOR_IMPL_KEY %>" name="subtitleEditor" placeholder="subtitle" showSource="<%= false %>" />
+						<liferay-ui:input-editor contents="<%= subtitle %>" editorName="alloyeditor" name="subtitleEditor" placeholder="subtitle" showSource="<%= false %>" />
 					</div>
 
 					<aui:input name="subtitle" type="hidden" />
 
 					<div class="entry-body">
-						<liferay-ui:input-editor contents="<%= content %>" data="<%= blogsEntryEditorDisplayContext.getContentEditorData() %>" editorImpl="<%= EDITOR_IMPL_KEY %>" name="contentEditor" onChangeMethod="OnChangeEditor" placeholder="content" />
+						<liferay-ui:input-editor contents="<%= content %>" editorName='<%= PropsUtil.get("editor.wysiwyg.portal-web.docroot.html.portlet.blogs.edit_entry.jsp") %>' name="contentEditor" onChangeMethod="OnChangeEditor" placeholder="content" />
 					</div>
 
 					<aui:input name="content" type="hidden" />
@@ -179,22 +173,20 @@ BlogsEntryEditorDisplayContext blogsEntryEditorDisplayContext = new BlogsEntryEd
 						</p>
 
 						<div class="entry-abstract-options" id="<portlet:namespace />entryAbstractOptions">
-							<aui:input checked="<%= !customAbstract %>" label='<%= LanguageUtil.format(request, "use-first-x-characters-of-the-content-entry", pageAbstractLength, false) %>' name="customAbstract" type="radio" value="<%= false %>" />
+							<aui:input checked="<%= !customAbstract %>" label='<%= LanguageUtil.format(request, "use-the-first-x-characters-of-the-entry-content", pageAbstractLength, false) %>' name="customAbstract" type="radio" value="<%= false %>" />
 
 							<aui:input checked="<%= customAbstract %>" label="custom-abstract" name="customAbstract" type="radio" value="<%= true %>" />
 						</div>
 
 						<aui:fieldset cssClass="entry-abstract">
-							<portlet:actionURL var="smallImageSelectorURL">
-								<portlet:param name="struts_action" value="/blogs/small_image_selector" />
-							</portlet:actionURL>
+							<portlet:actionURL name="/blogs/small_image_selector" var="smallImageSelectorURL" />
 
 							<div class="lfr-blogs-small-image-selector">
 								<liferay-ui:image-selector fileEntryId="<%= smallImageFileEntryId %>" maxFileSize="<%= smallImageMaxFileSize %>" paramName="smallImageFileEntry" uploadURL="<%= smallImageSelectorURL %>" validExtensions='<%= StringUtil.merge(imageExtensions, ", ") %>' />
 							</div>
 
 							<div class="entry-description">
-								<liferay-ui:input-editor contents="<%= description %>" cssClass='<%= customAbstract ? StringPool.BLANK : "readonly" %>' data="<%= blogsEntryEditorDisplayContext.getTextEditorData() %>" editorImpl="<%= EDITOR_IMPL_KEY %>" name="descriptionEditor" onInitMethod="OnDescriptionEditorInit" placeholder="description" showSource="<%= false %>" />
+								<liferay-ui:input-editor contents="<%= description %>" cssClass='<%= customAbstract ? StringPool.BLANK : "readonly" %>' editorName="alloyeditor" name="descriptionEditor" onInitMethod="OnDescriptionEditorInit" placeholder="description" showSource="<%= false %>" />
 							</div>
 
 							<aui:input name="description" type="hidden" />
@@ -309,24 +301,6 @@ BlogsEntryEditorDisplayContext blogsEntryEditorDisplayContext = new BlogsEntryEd
 		</liferay-ui:tabs>
 
 		<aui:fieldset>
-			<c:if test="<%= preview %>">
-
-				<%
-				if (entry == null) {
-					entry = new BlogsEntryImpl();
-				}
-
-				entry.setContent(content);
-				%>
-
-				<liferay-ui:message key="preview" />:
-
-				<div class="preview">
-					<%= entry.getContent() %>
-				</div>
-
-				<br />
-			</c:if>
 
 			<%
 			boolean pending = false;
@@ -366,11 +340,7 @@ BlogsEntryEditorDisplayContext blogsEntryEditorDisplayContext = new BlogsEntryEd
 
 				<aui:button disabled="<%= pending %>" name="publishButton"  type="submit" value="<%= publishButtonLabel %>" />
 
-				<aui:button name="saveButton"  primary="<%= false %>" type="submit" value="<%= saveButtonLabel %>" />
-
-				<c:if test="<%= (entry == null) || entry.isDraft() || preview %>">
-					<aui:button name="previewButton" value="preview" />
-				</c:if>
+				<aui:button name="saveButton" primary="<%= false %>" type="submit" value="<%= saveButtonLabel %>" />
 
 				<aui:button href="<%= redirect %>" name="cancelButton" type="cancel" />
 			</aui:button-row>
@@ -378,10 +348,8 @@ BlogsEntryEditorDisplayContext blogsEntryEditorDisplayContext = new BlogsEntryEd
 	</aui:form>
 </div>
 
-<portlet:actionURL var="editEntryURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
-	<portlet:param name="struts_action" value="/blogs/edit_entry" />
+<portlet:actionURL name="/blogs/edit_entry" var="editEntryURL" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>">
 	<portlet:param name="ajax" value="true" />
-	<portlet:param name="preview" value="false" />
 </portlet:actionURL>
 
 <aui:script>
@@ -453,7 +421,7 @@ BlogsEntryEditorDisplayContext blogsEntryEditorDisplayContext = new BlogsEntryEd
 if (entry != null) {
 	PortletURL portletURL = renderResponse.createRenderURL();
 
-	portletURL.setParameter("struts_action", "/blogs/view_entry");
+	portletURL.setParameter("mvcRenderCommandName", "/blogs/view_entry");
 	portletURL.setParameter("entryId", String.valueOf(entry.getEntryId()));
 
 	PortalUtil.addPortletBreadcrumbEntry(request, entry.getTitle(), portletURL.toString());
@@ -462,8 +430,4 @@ if (entry != null) {
 else {
 	PortalUtil.addPortletBreadcrumbEntry(request, LanguageUtil.get(request, "add-entry"), currentURL);
 }
-%>
-
-<%!
-public static final String EDITOR_IMPL_KEY = "editor.wysiwyg.portal-web.docroot.html.portlet.blogs.edit_entry.jsp";
 %>

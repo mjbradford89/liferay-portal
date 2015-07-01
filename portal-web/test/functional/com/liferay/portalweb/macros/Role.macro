@@ -43,7 +43,9 @@
 		<var name="roleName" value="Staging Admin" />
 
 		<execute macro="Role#addCP">
+			<var name="roleDescription" value="${roleDescription}" />
 			<var name="roleName" value="${roleName}" />
+			<var name="roleTitle" value="${roleTitle}" />
 			<var name="roleType" value="Site" />
 		</execute>
 
@@ -144,7 +146,15 @@
 		<execute macro="Role#editPermissionCmdCP">
 			<var name="define" value="true" />
 			<var name="permissionDefinitionKey" value="${permissionDefinitionKey}" />
+			<var name="permissionDefinitionKeyChange" value="${permissionDefinitionKeyChange}" />
+			<var name="permissionDefinitionKeys" value="${permissionDefinitionKeys}" />
+			<var name="permissionDefinitionKeySiteScope" value="${permissionDefinitionKeySiteScope}" />
+			<var name="permissionNavigationKey" value="${permissionNavigationKey}" />
+			<var name="permissionNavigationValue" value="${permissionNavigationValue}" />
+			<var name="remove" value="${remove}" />
 			<var name="roleName" value="${roleName}" />
+			<var name="roleUser" value="${roleUser}" />
+			<var name="siteNameScope" value="${siteNameScope}" />
 		</execute>
 	</command>
 
@@ -155,14 +165,16 @@
 		</execute>
 
 		<execute macro="Role#viewPermissionCP">
+			<var name="permissionDefinitionKey" value="${permissionDefinitionKey}" />
 			<var name="permissionDefinitionValue" value="${permissionDefinitionValue}" />
 			<var name="permissionNavigationValue" value="${permissionNavigationValue}" />
+			<var name="remove" value="${remove}" />
 		</execute>
 	</command>
 
 	<command name="definePermissionPG">
-		<var name="key_roleName" value="${roleName?replace(' ', '-')}" />
-		<var name="key_roleName" value="${key_roleName?lowercase()}" />
+		<var method="StringUtil#replace('${roleName}', ' ', '-')" name="key_roleName" />
+		<var method="StringUtil#lowerCase('${key_roleName}')" name="key_roleName" />
 
 		<execute function="Check" locator1="Permissions#${permissionDefinitionKey}" />
 		<execute function="AssertClick" locator1="Permissions#SAVE_BUTTON" value1="Save" />
@@ -175,6 +187,20 @@
 			<var name="permissionDefinitionKeys" value="${permissionDefinitionKeys}" />
 			<var name="roleName" value="${roleName}" />
 		</execute>
+	</command>
+
+	<command name="deleteCP">
+		<execute function="Type#sendKeys" locator1="CPRoles#SEARCH_FIELD" value1="Name" />
+
+		<execute function="AssertClick" locator1="CPRoles#SEARCH_BUTTON" value1="Search" />
+
+		<var name="key_roleName" value="${roleName}" />
+
+		<execute function="Click" locator1="CPRoles#ROLE_TABLE_ACTIONS" />
+
+		<execute function="AssertClickNoError" locator1="CPRoles#ROLE_MENULIST_DELETE" value1="Delete" />
+
+		<execute function="Confirm" value1="Are you sure you want to delete this? It will be deleted immediately." />
 	</command>
 
 	<command name="editCP">
@@ -436,7 +462,7 @@
 			<if>
 				<isset var="siteNameScope" />
 				<then>
-					<var name="permissionDefinitionKeyChange" value="${permissionDefinitionKey?replace('CHECKBOX', 'CHANGE_LINK')}" />
+					<var method="StringUtil#replace('${permissionDefinitionKey}', 'CHECKBOX', 'CHANGE_LINK')" name="permissionDefinitionKeyChange" />
 
 					<execute function="AssertClick" locator1="CPRolesDefinepermissionsAllpermissions#${permissionDefinitionKeyChange}" value1="Change" />
 
@@ -447,7 +473,7 @@
 					<execute function="Click" locator1="CPRolesDefinepermissionsSelectSite#SCOPE_SITES_TABLE_CHOOSE_BUTTON" value1="Choose" />
 
 					<var name="key_siteNameScope" value="${siteNameScope}" />
-					<var name="permissionDefinitionKeySiteScope" value="${permissionDefinitionKey?replace('CHECKBOX', 'SITE_SCOPE')}" />
+					<var method="StringUtil#replace('${permissionDefinitionKey}', 'CHECKBOX', 'SITE_SCOPE')" name="permissionDefinitionKeySiteScope" />
 
 					<execute function="SelectFrame" value1="relative=top" />
 					<execute function="AssertTextEquals" locator1="CPRolesDefinepermissionsAllpermissions#${permissionDefinitionKeySiteScope}" value1="${siteNameScope}" />
@@ -615,11 +641,19 @@
 	<command name="removePermissionCP">
 		<execute macro="Role#editPermissionCmdCP">
 			<var name="permissionDefinitionKey" value="${permissionDefinitionKey}" />
+			<var name="permissionDefinitionKeyChange" value="${permissionDefinitionKeyChange}" />
+			<var name="permissionDefinitionKeys" value="${permissionDefinitionKeys}" />
+			<var name="permissionDefinitionKeySiteScope" value="${permissionDefinitionKeySiteScope}" />
+			<var name="permissionNavigationKey" value="${permissionNavigationKey}" />
+			<var name="permissionNavigationValue" value="${permissionNavigationValue}" />
 			<var name="remove" value="true" />
 			<var name="roleName" value="${roleName}" />
+			<var name="roleUser" value="${roleUser}" />
+			<var name="siteNameScope" value="${siteNameScope}" />
 		</execute>
 
 		<execute macro="Role#viewPermissionCP">
+			<var name="permissionDefinitionKey" value="${permissionDefinitionKey}" />
 			<var name="permissionDefinitionValue" value="${permissionDefinitionValue}" />
 			<var name="permissionNavigationValue" value="${permissionNavigationValue}" />
 			<var name="remove" value="true" />
@@ -627,8 +661,8 @@
 	</command>
 
 	<command name="removePermissionPG">
-		<var name="key_roleName" value="${roleName?replace(' ', '-')}" />
-		<var name="key_roleName" value="${key_roleName?lowercase()}" />
+		<var method="StringUtil#replace('${roleName}', ' ', '-')" name="key_roleName" />
+		<var method="StringUtil#lowerCase('${key_roleName}')" name="key_roleName" />
 
 		<execute function="Uncheck" locator1="Permissions#${permissionDefinitionKey}" />
 		<execute function="AssertClick" locator1="Permissions#SAVE_BUTTON" value1="Save" />
@@ -638,9 +672,15 @@
 
 	<command name="removePermissionsCP">
 		<execute macro="Role#editPermissionCmdCP">
+			<var name="permissionDefinitionKeyChange" value="${permissionDefinitionKeyChange}" />
 			<var name="permissionDefinitionKeys" value="${permissionDefinitionKeys}" />
+			<var name="permissionDefinitionKeySiteScope" value="${permissionDefinitionKeySiteScope}" />
+			<var name="permissionNavigationKey" value="${permissionNavigationKey}" />
+			<var name="permissionNavigationValue" value="${permissionNavigationValue}" />
 			<var name="remove" value="true" />
 			<var name="roleName" value="${roleName}" />
+			<var name="roleUser" value="${roleUser}" />
+			<var name="siteNameScope" value="${siteNameScope}" />
 		</execute>
 	</command>
 
@@ -657,7 +697,7 @@
 			<then>
 				<execute function="Click" locator1="CPRoles#ROLE_TABLE_ACTIONS_1" />
 				<execute function="AssertClickNoError" locator1="CPRoles#ROLE_MENULIST_DELETE" value1="Delete" />
-				<execute function="Confirm" locator1="CPRoles#CONFIRMATION" value1="Are you sure you want to delete this? It will be deleted immediately." />
+				<execute function="Confirm" value1="Are you sure you want to delete this? It will be deleted immediately." />
 			</then>
 		</while>
 	</command>
@@ -752,6 +792,13 @@
 
 		<execute function="AssertTextEquals" locator1="CPRolesEdit#HEADER" value1="${roleName}" />
 		<execute function="AssertTextEquals" locator1="CPRolesEdit#NAME_FIELD" value1="${roleName}" />
+	</command>
+
+	<command name="viewDefaultCP">
+		<execute function="Type#sendKeys" locator1="CPRoles#SEARCH_FIELD" value1="Name" />
+		<execute function="AssertClick" locator1="CPRoles#SEARCH_BUTTON" value1="Search" />
+
+		<execute function="AssertTextEquals" locator1="CPRoles#INFO_MESSAGE" value1="No roles were found." />
 	</command>
 
 	<command name="viewNoXSSCP">
@@ -936,8 +983,8 @@
 	</command>
 
 	<command name="viewPermissionPG">
-		<var name="key_roleName" value="${roleName?replace(' ', '-')}" />
-		<var name="key_roleName" value="${key_roleName?lowercase()}" />
+		<var method="StringUtil#replace('${roleName}', ' ', '-')" name="key_roleName" />
+		<var method="StringUtil#lowerCase('${key_roleName}')" name="key_roleName" />
 
 		<if>
 			<equals arg1="${permissionFlagged}" arg2="true" />

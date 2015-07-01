@@ -70,7 +70,6 @@ import org.portletbridge.portlet.PortletBridgeServlet;
 		"javax.portlet.display-name=Web Proxy",
 		"javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.authenticatorClassName=org.portletbridge.portlet.DefaultBridgeAuthenticator",
-		"javax.portlet.init-param.config-template=/configuration.jsp",
 		"javax.portlet.init-param.cssRegex=(?:url\\((?:'|\")?(.*?)(?:'|\")?\\))|(?:@import\\s+[^url](?:'|\")?(.*?)(?:'|\")|;|\\s+|$)",
 		"javax.portlet.init-param.editStylesheet=classpath:/org/portletbridge/xsl/pages/edit.xsl",
 		"javax.portlet.init-param.errorStylesheet=classpath:/org/portletbridge/xsl/pages/error.xsl",
@@ -173,10 +172,12 @@ public class WebProxyPortlet extends PortletBridgePortlet {
 	}
 
 	protected void doInit() {
-		PortletConfig portletConfig = getPortletConfig();
-		PortletContext portletContext = getPortletContext();
+		BundleContext bundleContext = _componentContext.getBundleContext();
 
 		Dictionary<String, Object> properties = new HashMapDictionary<>();
+
+		PortletConfig portletConfig = getPortletConfig();
+		PortletContext portletContext = getPortletContext();
 
 		properties.put(
 			HttpWhiteboardConstants.HTTP_WHITEBOARD_CONTEXT_SELECT,
@@ -187,21 +188,25 @@ public class WebProxyPortlet extends PortletBridgePortlet {
 		properties.put(
 			HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "/pbhs/*");
 		properties.put(
-			"servlet.init.mementoSessionKey",
-			portletConfig.getInitParameter("mementoSessionKey"));
-		properties.put(
-			"servlet.init.cssRegex",
+			HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX +
+				"cssRegex",
 			portletConfig.getInitParameter("cssRegex"));
 		properties.put(
-			"servlet.init.jsRegex", portletConfig.getInitParameter("jsRegex"));
+			HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX +
+				"ignorePostToGetRequestHeaders",
+			"content-type,content-length");
 		properties.put(
-			"servlet.init.ignoreRequestHeaders",
+			HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX +
+				"ignoreRequestHeaders",
 			"accept-encoding,connection,keep-alive");
 		properties.put(
-			"servlet.init.ignorePostToGetRequestHeaders",
-			"content-type,content-length");
-
-		BundleContext bundleContext = _componentContext.getBundleContext();
+			HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX +
+				"jsRegex",
+			portletConfig.getInitParameter("jsRegex"));
+		properties.put(
+			HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX +
+				"mementoSessionKey",
+			portletConfig.getInitParameter("mementoSessionKey"));
 
 		_serviceRegistration = bundleContext.registerService(
 			Servlet.class, new PortletBridgeServlet(), properties);

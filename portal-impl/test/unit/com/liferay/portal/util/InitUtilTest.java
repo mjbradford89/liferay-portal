@@ -46,10 +46,7 @@ public class InitUtilTest {
 
 		try {
 			InitUtil.initWithSpring(
-				Arrays.asList(
-					"META-INF/management-spring.xml",
-					"META-INF/util-spring.xml"),
-				true);
+				Arrays.asList("META-INF/util-spring.xml"), true);
 		}
 		finally {
 			if (resourceActionsReadPortletResources == null) {
@@ -69,6 +66,8 @@ public class InitUtilTest {
 				SystemProperties.set(
 					_LOG4J_CONFIGURE_ON_STARTUP, log4jConfigureOnStartup);
 			}
+
+			InitUtil.stopRuntime();
 
 			InitUtil.stopModuleFramework();
 		}

@@ -14,8 +14,8 @@
 
 package com.liferay.portlet.documentlibrary.lar;
 
-import com.liferay.portal.kernel.lar.StagedModelDataHandlerUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.TransactionalTestRule;
@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.lar.test.BaseStagedModelDataHandlerTestCase;
 import com.liferay.portal.model.Company;
@@ -30,6 +31,7 @@ import com.liferay.portal.model.Group;
 import com.liferay.portal.model.StagedModel;
 import com.liferay.portal.service.CompanyLocalServiceUtil;
 import com.liferay.portal.service.ServiceContext;
+import com.liferay.portal.service.ServiceContextThreadLocal;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.MainServletTestRule;
 import com.liferay.portlet.documentlibrary.model.DLFileEntry;
@@ -46,6 +48,7 @@ import com.liferay.portlet.dynamicdatamapping.service.DDMStructureLocalServiceUt
 import com.liferay.portlet.dynamicdatamapping.util.test.DDMStructureTestUtil;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -162,19 +165,19 @@ public class FileEntryStagedModelDataHandlerTest
 		throws Exception {
 
 		Map<String, List<StagedModel>> dependentStagedModelsMap =
-			new HashMap<>();
+			new LinkedHashMap<>();
 
 		DDMStructure ddmStructure = DDMStructureTestUtil.addStructure(
 			group.getGroupId(), DLFileEntryType.class.getName());
-
-		addDependentStagedModel(
-			dependentStagedModelsMap, DDMStructure.class, ddmStructure);
 
 		DLFileEntryType dlFileEntryType = addDLFileEntryType(
 			group.getGroupId(), ddmStructure.getStructureId());
 
 		addDependentStagedModel(
 			dependentStagedModelsMap, DLFileEntryType.class, dlFileEntryType);
+
+		addDependentStagedModel(
+			dependentStagedModelsMap, DDMStructure.class, ddmStructure);
 
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
@@ -236,22 +239,15 @@ public class FileEntryStagedModelDataHandlerTest
 			serviceContext);
 	}
 
-	protected void exportImportStagedModel(StagedModel stagedModel)
-		throws Exception {
+	@Override
+	protected StagedModel addVersion(StagedModel stagedModel) throws Exception {
+		FileEntry fileEntry = (FileEntry)stagedModel;
 
-		initExport();
-
-		StagedModelDataHandlerUtil.exportStagedModel(
-			portletDataContext, stagedModel);
-
-		initImport();
-
-		StagedModel exportedStagedModel = readExportedStagedModel(stagedModel);
-
-		Assert.assertNotNull(exportedStagedModel);
-
-		StagedModelDataHandlerUtil.importStagedModel(
-			portletDataContext, exportedStagedModel);
+		return DLAppServiceUtil.updateFileEntry(
+			fileEntry.getFileEntryId(), StringPool.BLANK,
+			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
+			StringPool.BLANK, StringPool.BLANK, false, (byte[])null,
+			ServiceContextThreadLocal.getServiceContext());
 	}
 
 	@Override
@@ -272,6 +268,11 @@ public class FileEntryStagedModelDataHandlerTest
 
 	@Override
 	protected boolean isCommentableStagedModel() {
+		return true;
+	}
+
+	@Override
+	protected boolean isVersionableStagedModel() {
 		return true;
 	}
 
@@ -345,6 +346,62 @@ public class FileEntryStagedModelDataHandlerTest
 
 		DLFolderLocalServiceUtil.getDLFolderByUuidAndGroupId(
 			folder.getUuid(), group.getGroupId());
+	}
+
+	@Override
+	protected void validateImportedStagedModel(
+			StagedModel stagedModel, StagedModel importedStagedModel)
+		throws Exception {
+
+		Assert.assertTrue(
+			String.valueOf(stagedModel.getCreateDate()) + StringPool.SPACE +
+				importedStagedModel.getCreateDate(),
+			DateUtil.equals(
+				stagedModel.getCreateDate(),
+				importedStagedModel.getCreateDate(), true));
+
+		Assert.assertEquals(
+			stagedModel.getUuid(), importedStagedModel.getUuid());
+
+		FileEntry fileEntry = (FileEntry)stagedModel;
+		FileEntry importedFileEntry = (FileEntry)importedStagedModel;
+
+		Assert.assertEquals(
+			fileEntry.getFileName(), importedFileEntry.getFileName());
+		Assert.assertEquals(
+			fileEntry.getExtension(), importedFileEntry.getExtension());
+		Assert.assertEquals(
+			fileEntry.getMimeType(), importedFileEntry.getMimeType());
+		Assert.assertEquals(fileEntry.getTitle(), importedFileEntry.getTitle());
+		Assert.assertEquals(
+			fileEntry.getDescription(), importedFileEntry.getDescription());
+		Assert.assertEquals(fileEntry.getSize(), importedFileEntry.getSize());
+
+		FileVersion latestFileVersion = fileEntry.getLatestFileVersion();
+		FileVersion importedLatestFileVersion =
+			importedFileEntry.getLatestFileVersion();
+
+		Assert.assertEquals(
+			latestFileVersion.getUuid(), importedLatestFileVersion.getUuid());
+		Assert.assertEquals(
+			latestFileVersion.getFileName(),
+			importedLatestFileVersion.getFileName());
+		Assert.assertEquals(
+			latestFileVersion.getExtension(),
+			importedLatestFileVersion.getExtension());
+		Assert.assertEquals(
+			latestFileVersion.getMimeType(),
+			importedLatestFileVersion.getMimeType());
+		Assert.assertEquals(
+			latestFileVersion.getTitle(), importedLatestFileVersion.getTitle());
+		Assert.assertEquals(
+			latestFileVersion.getDescription(),
+			importedLatestFileVersion.getDescription());
+		Assert.assertEquals(
+			latestFileVersion.getSize(), importedLatestFileVersion.getSize());
+		Assert.assertEquals(
+			latestFileVersion.getStatus(),
+			importedLatestFileVersion.getStatus());
 	}
 
 }
