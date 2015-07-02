@@ -25,6 +25,7 @@ import com.liferay.sync.engine.model.SyncWatchEvent;
 import com.liferay.sync.engine.service.SyncAccountService;
 import com.liferay.sync.engine.service.SyncFileService;
 import com.liferay.sync.engine.service.SyncWatchEventService;
+import com.liferay.sync.engine.util.FileKeyUtil;
 import com.liferay.sync.engine.util.FileUtil;
 import com.liferay.sync.engine.util.OSDetector;
 import com.liferay.sync.engine.util.SyncEngineUtil;
@@ -40,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+
+import org.apache.commons.io.FilenameUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +81,11 @@ public class SyncWatchEventProcessor implements Runnable {
 
 					for (SyncWatchEvent syncWatchEvent : syncWatchEvents) {
 						try {
+							_logger.debug(
+								"Processing queued event {} {}",
+								syncWatchEvent.getFilePathName(),
+								syncWatchEvent.getEventType());
+
 							processSyncWatchEvent(syncWatchEvent);
 						}
 						catch (Exception e) {
@@ -100,6 +108,13 @@ public class SyncWatchEventProcessor implements Runnable {
 		}
 
 		count = SyncFileService.getSyncFilesCount(
+			_syncAccountId, SyncFile.UI_EVENT_DOWNLOADING);
+
+		if (count > 0) {
+			return true;
+		}
+
+		count = SyncFileService.getSyncFilesCount(
 			_syncAccountId, SyncFile.UI_EVENT_UPLOADING);
 
 		if (count > 0) {
@@ -111,6 +126,13 @@ public class SyncWatchEventProcessor implements Runnable {
 
 	@Override
 	public void run() {
+		SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
+			_syncAccountId);
+
+		if (syncAccount.getState() != SyncAccount.STATE_CONNECTED) {
+			return;
+		}
+
 		try {
 			doRun();
 		}
@@ -126,7 +148,10 @@ public class SyncWatchEventProcessor implements Runnable {
 	protected void addFile(SyncWatchEvent syncWatchEvent) throws Exception {
 		final Path targetFilePath = Paths.get(syncWatchEvent.getFilePathName());
 
-		if (Files.notExists(targetFilePath) || isInErrorState(targetFilePath)) {
+		if (Files.notExists(targetFilePath) ||
+			sanitizeFileName(targetFilePath) ||
+			isInErrorState(targetFilePath)) {
+
 			return;
 		}
 
@@ -136,8 +161,7 @@ public class SyncWatchEventProcessor implements Runnable {
 			parentTargetFilePath.toString());
 
 		if ((parentSyncFile == null) ||
-			(!parentSyncFile.isSystem() &&
-			 (parentSyncFile.getTypePK() == 0))) {
+			(!parentSyncFile.isSystem() && (parentSyncFile.getTypePK() == 0))) {
 
 			queueSyncWatchEvent(
 				parentTargetFilePath.toString(), syncWatchEvent);
@@ -150,7 +174,11 @@ public class SyncWatchEventProcessor implements Runnable {
 
 		if (syncFile == null) {
 			syncFile = SyncFileService.fetchSyncFile(
-				FileUtil.getFileKey(targetFilePath));
+				FileKeyUtil.getFileKey(targetFilePath));
+
+			if (!verifySite(syncFile, parentSyncFile)) {
+				syncFile = null;
+			}
 		}
 
 		if (syncFile == null) {
@@ -193,9 +221,19 @@ public class SyncWatchEventProcessor implements Runnable {
 		}
 		else if (Files.exists(sourceFilePath)) {
 			try {
-				SyncFileService.addFileSyncFile(
-					targetFilePath, parentSyncFile.getTypePK(),
-					parentSyncFile.getRepositoryId(), _syncAccountId);
+				if ((Files.size(targetFilePath) == 0) ||
+					FileUtil.isModified(syncFile, targetFilePath) ||
+					isInErrorState(targetFilePath)) {
+
+					SyncFileService.addFileSyncFile(
+						targetFilePath, parentSyncFile.getTypePK(),
+						parentSyncFile.getRepositoryId(), _syncAccountId);
+				}
+				else {
+					SyncFileService.copySyncFile(
+						syncFile, targetFilePath, parentSyncFile.getTypePK(),
+						parentSyncFile.getRepositoryId(), _syncAccountId);
+				}
 			}
 			catch (Exception e) {
 				if (_logger.isTraceEnabled()) {
@@ -254,7 +292,9 @@ public class SyncWatchEventProcessor implements Runnable {
 	protected void addFolder(SyncWatchEvent syncWatchEvent) throws Exception {
 		Path targetFilePath = Paths.get(syncWatchEvent.getFilePathName());
 
-		if (isInErrorState(targetFilePath)) {
+		if (sanitizeFileName(targetFilePath) ||
+			isInErrorState(targetFilePath)) {
+
 			return;
 		}
 
@@ -264,8 +304,7 @@ public class SyncWatchEventProcessor implements Runnable {
 			parentTargetFilePath.toString());
 
 		if ((parentSyncFile == null) ||
-			(!parentSyncFile.isSystem() &&
-			 (parentSyncFile.getTypePK() == 0))) {
+			(!parentSyncFile.isSystem() && (parentSyncFile.getTypePK() == 0))) {
 
 			queueSyncWatchEvent(
 				parentTargetFilePath.toString(), syncWatchEvent);
@@ -278,7 +317,11 @@ public class SyncWatchEventProcessor implements Runnable {
 
 		if (syncFile == null) {
 			syncFile = SyncFileService.fetchSyncFile(
-				FileUtil.getFileKey(targetFilePath));
+				FileKeyUtil.getFileKey(targetFilePath));
+
+			if (!verifySite(syncFile, parentSyncFile)) {
+				syncFile = null;
+			}
 		}
 
 		if (syncFile == null) {
@@ -292,8 +335,8 @@ public class SyncWatchEventProcessor implements Runnable {
 		Path sourceFilePath = Paths.get(syncFile.getFilePathName());
 
 		if (targetFilePath.equals(sourceFilePath)) {
-			FileUtil.writeFileKey(
-				targetFilePath, String.valueOf(syncFile.getSyncFileId()));
+			FileKeyUtil.writeFileKey(
+				targetFilePath, String.valueOf(syncFile.getSyncFileId()), true);
 		}
 		else if (Files.exists(sourceFilePath)) {
 			SyncFileService.addFolderSyncFile(
@@ -354,7 +397,8 @@ public class SyncWatchEventProcessor implements Runnable {
 		SyncFile syncFile = SyncFileService.fetchSyncFile(filePath.toString());
 
 		if ((syncFile == null) ||
-			Files.exists(Paths.get(syncFile.getFilePathName()))) {
+			(syncFile.getState() == SyncFile.STATE_IN_PROGRESS) ||
+			!Files.notExists(Paths.get(syncFile.getFilePathName()))) {
 
 			return;
 		}
@@ -382,13 +426,6 @@ public class SyncWatchEventProcessor implements Runnable {
 	}
 
 	protected void doRun() throws Exception {
-		SyncAccount syncAccount = SyncAccountService.fetchSyncAccount(
-			_syncAccountId);
-
-		if (syncAccount.getState() != SyncAccount.STATE_CONNECTED) {
-			return;
-		}
-
 		SyncWatchEvent lastSyncWatchEvent =
 			SyncWatchEventService.getLastSyncWatchEvent(_syncAccountId);
 
@@ -494,7 +531,10 @@ public class SyncWatchEventProcessor implements Runnable {
 	protected void moveFile(SyncWatchEvent syncWatchEvent) throws Exception {
 		Path targetFilePath = Paths.get(syncWatchEvent.getFilePathName());
 
-		if (Files.notExists(targetFilePath) || isInErrorState(targetFilePath)) {
+		if (Files.notExists(targetFilePath) ||
+			sanitizeFileName(targetFilePath) ||
+			isInErrorState(targetFilePath)) {
+
 			return;
 		}
 
@@ -504,8 +544,7 @@ public class SyncWatchEventProcessor implements Runnable {
 			parentTargetFilePath.toString());
 
 		if ((parentSyncFile == null) ||
-			(!parentSyncFile.isSystem() &&
-			 (parentSyncFile.getTypePK() == 0))) {
+			(!parentSyncFile.isSystem() && (parentSyncFile.getTypePK() == 0))) {
 
 			queueSyncWatchEvent(
 				parentTargetFilePath.toString(), syncWatchEvent);
@@ -583,9 +622,7 @@ public class SyncWatchEventProcessor implements Runnable {
 
 		if (_logger.isDebugEnabled()) {
 			_logger.debug(
-				"Event type {} file path {} file type {} timestamp {}",
-				eventType, syncWatchEvent.getFilePathName(),
-				syncWatchEvent.getFileType(), syncWatchEvent.getTimestamp());
+				"Processing sync watch event {}", syncWatchEvent.toString());
 		}
 
 		String fileType = syncWatchEvent.getFileType();
@@ -645,6 +682,10 @@ public class SyncWatchEventProcessor implements Runnable {
 			}
 		}
 
+		_logger.debug(
+			"Queueing event {} {}", syncWatchEvent.getEventType(),
+			syncWatchEvent.getFilePathName());
+
 		syncWatchEvents.add(syncWatchEvent);
 	}
 
@@ -655,9 +696,13 @@ public class SyncWatchEventProcessor implements Runnable {
 		SyncFile syncFile = SyncFileService.fetchSyncFile(
 			sourceFilePath.toString());
 
-		if (syncFile == null) {
-			Path targetFilePath = Paths.get(syncWatchEvent.getFilePathName());
+		Path targetFilePath = Paths.get(syncWatchEvent.getFilePathName());
 
+		if (sanitizeFileName(targetFilePath)) {
+			return;
+		}
+
+		if (syncFile == null) {
 			if (Files.isDirectory(targetFilePath)) {
 				addFolder(syncWatchEvent);
 			}
@@ -673,8 +718,6 @@ public class SyncWatchEventProcessor implements Runnable {
 			return;
 		}
 
-		Path targetFilePath = Paths.get(syncWatchEvent.getFilePathName());
-
 		String fileType = syncFile.getType();
 
 		if (fileType.equals(SyncFile.TYPE_FILE)) {
@@ -685,6 +728,47 @@ public class SyncWatchEventProcessor implements Runnable {
 			SyncFileService.renameFolderSyncFile(
 				targetFilePath, _syncAccountId, syncFile);
 		}
+	}
+
+	protected boolean sanitizeFileName(Path filePath) {
+		if (OSDetector.isWindows()) {
+			return false;
+		}
+
+		String fileName = String.valueOf(filePath.getFileName());
+
+		String sanitizedFileName = FileUtil.getSanitizedFileName(
+			fileName, FilenameUtils.getExtension(fileName));
+
+		if (!sanitizedFileName.equals(fileName)) {
+			String sanitizedFilePathName = FileUtil.getFilePathName(
+				String.valueOf(filePath.getParent()), sanitizedFileName);
+
+			sanitizedFilePathName = FileUtil.getNextFilePathName(
+				sanitizedFilePathName);
+
+			FileUtil.checkFilePath(filePath);
+
+			FileUtil.moveFile(
+				filePath, java.nio.file.Paths.get(sanitizedFilePathName));
+
+			return true;
+		}
+
+		return false;
+	}
+
+	protected boolean verifySite(SyncFile syncFile, SyncFile parentSyncFile) {
+		if ((syncFile != null) &&
+			((syncFile.getRepositoryId() !=
+				parentSyncFile.getRepositoryId()) ||
+			 (syncFile.getSyncAccountId() !=
+				 parentSyncFile.getSyncAccountId()))) {
+
+			return false;
+		}
+
+		return true;
 	}
 
 	private static final Logger _logger = LoggerFactory.getLogger(

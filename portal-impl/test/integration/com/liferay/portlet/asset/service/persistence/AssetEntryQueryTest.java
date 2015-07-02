@@ -17,7 +17,6 @@ package com.liferay.portlet.asset.service.persistence;
 import com.liferay.portal.kernel.cache.Lifecycle;
 import com.liferay.portal.kernel.cache.ThreadLocalCache;
 import com.liferay.portal.kernel.cache.ThreadLocalCacheManager;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -77,41 +76,41 @@ public class AssetEntryQueryTest {
 
 		AssetVocabulary vocabulary =
 			AssetVocabularyLocalServiceUtil.addVocabulary(
-				TestPropsValues.getUserId(), RandomTestUtil.randomString(),
-				serviceContext);
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				RandomTestUtil.randomString(), serviceContext);
 
 		_assetVocabularyId = vocabulary.getVocabularyId();
 
 		AssetCategory fashionCategory =
 			AssetCategoryLocalServiceUtil.addCategory(
-				TestPropsValues.getUserId(), "Fashion", _assetVocabularyId,
-				serviceContext);
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				"Fashion", _assetVocabularyId, serviceContext);
 
 		_fashionAssetCategoryId = fashionCategory.getCategoryId();
 
 		AssetCategory foodCategory = AssetCategoryLocalServiceUtil.addCategory(
-			TestPropsValues.getUserId(), "Food", _assetVocabularyId,
-			serviceContext);
+			TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+			"Food", _assetVocabularyId, serviceContext);
 
 		_foodAssetCategoryId = foodCategory.getCategoryId();
 
 		AssetCategory healthCategory =
 			AssetCategoryLocalServiceUtil.addCategory(
-				TestPropsValues.getUserId(), "Health", _assetVocabularyId,
-				serviceContext);
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				"Health", _assetVocabularyId, serviceContext);
 
 		_healthAssetCategoryId = healthCategory.getCategoryId();
 
 		AssetCategory sportCategory = AssetCategoryLocalServiceUtil.addCategory(
-			TestPropsValues.getUserId(), "Sport", _assetVocabularyId,
-			serviceContext);
+			TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+			"Sport", _assetVocabularyId, serviceContext);
 
 		_sportAssetCategoryId = sportCategory.getCategoryId();
 
 		AssetCategory travelCategory =
 			AssetCategoryLocalServiceUtil.addCategory(
-				TestPropsValues.getUserId(), "Travel", _assetVocabularyId,
-				serviceContext);
+				TestPropsValues.getUserId(), serviceContext.getScopeGroupId(),
+				"Travel", _assetVocabularyId, serviceContext);
 
 		_travelAssetCategoryId = travelCategory.getCategoryId();
 
@@ -554,9 +553,8 @@ public class AssetEntryQueryTest {
 	}
 
 	protected AssetEntryQuery buildAssetEntryQuery(
-			long groupId, long[] assetCategoryIds, String[] assetTagNames,
-			boolean any, boolean not)
-		throws PortalException {
+		long groupId, long[] assetCategoryIds, String[] assetTagNames,
+		boolean any, boolean not) {
 
 		AssetEntryQuery assetEntryQuery = new AssetEntryQuery();
 

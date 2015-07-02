@@ -9,16 +9,6 @@
 </thead>
 <tbody>
 <tr>
-	<td>PAGE_NAME</td>
-	<td></td>
-	<td>PGWebcontentdisplay</td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr>
-<tr>
 	<td>EXTEND_ACTION_PATH</td>
 	<td>BasePortlet</td>
 	<td></td>
@@ -104,13 +94,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>NO_COMMENTS_MESSAGE</td>
-	<td>//div[contains(.,'No comments yet')]</td>
+	<td>BE_THE_FIRST</td>
+	<td>//a[contains(.,'Be the first')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>BE_THE_FIRST</td>
-	<td>//a[contains(.,'Be the first')]</td>
+	<td>COMMENT_EDITOR</td>
+	<td>//div[contains(@title,'Rich Text Editor')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -184,6 +174,11 @@
 <tr>
 	<td>WEB_CONTENT_CONTENT</td>
 	<td>//div[@class='journal-content-article']</td>
+	<td></td>
+</tr>
+<tr>
+	<td>WEB_CONTENT_CONTENT_IMAGE</td>
+	<td>//div[@class='journal-content-article']/img</td>
 	<td></td>
 </tr>
 <tr>

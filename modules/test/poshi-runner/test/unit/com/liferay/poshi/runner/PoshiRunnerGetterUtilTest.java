@@ -53,7 +53,7 @@ public class PoshiRunnerGetterUtilTest extends TestCase {
 			"/com/liferay/poshi/runner/dependencies/Test.testcase");
 
 		Assert.assertEquals(
-			"getClassTypeFromFilePath is failing", "testcase", classType);
+			"getClassTypeFromFilePath is failing", "test-case", classType);
 	}
 
 	@Test
@@ -87,12 +87,12 @@ public class PoshiRunnerGetterUtilTest extends TestCase {
 	@Test
 	public void testGetVarMethodValue() throws Exception {
 		String value = PoshiRunnerGetterUtil.getVarMethodValue(
-			"MathUtil#sum(1,2)");
+			"MathUtil#sum('1', '2')");
 
 		Assert.assertEquals("getVarMethodValue is failing", "3", value);
 
 		value = PoshiRunnerGetterUtil.getVarMethodValue(
-			"StringUtil#endsWith(The fox jumped over the dog, dog)");
+			"StringUtil#endsWith('The fox jumped over the dog', 'dog')");
 
 		Assert.assertEquals("getVarMethodValue is failing", "true", value);
 	}
