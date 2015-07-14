@@ -1078,14 +1078,6 @@ public class LiferaySeleniumHelper {
 			return true;
 		}
 
-		// LPS-55835, temporary workaround while Brian Wulbern investigates it
-
-		if (line.matches(
-				"Current URL.*add_panel generates exception:[\\s\\S]*")) {
-
-			return true;
-		}
-
 		// LRQA-14442, temporary workaround until Kiyoshi Lee fixes it
 
 		if (line.contains("Framework Event Dispatcher: Equinox Container:")) {
@@ -1292,15 +1284,18 @@ public class LiferaySeleniumHelper {
 			LiferaySelenium liferaySelenium, String image)
 		throws Exception {
 
+		Mouse mouse = new DesktopMouse();
+
 		ScreenRegion screenRegion = new DesktopScreenRegion();
 
 		ImageTarget imageTarget = getImageTarget(liferaySelenium, image);
 
-		screenRegion = screenRegion.find(imageTarget);
+		List<ScreenRegion> imageTargetScreenRegions = screenRegion.findAll(
+			imageTarget);
 
-		Mouse mouse = new DesktopMouse();
-
-		mouse.click(screenRegion.getCenter());
+		for (ScreenRegion imageTargetScreenRegion : imageTargetScreenRegions) {
+			mouse.click(imageTargetScreenRegion.getCenter());
+		}
 	}
 
 	public static void sikuliDragAndDrop(

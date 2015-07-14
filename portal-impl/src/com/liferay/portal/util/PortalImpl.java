@@ -3571,9 +3571,7 @@ public class PortalImpl implements Portal {
 
 		HttpServletRequest originalRequest = request;
 
-		while (originalRequest.getClass().getName().startsWith(
-					"com.liferay.")) {
-
+		while (originalRequest instanceof HttpServletRequestWrapper) {
 			if (originalRequest instanceof
 					PersistentHttpServletRequestWrapper) {
 
@@ -5564,18 +5562,20 @@ public class PortalImpl implements Portal {
 		}
 
 		String path = GetterUtil.getString(request.getPathInfo());
-		String strutsAction = getStrutsAction(request);
+		String mvcRenderCommandName = ParamUtil.getString(
+			request, "mvcRenderCommandName");
 		String actionName = getPortletParam(request, "actionName");
 
 		boolean alwaysAllowDoAsUser = false;
 
 		if (path.equals("/portal/session_click") ||
-			strutsAction.equals("/document_library/edit_file_entry") ||
-			strutsAction.equals("/document_library_display/edit_file_entry") ||
-			strutsAction.equals("/image_gallery_display/edit_file_entry") ||
-			strutsAction.equals("/image_gallery_display/edit_image") ||
+			mvcRenderCommandName.equals("/document_library/edit_file_entry") ||
+			mvcRenderCommandName.equals(
+				"/document_library_display/edit_file_entry") ||
+			mvcRenderCommandName.equals(
+				"/image_gallery_display/edit_file_entry") ||
 			actionName.equals("addFile") ||
-			isAlwaysAllowDoAsUser(path, strutsAction, actionName)) {
+			isAlwaysAllowDoAsUser(path, mvcRenderCommandName, actionName)) {
 
 			try {
 				alwaysAllowDoAsUser = isAlwaysAllowDoAsUser(request);
