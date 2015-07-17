@@ -22,6 +22,7 @@ import com.liferay.gradle.plugins.extensions.TomcatAppServer;
 import com.liferay.gradle.plugins.javadoc.formatter.JavadocFormatterPlugin;
 import com.liferay.gradle.plugins.lang.builder.BuildLangTask;
 import com.liferay.gradle.plugins.lang.builder.LangBuilderPlugin;
+import com.liferay.gradle.plugins.patcher.PatchTask;
 import com.liferay.gradle.plugins.service.builder.BuildServiceTask;
 import com.liferay.gradle.plugins.service.builder.ServiceBuilderPlugin;
 import com.liferay.gradle.plugins.source.formatter.SourceFormatterPlugin;
@@ -50,6 +51,7 @@ import com.liferay.gradle.util.Validator;
 import groovy.lang.Closure;
 
 import java.io.File;
+import java.io.IOException;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -73,6 +75,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.DependencyResolveDetails;
 import org.gradle.api.artifacts.ModuleVersionIdentifier;
 import org.gradle.api.artifacts.ModuleVersionSelector;
@@ -80,7 +83,10 @@ import org.gradle.api.artifacts.ResolutionStrategy;
 import org.gradle.api.artifacts.ResolvedArtifact;
 import org.gradle.api.artifacts.ResolvedConfiguration;
 import org.gradle.api.artifacts.ResolvedModuleVersion;
+import org.gradle.api.artifacts.dsl.ArtifactHandler;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
+import org.gradle.api.artifacts.maven.Conf2ScopeMapping;
+import org.gradle.api.artifacts.maven.Conf2ScopeMappingContainer;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.file.CopySpec;
 import org.gradle.api.file.DuplicatesStrategy;
@@ -88,9 +94,13 @@ import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.internal.ConventionMapping;
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 import org.gradle.api.plugins.BasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.plugins.MavenPlugin;
+import org.gradle.api.plugins.MavenPluginConvention;
 import org.gradle.api.plugins.WarPlugin;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.Copy;
@@ -99,8 +109,13 @@ import org.gradle.api.tasks.SourceSetOutput;
 import org.gradle.api.tasks.TaskContainer;
 import org.gradle.api.tasks.TaskOutputs;
 import org.gradle.api.tasks.bundling.Jar;
+import org.gradle.api.tasks.bundling.Zip;
+import org.gradle.api.tasks.javadoc.Javadoc;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.api.tasks.testing.logging.TestLoggingContainer;
+
+import org.zeroturnaround.exec.ProcessExecutor;
+import org.zeroturnaround.exec.ProcessResult;
 
 /**
  * @author Andrea Di Giorgi
@@ -118,6 +133,8 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 	public static final String FORMAT_XSD_TASK_NAME = "formatXSD";
 
 	public static final String INIT_GRADLE_TASK_NAME = "initGradle";
+
+	public static final String JAR_SOURCES_TASK_NAME = "jarSources";
 
 	public static final String PORTAL_WEB_CONFIGURATION_NAME = "portalWeb";
 
@@ -137,12 +154,15 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 
 	public static final String TEST_INTEGRATION_TASK_NAME = "testIntegration";
 
+	public static final String ZIP_JAVADOC_TASK_NAME = "zipJavadoc";
+
 	@Override
 	public void apply(Project project) {
 		addLiferayExtension(project);
 
 		applyPlugins(project);
 
+		configureConf2ScopeMappings(project);
 		configureConfigurations(project);
 		configureDependencies(project);
 		configureProperties(project);
@@ -153,6 +173,8 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 		addTasks(project);
 
 		applyConfigScripts(project);
+
+		configureArtifacts(project);
 
 		configureTaskBuildService(project);
 		configureTaskBuildWSDD(project);
@@ -264,6 +286,11 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 
 		GradleUtil.setProperty(copy, AUTO_CLEAN_PROPERTY_NAME, false);
 
+		Jar jar = (Jar)GradleUtil.getTask(
+			copy.getProject(), JavaPlugin.JAR_TASK_NAME);
+
+		copy.from(jar.getOutputs());
+
 		return copy;
 	}
 
@@ -335,38 +362,120 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 
 				@Override
 				public boolean isSatisfiedBy(Task task) {
-					Project project = task.getProject();
+					try {
+						Project project = task.getProject();
 
-					File buildGradleFile = project.file("build.gradle");
+						File buildGradleFile = project.file("build.gradle");
 
-					if (!buildGradleFile.exists() ||
-						(buildGradleFile.length() == 0)) {
-
-						return true;
-					}
-
-					long buildGradleFileLastModified =
-						buildGradleFile.lastModified();
-
-					for (String sourceFileName :
-							InitGradleTask.SOURCE_FILE_NAMES) {
-
-						File sourceFile = project.file(sourceFileName);
-
-						if (sourceFile.exists() &&
-							(buildGradleFileLastModified <
-								sourceFile.lastModified())) {
+						if (!buildGradleFile.exists() ||
+							(buildGradleFile.length() == 0)) {
 
 							return true;
 						}
+
+						long buildGradleLastModified = _getLastModified(
+							buildGradleFile);
+
+						for (String sourceFileName :
+								InitGradleTask.SOURCE_FILE_NAMES) {
+
+							File sourceFile = project.file(sourceFileName);
+
+							if (sourceFile.exists() &&
+								(buildGradleLastModified <
+									_getLastModified(sourceFile))) {
+
+								return true;
+							}
+						}
+
+						return false;
+					}
+					catch (IOException ioe) {
+					}
+					catch (Exception e) {
+						if (_logger.isWarnEnabled()) {
+							_logger.warn(e.getMessage(), e);
+						}
 					}
 
-					return false;
+					return true;
+				}
+
+				private long _getLastModified(File file) throws Exception {
+					ProcessExecutor processExecutor = new ProcessExecutor(
+						"git", "log", "--format=%ct", "--max-count=1",
+						file.getName());
+
+					processExecutor.directory(file.getParentFile());
+					processExecutor.exitValueNormal();
+					processExecutor.readOutput(true);
+
+					ProcessResult processResult =
+						processExecutor.executeNoTimeout();
+
+					String output = processResult.outputUTF8();
+
+					return Long.parseLong(output.trim());
 				}
 
 			});
 
 		return initGradleTask;
+	}
+
+	protected Jar addTaskJarSources(Project project) {
+		final Jar jar = GradleUtil.addTask(
+			project, JAR_SOURCES_TASK_NAME, Jar.class);
+
+		jar.setClassifier("sources");
+		jar.setGroup(BasePlugin.BUILD_GROUP);
+		jar.setDescription(
+			"Assembles a jar archive containing the main source files.");
+		jar.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
+
+		File docrootDir = project.file("docroot");
+
+		if (docrootDir.exists()) {
+			jar.from(docrootDir);
+		}
+		else {
+			SourceSet sourceSet = GradleUtil.getSourceSet(
+				project, SourceSet.MAIN_SOURCE_SET_NAME);
+
+			jar.from(sourceSet.getAllSource());
+		}
+
+		TaskContainer taskContainer = project.getTasks();
+
+		taskContainer.withType(
+			PatchTask.class,
+			new Action<PatchTask>() {
+
+				@Override
+				public void execute(final PatchTask patchTask) {
+					jar.from(
+						new Callable<File>() {
+
+							@Override
+							public File call() throws Exception {
+								return patchTask.getPatchesDir();
+							}
+
+						},
+						new Closure<Void>(null) {
+
+							@SuppressWarnings("unused")
+							public void doCall(CopySpec copySpec) {
+								copySpec.into("META-INF/patches");
+							}
+
+						});
+				}
+
+			});
+
+		return jar;
 	}
 
 	protected void addTasks(Project project) {
@@ -375,12 +484,14 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 		addTaskFormatWSDL(project);
 		addTaskFormatXSD(project);
 		addTaskInitGradle(project);
+		addTaskJarSources(project);
 		addTaskSetupArquillian(project);
 		addTaskSetupTestableTomcat(project);
 		addTaskStartTestableTomcat(project);
 		addTaskStopTestableTomcat(project);
 		addTaskTestIntegration(project);
 		addTaskWar(project);
+		addTaskZipJavadoc(project);
 	}
 
 	protected Task addTaskSetupArquillian(Project project) {
@@ -666,15 +777,39 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 		return task;
 	}
 
+	protected Zip addTaskZipJavadoc(Project project) {
+		Zip zip = GradleUtil.addTask(project, ZIP_JAVADOC_TASK_NAME, Zip.class);
+
+		zip.setClassifier("javadoc");
+		zip.setDescription(
+			"Assembles a zip archive containing the Javadoc files for this " +
+				"project.");
+		zip.setGroup(BasePlugin.BUILD_GROUP);
+
+		Javadoc javadoc = (Javadoc)GradleUtil.getTask(
+			project, JavaPlugin.JAVADOC_TASK_NAME);
+
+		zip.dependsOn(javadoc);
+		zip.from(javadoc.getDestinationDir());
+
+		return zip;
+	}
+
 	protected void applyConfigScripts(Project project) {
 		GradleUtil.applyScript(
 			project,
 			"com/liferay/gradle/plugins/dependencies/config-liferay.gradle",
 			project);
+
+		GradleUtil.applyScript(
+			project,
+			"com/liferay/gradle/plugins/dependencies/config-maven.gradle",
+			project);
 	}
 
 	protected void applyPlugins(Project project) {
 		GradleUtil.applyPlugin(project, JavaPlugin.class);
+		GradleUtil.applyPlugin(project, MavenPlugin.class);
 
 		GradleUtil.applyPlugin(project, OptionalBasePlugin.class);
 		GradleUtil.applyPlugin(project, ProvidedBasePlugin.class);
@@ -690,6 +825,41 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 		GradleUtil.applyPlugin(project, WhipPlugin.class);
 		GradleUtil.applyPlugin(project, XMLFormatterPlugin.class);
 		GradleUtil.applyPlugin(project, XSDBuilderPlugin.class);
+	}
+
+	protected void configureArtifacts(Project project) {
+		ArtifactHandler artifactHandler = project.getArtifacts();
+
+		Task jarSourcesTask = GradleUtil.getTask(
+			project, JAR_SOURCES_TASK_NAME);
+
+		artifactHandler.add(Dependency.ARCHIVES_CONFIGURATION, jarSourcesTask);
+
+		Task zipJavadocTask = GradleUtil.getTask(
+			project, ZIP_JAVADOC_TASK_NAME);
+
+		artifactHandler.add(Dependency.ARCHIVES_CONFIGURATION, zipJavadocTask);
+	}
+
+	protected void configureConf2ScopeMappings(Project project) {
+		MavenPluginConvention mavenPluginConvention = GradleUtil.getConvention(
+			project, MavenPluginConvention.class);
+
+		Conf2ScopeMappingContainer conf2ScopeMappingContainer =
+			mavenPluginConvention.getConf2ScopeMappings();
+
+		Map<Configuration, Conf2ScopeMapping> mappings =
+			conf2ScopeMappingContainer.getMappings();
+
+		Configuration configuration = GradleUtil.getConfiguration(
+			project, JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME);
+
+		mappings.remove(configuration);
+
+		configuration = GradleUtil.getConfiguration(
+			project, JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME);
+
+		mappings.remove(configuration);
 	}
 
 	protected void configureConfigurations(final Project project) {
@@ -889,7 +1059,11 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 		Task expandPortalWebTask = GradleUtil.getTask(
 			project, EXPAND_PORTAL_WEB_TASK_NAME);
 
-		buildCSSTask.dependsOn(expandPortalWebTask);
+		FileCollection cssFiles = buildCSSTask.getCSSFiles();
+
+		if (!cssFiles.isEmpty()) {
+			buildCSSTask.dependsOn(expandPortalWebTask);
+		}
 
 		TaskOutputs taskOutputs = expandPortalWebTask.getOutputs();
 
@@ -1204,27 +1378,15 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 	protected void configureTaskDeploy(
 		Project project, LiferayExtension liferayExtension) {
 
-		final Copy copy = (Copy)GradleUtil.getTask(project, DEPLOY_TASK_NAME);
+		Copy copy = (Copy)GradleUtil.getTask(project, DEPLOY_TASK_NAME);
 
-		copy.into(project.getProjectDir());
-
-		copy.into(
-			project.relativePath(liferayExtension.getDeployDir()),
-			new Closure<Void>(null) {
-
-				@SuppressWarnings("unused")
-				public void doCall(CopySpec copySpec) {
-					configureTaskDeployFrom(copy, copySpec);
-				}
-
-			});
+		configureTaskDeployInto(copy, liferayExtension);
 	}
 
-	protected void configureTaskDeployFrom(Copy copy, CopySpec copySpec) {
-		Jar jar = (Jar)GradleUtil.getTask(
-			copy.getProject(), JavaPlugin.JAR_TASK_NAME);
+	protected void configureTaskDeployInto(
+		Copy copy, LiferayExtension liferayExtension) {
 
-		copySpec.from(jar.getOutputs());
+		copy.into(liferayExtension.getDeployDir());
 	}
 
 	protected void configureTaskDirectDeployAppServerLibGlobalDir(
@@ -1488,11 +1650,7 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 			(StartAppServerTask)GradleUtil.getTask(
 				project, START_TESTABLE_TOMCAT_TASK_NAME);
 
-		if (!configureTaskEnabledWithAppServer(
-				startTestableTomcatTask, "tomcat")) {
-
-			return;
-		}
+		configureTaskEnabledWithAppServer(startTestableTomcatTask, "tomcat");
 	}
 
 	protected void configureTasksTest(Project project) {
@@ -1544,6 +1702,18 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 		test.setDefaultCharacterEncoding(StandardCharsets.UTF_8.name());
 	}
 
+	protected boolean configureTaskTestEnabledWithCandidateClassFiles(
+		Test test) {
+
+		FileTree fileTree = test.getCandidateClassFiles();
+
+		if (fileTree.isEmpty()) {
+			test.setEnabled(false);
+		}
+
+		return test.getEnabled();
+	}
+
 	protected void configureTaskTestForkEvery(Test test) {
 		String name = test.getName();
 
@@ -1569,8 +1739,9 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 		File skipManagedAppServerFile = new File(
 			srcDir, _SKIP_MANAGED_APP_SERVER_FILE_NAME);
 
-		if (!skipManagedAppServerFile.exists()) {
-			configureTaskEnabledWithAppServer(test, "tomcat");
+		if (!skipManagedAppServerFile.exists() &&
+			configureTaskEnabledWithAppServer(test, "tomcat") &&
+			configureTaskTestEnabledWithCandidateClassFiles(test)) {
 
 			test.dependsOn(START_TESTABLE_TOMCAT_TASK_NAME);
 			test.finalizedBy(STOP_TESTABLE_TOMCAT_TASK_NAME);
@@ -1810,5 +1981,8 @@ public class LiferayJavaPlugin implements Plugin<Project> {
 
 	private static final String _TESTABLE_PORTAL_STARTED_FILE_NAME =
 		".testable.portal.started";
+
+	private static final Logger _logger = Logging.getLogger(
+		LiferayJavaPlugin.class);
 
 }
