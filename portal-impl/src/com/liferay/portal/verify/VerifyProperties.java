@@ -515,6 +515,23 @@ public class VerifyProperties extends VerifyProcess {
 			"com.liferay.portal.security.auth.verifier"
 		},
 
+		// Blogs
+
+		new String[] {
+			"blogs.display.templates.config", "display.templates.config",
+			"com.liferay.blogs.web"
+		},
+
+		new String[] {
+			"blogs.entry.check.interval", "entry.check.interval",
+			"com.liferay.blogs.web"
+		},
+
+		new String[] {
+			"blogs.linkback.job.interval", "linkback.job.interval",
+			"com.liferay.blogs.web"
+		},
+
 		// Bookmarks
 
 		new String[] {
@@ -624,6 +641,13 @@ public class VerifyProperties extends VerifyProcess {
 		new String[] {
 			"cas.service.url", "service.url",
 			"com.liferay.portal.security.sso.cas"
+		},
+
+		// Cluster Link
+
+		new String[] {
+			"cluster.link.debug.enabled", "cluster.link.debug.enabled",
+			"com.liferay.portal.cluster"
 		},
 
 		// Currency Converter
@@ -1357,6 +1381,19 @@ public class VerifyProperties extends VerifyProcess {
 		new String[] {
 			"sitemap.display.templates.config", "display.templates.config",
 			"com.liferay.site.navigation.site.map.web"
+		},
+
+		// Staging
+
+		new String[] {
+			"staging.draft.export.import.configuration.check.interval",
+			"draft.export.import.configuration.check.interval",
+			"com.liferay.exportimport.web"
+		},
+		new String[] {
+			"staging.draft.export.import.configuration.clean.up.count",
+			"draft.export.import.configuration.clean.up.count",
+			"com.liferay.exportimport.web"
 		},
 
 		// Tags Compiler
