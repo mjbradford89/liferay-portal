@@ -201,21 +201,11 @@
 
 		<action path="/directory/view" forward="portlet.directory.view" />
 
-		<action path="/directory/view_organization" type="com.liferay.portlet.usersadmin.action.EditOrganizationAction">
-			<forward name="portlet.users_admin.edit_organization" path="portlet.directory.view_organization" />
-			<forward name="portlet.users_admin.error" path="portlet.directory.error" />
-		</action>
+		<action path="/directory/view_organization" forward="portlet.directory.view_organization" />
 
-		<action path="/directory/view_user" type="com.liferay.portlet.usersadmin.action.EditUserAction">
-			<forward name="portlet.users_admin.edit_user" path="portlet.directory.view_user" />
-			<forward name="portlet.users_admin.error" path="portlet.directory.error" />
-		</action>
+		<action path="/directory/view_user" forward="portlet.directory.view_user" />
 
 		<!-- Dockbar -->
-
-		<action path="/dockbar/edit_layouts" type="com.liferay.portlet.dockbar.action.EditLayoutsAction">
-			<forward name="portlet.dockbar.view" path="portlet.dockbar.view" />
-		</action>
 
 		<action path="/dockbar/view" type="com.liferay.portlet.dockbar.action.ViewAction">
 			<forward name="portlet.dockbar.view" path="portlet.dockbar.view" />
@@ -278,44 +268,6 @@
 
 		<action path="/maps/view" forward="portlet.maps.view" name="mapsMapsForm" scope="request" />
 
-		<!-- Mobile Device Rules -->
-
-		<action path="/mobile_device_rules/edit_action" type="com.liferay.portlet.mobiledevicerules.action.EditActionAction">
-			<forward name="portlet.mobile_device_rules.edit_action" path="portlet.mobile_device_rules.edit_action" />
-			<forward name="portlet.mobile_device_rules.error" path="portlet.mobile_device_rules.error" />
-		</action>
-
-		<action path="/mobile_device_rules/edit_action_editor" type="com.liferay.portlet.mobiledevicerules.action.EditActionAction" />
-
-		<action path="/mobile_device_rules/edit_rule" type="com.liferay.portlet.mobiledevicerules.action.EditRuleAction">
-			<forward name="portlet.mobile_device_rules.edit_rule" path="portlet.mobile_device_rules.edit_rule" />
-			<forward name="portlet.mobile_device_rules.error" path="portlet.mobile_device_rules.error" />
-		</action>
-
-		<action path="/mobile_device_rules/edit_rule_editor" type="com.liferay.portlet.mobiledevicerules.action.EditRuleAction" />
-
-		<action path="/mobile_device_rules/edit_rule_group" type="com.liferay.portlet.mobiledevicerules.action.EditRuleGroupAction">
-			<forward name="portlet.mobile_device_rules.edit_rule_group" path="portlet.mobile_device_rules.edit_rule_group" />
-			<forward name="portlet.mobile_device_rules.error" path="portlet.mobile_device_rules.error" />
-		</action>
-
-		<action path="/mobile_device_rules/edit_rule_group_instance" type="com.liferay.portlet.mobiledevicerules.action.EditRuleGroupInstanceAction">
-			<forward name="portlet.mobile_device_rules.edit_rule_group_instance_priorities" path="portlet.mobile_device_rules.edit_rule_group_instance_priorities" />
-			<forward name="portlet.mobile_device_rules.error" path="portlet.mobile_device_rules.error" />
-		</action>
-
-		<action path="/mobile_device_rules/edit_rule_group_instance_editor" type="com.liferay.portlet.mobiledevicerules.action.EditRuleGroupInstanceAction" />
-
-		<action path="/mobile_device_rules/select_rule_group" forward="portlet.mobile_device_rules.select_rule_group" />
-
-		<action path="/mobile_device_rules/site_url_layouts" type="com.liferay.portlet.mobiledevicerules.action.SiteURLLayoutsAction" />
-
-		<action path="/mobile_device_rules/view" forward="portlet.mobile_device_rules.view" />
-
-		<action path="/mobile_device_rules/view_actions" forward="portlet.mobile_device_rules.view_actions" />
-
-		<action path="/mobile_device_rules/view_rules" forward="portlet.mobile_device_rules.view_rules" />
-
 		<!-- Monitoring -->
 
 		<action path="/monitoring/edit_session" type="com.liferay.portlet.monitoring.action.EditSessionAction">
@@ -324,20 +276,6 @@
 		</action>
 
 		<action path="/monitoring/view" forward="portlet.monitoring.view" />
-
-		<!-- My Account -->
-
-		<action path="/my_account/edit_user" type="com.liferay.portlet.myaccount.action.EditUserAction">
-			<forward name="portlet.users_admin.edit_user" path="portlet.users_admin.edit_user" />
-			<forward name="portlet.users_admin.error" path="portlet.users_admin.error" />
-		</action>
-
-		<action path="/my_account/edit_user_details" forward="portlet.users_admin.edit_user_details" />
-
-		<action path="/my_account/view" type="com.liferay.portlet.myaccount.action.ViewAction">
-			<forward name="portlet.my_account.edit_user" path="portlet.users_admin.edit_user" />
-			<forward name="portlet.my_account.view" path="portlet.my_account.view" />
-		</action>
 
 		<!-- News -->
 
@@ -493,45 +431,6 @@
 			<forward name="portlet.software_catalog.view_product_entry" path="portlet.software_catalog.view_product_entry" />
 			<forward name="portlet.software_catalog.error" path="portlet.software_catalog.error" />
 		</action>
-
-		<!-- Users Admin -->
-
-		<action path="/users_admin/edit_organization" type="com.liferay.portlet.usersadmin.action.EditOrganizationAction">
-			<forward name="portlet.users_admin.edit_organization" path="portlet.users_admin.edit_organization" />
-			<forward name="portlet.users_admin.error" path="portlet.users_admin.error" />
-		</action>
-
-		<action path="/users_admin/edit_organization_assignments" type="com.liferay.portlet.usersadmin.action.EditOrganizationAssignmentsAction">
-			<forward name="portlet.users_admin.edit_organization_assignments" path="portlet.users_admin.edit_organization_assignments" />
-			<forward name="portlet.users_admin.error" path="portlet.users_admin.error" />
-		</action>
-
-		<action path="/users_admin/edit_user" type="com.liferay.portlet.usersadmin.action.EditUserAction">
-			<forward name="portlet.users_admin.edit_user" path="portlet.users_admin.edit_user" />
-			<forward name="portlet.users_admin.error" path="portlet.users_admin.error" />
-		</action>
-
-		<action path="/users_admin/edit_user_details" forward="portlet.users_admin.edit_user_details" />
-
-		<action path="/users_admin/export_users" type="com.liferay.portlet.usersadmin.action.ExportUsersAction">
-			<forward name="portlet.users_admin.error" path="portlet.users_admin.error" />
-		</action>
-
-		<action path="/users_admin/get_users_count" type="com.liferay.portlet.usersadmin.action.GetUsersCountAction" />
-
-		<action path="/users_admin/select_organization" forward="portlet.users_admin.select_organization" />
-
-		<action path="/users_admin/select_organization_role" forward="portlet.roles_admin.select_organization_role" />
-
-		<action path="/users_admin/select_regular_role" forward="portlet.roles_admin.select_regular_role" />
-
-		<action path="/users_admin/select_site_role" forward="portlet.roles_admin.select_site_role" />
-
-		<action path="/users_admin/select_user_group" forward="portlet.users_admin.select_user_group" />
-
-		<action path="/users_admin/view" forward="portlet.users_admin.view" />
-
-		<action path="/users_admin/view_users" forward="portlet.users_admin.view" />
 	</action-mappings>
 
 	<!-- Custom Request Processor -->
