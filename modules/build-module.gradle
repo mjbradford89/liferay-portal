@@ -2,7 +2,9 @@ import com.liferay.gradle.util.FileUtil
 
 buildscript {
 	repositories {
-		mavenLocal()
+		if (!Boolean.getBoolean("maven.local.ignore")) {
+			mavenLocal()
+		}
 
 		maven {
 			url "http://cdn.repository.liferay.com/nexus/content/groups/public"
@@ -10,7 +12,7 @@ buildscript {
 	}
 
 	dependencies {
-		classpath group: "com.liferay", name: "com.liferay.gradle.util", version: "1.0.15"
+		classpath group: "com.liferay", name: "com.liferay.gradle.util", version: "1.0.16"
 	}
 }
 
@@ -29,8 +31,6 @@ liferay {
 	if (liferayHomeSystemProperty) {
 		liferayHome = liferayHomeSystemProperty
 	}
-
-	tmpDir = new File(rootDir, "../tmp")
 }
 
 File appServerClassesPortalDir = new File(liferay.appServerPortalDir, "WEB-INF/classes")
@@ -48,10 +48,23 @@ afterEvaluate {
 }
 
 buildCSS {
-	portalCommonDirName = new File(rootDir, "../portal-web/docroot/html/css/common")
+	dependsOn ":frontend:frontend-common-css:buildCssCommon"
+	portalCommonDirName = relativePath(new File(rootDir, "frontend/frontend-common-css/tmp/META-INF/resources/html/css/common"))
 }
 
 configurations {
+	all {
+		resolutionStrategy {
+			eachDependency {
+				DependencyResolveDetails dependencyResolveDetails ->
+
+				if ((dependencyResolveDetails.requested.version == "default") && project.hasProperty(dependencyResolveDetails.requested.name + ".version")) {
+					dependencyResolveDetails.useVersion project.properties[dependencyResolveDetails.requested.name + ".version"]
+				}
+			}
+		}
+	}
+
 	portal
 	portalEclipse
 	portalTest
@@ -74,9 +87,9 @@ if (FileUtil.exists(project, "docroot")) {
 }
 
 dependencies {
-	cssBuilder group: "com.liferay", name: "com.liferay.css.builder", version: "1.0.7"
-	javadocFormatter group: "com.liferay", name: "com.liferay.javadoc.formatter", version: "1.0.4"
-	langBuilder group: "com.liferay", name: "com.liferay.lang.builder", version: "1.0.1"
+	cssBuilder group: "com.liferay", name: "com.liferay.css.builder", version: "default"
+	javadocFormatter group: "com.liferay", name: "com.liferay.javadoc.formatter", version: "default"
+	langBuilder group: "com.liferay", name: "com.liferay.lang.builder", version: "default"
 
 	portal files(appServerClassesPortalDir)
 	portal fileTree(dir: appServerLibPortalDir, include: "*.jar")
@@ -98,12 +111,12 @@ dependencies {
 	portalEclipse group: "log4j", name: "log4j", version: "1.2.17"
 
 	portalTest fileTree(dir: new File(moduleFrameworkBaseDir, "test"), include: "portal-test*.jar")
-	serviceBuilder group: "com.liferay", name: "com.liferay.portal.tools.service.builder", version: "1.0.29"
-	sourceFormatter group: "com.liferay", name: "com.liferay.source.formatter", version: "1.0.44"
-	tldFormatter group: "com.liferay", name: "com.liferay.tld.formatter", version: "1.0.0"
-	upgradeTableBuilder group: "com.liferay", name: "com.liferay.portal.tools.upgrade.table.builder", version: "1.0.1"
-	wsddBuilder group: "com.liferay", name: "com.liferay.portal.tools.wsdd.builder", version: "1.0.2"
-	xmlFormatter group: "com.liferay", name: "com.liferay.xml.formatter", version: "1.0.0"
+	serviceBuilder group: "com.liferay", name: "com.liferay.portal.tools.service.builder", version: "default"
+	sourceFormatter group: "com.liferay", name: "com.liferay.source.formatter", version: "default"
+	tldFormatter group: "com.liferay", name: "com.liferay.tld.formatter", version: "default"
+	upgradeTableBuilder group: "com.liferay", name: "com.liferay.portal.tools.upgrade.table.builder", version: "default"
+	wsddBuilder group: "com.liferay", name: "com.liferay.portal.tools.wsdd.builder", version: "dependencies"
+	xmlFormatter group: "com.liferay", name: "com.liferay.xml.formatter", version: "default"
 }
 
 eclipse {
@@ -143,11 +156,13 @@ eclipseProject {
 }
 
 jspC {
-	jspCVersion = "1.0.3"
+	jspCVersion = project.properties["com.liferay.jasper.jspc.version"]
 }
 
 repositories {
-	mavenLocal()
+	if (!Boolean.getBoolean("maven.local.ignore")) {
+		mavenLocal()
+	}
 
 	maven {
 		url "http://cdn.repository.liferay.com/nexus/content/groups/public"
@@ -206,7 +221,7 @@ testIntegration {
 }
 
 whip {
-	version = "1.0.0"
+	version = project.properties["com.liferay.whip.version"]
 }
 
 pluginManager.withPlugin("com.liferay.maven.plugin.builder") {
