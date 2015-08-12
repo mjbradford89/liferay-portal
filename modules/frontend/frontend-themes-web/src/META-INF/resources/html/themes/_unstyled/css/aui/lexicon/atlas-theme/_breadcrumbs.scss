@@ -1,0 +1,25 @@
+.breadcrumb {
+	padding-left: 0;
+
+	> li {
+		font-size: 12px;
+		font-weight: 500;
+		text-transform: uppercase;
+
+		> a {
+			color: $breadcrumb-link-color;
+		}
+
+		+ li:before {
+			content: $breadcrumb-separator;
+			font-family: 'fontawesome-alloy';
+			font-size: 16px;
+			font-weight: 900;
+			position: relative;
+		}
+
+		+ li.truncate:before {
+			content: '#{$breadcrumb-separator}  ... #{$breadcrumb-separator}';
+		}
+	}
+}

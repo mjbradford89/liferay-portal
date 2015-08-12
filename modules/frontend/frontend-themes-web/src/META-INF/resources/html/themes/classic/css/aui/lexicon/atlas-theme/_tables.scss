@@ -1,0 +1,16 @@
+@media screen and (max-width: ($screen-xs-min - 1)) {
+	.table-responsive-flip {
+		.table {
+			> thead,
+			> tbody,
+			> tfoot {
+				> tr {
+					> th,
+					> td {
+						line-height: 40px;
+					}
+				}
+			}
+		}
+	}
+}

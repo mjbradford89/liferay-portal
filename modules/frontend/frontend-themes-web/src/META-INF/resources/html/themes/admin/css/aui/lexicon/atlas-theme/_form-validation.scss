@@ -1,0 +1,16 @@
+.has-success,
+.has-warning,
+.has-error {
+	.control-label {
+		color: $input-label-color;
+	}
+
+	.form-control {
+		color: $input-label-color;
+
+		&,
+		&:focus {
+			box-shadow: none;
+		}
+	}
+}

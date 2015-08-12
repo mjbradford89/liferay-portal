@@ -1,0 +1,192 @@
+.management-bar {
+	border: 1px solid $management-bar-border;
+	border-width: $management-bar-border-width;
+	color: $management-bar-color;
+	margin-bottom: 0;
+	padding-left: $management-bar-padding-horizontal;
+	padding-right: $management-bar-padding-horizontal;
+
+	.btn {
+		border: 1px solid $management-bar-border;
+		border-radius: 3px;
+		margin: 6px 3px;
+		padding: 0;
+
+		@media screen and (min-width: $grid-float-breakpoint) {
+			margin: 13px 3px;
+		}
+	}
+}
+
+.management-bar-header,
+.management-bar-header-right {
+	> .checkbox-default,
+	> .radio-default {
+		padding: 13px 15px;
+
+		@media screen and (min-width: $grid-float-breakpoint) {
+			padding: 20px 15px;
+		}
+
+		input[type="checkbox"],
+		input[type="radio"] {
+			margin-top: 0;
+		}
+	}
+}
+
+.management-bar-nav {
+	> li {
+		> .checkbox-default,
+		> .radio-default {
+			padding: 13px 15px;
+
+			@media screen and (min-width: $grid-float-breakpoint) {
+				padding: 20px 15px;
+			}
+
+			input[type="checkbox"],
+			input[type="radio"] {
+				margin-top: 0;
+			}
+		}
+
+		> .management-bar-text {
+			padding: 13px 15px;
+
+			@media screen and (min-width: $grid-float-breakpoint) {
+				padding: 19px 15px;
+			}
+		}
+	}
+}
+
+.management-bar-no-collapse .management-bar-nav > li > .btn {
+	margin: 6px 3px;
+	padding: 0;
+
+	@media screen and (min-width: $grid-float-breakpoint) {
+		margin: 13px 3px;
+	}
+}
+
+.management-bar-toggle {
+	color: $management-bar-link-color;
+
+	&:hover {
+		color: $management-bar-link-hover-color;
+	}
+}
+
+.management-bar-toggle-link {
+	&.management-bar-toggle {
+		padding: 13px 15px;
+
+		@media screen and (min-width: $grid-float-breakpoint) {
+			padding: $management-bar-padding-vertical $management-bar-padding-horizontal;
+		}
+	}
+}
+
+// Skins
+
+.management-bar-nav.nav {
+	> li {
+		> a {
+			color: $management-bar-link-color;
+
+			&:hover {
+				color: $management-bar-link-hover-color;
+			}
+		}
+
+		&.active,
+		&.open {
+			> a {
+				color: $management-bar-link-active-color;
+			}
+		}
+	}
+}
+
+.management-bar-header,
+.management-bar-header-right {
+	> a {
+		color: $management-bar-link-color;
+
+		// &:focus,
+		&:hover {
+			color: $management-bar-link-hover-color;
+		}
+	}
+
+	> .management-bar-toggle {
+		color: $management-bar-toggle-open-color;
+
+		&:hover {
+			color: $management-bar-toggle-open-color;
+		}
+
+		&.collapsed {
+			color: $management-bar-toggle-close-color;
+
+			&:hover {
+				color: $management-bar-toggle-close-color;
+			}
+		}
+	}
+
+	> .btn-default {
+		color: $btn-default-color;
+
+		&:hover,
+		&.active {
+			border-color: $btn-default-hover-border;
+		}
+	}
+
+	> .btn-danger {
+		color: $btn-danger-color;
+
+		&:hover {
+			color: $btn-danger-color;
+		}
+	}
+
+	> .btn-primary {
+		color: $btn-primary-color;
+
+		&:hover {
+			color: $btn-primary-color;
+		}
+	}
+
+	> .btn-success {
+		color: $btn-success-color;
+
+		&:hover {
+			color: $btn-success-color;
+		}
+	}
+
+	> .btn-warning {
+		color: $btn-warning-color;
+
+		&:hover {
+			color: $btn-warning-color;
+		}
+	}
+}
+
+.management-bar-header-right {
+	.btn-primary {
+		border-color: $btn-primary-bg;
+		color: $btn-primary-color;
+
+		&:hover {
+			background-color: $btn-primary-hover-bg;
+			border-color: $btn-primary-hover-bg;
+			color: $btn-primary-color;
+		}
+	}
+}
