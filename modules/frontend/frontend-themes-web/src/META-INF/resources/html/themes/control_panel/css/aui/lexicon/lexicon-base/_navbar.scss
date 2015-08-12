@@ -1,0 +1,343 @@
+.basic-search {
+	float: right;
+	max-width: none;
+	padding: floor(($navbar-height - $input-height-base) / 2) $navbar-padding-horizontal;
+
+	@media screen and (min-width: $grid-float-breakpoint) {
+		max-width: 220px;
+	}
+
+	&.open {
+		background-color: $navbar-default-bg;
+		z-index: 10;
+
+		@media screen and (min-width: $grid-float-breakpoint) {
+			background-color: transparent;
+		}
+	}
+
+	&.basic-search-transition,
+	&.open {
+		button[type='submit'].btn {
+			border-bottom-left-radius: 0;
+			border-top-left-radius: 0;
+		}
+	}
+
+	button[type='submit'].btn {
+		border-bottom-left-radius: $input-border-radius;
+		border-top-left-radius: $input-border-radius;
+
+		@media screen and (min-width: $grid-float-breakpoint) {
+			border-bottom-left-radius: 0;
+			border-top-left-radius: 0;
+		}
+	}
+
+	.form-control {
+		float: right;
+		width: 100%;
+	}
+
+	.input-group-input {
+		.basic-search-slider .form-control {
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+
+		.form-control {
+			border-bottom-left-radius: $input-border-radius;
+			border-top-left-radius: $input-border-radius;
+		}
+	}
+}
+
+.basic-search-slider {
+	left: 101%;
+	position: relative;
+
+	@media screen and (min-width: $grid-float-breakpoint) {
+		left: 0;
+	}
+
+	.basic-search-close {
+		background-color: transparent;
+		border-color: transparent;
+		left: 0;
+		position: absolute;
+		z-index: 4;
+
+		&:active{
+			box-shadow: none;
+		}
+
+		&:focus {
+			background-color: transparent;
+			border-color: transparent;
+			color: $brand-primary;
+			outline: none;
+		}
+
+		@media screen and (min-width: $grid-float-breakpoint) {
+			display: none;
+			line-height: normal;
+		}
+	}
+
+	.basic-search.open & {
+		left: 0;
+	}
+}
+
+.basic-search-autofit {
+	float: none;
+	max-width: none;
+}
+
+.basic-search-transition {
+	&:after {
+		@include transition(all 0.1s ease);
+	}
+
+	.basic-search-slider {
+		@include transition(left 0.5s ease);
+	}
+}
+
+// Navbar Collapse Basic Search Styles
+
+.collapse-basic-search {
+	@media screen and (min-width: $grid-float-breakpoint) { //min-width: 768px
+		&.navbar-no-collapse {
+			.navbar-nav:first-child {
+				float: left;
+			}
+		}
+
+		.basic-search-autofit {
+			float: none;
+			max-width: none;
+		}
+	}
+
+	.basic-search {
+		bottom: 0;
+		display: block;
+		left: 0;
+		margin: 0;
+		position: absolute;
+		right: 0;
+		top: 0;
+
+		@media screen and (min-width: $grid-float-breakpoint) { //min-width: 768px
+			position: static;
+		}
+
+		.input-group-input {
+			overflow: hidden;
+		}
+
+		.form-control {
+			padding-left: 40px;
+
+			@media screen and (min-width: $grid-float-breakpoint) {
+				padding-left: 5px;
+			}
+		}
+	}
+
+	.navbar-nav:first-child {
+		float: none;
+	}
+
+	.navbar-nav > li > a,
+	.navbar-toggle {
+		z-index: 1;
+	}
+}
+
+/* make navbar dropdown position absolute
+	 lr7 navbar mobile (when navbar-header comes after navbar-collapse) */
+.navbar {
+	.navbar-collapse:first-child,
+	.navbar-collapse-absolute {
+		background-color: #FFF;
+		border: 1px solid #DDD;
+		left: -1px;
+		position: absolute;
+		right: -1px;
+		top: 100%;
+		z-index: $zindex-navbar;
+	}
+}
+
+// navbar-form
+.navbar-form {
+	margin-bottom: floor(($navbar-height - $input-height-base) / 2);
+	margin-top: floor(($navbar-height - $input-height-base) / 2);
+}
+
+.navbar-header .navbar-form,
+.navbar-no-collapse .navbar-form {
+	border-width: 0;
+	margin: 0;
+	padding: floor(($navbar-height - $input-height-base) / 2) $navbar-padding-horizontal;
+}
+
+.navbar-nav {
+	> li > a {
+		padding-left: $navbar-padding-horizontal;
+		padding-right: $navbar-padding-horizontal;
+	}
+}
+
+//navbar-no-collapse
+.navbar-no-collapse .navbar-nav {
+	float: left;
+	margin: 0 $navbar-padding-horizontal;
+
+	> li {
+		float: left;
+		margin-left: -1px;
+
+		&:first-child {
+			border-left-width: 0;
+			margin-left: 0;
+		}
+
+		&:last-child {
+			border-right-width: 0;
+		}
+
+		> a {
+			padding-bottom: $navbar-padding-vertical;
+			padding-top: $navbar-padding-vertical;
+		}
+	}
+}
+
+//navbar toggle
+.navbar-toggle,
+.navbar-toggle-left {
+	margin: floor(($navbar-height - $input-height-base) / 2) $navbar-padding-horizontal;
+	padding: $padding-base-vertical 10px;
+}
+
+.navbar-toggle .icon-bar {
+	width: 18px;
+}
+
+.navbar-toggle-left {
+	float: left;
+}
+
+.basic-search {
+	.input-group-input {
+		text-align: right;
+
+		.form-control {
+			min-width: 100px;
+		}
+	}
+}
+
+@media screen and (min-width: $grid-float-breakpoint) { //min-width: 768px
+	//lr7 undo collapse-basic-search for desktop
+	.collapse-basic-search {
+		.basic-search {
+			position: static;
+
+			.input-group-input {
+				overflow: visible;
+
+				.form-control {
+					left: auto;
+				}
+			}
+		}
+
+		.navbar-nav:first-child {
+			float: left;
+		}
+	}
+
+	// collapse-basic-search plugin undo open state on desktop
+	.collapse-basic-search {
+		.basic-search {
+			&.open {
+				.basic-search-close {
+					display: none;
+				}
+			}
+		}
+	}
+
+	//lr7 navbar mobile (when navbar-header comes after navbar-collapse)
+	.navbar .navbar-collapse {
+		background-color: transparent;
+		border-width: 0;
+		float: none;
+		left: auto;
+		position: static;
+		right: auto;
+		top: auto;
+		z-index: 0;
+	}
+
+	.navbar .navbar-collapse {
+		&:first-child {
+			background-color: transparent;
+			border-width: 0;
+			float: left;
+			left: auto;
+			position: static;
+			right: auto;
+			top: auto;
+			z-index: 0;
+		}
+
+		+ .navbar-header {
+			float: none;
+
+			.basic-search {
+				width: auto;
+			}
+		}
+	}
+
+	.navbar-form {
+		margin: 0;
+		padding: floor(($navbar-height - $input-height-base) / 2) 0;
+
+		.btn {
+			vertical-align: top;
+		}
+
+		.form-group {
+			display: inline-block;
+			margin-bottom: 0;
+		}
+	}
+
+	.navbar-header .input-group-input .form-control {
+		max-width: none;
+		min-width: 0;
+	}
+
+	.navbar-header-right {
+		float: right;
+	}
+
+	.navbar-nav {
+		margin-right: $navbar-padding-horizontal;
+
+		&.navbar-right {
+			margin-right: 0;
+			margin-left: $navbar-padding-horizontal;
+
+			&:last-child {
+				margin-right: 0;
+			}
+		}
+	}
+}
