@@ -20,7 +20,9 @@
 PanelAppRegistry panelAppRegistry = (PanelAppRegistry)request.getAttribute(ApplicationListWebKeys.PANEL_APP_REGISTRY);
 PanelCategoryRegistry panelCategoryRegistry = (PanelCategoryRegistry)request.getAttribute(ApplicationListWebKeys.PANEL_CATEGORY_REGISTRY);
 
-PanelCategory firstChildPanelCategory = panelCategoryRegistry.getFirstChildPanelCategory(PanelCategoryKeys.ROOT);
+List<PanelCategory> childPanelCategories = panelCategoryRegistry.getChildPanelCategories(PanelCategoryKeys.ROOT, permissionChecker, themeDisplay.getScopeGroup());
+
+PanelCategory firstChildPanelCategory = childPanelCategories.get(0);
 
 String rootPanelCategoryKey = firstChildPanelCategory.getKey();
 
@@ -43,19 +45,16 @@ if (Validator.isNotNull(themeDisplay.getPpid())) {
 		<span class="company-name"><%= company.getName() %></span>
 	</span>
 
-	<aui:icon cssClass="sidenav-close" image="remove" url="javascript:;" />
+	<aui:icon cssClass="sidenav-close visible-xs-block" image="remove" url="javascript:;" />
 </h4>
 
 <ul class="nav nav-tabs product-menu-tabs">
 
 	<%
-	for (PanelCategory childPanelCategory : panelCategoryRegistry.getChildPanelCategories(PanelCategoryKeys.ROOT)) {
-		if (!childPanelCategory.hasAccessPermission(permissionChecker, themeDisplay.getScopeGroup())) {
-			continue;
-		}
+	for (PanelCategory childPanelCategory : childPanelCategories) {
 	%>
 
-		<li class="col-xs-4 <%= rootPanelCategoryKey.equals(childPanelCategory.getKey()) ? "active" : StringPool.BLANK %>">
+		<li class="<%= "col-xs-" + (12 / childPanelCategories.size()) %> <%= rootPanelCategoryKey.equals(childPanelCategory.getKey()) ? "active" : StringPool.BLANK %>">
 			<a aria-expanded="true" data-toggle="tab" href="#<portlet:namespace /><%= childPanelCategory.getKey() %>">
 				<div class="product-menu-tab-icon">
 					<span class="<%= childPanelCategory.getIconCssClass() %> icon-monospaced"></span>
@@ -77,7 +76,7 @@ if (Validator.isNotNull(themeDisplay.getPpid())) {
 	<div class="tab-content">
 
 		<%
-		for (PanelCategory childPanelCategory : panelCategoryRegistry.getChildPanelCategories(PanelCategoryKeys.ROOT)) {
+		for (PanelCategory childPanelCategory : childPanelCategories) {
 		%>
 
 			<div class="fade in tab-pane <%= rootPanelCategoryKey.equals(childPanelCategory.getKey()) ? "active" : StringPool.BLANK %>" id="<portlet:namespace /><%= childPanelCategory.getKey() %>">
@@ -140,26 +139,18 @@ if (Validator.isNotNull(themeDisplay.getPpid())) {
 </div>
 
 <aui:script use="liferay-store">
-	var sidenavContainer = $('#sidenavContainerId');
+	AUI.$('#sidenavToggleId').sideNavigation();
 
-	sidenavContainer.sideNavigation(
-		{
-			gutter: '0',
-			toggler: '#sidenavToggleId',
-			type: 'fixed-push',
-			typeMobile: 'fixed',
-			width: '320px'
-		}
-	);
+	var sidenavSlider = AUI.$('#sidenavSliderId');
 
-	sidenavContainer.on(
+	sidenavSlider.on(
 		'closed.lexicon.sidenav',
 		function(event) {
 			Liferay.Store('liferay_product_menu_state', 'closed');
 		}
 	);
 
-	sidenavContainer.on(
+	sidenavSlider.on(
 		'open.lexicon.sidenav',
 		function(event) {
 			Liferay.Store('liferay_product_menu_state', 'open');

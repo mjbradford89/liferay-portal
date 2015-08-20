@@ -12,30 +12,20 @@ buildscript {
 	}
 
 	dependencies {
-		classpath group: "com.liferay", name: "com.liferay.gradle.util", version: "1.0.16"
+		classpath group: "com.liferay", name: "com.liferay.gradle.util", version: "1.0.17"
 	}
 }
 
 apply plugin: "com.liferay.plugin"
 apply plugin: "eclipse"
-
-liferay {
-	appServerParentDir = System.properties["app.server.parent.dir"] ?: rootProject.file("../../bundles")
-
-	if (deployDir == new File(appServerParentDir, "deploy")) {
-		deployDir = new File(liferayHome, "osgi/apps")
-	}
-
-	String liferayHomeSystemProperty = System.properties["liferay.home"]
-
-	if (liferayHomeSystemProperty) {
-		liferayHome = liferayHomeSystemProperty
-	}
-}
+apply plugin: "findbugs"
 
 File appServerClassesPortalDir = new File(liferay.appServerPortalDir, "WEB-INF/classes")
 File appServerLibPortalDir = new File(liferay.appServerPortalDir, "WEB-INF/lib")
 File moduleFrameworkBaseDir = new File(liferay.liferayHome, "osgi")
+File nodejsDir = new File(buildDir, "nodejs")
+
+task setupNpmCache(type: NpmTask)
 
 group = "com.liferay"
 distsDirName = FileUtil.relativize(rootProject.file("../tools/sdk/dist2"), buildDir)
@@ -45,11 +35,21 @@ afterEvaluate {
 	project.ext.set("app.server.lib.portal.dir", project.relativePath(appServerLibPortalDir))
 	project.ext.set("app.server.portal.dir", project.relativePath(liferay.appServerPortalDir))
 	project.ext.set("plugin.full.version", project.version.toString())
+
+	if (project.hasProperty("snapshot") && !project.version.endsWith("-SNAPSHOT")) {
+		project.version = project.version + "-SNAPSHOT"
+	}
 }
 
 buildCSS {
 	dependsOn ":frontend:frontend-common-css:buildCssCommon"
-	portalCommonDirName = relativePath(new File(rootDir, "frontend/frontend-common-css/tmp/META-INF/resources/html/css/common"))
+	portalCommonDirName = relativePath(new File(rootDir, "frontend/frontend-common-css/tmp/META-INF/resources"))
+	sassCompilerClassName = project.properties["sass.compiler.class.name"]
+}
+
+buildLang {
+	translateClientId = project.properties["microsoft.translator.client.id"]
+	translateClientSecret = project.properties["microsoft.translator.client.secret"]
 }
 
 configurations {
@@ -159,6 +159,22 @@ jspC {
 	jspCVersion = project.properties["com.liferay.jasper.jspc.version"]
 }
 
+node {
+	download = true
+	nodeModulesDir = nodejsDir
+	npmVersion = project.properties["nodejs.npm.version"]
+	version = project.properties["nodejs.version"]
+	workDir = nodejsDir
+}
+
+npmSetup {
+	finalizedBy setupNpmCache
+}
+
+setupNpmCache {
+	args = ["config", "set", "cache", new File(nodejsDir, ".cache"), "--global"]
+}
+
 repositories {
 	if (!Boolean.getBoolean("maven.local.ignore")) {
 		mavenLocal()
@@ -187,37 +203,8 @@ sourceSets {
 	}
 }
 
-test {
-	jvmArgs "-XX:MaxNewSize=32m"
-	jvmArgs "-XX:MaxPermSize=64m"
-	jvmArgs "-XX:MaxTenuringThreshold=0"
-	jvmArgs "-XX:NewSize=32m"
-	jvmArgs "-XX:ParallelGCThreads=2"
-	jvmArgs "-XX:PermSize=64m"
-	jvmArgs "-XX:SurvivorRatio=65536"
-	jvmArgs "-XX:TargetSurvivorRatio=0"
-	jvmArgs "-XX:-UseAdaptiveSizePolicy"
-	jvmArgs "-XX:+UseParallelOldGC"
-	jvmArgs "-XX:-UseSplitVerifier"
-
-	maxHeapSize = "256m"
-	minHeapSize = "256m"
-}
-
-testIntegration {
-	jvmArgs "-XX:MaxNewSize=32m"
-	jvmArgs "-XX:MaxPermSize=200m"
-	jvmArgs "-XX:MaxTenuringThreshold=0"
-	jvmArgs "-XX:NewSize=32m"
-	jvmArgs "-XX:ParallelGCThreads=2"
-	jvmArgs "-XX:PermSize=200m"
-	jvmArgs "-XX:SurvivorRatio=65536"
-	jvmArgs "-XX:TargetSurvivorRatio=0"
-	jvmArgs "-XX:-UseAdaptiveSizePolicy"
-	jvmArgs "-XX:+UseParallelOldGC"
-
-	maxHeapSize = "512m"
-	minHeapSize = "512m"
+tasks.eclipse {
+	dependsOn cleanEclipse
 }
 
 whip {
@@ -240,31 +227,12 @@ pluginManager.withPlugin("com.liferay.maven.plugin.builder") {
 	}
 }
 
-pluginManager.withPlugin("com.moowork.node") {
-	File nodejsDir = new File(buildDir, "nodejs")
+tasks.withType(FindBugs) {
+	maxHeapSize = "1g"
 
-	task setupNpmCache(type: NpmTask)
-
-	node {
-		download = true
-		nodeModulesDir = nodejsDir
-		npmVersion = project.properties["nodejs.npm.version"]
-		version = project.properties["nodejs.version"]
-		workDir = nodejsDir
-	}
-
-	npmSetup {
-		finalizedBy setupNpmCache
-	}
-
-	setupNpmCache {
-		args = ["config", "set", "cache", new File(nodejsDir, ".cache"), "--global"]
-	}
-
-	tasks.withType(NpmTask) {
-		if (it != npmSetup) {
-			dependsOn npmSetup
-		}
+	reports {
+		html.enabled = true
+		xml.enabled = false
 	}
 }
 
@@ -273,7 +241,15 @@ tasks.withType(JavaCompile) {
 	options.warnings = false
 }
 
-if (project.hasProperty("testClassGroupIndex")) {
+tasks.withType(NpmTask) {
+	if (it != npmSetup) {
+		dependsOn npmSetup
+	}
+}
+
+String testClassGroupIndex = System.getProperty("test.class.group.index")
+
+if (testClassGroupIndex) {
 	Properties properties = new Properties()
 
 	File file = new File(rootDir, "../test.class.file.names.properties")
@@ -290,5 +266,9 @@ if (project.hasProperty("testClassGroupIndex")) {
 
 		jvmArgs "-Dtest.class.group.index=" + testClassGroupIndex
 		jvmArgs "-Dtest.class.groups=" + testClassGroups
+	}
+
+	if (testClassGroupIndex == "0") {
+		test.finalizedBy compileJSP
 	}
 }

@@ -15,6 +15,10 @@
 	</target>
 
 	<target name="prepare-poshi-runner" depends="jar">
+		<tstamp>
+			<format property="current.date" pattern="yyyy-MM-dd" timezone="GMT" />
+		</tstamp>
+
 		<echo file="classes/poshi-runner-ext.properties">
 			component.names=\
 				extra-apps-content-targeting,\
@@ -165,7 +169,9 @@
 				portal,\
 				social-office
 
-			test.base.dir.name=../../../portal-web/test/functional/com/liferay/portalweb/
+			project.dir=${lp.portal.project.dir}
+
+			test.base.dir.name=${lp.portal.project.dir}/portal-web/test/functional/com/liferay/portalweb/
 
 			test.case.available.property.names=\
 				app.server.bundles.size,\
@@ -204,6 +210,8 @@
 				theme.plugins.includes,\
 				web.plugins.includes,\
 				web.xml.timeout
+
+			test.console.log.file.name=${liferay.home}/logs/liferay.${current.date}.xml
 
 			test.name=${test.name}
 

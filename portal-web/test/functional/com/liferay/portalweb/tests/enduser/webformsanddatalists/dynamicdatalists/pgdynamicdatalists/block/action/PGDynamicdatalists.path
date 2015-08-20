@@ -25,7 +25,7 @@
 </tr>
 <tr>
 	<td>ADD_RECORD_BUTTON</td>
-	<td>//section[contains(@id,'portlet_169_')]//a[@role='menuitem']/span[contains(.,'Add')]</td>
+	<td>//div[contains(@id,'_DDLDisplayPortlet')]//a[@role='menuitem']/span[contains(.,'Add')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -128,7 +128,7 @@
 </tr>
 <tr>
 	<td>RECORD_TABLE_NAME</td>
-	<td>//div[contains(@class,'searchcontainer')]//a[contains(.,'${key_ddlRecordFieldData}')]</td>
+	<td>//form[contains(@class,'form')]//div[contains(.,'${key_ddlRecordFieldData}')]</td>
 	<td></td>
 </tr>
 <tr>
