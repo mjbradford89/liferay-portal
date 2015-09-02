@@ -138,9 +138,7 @@
 			);
 		}
 	);
-</aui:script>
 
-<aui:script use="liferay-search-container">
 	var searchContainer = Liferay.SearchContainer.get('<portlet:namespace/>assetLinksSearchContainer');
 
 	searchContainer.get('contentBox').delegate(
