@@ -97,6 +97,8 @@
 <aui:input name="assetLinkEntryIds" type="hidden" />
 
 <aui:script use="liferay-search-container">
+	var searchContainer = Liferay.SearchContainer.get('<portlet:namespace/>assetLinksSearchContainer');
+
 	$('body').on(
 		'click',
 		'.asset-selector a',
@@ -104,8 +106,6 @@
 			event.preventDefault();
 
 			var assetSelector = $(event.currentTarget);
-
-			var searchContainer = Liferay.SearchContainer.get('<portlet:namespace/>assetLinksSearchContainer');
 
 			var searchContainerData = searchContainer.getData();
 
@@ -138,8 +138,6 @@
 			);
 		}
 	);
-
-	var searchContainer = Liferay.SearchContainer.get('<portlet:namespace/>assetLinksSearchContainer');
 
 	searchContainer.get('contentBox').delegate(
 		'click',
