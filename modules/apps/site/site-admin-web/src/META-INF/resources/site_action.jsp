@@ -56,11 +56,7 @@ if (row == null) {
 <liferay-ui:icon-menu direction="down" icon="<%= StringPool.BLANK %>" message="<%= StringPool.BLANK %>" showExpanded="<%= view %>" showWhenSingleIcon="<%= true %>">
 
 	<%
-	ThemeDisplay siteThemeDisplay = (ThemeDisplay)themeDisplay.clone();
-
-	siteThemeDisplay.setScopeGroupId(group.getGroupId());
-
-	PortletURL siteAdministrationURL = PortalUtil.getSiteAdministrationURL(request, siteThemeDisplay);
+	PortletURL siteAdministrationURL = group.getAdministrationURL(themeDisplay);
 	%>
 
 	<c:if test="<%= siteAdministrationURL != null %>">
@@ -184,7 +180,7 @@ if (row == null) {
 		/>
 	</c:if>
 
-	<c:if test="<%= !group.isCompany() && (!(organizationUser || userGroupUser) && ((group.getType() == GroupConstants.TYPE_SITE_OPEN) || (group.getType() == GroupConstants.TYPE_SITE_RESTRICTED)) && GroupLocalServiceUtil.hasUserGroup(user.getUserId(), group.getGroupId())) && !SiteMembershipPolicyUtil.isMembershipRequired(user.getUserId(), group.getGroupId()) %>">
+	<c:if test="<%= !group.isCompany() && !(organizationUser || userGroupUser) && ((group.getType() == GroupConstants.TYPE_SITE_OPEN) || (group.getType() == GroupConstants.TYPE_SITE_RESTRICTED)) && GroupLocalServiceUtil.hasUserGroup(user.getUserId(), group.getGroupId()) && !SiteMembershipPolicyUtil.isMembershipRequired(user.getUserId(), group.getGroupId()) %>">
 		<portlet:actionURL name="editGroupAssignments" var="leaveURL">
 			<portlet:param name="redirect" value="<%= currentURL %>" />
 			<portlet:param name="groupId" value="<%= String.valueOf(group.getGroupId()) %>" />

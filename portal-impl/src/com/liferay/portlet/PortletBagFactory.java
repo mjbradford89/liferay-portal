@@ -281,7 +281,9 @@ public class PortletBagFactory {
 		properties.put("javax.portlet.name", portlet.getPortletId());
 
 		return ServiceTrackerCollections.list(
-			clazz, "(javax.portlet.name=" + portlet.getPortletId() + ")",
+			clazz,
+			"(|(javax.portlet.name=" + portlet.getPortletId() +
+				")(javax.portlet.name=ALL))",
 			properties);
 	}
 
@@ -853,9 +855,13 @@ public class PortletBagFactory {
 			WebDAVStorage webDAVStorageInstance = (WebDAVStorage)newInstance(
 				WebDAVStorage.class, portlet.getWebDAVStorageClass());
 
-			webDAVStorageInstance.setToken(portlet.getWebDAVStorageToken());
+			Map<String, Object> properties = new HashMap<>();
 
-			webDAVStorageInstances.add(webDAVStorageInstance);
+			properties.put("javax.portlet.name", portlet.getPortletId());
+			properties.put(
+				"webdav.storage.token", portlet.getWebDAVStorageToken());
+
+			webDAVStorageInstances.add(webDAVStorageInstance, properties);
 		}
 
 		return webDAVStorageInstances;

@@ -19,11 +19,18 @@ package com.liferay.portal.kernel.servlet;
  */
 public class PortalWebResourceConstants {
 
+	public static final String RESOURCE_TYPE_ADMIN_THEME = "admin_theme";
+
+	public static final String RESOURCE_TYPE_CLASSIC_THEME = "classic_theme";
+
 	public static final String RESOURCE_TYPE_CSS = "css";
 
 	public static final String RESOURCE_TYPE_EDITORS = "editors";
 
 	public static final String RESOURCE_TYPE_JS = "js";
+
+	public static final String RESOURCE_TYPE_JS_BUNDLE_CONFIG =
+		"js_bundle_config";
 
 	public static final String RESOURCE_TYPE_JS_LOADER_MODULES =
 		"js_loader_modules";

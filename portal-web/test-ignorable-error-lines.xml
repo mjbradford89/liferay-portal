@@ -64,6 +64,10 @@
 			<contains>Table 'lportal.lock_' doesn't exist</contains>
 			<matches></matches>
 		</ignore-error>
+		<ignore-error description="LPS-17639">
+			<contains>Table 'lportal.Lock_' doesn't exist</contains>
+			<matches></matches>
+		</ignore-error>
 		<ignore-error description="LPS-22821">
 			<contains>Exception sending context destroyed event to listener instance of class com.liferay.portal.spring.context.PortalContextLoaderListener</contains>
 			<matches></matches>
@@ -204,10 +208,6 @@
 		<ignore-error description="LPS-55160">
 			<contains></contains>
 			<matches>.*osgi.compendium:service=.*version=1.[0-9]+.*</matches>
-		</ignore-error>
-		<ignore-error description="LPS-57789">
-			<contains>[Hikari housekeeper (pool HikariPool-</contains>
-			<matches>.*The web application \\[\\] appears to have started a thread.*</matches>
 		</ignore-error>
 		<ignore-error description="LRQA-14442, temporary workaround until Kiyoshi Lee fixes it">
 			<contains>[org_eclipse_equinox_http_servlet.*Framework Event Dispatcher: Equinox Container:</contains>
