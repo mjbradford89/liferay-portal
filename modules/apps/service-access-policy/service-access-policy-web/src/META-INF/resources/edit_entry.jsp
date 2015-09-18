@@ -69,9 +69,7 @@ if (sapEntry != null) {
 
 	<aui:input name="title" required="<%= true %>" />
 
-	<aui:input helpMessage="allowed-service-signatures-help" name="allowedServiceSignatures" />
-
-	<aui:input helpMessage="disallowed-service-signatures-help" name="disallowedServiceSignatures" />
+	<aui:input helpMessage="allowed-service-signatures-helpallowed-service-signatures-help" name="allowedServiceSignatures" />
 
 	<aui:button-row>
 		<aui:button type="submit" value="save" />
