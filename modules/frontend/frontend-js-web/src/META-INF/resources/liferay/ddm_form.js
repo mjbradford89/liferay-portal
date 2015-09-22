@@ -430,7 +430,7 @@ AUI.add(
 
 						var labelNode = instance.getLabelNode();
 
-						if (Lang.isValue(label)) {
+						if (Lang.isValue(label) && Lang.isNode(labelNode)) {
 							labelNode.html(A.Escape.html(label));
 						}
 					},
@@ -700,7 +700,7 @@ AUI.add(
 
 						var inputNode = instance.getInputNode();
 
-						if (Lang.isValue(label)) {
+						if (Lang.isValue(label) && Lang.isNode(labelNode)) {
 							labelNode.html('&nbsp;' + A.Escape.html(label));
 
 							labelNode.prepend(inputNode);
@@ -808,9 +808,9 @@ AUI.add(
 
 						var portletURL = Liferay.PortletURL.createRenderURL();
 
+						portletURL.setDoAsGroupId(instance.get('doAsGroupId'));
 						portletURL.setParameter('criteria', criteria);
 						portletURL.setParameter('itemSelectedEventName', portletNamespace + 'selectDocumentLibrary');
-						portletURL.setParameter('repositoryId', instance.get('doAsGroupId'));
 
 						var criterionJSON = {
 							desiredItemSelectorReturnTypes: 'com.liferay.item.selector.criteria.FileEntryItemSelectorReturnType,com.liferay.item.selector.criteria.UploadableFileReturnType'

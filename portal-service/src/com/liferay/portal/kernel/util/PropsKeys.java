@@ -245,8 +245,6 @@ public interface PropsKeys {
 
 	public static final String BLOGS_IMAGE_MAX_SIZE = "blogs.image.max.size";
 
-	public static final String BLOGS_IMAGE_SMALL_MAX_SIZE = "blogs.image.small.max.size";
-
 	public static final String BLOGS_LINKBACK_EXCERPT_LENGTH = "blogs.linkback.excerpt.length";
 
 	public static final String BLOGS_PAGE_ABSTRACT_LENGTH = "blogs.page.abstract.length";
@@ -444,8 +442,6 @@ public interface PropsKeys {
 	public static final String COMPANY_SETTINGS_FORM_SOCIAL = "company.settings.form.social";
 
 	public static final String CONTROL_PANEL_DEFAULT_ENTRY_CLASS = "control.panel.default.entry.class";
-
-	public static final String CONTROL_PANEL_HOME_PORTLET_ID = "control.panel.home.portlet.id";
 
 	public static final String CONTROL_PANEL_LAYOUT_FRIENDLY_URL = "control.panel.layout.friendly.url";
 
@@ -750,6 +746,8 @@ public interface PropsKeys {
 	public static final String DL_SUBFOLDERS_VISIBLE = "dl.subfolders.visible";
 
 	public static final String DL_TABS_VISIBLE = "dl.tabs.visible";
+
+	public static final String DL_WEBDAV_SUBSTITUTION_CHAR = "dl.webdav.substitution.char";
 
 	public static final String DOCKBAR_ADD_PORTLETS = "dockbar.add.portlets";
 

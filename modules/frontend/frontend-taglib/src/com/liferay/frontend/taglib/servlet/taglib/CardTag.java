@@ -161,7 +161,7 @@ public class CardTag extends IncludeTag {
 		_imageCSSClass = null;
 		_resultRow = null;
 		_rowChecker = null;
-		_showCheckbox = true;
+		_showCheckbox = false;
 		_smallImageCSSClass = null;
 		_smallImageUrl = null;
 		_subtitle = null;
@@ -216,8 +216,14 @@ public class CardTag extends IncludeTag {
 		request.setAttribute("liferay-frontend:card:imageUrl", _imageUrl);
 		request.setAttribute("liferay-frontend:card:resultRow", _resultRow);
 		request.setAttribute("liferay-frontend:card:rowChecker", _rowChecker);
+
+		if (_rowChecker != null) {
+			_showCheckbox = true;
+		}
+
 		request.setAttribute(
 			"liferay-frontend:card:showCheckbox", _showCheckbox);
+
 		request.setAttribute(
 			"liferay-frontend:card:smallImageCSSClass", _smallImageCSSClass);
 		request.setAttribute(
