@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.search.web.facet;
+package com.liferay.search.facet;
 
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.search.facet.config.FacetConfiguration;
 import com.liferay.portal.kernel.search.facet.util.FacetFactoryUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.search.web.util.SearchFacet;
 
 /**
  * @author Eudaldo Alonso
@@ -73,18 +72,22 @@ public abstract class BaseSearchFacet implements SearchFacet {
 	}
 
 	@Override
-	public void init(String searchConfiguration) throws Exception {
-		init(searchConfiguration, null);
+	public void init(long companyId, String searchConfiguration)
+		throws Exception {
+
+		init(companyId, searchConfiguration, null);
 	}
 
 	@Override
-	public void init(String searchConfiguration, SearchContext searchContext)
+	public void init(
+			long companyId, String searchConfiguration,
+			SearchContext searchContext)
 		throws Exception {
 
 		_facetConfiguration = _getFacetConfiguration(searchConfiguration);
 
 		if (_facetConfiguration == null) {
-			_facetConfiguration = getDefaultConfiguration();
+			_facetConfiguration = getDefaultConfiguration(companyId);
 		}
 
 		if (searchContext != null) {
