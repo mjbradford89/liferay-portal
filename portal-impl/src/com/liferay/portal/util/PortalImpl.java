@@ -4386,10 +4386,12 @@ public class PortalImpl implements Portal {
 
 	@Override
 	public String getPortletTitle(PortletRequest portletRequest) {
+		long companyId = PortalUtil.getCompanyId(portletRequest);
 		String portletId = (String)portletRequest.getAttribute(
 			WebKeys.PORTLET_ID);
 
-		Portlet portlet = PortletLocalServiceUtil.getPortletById(portletId);
+		Portlet portlet = PortletLocalServiceUtil.getPortletById(
+			companyId, portletId);
 
 		HttpServletRequest request = getHttpServletRequest(portletRequest);
 
@@ -7531,6 +7533,8 @@ public class PortalImpl implements Portal {
 					PortletCategoryKeys.CONTROL_PANEL_CONFIGURATION) ||
 				portletCategory.equals(
 					PortletCategoryKeys.CONTROL_PANEL_SITES) ||
+				portletCategory.equals(
+					PortletCategoryKeys.CONTROL_PANEL_SYSTEM) ||
 				portletCategory.equals(
 					PortletCategoryKeys.CONTROL_PANEL_USERS)) {
 

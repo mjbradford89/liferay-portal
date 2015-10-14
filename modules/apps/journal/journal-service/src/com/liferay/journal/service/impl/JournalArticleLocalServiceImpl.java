@@ -5792,6 +5792,10 @@ public class JournalArticleLocalServiceImpl
 
 		int oldStatus = article.getStatus();
 
+		Date modifiedDate = serviceContext.getModifiedDate(now);
+
+		article.setModifiedDate(modifiedDate);
+
 		if (status == WorkflowConstants.STATUS_APPROVED) {
 			Date expirationDate = article.getExpirationDate();
 
@@ -5807,7 +5811,7 @@ public class JournalArticleLocalServiceImpl
 		article.setStatus(status);
 		article.setStatusByUserId(user.getUserId());
 		article.setStatusByUserName(user.getFullName());
-		article.setStatusDate(serviceContext.getModifiedDate(now));
+		article.setStatusDate(modifiedDate);
 
 		journalArticlePersistence.update(article);
 
@@ -7651,18 +7655,26 @@ public class JournalArticleLocalServiceImpl
 		Locale articleDefaultLocale = LocaleUtil.fromLanguageId(
 			LocalizationUtil.getDefaultLanguageId(content));
 
-		if (!LanguageUtil.isAvailableLocale(groupId, articleDefaultLocale)) {
-			LocaleException le = new LocaleException(
-				LocaleException.TYPE_CONTENT,
-				"The locale " + articleDefaultLocale +
-					" is not available in site with groupId" + groupId);
+		if (!ExportImportThreadLocal.isImportInProcess()) {
+			if (!LanguageUtil.isAvailableLocale(
+					groupId, articleDefaultLocale)) {
 
-			le.setSourceAvailableLocales(
-				Collections.singleton(articleDefaultLocale));
-			le.setTargetAvailableLocales(
-				LanguageUtil.getAvailableLocales(groupId));
+				LocaleException le = new LocaleException(
+					LocaleException.TYPE_CONTENT,
+					"The locale " + articleDefaultLocale +
+						" is not available in site with groupId" + groupId);
 
-			throw le;
+				le.setSourceAvailableLocales(
+					Collections.singleton(articleDefaultLocale));
+				le.setTargetAvailableLocales(
+					LanguageUtil.getAvailableLocales(groupId));
+
+				throw le;
+			}
+
+			if ((expirationDate != null) && expirationDate.before(new Date())) {
+				throw new ArticleExpirationDateException();
+			}
 		}
 
 		if ((classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT) &&
@@ -7695,12 +7707,6 @@ public class JournalArticleLocalServiceImpl
 		}
 		else if (classNameId == JournalArticleConstants.CLASSNAME_ID_DEFAULT) {
 			throw new NoSuchTemplateException();
-		}
-
-		if ((expirationDate != null) && expirationDate.before(new Date()) &&
-			!ExportImportThreadLocal.isImportInProcess()) {
-
-			throw new ArticleExpirationDateException();
 		}
 
 		String[] imageExtensions = PrefsPropsUtil.getStringArray(
