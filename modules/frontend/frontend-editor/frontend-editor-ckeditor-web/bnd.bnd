@@ -1,4 +1,4 @@
-Bundle-Name: Liferay Frontend CKEditor Editor Web
+Bundle-Name: Liferay Frontend Editor CKEditor Web
 Bundle-SymbolicName: com.liferay.frontend.editors.ckeditor.web
 Bundle-Version: 1.0.0
 Include-Resource:\
