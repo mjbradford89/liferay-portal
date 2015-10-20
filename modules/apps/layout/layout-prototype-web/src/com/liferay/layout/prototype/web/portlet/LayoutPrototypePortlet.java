@@ -15,7 +15,6 @@
 package com.liferay.layout.prototype.web.portlet;
 
 import com.liferay.layout.prototype.web.constants.LayoutPrototypePortletKeys;
-import com.liferay.layout.prototype.web.upgrade.LayoutPrototypeWebUpgrade;
 import com.liferay.portal.NoSuchLayoutPrototypeException;
 import com.liferay.portal.RequiredLayoutPrototypeException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
@@ -25,7 +24,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.model.LayoutPrototype;
 import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.service.LayoutPrototypeServiceUtil;
+import com.liferay.portal.service.LayoutPrototypeService;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portlet.sites.util.SitesUtil;
@@ -81,7 +80,7 @@ public class LayoutPrototypePortlet extends MVCPortlet {
 			ParamUtil.getString(actionRequest, "layoutPrototypeIds"), 0L);
 
 		for (long layoutPrototypeId : layoutPrototypeIds) {
-			LayoutPrototypeServiceUtil.deleteLayoutPrototype(layoutPrototypeId);
+			_layoutPrototypeService.deleteLayoutPrototype(layoutPrototypeId);
 		}
 	}
 
@@ -105,14 +104,14 @@ public class LayoutPrototypePortlet extends MVCPortlet {
 
 			// Add layout prototoype
 
-			LayoutPrototypeServiceUtil.addLayoutPrototype(
+			_layoutPrototypeService.addLayoutPrototype(
 				nameMap, descriptionMap, active, serviceContext);
 		}
 		else {
 
 			// Update layout prototoype
 
-			LayoutPrototypeServiceUtil.updateLayoutPrototype(
+			_layoutPrototypeService.updateLayoutPrototype(
 				layoutPrototypeId, nameMap, descriptionMap, active,
 				serviceContext);
 		}
@@ -139,7 +138,7 @@ public class LayoutPrototypePortlet extends MVCPortlet {
 			actionRequest, "layoutPrototypeId");
 
 		LayoutPrototype layoutPrototype =
-			LayoutPrototypeServiceUtil.getLayoutPrototype(layoutPrototypeId);
+			_layoutPrototypeService.getLayoutPrototype(layoutPrototypeId);
 
 		SitesUtil.setMergeFailCount(layoutPrototype, 0);
 	}
@@ -172,8 +171,12 @@ public class LayoutPrototypePortlet extends MVCPortlet {
 	}
 
 	@Reference(unbind = "-")
-	protected void setLayoutPrototypeWebUpgrade(
-		LayoutPrototypeWebUpgrade layoutPrototypeWebUpgrade) {
+	protected void setLayoutPrototypeService(
+		LayoutPrototypeService layoutPrototypeService) {
+
+		_layoutPrototypeService = layoutPrototypeService;
 	}
+
+	private LayoutPrototypeService _layoutPrototypeService;
 
 }

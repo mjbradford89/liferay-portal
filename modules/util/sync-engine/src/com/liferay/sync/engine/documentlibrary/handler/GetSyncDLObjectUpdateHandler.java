@@ -31,6 +31,7 @@ import com.liferay.sync.engine.session.Session;
 import com.liferay.sync.engine.session.SessionManager;
 import com.liferay.sync.engine.util.FileKeyUtil;
 import com.liferay.sync.engine.util.FileUtil;
+import com.liferay.sync.engine.util.GetterUtil;
 import com.liferay.sync.engine.util.IODeltaUtil;
 import com.liferay.sync.engine.util.JSONUtil;
 import com.liferay.sync.engine.util.SyncEngineUtil;
@@ -216,7 +217,13 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 				return;
 			}
 
-			syncSite.setRemoteSyncTime(_syncDLObjectUpdate.getLastAccessTime());
+			long lastAccessTime = _syncDLObjectUpdate.getLastAccessTime();
+
+			if (lastAccessTime == -1) {
+				lastAccessTime = 0;
+			}
+
+			syncSite.setRemoteSyncTime(lastAccessTime);
 
 			if (_syncDLObjectUpdate.getResultsTotal() <= syncFiles.size()) {
 				syncSite.setState(SyncSite.STATE_SYNCED);
@@ -226,7 +233,9 @@ public class GetSyncDLObjectUpdateHandler extends BaseSyncDLObjectHandler {
 
 			if (_syncDLObjectUpdate.getResultsTotal() > syncFiles.size()) {
 				FileEventUtil.getUpdates(
-					syncSite.getGroupId(), getSyncAccountId(), syncSite);
+					syncSite.getGroupId(), getSyncAccountId(), syncSite,
+					GetterUtil.getBoolean(
+						getParameterValue("retrieveFromCache")));
 			}
 		}
 	}

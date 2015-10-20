@@ -19,7 +19,6 @@ import com.liferay.application.list.PanelCategoryRegistry;
 import com.liferay.application.list.constants.ApplicationListWebKeys;
 import com.liferay.application.list.display.context.logic.PanelCategoryHelper;
 import com.liferay.layout.set.prototype.web.constants.LayoutSetPrototypePortletKeys;
-import com.liferay.layout.set.prototype.web.upgrade.LayoutSetPrototypeWebUpgrade;
 import com.liferay.portal.NoSuchLayoutSetPrototypeException;
 import com.liferay.portal.RequiredLayoutSetPrototypeException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
@@ -32,7 +31,7 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.model.LayoutSetPrototype;
 import com.liferay.portal.security.auth.PrincipalException;
-import com.liferay.portal.service.LayoutSetPrototypeServiceUtil;
+import com.liferay.portal.service.LayoutSetPrototypeService;
 import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portal.util.PortalUtil;
@@ -91,7 +90,7 @@ public class LayoutSetPrototypePortlet extends MVCPortlet {
 			ParamUtil.getString(actionRequest, "layoutSetPrototypeIds"), 0L);
 
 		for (long layoutSetPrototypeId : layoutSetPrototypeIds) {
-			LayoutSetPrototypeServiceUtil.deleteLayoutSetPrototype(
+			layoutSetPrototypeService.deleteLayoutSetPrototype(
 				layoutSetPrototypeId);
 		}
 	}
@@ -104,7 +103,7 @@ public class LayoutSetPrototypePortlet extends MVCPortlet {
 			actionRequest, "layoutSetPrototypeId");
 
 		LayoutSetPrototype layoutSetPrototype =
-			LayoutSetPrototypeServiceUtil.getLayoutSetPrototype(
+			layoutSetPrototypeService.getLayoutSetPrototype(
 				layoutSetPrototypeId);
 
 		SitesUtil.setMergeFailCount(layoutSetPrototype, 0);
@@ -135,7 +134,7 @@ public class LayoutSetPrototypePortlet extends MVCPortlet {
 			// Add layout prototoype
 
 			layoutSetPrototype =
-				LayoutSetPrototypeServiceUtil.addLayoutSetPrototype(
+				layoutSetPrototypeService.addLayoutSetPrototype(
 					nameMap, descriptionMap, active, layoutsUpdateable,
 					serviceContext);
 
@@ -149,7 +148,7 @@ public class LayoutSetPrototypePortlet extends MVCPortlet {
 			// Update layout prototoype
 
 			layoutSetPrototype =
-				LayoutSetPrototypeServiceUtil.updateLayoutSetPrototype(
+				layoutSetPrototypeService.updateLayoutSetPrototype(
 					layoutSetPrototypeId, nameMap, descriptionMap, active,
 					layoutsUpdateable, serviceContext);
 		}
@@ -165,10 +164,9 @@ public class LayoutSetPrototypePortlet extends MVCPortlet {
 		settingsProperties.setProperty(
 			"customJspServletContextName", customJspServletContextName);
 
-		layoutSetPrototype =
-			LayoutSetPrototypeServiceUtil.updateLayoutSetPrototype(
-				layoutSetPrototype.getLayoutSetPrototypeId(),
-				settingsProperties.toString());
+		layoutSetPrototype = layoutSetPrototypeService.updateLayoutSetPrototype(
+			layoutSetPrototype.getLayoutSetPrototypeId(),
+			settingsProperties.toString());
 
 		PortletURL siteAdministrationURL = PortalUtil.getControlPanelPortletURL(
 			actionRequest, layoutSetPrototype.getGroup(),
@@ -215,8 +213,10 @@ public class LayoutSetPrototypePortlet extends MVCPortlet {
 	}
 
 	@Reference(unbind = "-")
-	protected void setLayoutSetPrototypeWebUpgrade(
-		LayoutSetPrototypeWebUpgrade layoutSetPrototypeWebUpgrade) {
+	protected void setLayoutSetPrototypeService(
+		LayoutSetPrototypeService layoutSetPrototypeService) {
+
+		this.layoutSetPrototypeService = layoutSetPrototypeService;
 	}
 
 	@Reference(unbind = "-")
@@ -230,6 +230,8 @@ public class LayoutSetPrototypePortlet extends MVCPortlet {
 
 		_panelCategoryRegistry = panelCategoryRegistry;
 	}
+
+	protected LayoutSetPrototypeService layoutSetPrototypeService;
 
 	private PanelAppRegistry _panelAppRegistry;
 	private PanelCategoryRegistry _panelCategoryRegistry;
