@@ -27,7 +27,7 @@ task buildAlloyEditor(type: Copy)
 
 buildAlloyEditor {
 	File alloyEditorDestinationDir = new File(editorsDestinationDir, "alloyeditor")
-	File alloyEditorSrcDir = new File(editorsSrcDir, "alloyeditor_diffs")
+	File alloyEditorSrcDir = new File(editorsSrcDir, "_diffs")
 	File alloyEditorZipFile = new File(thirdPartyDir, "alloy-editor-${alloyEditorVersion}.zip")
 
 	doFirst {
