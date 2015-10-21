@@ -16,7 +16,7 @@ package com.liferay.bookmarks.asset;
 
 import com.liferay.bookmarks.constants.BookmarksPortletKeys;
 import com.liferay.bookmarks.model.BookmarksFolder;
-import com.liferay.bookmarks.service.BookmarksFolderLocalServiceUtil;
+import com.liferay.bookmarks.service.BookmarksFolderLocalService;
 import com.liferay.bookmarks.service.permission.BookmarksFolderPermissionChecker;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
@@ -42,10 +42,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	immediate = true,
-	property = {
-		"javax.portlet.name=" + BookmarksPortletKeys.BOOKMARKS,
-		"search.asset.type=com.liferay.bookmarks.model.BookmarksFolder"
-	},
+	property = {"javax.portlet.name=" + BookmarksPortletKeys.BOOKMARKS},
 	service = AssetRendererFactory.class
 )
 public class BookmarksFolderAssetRendererFactory
@@ -65,7 +62,7 @@ public class BookmarksFolderAssetRendererFactory
 			long classPK, int type)
 		throws PortalException {
 
-		BookmarksFolder folder = BookmarksFolderLocalServiceUtil.getFolder(
+		BookmarksFolder folder = _bookmarksFolderLocalService.getFolder(
 			classPK);
 
 		BookmarksFolderAssetRenderer bookmarksFolderAssetRenderer =
@@ -115,7 +112,7 @@ public class BookmarksFolderAssetRendererFactory
 			PermissionChecker permissionChecker, long classPK, String actionId)
 		throws Exception {
 
-		BookmarksFolder folder = BookmarksFolderLocalServiceUtil.getFolder(
+		BookmarksFolder folder = _bookmarksFolderLocalService.getFolder(
 			classPK);
 
 		return BookmarksFolderPermissionChecker.contains(
@@ -135,6 +132,14 @@ public class BookmarksFolderAssetRendererFactory
 		return themeDisplay.getPathThemeImages() + "/common/folder.png";
 	}
 
+	@Reference(unbind = "-")
+	protected void setBookmarksFolderLocalService(
+		BookmarksFolderLocalService bookmarksFolderLocalService) {
+
+		_bookmarksFolderLocalService = bookmarksFolderLocalService;
+	}
+
+	private BookmarksFolderLocalService _bookmarksFolderLocalService;
 	private ServletContext _servletContext;
 
 }

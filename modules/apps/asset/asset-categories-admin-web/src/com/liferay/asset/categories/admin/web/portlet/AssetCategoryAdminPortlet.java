@@ -15,7 +15,6 @@
 package com.liferay.asset.categories.admin.web.portlet;
 
 import com.liferay.asset.categories.admin.web.constants.AssetCategoriesAdminPortletKeys;
-import com.liferay.asset.categories.admin.web.upgrade.AssetCategoriesAdminWebUpgrade;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.util.LocalizationUtil;
@@ -28,6 +27,7 @@ import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.ServiceContextFactory;
 import com.liferay.portlet.asset.AssetCategoryNameException;
 import com.liferay.portlet.asset.DuplicateCategoryException;
+import com.liferay.portlet.asset.DuplicateCategoryPropertyException;
 import com.liferay.portlet.asset.DuplicateVocabularyException;
 import com.liferay.portlet.asset.NoSuchCategoryException;
 import com.liferay.portlet.asset.NoSuchVocabularyException;
@@ -294,6 +294,7 @@ public class AssetCategoryAdminPortlet extends MVCPortlet {
 	protected boolean isSessionErrorException(Throwable cause) {
 		if (cause instanceof AssetCategoryNameException ||
 			cause instanceof DuplicateCategoryException ||
+			cause instanceof DuplicateCategoryPropertyException ||
 			cause instanceof DuplicateVocabularyException ||
 			cause instanceof NoSuchCategoryException ||
 			cause instanceof NoSuchVocabularyException ||
@@ -304,11 +305,6 @@ public class AssetCategoryAdminPortlet extends MVCPortlet {
 		}
 
 		return false;
-	}
-
-	@Reference(unbind = "-")
-	protected void setAssetCategoriesAdminWebUpgrade(
-		AssetCategoriesAdminWebUpgrade assetCategoriesAdminWebUpgrade) {
 	}
 
 	@Reference(unbind = "-")

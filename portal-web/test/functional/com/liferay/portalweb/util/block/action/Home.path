@@ -114,11 +114,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>ERROR_MESSAGE</td>
-	<td>//div[contains(@class, 'alert-danger')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>STATUS_MESSAGE</td>
 	<td>//tr[1]/td</td>
 	<td></td>
@@ -136,6 +131,11 @@
 <tr>
 	<td>ERROR_MESSAGE_ALERT_ERROR</td>
 	<td>//div[@class='portlet-content']/h3[contains(@class, 'alert-danger')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ERROR_MESSAGE_RESOURCE_NOT_FOUND</td>
+	<td>xpath=(//div[@class='portlet-content'])[3]</td>
 	<td></td>
 </tr>
 <tr>
