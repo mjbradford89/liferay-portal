@@ -19,7 +19,7 @@ String lfrAMDLoaderVersion = "1.3.5"
 String svg4everybodyVersion = "2.0.0"
 
 File jsDestinationDir = file("tmp/META-INF/resources")
-File thirdPartyDir = file("../../../portal-web/third-party")
+File thirdPartyDir = file("third-party")
 
 buildAlloy {
 	File alloyDestinationDir = new File(jsDestinationDir, "aui")
@@ -80,7 +80,7 @@ buildJQueryPluginsForm {
 
 buildLexicon {
 	File lexiconDestinationDir = new File(jsDestinationDir, "lexicon")
-	File lexiconZipFile = new File(thirdPartyDir, "lexicon-${lexiconVersion}.zip")
+	File lexiconZipFile = new File("../frontend-theme/frontend-theme-unstyled/third-party/lexicon-${lexiconVersion}.zip")
 
 	doFirst {
 		delete lexiconDestinationDir
