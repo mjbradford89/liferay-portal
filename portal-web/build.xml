@@ -60,15 +60,17 @@
 
 		<property name="bourbon.file" value="bourbon-${bourbon.version}.zip" />
 
+		<property name="frontend.common.css.dir" value="../modules/frontend/frontend-common-css" />
+
 		<if>
 			<not>
 				<uptodate
-					srcfile="third-party/${bourbon.file}"
+					srcfile="${frontend.common.css.dir}/third-party/${bourbon.file}"
 					targetfile="${bourbon.deploy}"
 				/>
 			</not>
 			<then>
-				<gradle-execute dir="../modules/frontend/frontend-css-web" task="buildBourbon" />
+				<gradle-execute dir="${frontend.common.css.dir}" task="buildBourbon" />
 			</then>
 		</if>
 	</target>
