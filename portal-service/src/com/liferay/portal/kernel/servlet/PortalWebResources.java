@@ -23,6 +23,8 @@ public interface PortalWebResources {
 
 	public String getContextPath();
 
+	public Class getLangResourceBundleClass();
+
 	public long getLastModified();
 
 	public String getResourceType();

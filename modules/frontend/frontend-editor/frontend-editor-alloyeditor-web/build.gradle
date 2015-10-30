@@ -6,7 +6,7 @@ task buildAlloyEditor(type: Copy)
 String alloyEditorVersion = "0.4.0-alpha.1"
 
 File editorsDestinationDir = file("tmp/META-INF/resources")
-File editorsSrcDir = file("src/META-INF/resources")
+File editorsSrcDir = file("src/main/resources/META-INF/resources")
 File thirdPartyDir = file("../../../../portal-web/third-party")
 
 buildAlloyEditor {
@@ -59,6 +59,7 @@ dependencies {
 	compile group: "javax.servlet.jsp", name: "jsp-api", version: "2.1"
 	compile group: "org.osgi", name: "org.osgi.compendium", version: "5.0.0"
 	compile group: "org.osgi", name: "org.osgi.core", version: "5.0.0"
+	compile project(":frontend:frontend-editor:frontend-editor-lang")
 }
 
 liferay {

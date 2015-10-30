@@ -36,6 +36,14 @@
 	</command>
 
 	<command name="gotoControlPanelSystem" summary="Navigate to Product Menu > Control Panel > System > ${portlet}">
+
+		<if>
+			<condition function="IsElementPresent#isVisible" locator1="DockbarAddpanelcontent#CONTENT_TAB" />
+			<then>
+				<execute function="Click#clickAt" locator1="Dockbar#ADD_ICON" />
+			</then>
+		</if>
+
 		<execute macro="ProductMenuHelper#gotoControlPanel" />
 
 		<execute macro="ProductMenuHelper#expandCategory">
@@ -194,6 +202,42 @@
 
 		<execute macro="ProductMenuHelper#gotoPortlet">
 			<var name="portlet" value="${portlet}" />
+		</execute>
+	</command>
+
+	<command name="viewNoSite" summary="View ${site} is not available in the product menu.">
+		<execute macro="ProductMenuHelper#gotoSites" />
+
+		<if>
+			<and>
+				<condition function="IsElementPresent" locator1="ProductMenu#BACK_ARROW" />
+				<condition function="IsVisible" locator1="ProductMenu#BACK_ARROW" />
+			</and>
+			<then>
+				<execute function="Click" locator1="ProductMenu#BACK_ARROW" />
+			</then>
+		</if>
+
+		<execute macro="ProductMenuHelper#viewNoSite">
+			<var name="site" value="${site}" />
+		</execute>
+	</command>
+
+	<command name="viewSite" summary="View ${site} is available in the product menu.">
+		<execute macro="ProductMenuHelper#gotoSites" />
+
+		<if>
+			<and>
+				<condition function="IsElementPresent" locator1="ProductMenu#BACK_ARROW" />
+				<condition function="IsVisible" locator1="ProductMenu#BACK_ARROW" />
+			</and>
+			<then>
+				<execute function="Click" locator1="ProductMenu#BACK_ARROW" />
+			</then>
+		</if>
+
+		<execute macro="ProductMenuHelper#viewSite">
+			<var name="site" value="${site}" />
 		</execute>
 	</command>
 </definition>
