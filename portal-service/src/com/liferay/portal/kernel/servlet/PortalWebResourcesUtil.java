@@ -14,6 +14,7 @@
 
 package com.liferay.portal.kernel.servlet;
 
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceReference;
@@ -25,6 +26,7 @@ import java.net.URL;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletContext;
@@ -39,6 +41,12 @@ public class PortalWebResourcesUtil {
 			resourceType);
 
 		return portalWebResources.getContextPath();
+	}
+
+	public static ResourceBundle getLangResourceBundle(
+		ResourceBundle resourceBundle) {
+
+		return _instance._getLangResourceBundle(resourceBundle);
 	}
 
 	public static long getLastModified(String resourceType) {
@@ -168,6 +176,12 @@ public class PortalWebResourcesUtil {
 		_serviceTracker.open();
 	}
 
+	private ResourceBundle _getLangResourceBundle(
+		ResourceBundle resourceBundle) {
+
+		return _langResourceBundleMap.get(resourceBundle);
+	}
+
 	private Collection<PortalWebResources> _getPortalWebResourcesList() {
 		return _portalWebResourcesMap.values();
 	}
@@ -175,6 +189,8 @@ public class PortalWebResourcesUtil {
 	private static final PortalWebResourcesUtil _instance =
 		new PortalWebResourcesUtil();
 
+	private final Map<ResourceBundle, ResourceBundle>
+		_langResourceBundleMap = new ConcurrentHashMap<>();
 	private final Map<ServiceReference<PortalWebResources>, PortalWebResources>
 		_portalWebResourcesMap = new ConcurrentHashMap<>();
 	private final ServiceTracker<PortalWebResources, PortalWebResources>
@@ -192,6 +208,19 @@ public class PortalWebResourcesUtil {
 
 			PortalWebResources portalWebResources = registry.getService(
 				serviceReference);
+
+			ResourceBundle langResourceBundle = ResourceBundleUtil.getBundle(
+				"content.Language",
+				portalWebResources.getLangResourceBundleClass());
+
+			ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+				"content.Language", portalWebResources.getClass());
+
+			if (langResourceBundle != null &&
+				langResourceBundle != resourceBundle) {
+
+				_langResourceBundleMap.put(resourceBundle, langResourceBundle);
+			}
 
 			_portalWebResourcesMap.put(serviceReference, portalWebResources);
 
