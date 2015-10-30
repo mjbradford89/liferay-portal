@@ -80,6 +80,11 @@ public class JSLoaderModulesPortalWebResources {
 		}
 
 		@Override
+		public Class getLangResourceBundleClass() {
+			return getClass();
+		}
+
+		@Override
 		public long getLastModified() {
 			return _jsLoaderModulesTracker.getTrackingCount();
 		}

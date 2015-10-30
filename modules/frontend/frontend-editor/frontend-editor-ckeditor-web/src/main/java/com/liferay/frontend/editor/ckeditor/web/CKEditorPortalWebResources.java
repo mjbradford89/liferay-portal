@@ -14,6 +14,7 @@
 
 package com.liferay.frontend.editor.ckeditor.web;
 
+import com.liferay.frontend.editor.lang.FrontendEditorLang;
 import com.liferay.portal.kernel.servlet.PortalWebResourceConstants;
 import com.liferay.portal.kernel.servlet.PortalWebResources;
 
@@ -34,6 +35,11 @@ public class CKEditorPortalWebResources implements PortalWebResources {
 	@Override
 	public String getContextPath() {
 		return _servletContext.getContextPath();
+	}
+
+	@Override
+	public Class getLangResourceBundleClass() {
+		return FrontendEditorLang.class;
 	}
 
 	@Override

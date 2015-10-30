@@ -37,6 +37,11 @@ public class ThemeAdminPortalWebResources implements PortalWebResources {
 	}
 
 	@Override
+	public Class getLangResourceBundleClass() {
+		return getClass();
+	}
+
+	@Override
 	public long getLastModified() {
 		return _bundle.getLastModified();
 	}
