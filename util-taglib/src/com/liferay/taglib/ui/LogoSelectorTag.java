@@ -23,7 +23,10 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Julio Camarero
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.frontend.taglib.servlet.taglib.LogoSelectorTag}
  */
+@Deprecated
 public class LogoSelectorTag extends IncludeTag {
 
 	public void setCurrentLogoURL(String currentLogoURL) {
