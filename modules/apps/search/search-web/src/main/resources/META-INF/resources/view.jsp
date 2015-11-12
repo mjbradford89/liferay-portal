@@ -41,7 +41,7 @@ pageContext.setAttribute("portletURL", portletURL);
 		String taglibOnClick = "Liferay.Util.focusFormField('#" + renderResponse.getNamespace() + "keywords');";
 		%>
 
-		<liferay-ui:quick-access-entry label="skip-to-search" onClick="<%= taglibOnClick %>" />
+		<liferay-frontend:quick-access-entry label="skip-to-search" onClick="<%= taglibOnClick %>" />
 
 		<c:choose>
 			<c:when test='<%= Validator.equals(searchDisplayContext.getSearchScope(), "let-the-user-choose") %>'>

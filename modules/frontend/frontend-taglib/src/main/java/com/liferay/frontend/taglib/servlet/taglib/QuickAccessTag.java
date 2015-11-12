@@ -51,9 +51,11 @@ public class QuickAccessTag extends IncludeTag {
 			(List<QuickAccessEntry>)request.getAttribute(
 				WebKeys.PORTLET_QUICK_ACCESS_ENTRIES);
 
-		request.setAttribute("liferay-ui:quick-access:contentId", _contentId);
 		request.setAttribute(
-			"liferay-ui:quick-access:quickAccessEntries", quickAccessEntries);
+			"liferay-frontend:quick-access:contentId", _contentId);
+		request.setAttribute(
+			"liferay-frontend:quick-access:quickAccessEntries",
+			quickAccessEntries);
 	}
 
 	private static final String _PAGE = "/quick_access/page.jsp";
