@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/taglib/ui/quick_access/init.jsp" %>
+<%@ include file="/quick_access/init.jsp" %>
 
 <%
 String randomNamespace = StringUtil.randomId() + StringPool.UNDERLINE;

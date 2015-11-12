@@ -47,7 +47,7 @@ public class QuickAccessTag extends IncludeTag {
 			"liferay-ui:quick-access:quickAccessEntries", quickAccessEntries);
 	}
 
-	private static final String _PAGE = "/html/taglib/ui/quick_access/page.jsp";
+	private static final String _PAGE = "/quick_access/page.jsp";
 
 	private String _contentId;
 
