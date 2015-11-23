@@ -16,7 +16,7 @@
 @generated
 --%>
 
-<%@ include file="/html/taglib/taglib-init.jsp" %>
+<%@ include file="/init.jsp" %>
 
 <%
 java.util.Locale[] availableLocales = (java.util.Locale[])request.getAttribute("aui:translation-manager:availableLocales");
@@ -29,4 +29,4 @@ Map<String, Object> dynamicAttributes = (Map<String, Object>)request.getAttribut
 Map<String, Object> scopedAttributes = (Map<String, Object>)request.getAttribute("aui:translation-manager:scopedAttributes");
 %>
 
-<%@ include file="/html/taglib/aui/translation_manager/init-ext.jspf" %>
+<%@ include file="/translation_manager/init-ext.jspf" %>

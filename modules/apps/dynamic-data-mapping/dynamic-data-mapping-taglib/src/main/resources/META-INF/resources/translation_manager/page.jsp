@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/taglib/aui/translation_manager/init.jsp" %>
+<%@ include file="/translation_manager/init.jsp" %>
 
 <div class="lfr-translation-manager" id="<%= namespace + id %>">
 	<div class="lfr-translation-manager-content">
