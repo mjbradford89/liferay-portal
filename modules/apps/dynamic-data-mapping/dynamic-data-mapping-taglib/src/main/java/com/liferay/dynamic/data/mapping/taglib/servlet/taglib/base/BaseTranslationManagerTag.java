@@ -130,7 +130,7 @@ public abstract class BaseTranslationManagerTag extends com.liferay.taglib.util.
 		setNamespacedAttribute(request, "readOnly", _readOnly);
 	}
 
-	protected static final String _ATTRIBUTE_NAMESPACE = "aui:translation-manager:";
+	protected static final String _ATTRIBUTE_NAMESPACE = "liferay-ddm:translation-manager:";
 
 	private static final String _PAGE =
 		"/translation_manager/page.jsp";
