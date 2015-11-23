@@ -123,7 +123,7 @@ public abstract class BaseTranslationManagerTag extends com.liferay.taglib.util.
 	protected static final String _ATTRIBUTE_NAMESPACE = "aui:translation-manager:";
 
 	private static final String _PAGE =
-		"/html/taglib/aui/translation_manager/page.jsp";
+		"/translation_manager/page.jsp";
 
 	private java.util.Locale[] _availableLocales = null;
 	private java.lang.String _defaultLanguageId = null;
