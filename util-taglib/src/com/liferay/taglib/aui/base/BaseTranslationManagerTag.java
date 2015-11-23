@@ -22,8 +22,11 @@ import javax.servlet.jsp.JspException;
  * @author Bruno Basto
  * @author Nathan Cavanaugh
  * @author Julio Camarero
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.dynamic.data.mapping.taglib.servlet.taglib.base.BaseTranslationManagerTag}
  * @generated
  */
+@Deprecated
 public abstract class BaseTranslationManagerTag extends com.liferay.taglib.util.IncludeTag {
 
 	@Override

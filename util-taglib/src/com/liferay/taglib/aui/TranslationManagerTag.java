@@ -21,6 +21,9 @@ import com.liferay.taglib.aui.base.BaseTranslationManagerTag;
  * @author Bruno Basto
  * @author Nathan Cavanaugh
  * @author Julio Camarero
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.dynamic.data.mapping.taglib.servlet.taglib.TranslationManagerTag}
  */
+@Deprecated
 public class TranslationManagerTag extends BaseTranslationManagerTag {
 }
