@@ -18,6 +18,20 @@
 
 <%@ include file="/init.jsp" %>
 
+<%@ page import="com.liferay.portal.kernel.json.JSONArray" %><%@
+page import="com.liferay.portal.kernel.json.JSONObject" %><%@
+page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
+page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
+page import="com.liferay.portal.kernel.util.LocaleUtil" %><%@
+page import="com.liferay.portal.kernel.util.StringPool" %><%@
+page import="com.liferay.portal.util.PortalUtil" %><%@
+page import="com.liferay.taglib.aui.AUIUtil" %>
+
+<%@ page import="java.util.Locale" %><%@
+page import="java.util.Set" %>
+
+<%@ page import="javax.portlet.PortletRequest" %>
+
 <%
 java.util.Locale[] availableLocales = (java.util.Locale[])request.getAttribute("liferay-ddm:translation-manager:availableLocales");
 java.lang.String defaultLanguageId = GetterUtil.getString((java.lang.String)request.getAttribute("liferay-ddm:translation-manager:defaultLanguageId"));
@@ -27,6 +41,14 @@ boolean initialize = GetterUtil.getBoolean(String.valueOf(request.getAttribute("
 boolean readOnly = GetterUtil.getBoolean(String.valueOf(request.getAttribute("liferay-ddm:translation-manager:readOnly")));
 Map<String, Object> dynamicAttributes = (Map<String, Object>)request.getAttribute("liferay-ddm:translation-manager:dynamicAttributes");
 Map<String, Object> scopedAttributes = (Map<String, Object>)request.getAttribute("liferay-ddm:translation-manager:scopedAttributes");
+
+PortletRequest portletRequest = (PortletRequest)request.getAttribute(JavaConstants.JAVAX_PORTLET_REQUEST);
+
+String namespace = AUIUtil.getNamespace(portletRequest, portletResponse);
+
+if (Validator.isNull(namespace)) {
+	namespace = AUIUtil.getNamespace(request);
+}
 %>
 
 <%@ include file="/translation_manager/init-ext.jspf" %>
