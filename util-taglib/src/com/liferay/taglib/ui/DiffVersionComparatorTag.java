@@ -26,7 +26,11 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Eudaldo Alonso
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.frontend.taglib.servlet.taglib.
+ *             DiffVersionComparatorTag}
  */
+@Deprecated
 public class DiffVersionComparatorTag extends IncludeTag {
 
 	@Override
