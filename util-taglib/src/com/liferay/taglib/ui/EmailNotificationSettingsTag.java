@@ -25,7 +25,10 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Eudaldo Alonso
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.frontend.taglib.servlet.taglib.EmailNotificationSettingsTag}
  */
+@Deprecated
 public class EmailNotificationSettingsTag extends IncludeTag {
 
 	@Override
