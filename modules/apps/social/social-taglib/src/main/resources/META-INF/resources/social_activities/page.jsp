@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/taglib/ui/social_activities/init.jsp" %>
+<%@ include file="/social_activities/init.jsp" %>
 
 <div class="taglib-social-activities">
 	<table>
