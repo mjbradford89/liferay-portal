@@ -117,31 +117,35 @@ public class SocialActivitiesTag extends IncludeTag {
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
 		request.setAttribute(
-			"liferay-ui:social-activities:activities", _activities);
+			"liferay-social:social-activities:activities", _activities);
 		request.setAttribute(
-			"liferay-ui:social-activities:className", _className);
+			"liferay-social:social-activities:className", _className);
 		request.setAttribute(
-			"liferay-ui:social-activities:classPK", String.valueOf(_classPK));
+			"liferay-social:social-activities:classPK",
+			String.valueOf(_classPK));
 		request.setAttribute(
-			"liferay-ui:social-activities:displayRSSFeed",
+			"liferay-social:social-activities:displayRSSFeed",
 			String.valueOf(_displayRSSFeed));
 		request.setAttribute(
-			"liferay-ui:social-activities:feedDelta",
+			"liferay-social:social-activities:feedDelta",
 			String.valueOf(_feedDelta));
 		request.setAttribute(
-			"liferay-ui:social-activities:feedDisplayStyle", _feedDisplayStyle);
+			"liferay-social:social-activities:feedDisplayStyle",
+			_feedDisplayStyle);
 		request.setAttribute(
-			"liferay-ui:social-activities:feedEnabled",
+			"liferay-social:social-activities:feedEnabled",
 			String.valueOf(_feedEnabled));
 		request.setAttribute(
-			"liferay-ui:social-activities:feedResourceURL", _feedResourceURL);
+			"liferay-social:social-activities:feedResourceURL",
+			_feedResourceURL);
 		request.setAttribute(
-			"liferay-ui:social-activities:feedTitle", _feedTitle);
+			"liferay-social:social-activities:feedTitle", _feedTitle);
 		request.setAttribute(
-			"liferay-ui:social-activities:feedType", _feedType);
-		request.setAttribute("liferay-ui:social-activities:feedURL", _feedURL);
+			"liferay-social:social-activities:feedType", _feedType);
 		request.setAttribute(
-			"liferay-ui:social-activities:feedURLMessage", _feedURLMessage);
+			"liferay-social:social-activities:feedURL", _feedURL);
+		request.setAttribute(
+			"liferay-social:social-activities:feedURLMessage", _feedURLMessage);
 	}
 
 	private static final String _PAGE = "/social_activities/page.jsp";
