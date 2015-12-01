@@ -16,6 +16,7 @@ package com.liferay.social.taglib.servlet.taglib;
 
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portlet.social.model.SocialActivity;
+import com.liferay.social.taglib.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
 import javax.portlet.ResourceURL;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.PageContext;
 
 /**
  * @author Raymond Augé
@@ -91,6 +93,13 @@ public class SocialActivitiesTag extends IncludeTag {
 
 	public void setFeedURLMessage(String feedURLMessage) {
 		_feedURLMessage = feedURLMessage;
+	}
+
+	@Override
+	public void setPageContext(PageContext pageContext) {
+		super.setPageContext(pageContext);
+
+		servletContext = ServletContextUtil.getServletContext();
 	}
 
 	@Override
