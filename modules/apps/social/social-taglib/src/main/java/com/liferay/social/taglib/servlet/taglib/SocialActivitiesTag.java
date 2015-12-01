@@ -144,8 +144,7 @@ public class SocialActivitiesTag extends IncludeTag {
 			"liferay-ui:social-activities:feedURLMessage", _feedURLMessage);
 	}
 
-	private static final String _PAGE =
-		"/html/taglib/ui/social_activities/page.jsp";
+	private static final String _PAGE = "/social_activities/page.jsp";
 
 	private List<SocialActivity> _activities;
 	private String _className = StringPool.BLANK;
