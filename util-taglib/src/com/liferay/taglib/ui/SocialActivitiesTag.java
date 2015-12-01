@@ -26,7 +26,10 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Raymond Augé
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.social.taglib.servlet.taglib.SocialActivitiesTag}
  */
+@Deprecated
 public class SocialActivitiesTag extends IncludeTag {
 
 	public void setActivities(List<SocialActivity> activities) {
