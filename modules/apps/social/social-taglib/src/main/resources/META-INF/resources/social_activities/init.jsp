@@ -14,8 +14,6 @@
  */
 --%>
 
-<%@ include file="/html/taglib/init.jsp" %>
-
 <%@ page import="com.liferay.portlet.social.model.SocialActivity" %><%@
 page import="com.liferay.portlet.social.model.SocialActivityFeedEntry" %><%@
 page import="com.liferay.portlet.social.service.SocialActivityInterpreterLocalServiceUtil" %><%@
@@ -44,4 +42,4 @@ Format dateFormatDate = FastDateFormatFactoryUtil.getSimpleDateFormat("MMMM d", 
 Format timeFormatDate = FastDateFormatFactoryUtil.getTime(locale, timeZone);
 %>
 
-<%@ include file="/html/taglib/ui/social_activities/init-ext.jsp" %>
+<%@ include file="/social_activities/init-ext.jsp" %>
