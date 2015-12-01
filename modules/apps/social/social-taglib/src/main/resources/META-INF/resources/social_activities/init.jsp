@@ -20,17 +20,17 @@ page import="com.liferay.portlet.social.service.SocialActivityInterpreterLocalSe
 page import="com.liferay.portlet.social.service.SocialActivityLocalServiceUtil" %>
 
 <%
-List<SocialActivity> activities = (List<SocialActivity>)request.getAttribute("liferay-ui:social-activities:activities");
-String className = (String)request.getAttribute("liferay-ui:social-activities:className");
-long classPK = GetterUtil.getLong((String)request.getAttribute("liferay-ui:social-activities:classPK"));
-int feedDelta = GetterUtil.getInteger((String)request.getAttribute("liferay-ui:social-activities:feedDelta"));
-String feedDisplayStyle = (String)request.getAttribute("liferay-ui:social-activities:feedDisplayStyle");
-boolean feedEnabled = !PortalUtil.isRSSFeedsEnabled() ? false : GetterUtil.getBoolean((String)request.getAttribute("liferay-ui:social-activities:feedEnabled"));
-ResourceURL feedResourceURL = (ResourceURL)request.getAttribute("liferay-ui:social-activities:feedResourceURL");
-String feedTitle = (String)request.getAttribute("liferay-ui:social-activities:feedTitle");
-String feedType = (String)request.getAttribute("liferay-ui:social-activities:feedType");
-String feedURL = (String)request.getAttribute("liferay-ui:social-activities:feedURL");
-String feedURLMessage = (String)request.getAttribute("liferay-ui:social-activities:feedURLMessage");
+List<SocialActivity> activities = (List<SocialActivity>)request.getAttribute("liferay-social:social-activities:activities");
+String className = (String)request.getAttribute("liferay-social:social-activities:className");
+long classPK = GetterUtil.getLong((String)request.getAttribute("liferay-social:social-activities:classPK"));
+int feedDelta = GetterUtil.getInteger((String)request.getAttribute("liferay-social:social-activities:feedDelta"));
+String feedDisplayStyle = (String)request.getAttribute("liferay-social:social-activities:feedDisplayStyle");
+boolean feedEnabled = !PortalUtil.isRSSFeedsEnabled() ? false : GetterUtil.getBoolean((String)request.getAttribute("liferay-social:social-activities:feedEnabled"));
+ResourceURL feedResourceURL = (ResourceURL)request.getAttribute("liferay-social:social-activities:feedResourceURL");
+String feedTitle = (String)request.getAttribute("liferay-social:social-activities:feedTitle");
+String feedType = (String)request.getAttribute("liferay-social:social-activities:feedType");
+String feedURL = (String)request.getAttribute("liferay-social:social-activities:feedURL");
+String feedURLMessage = (String)request.getAttribute("liferay-social:social-activities:feedURLMessage");
 
 if (activities == null) {
 	activities = SocialActivityLocalServiceUtil.getActivities(0, className, classPK, QueryUtil.ALL_POS, QueryUtil.ALL_POS);
