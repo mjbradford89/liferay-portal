@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.taglib.ui;
+package com.liferay.social.taglib.servlet.taglib;
 
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portlet.social.model.SocialActivity;
