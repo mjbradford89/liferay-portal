@@ -2980,3 +2980,29 @@ You should update your code to invoke:
 
 As part of the modularization efforts it has been considered that that this
 logic belongs to wiki-web module.
+
+---------------------------------------
+
+### The liferay-ui:flags has been deprecated and replaced with liferay-frontend:flags
+- **Date:** 2015-Dec-2
+- **JIRA Ticket:** LPS-60967
+
+#### What changed?
+
+The `liferay-ui:flags` taglib has been deprecated and replaced with
+`liferay-frontend:flags` taglib.
+
+#### Who is affected?
+
+Plugins or templates that are using the `liferay-ui:flags` tag need to update
+their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-frontend` tag library if it isn't already and
+update the tag namespace from `liferay-ui:flags` to `liferay-frontend:flags`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
