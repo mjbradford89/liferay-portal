@@ -73,14 +73,17 @@ public class FlagsTag extends IncludeTag {
 
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute("liferay-ui:flags:className", _className);
+		request.setAttribute("liferay-frontend:flags:className", _className);
 		request.setAttribute(
-			"liferay-ui:flags:classPK", String.valueOf(_classPK));
-		request.setAttribute("liferay-ui:flags:contentTitle", _contentTitle);
-		request.setAttribute("liferay-ui:flags:label", String.valueOf(_label));
-		request.setAttribute("liferay-ui:flags:message", _message);
+			"liferay-frontend:flags:classPK", String.valueOf(_classPK));
 		request.setAttribute(
-			"liferay-ui:flags:reportedUserId", String.valueOf(_reportedUserId));
+			"liferay-frontend:flags:contentTitle", _contentTitle);
+		request.setAttribute(
+			"liferay-frontend:flags:label", String.valueOf(_label));
+		request.setAttribute("liferay-frontend:flags:message", _message);
+		request.setAttribute(
+			"liferay-frontend:flags:reportedUserId",
+			String.valueOf(_reportedUserId));
 	}
 
 	private static final String _PAGE = "/flags/page.jsp";
