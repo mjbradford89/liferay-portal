@@ -14,10 +14,31 @@
  */
 --%>
 
-<%@ page import="com.liferay.portlet.social.model.SocialActivity" %><%@
+<%@ taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %>
+
+<%@ page import="com.liferay.portal.kernel.dao.orm.QueryUtil" %><%@
+page import="com.liferay.portal.kernel.util.DateUtil" %><%@
+page import="com.liferay.portal.kernel.util.FastDateFormatFactoryUtil" %><%@
+page import="com.liferay.portal.kernel.util.GetterUtil" %><%@
+page import="com.liferay.portal.kernel.util.StringPool" %><%@
+page import="com.liferay.portal.model.Portlet" %><%@
+page import="com.liferay.portal.service.PortletLocalServiceUtil" %><%@
+page import="com.liferay.portal.service.ServiceContext" %><%@
+page import="com.liferay.portal.service.ServiceContextFactory" %><%@
+page import="com.liferay.portal.util.PortalUtil" %><%@
+page import="com.liferay.portlet.social.model.SocialActivity" %><%@
 page import="com.liferay.portlet.social.model.SocialActivityFeedEntry" %><%@
 page import="com.liferay.portlet.social.service.SocialActivityInterpreterLocalServiceUtil" %><%@
 page import="com.liferay.portlet.social.service.SocialActivityLocalServiceUtil" %>
+
+<%@ page import="java.text.Format" %>
+
+<%@ page import="java.util.Date" %><%@
+page import="java.util.List" %>
+
+<%@ page import="javax.portlet.ResourceURL" %>
+
+<liferay-theme:defineObjects />
 
 <%
 List<SocialActivity> activities = (List<SocialActivity>)request.getAttribute("liferay-social:social-activities:activities");
