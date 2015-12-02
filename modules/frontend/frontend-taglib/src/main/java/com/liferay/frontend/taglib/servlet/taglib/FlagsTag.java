@@ -74,7 +74,7 @@ public class FlagsTag extends IncludeTag {
 			"liferay-ui:flags:reportedUserId", String.valueOf(_reportedUserId));
 	}
 
-	private static final String _PAGE = "/html/taglib/ui/flags/page.jsp";
+	private static final String _PAGE = "/flags/page.jsp";
 
 	private String _className;
 	private long _classPK;

@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/taglib/init.jsp" %>
+<%@ include file="/flags/init.jsp" %>
 
 <%
 String randomNamespace = StringUtil.randomId() + StringPool.UNDERLINE;
