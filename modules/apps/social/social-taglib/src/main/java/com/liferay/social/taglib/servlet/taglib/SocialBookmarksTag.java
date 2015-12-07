@@ -14,9 +14,11 @@
 
 package com.liferay.social.taglib.servlet.taglib;
 
+import com.liferay.social.taglib.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.PageContext;
 
 /**
  * @author Brian Wing Shun Chan
@@ -30,6 +32,13 @@ public class SocialBookmarksTag extends IncludeTag {
 
 	public void setDisplayStyle(String displayStyle) {
 		_displayStyle = displayStyle;
+	}
+
+	@Override
+	public void setPageContext(PageContext pageContext) {
+		super.setPageContext(pageContext);
+
+		servletContext = ServletContextUtil.getServletContext();
 	}
 
 	public void setTarget(String target) {
@@ -76,7 +85,7 @@ public class SocialBookmarksTag extends IncludeTag {
 			"liferay-ui:social-bookmarks:displayStyle", _displayStyle);
 	}
 
-	private static final String _PAGE =	"/social_bookmarks/page.jsp";
+	private static final String _PAGE = "/social_bookmarks/page.jsp";
 
 	private String _contentId;
 	private String _displayStyle;
