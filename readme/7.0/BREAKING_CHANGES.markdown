@@ -3097,3 +3097,30 @@ update the tag namespace from `liferay-ui:social-activities` to
 
 This change was made as a part of the ongoing strategy to modularize Liferay
 Portal by means of an OSGi container.
+
+---------------------------------------
+
+### The liferay-ui:social-bookmarks has been deprecated and replaced with liferay-social:social-bookmarks
+- **Date:** 2015-DEC-7
+- **JIRA Ticket:** LPS-61073
+
+#### What changed?
+
+The `liferay-ui:social-bookmarks` taglib has been deprecated and replaced with
+`liferay-social:social-bookmarks` taglib.
+
+#### Who is affected?
+
+Plugins or templates that are using the `liferay-ui:social-bookmarks` tag need
+to update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-frontend` tag library if it isn't already and
+update the tag namespace from `liferay-ui:social-bookmarks` to
+`liferay-social:social-bookmarks`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
