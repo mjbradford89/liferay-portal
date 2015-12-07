@@ -21,7 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author Brian Wing Shun Chan
  * @author Jorge Ferrer
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.social.taglib.servlet.taglib.SocialBookmarksTag}
  */
+@Deprecated
 public class SocialBookmarksTag extends IncludeTag {
 
 	public void setContentId(String contentId) {

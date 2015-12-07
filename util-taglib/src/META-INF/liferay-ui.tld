@@ -5145,7 +5145,7 @@
 		</attribute>
 	</tag>
 	<tag>
-		<description>Creates icons and links to share content on social outlets such as Facebook and Twitter.</description>
+		<description>Deprecated as of 7.0.0, replaced by <![CDATA[<code>liferay-social:social-bookmarks</code>]]>.</description>
 		<name>social-bookmarks</name>
 		<tag-class>com.liferay.taglib.ui.SocialBookmarksTag</tag-class>
 		<body-content>JSP</body-content>
