@@ -90,7 +90,7 @@
 	<tag>
 		<description>Creates icons and links to share content on social outlets such as Facebook and Twitter.</description>
 		<name>social-bookmarks</name>
-		<tag-class>com.liferay.taglib.ui.SocialBookmarksTag</tag-class>
+		<tag-class>com.liferay.social.taglib.servlet.taglib.SocialBookmarksTag</tag-class>
 		<body-content>JSP</body-content>
 		<attribute>
 			<description>An ID for the content being shared</description>
