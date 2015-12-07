@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/taglib/ui/social_bookmarks/init.jsp" %>
+<%@ include file="/social_bookmarks/init.jsp" %>
 
 <c:if test="<%= typesArray.length > 0 %>">
 
