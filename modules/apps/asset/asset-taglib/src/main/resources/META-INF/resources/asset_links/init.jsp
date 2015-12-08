@@ -14,5 +14,22 @@
  */
 --%>
 
-<%@ page import="com.liferay.portlet.asset.model.AssetLink" %><%@
+<%@ include file="/init.jsp" %>
+
+<%@ page import="com.liferay.portal.kernel.log.Log" %><%@
+page import="com.liferay.portal.kernel.log.LogFactoryUtil" %><%@
+page import="com.liferay.portal.kernel.portlet.LiferayPortletRequest" %><%@
+page import="com.liferay.portal.kernel.portlet.LiferayPortletResponse" %><%@
+page import="com.liferay.portal.kernel.portlet.PortletProvider" %><%@
+page import="com.liferay.portal.kernel.portlet.PortletProviderUtil" %><%@
+page import="com.liferay.portal.kernel.util.HttpUtil" %><%@
+page import="com.liferay.portlet.PortletURLUtil" %><%@
+page import="com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil" %><%@
+page import="com.liferay.portlet.asset.model.AssetEntry" %><%@
+page import="com.liferay.portlet.asset.model.AssetLink" %><%@
+page import="com.liferay.portlet.asset.model.AssetRenderer" %><%@
+page import="com.liferay.portlet.asset.model.AssetRendererFactory" %><%@
+page import="com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil" %><%@
 page import="com.liferay.portlet.asset.service.AssetLinkLocalServiceUtil" %>
+
+<%@ page import="javax.portlet.WindowState" %>
