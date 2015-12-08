@@ -74,7 +74,7 @@ boolean showHeader = ParamUtil.getBoolean(request, "showHeader", true);
 		<liferay-ui:error exception="<%= EntryURLException.class %>" message="please-enter-a-valid-url" />
 		<liferay-ui:error exception="<%= NoSuchFolderException.class %>" message="please-enter-a-valid-folder" />
 
-		<liferay-ui:asset-categories-error />
+		<liferay-asset:asset-categories-error />
 
 		<liferay-ui:asset-tags-error />
 

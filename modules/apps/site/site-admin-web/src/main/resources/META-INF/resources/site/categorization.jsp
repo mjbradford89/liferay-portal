@@ -26,7 +26,7 @@ Group liveGroup = (Group)request.getAttribute("site.liveGroup");
 
 <h3><liferay-ui:message key="categorization" /></h3>
 
-<liferay-ui:asset-categories-error />
+<liferay-asset:asset-categories-error />
 
 <liferay-ui:asset-tags-error />
 
