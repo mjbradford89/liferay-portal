@@ -409,7 +409,7 @@ MBThread thread = (MBThread)request.getAttribute("edit_message.jsp-thread");
 				<br />
 
 				<div class="entry-links">
-					<liferay-ui:asset-links
+					<liferay-asset:asset-links
 						className="<%= MBMessage.class.getName() %>"
 						classPK="<%= message.getMessageId() %>"
 					/>

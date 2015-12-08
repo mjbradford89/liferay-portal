@@ -341,7 +341,7 @@ contextObjects.put("wikiPortletInstanceOverriddenConfiguration", wikiPortletInst
 
 		<c:if test="<%= wikiPortletInstanceSettingsHelper.isEnableRelatedAssets() %>">
 			<div class="entry-links">
-				<liferay-ui:asset-links
+				<liferay-asset:asset-links
 					assetEntryId="<%= assetEntry.getEntryId() %>"
 				/>
 			</div>
