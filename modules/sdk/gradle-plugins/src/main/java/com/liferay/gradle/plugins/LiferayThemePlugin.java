@@ -14,6 +14,7 @@
 
 package com.liferay.gradle.plugins;
 
+import com.liferay.gradle.plugins.css.builder.BuildCSSTask;
 import com.liferay.gradle.plugins.css.builder.CSSBuilderPlugin;
 import com.liferay.gradle.plugins.extensions.LiferayExtension;
 import com.liferay.gradle.plugins.extensions.LiferayThemeExtension;
@@ -25,11 +26,7 @@ import com.liferay.gradle.util.Validator;
 
 import java.io.File;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
-
-import nebula.plugin.extraconfigurations.ProvidedBasePlugin;
 
 import org.gradle.api.Action;
 import org.gradle.api.Project;
@@ -38,7 +35,6 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.plugins.BasePlugin;
-import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.WarPlugin;
 import org.gradle.api.plugins.WarPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -55,6 +51,13 @@ public class LiferayThemePlugin extends LiferayWebAppPlugin {
 
 	public static final String FRONTEND_THEMES_CONFIGURATION_NAME =
 		"frontendThemesWeb";
+
+	@Override
+	public void apply(Project project) {
+		super.apply(project);
+
+		configureTaskBuildCSS(project);
+	}
 
 	protected Configuration addConfigurationFrontendThemes(
 		final Project project) {
@@ -133,72 +136,17 @@ public class LiferayThemePlugin extends LiferayWebAppPlugin {
 		addTaskCompileTheme(project);
 	}
 
-	@Override
-	protected void configureDependencies(Project project) {
-		super.configureDependencies(project);
-
-		configureDependenciesProvided(project);
-		configureDependenciesRuntime(project);
-	}
-
-	@Override
-	protected void configureDependenciesProvided(Project project) {
-		super.configureDependenciesProvided(project);
-
-		if (!isAddDefaultDependencies(project) || !hasSources(project)) {
-			return;
-		}
-
-		Configuration configuration = GradleUtil.getConfiguration(
-			project, ProvidedBasePlugin.getPROVIDED_CONFIGURATION_NAME());
-
-		for (String dependencyNotationPrefix :
-				_THEME_RUNTIME_DEPENDENCY_NOTATION_PREFIXES) {
-
-			int pos = dependencyNotationPrefix.indexOf(':');
-
-			String group = dependencyNotationPrefix.substring(0, pos);
-			String module = dependencyNotationPrefix.substring(pos + 1);
-
-			Map<String, String> args = new HashMap<>();
-
-			args.put("group", group);
-			args.put("module", module);
-
-			configuration.exclude(args);
-		}
-	}
-
-	protected void configureDependenciesRuntime(Project project) {
-		super.configureDependenciesCompile(project);
-
-		if (!isAddDefaultDependencies(project) || !hasSources(project)) {
-			return;
-		}
-
-		for (String dependencyNotationPrefix :
-				_THEME_RUNTIME_DEPENDENCY_NOTATION_PREFIXES) {
-
-			for (String dependencyNotation : DEFAULT_DEPENDENCY_NOTATIONS) {
-				if (dependencyNotation.startsWith(dependencyNotationPrefix)) {
-					GradleUtil.addDependency(
-						project, JavaPlugin.RUNTIME_CONFIGURATION_NAME,
-						dependencyNotation);
-				}
-			}
-		}
-	}
-
-	@Override
-	protected void configureTaskBuildCSS(
-		Project project, LiferayExtension liferayExtension) {
-
-		super.configureTaskBuildCSS(project, liferayExtension);
-
+	protected void configureTaskBuildCSS(Project project) {
 		Task task = GradleUtil.getTask(
 			project, CSSBuilderPlugin.BUILD_CSS_TASK_NAME);
 
-		task.dependsOn(COMPILE_THEME_TASK_NAME);
+		if (task instanceof BuildCSSTask) {
+			configureTaskBuildCSSDependsOn((BuildCSSTask)task);
+		}
+	}
+
+	protected void configureTaskBuildCSSDependsOn(BuildCSSTask buildCSSTask) {
+		buildCSSTask.dependsOn(COMPILE_THEME_TASK_NAME);
 	}
 
 	protected void configureTaskBuildThumbnails(
@@ -410,12 +358,5 @@ public class LiferayThemePlugin extends LiferayWebAppPlugin {
 		"com.liferay.frontend.theme.styled",
 		"com.liferay.frontend.theme.unstyled"
 	};
-
-	private static final String[] _THEME_RUNTIME_DEPENDENCY_NOTATION_PREFIXES =
-		{
-			"com.liferay.portal:util-bridges", "com.liferay.portal:util-java",
-			"com.liferay.portal:util-taglib", "commons-logging:commons-logging",
-			"log4j:log4j"
-		};
 
 }

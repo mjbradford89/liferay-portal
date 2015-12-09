@@ -23,6 +23,8 @@ public class CSSBuilderArgs {
 
 	public static final String DOCROOT_DIR_NAME = "src/META-INF/resources";
 
+	public static final int PRECISION = 5;
+
 	public String[] getDirNames() {
 		return _dirNames;
 	}
@@ -35,12 +37,20 @@ public class CSSBuilderArgs {
 		return _portalCommonDirName;
 	}
 
+	public int getPrecision() {
+		return _precision;
+	}
+
 	public String[] getRtlExcludedPathRegexps() {
 		return _rtlExcludedPathRegexps;
 	}
 
 	public String getSassCompilerClassName() {
 		return _sassCompilerClassName;
+	}
+
+	public boolean isGenerateSourceMap() {
+		return _generateSourceMap;
 	}
 
 	public void setDirNames(String dirNames) {
@@ -55,8 +65,16 @@ public class CSSBuilderArgs {
 		_docrootDirName = docrootDirName;
 	}
 
+	public void setGenerateSourceMap(boolean generateSourceMap) {
+		_generateSourceMap = generateSourceMap;
+	}
+
 	public void setPortalCommonDirName(String portalCommonDirName) {
 		_portalCommonDirName = portalCommonDirName;
+	}
+
+	public void setPrecision(int precision) {
+		_precision = precision;
 	}
 
 	public void setRtlExcludedPathRegexps(String rtlExcludedPathRegexps) {
@@ -77,7 +95,9 @@ public class CSSBuilderArgs {
 
 	private String[] _dirNames = {DIR_NAME};
 	private String _docrootDirName = DOCROOT_DIR_NAME;
+	private boolean _generateSourceMap;
 	private String _portalCommonDirName;
+	private int _precision = PRECISION;
 	private String[] _rtlExcludedPathRegexps = new String[0];
 	private String _sassCompilerClassName;
 

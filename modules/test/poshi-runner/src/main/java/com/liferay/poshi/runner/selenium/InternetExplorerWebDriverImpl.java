@@ -17,17 +17,11 @@ package com.liferay.poshi.runner.selenium;
 import com.liferay.poshi.runner.util.PropsValues;
 
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 /**
  * @author Brian Wing Shun Chan
  */
 public class InternetExplorerWebDriverImpl extends BaseWebDriverImpl {
-
-	public InternetExplorerWebDriverImpl(String browserURL) {
-		super(browserURL, new InternetExplorerDriver());
-	}
 
 	public InternetExplorerWebDriverImpl(
 		String browserURL, WebDriver webDriver) {
@@ -37,9 +31,13 @@ public class InternetExplorerWebDriverImpl extends BaseWebDriverImpl {
 
 	@Override
 	public void javaScriptMouseDown(String locator) {
-		if (PropsValues.SELENIUM_DESIRED_CAPABILITIES_VERSION.equals("11.0")) {
-			WebDriverHelper.executeJavaScriptMouseEvent(
-				this, locator, "pointerdown");
+		if (PropsValues.BROWSER_VERSION.equals("10.0")) {
+			WebDriverHelper.executeJavaScriptEvent(
+				this, locator, "MSPointerEvent", "MSPointerDown");
+		}
+		else if (PropsValues.BROWSER_VERSION.equals("11.0")) {
+			WebDriverHelper.executeJavaScriptEvent(
+				this, locator, "MouseEvent", "pointerdown");
 		}
 		else {
 			super.javaScriptMouseDown(locator);
@@ -48,24 +46,17 @@ public class InternetExplorerWebDriverImpl extends BaseWebDriverImpl {
 
 	@Override
 	public void javaScriptMouseUp(String locator) {
-		if (PropsValues.SELENIUM_DESIRED_CAPABILITIES_VERSION.equals("11.0")) {
-			WebDriverHelper.executeJavaScriptMouseEvent(
-				this, locator, "pointerup");
+		if (PropsValues.BROWSER_VERSION.equals("10.0")) {
+			WebDriverHelper.executeJavaScriptEvent(
+				this, locator, "MSPointerEvent", "MSPointerUp");
+		}
+		else if (PropsValues.BROWSER_VERSION.equals("11.0")) {
+			WebDriverHelper.executeJavaScriptEvent(
+				this, locator, "MouseEvent", "pointerup");
 		}
 		else {
 			super.javaScriptMouseUp(locator);
 		}
-	}
-
-	private static final DesiredCapabilities _desiredCapabilities;
-
-	static {
-		_desiredCapabilities = DesiredCapabilities.internetExplorer();
-
-		_desiredCapabilities.setCapability(
-			InternetExplorerDriver.
-				INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS,
-			true);
 	}
 
 }

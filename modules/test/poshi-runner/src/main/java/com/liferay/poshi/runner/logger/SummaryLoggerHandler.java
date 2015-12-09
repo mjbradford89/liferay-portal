@@ -16,6 +16,7 @@ package com.liferay.poshi.runner.logger;
 
 import com.liferay.poshi.runner.PoshiRunnerContext;
 import com.liferay.poshi.runner.PoshiRunnerVariablesUtil;
+import com.liferay.poshi.runner.util.HtmlUtil;
 import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
 
@@ -23,6 +24,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,7 +38,7 @@ public final class SummaryLoggerHandler {
 
 	public static void failSummary(Element element, String message) {
 		if (_isCurrentMajorStep(element)) {
-			_causeBodyLoggerElement.setText(message);
+			_causeBodyLoggerElement.setText(HtmlUtil.escape(message));
 
 			_failStepLoggerElement(_majorStepLoggerElement);
 
@@ -47,7 +49,7 @@ public final class SummaryLoggerHandler {
 		}
 
 		if (_isCurrentMinorStep(element)) {
-			_causeBodyLoggerElement.setText(message);
+			_causeBodyLoggerElement.setText(HtmlUtil.escape(message));
 
 			_failStepLoggerElement(_minorStepLoggerElement);
 
@@ -88,38 +90,23 @@ public final class SummaryLoggerHandler {
 	}
 
 	public static LoggerElement getSummarySnapshotLoggerElement() {
-		LoggerElement loggerElement = _summaryLogLoggerElement.copy();
+		LoggerElement summaryLogLoggerElement = _summaryLogLoggerElement.copy();
 
-		LoggerElement stepsLoggerElement = loggerElement.loggerElement("div");
+		List<LoggerElement> loggerElements =
+			summaryLogLoggerElement.loggerElements("div");
 
-		LoggerElement majorStepsLoggerElement =
-			stepsLoggerElement.loggerElement("ul");
+		for (LoggerElement loggerElement : loggerElements) {
+			String className = loggerElement.getClassName();
 
-		List<LoggerElement> majorStepLoggerElements =
-			majorStepsLoggerElement.loggerElements("li");
-
-		for (int i = 0; i < majorStepLoggerElements.size(); i++) {
-			LoggerElement majorStepLoggerElement = majorStepLoggerElements.get(
-				i);
-
-			boolean lastMajorStep = (i >= (majorStepLoggerElements.size() - 1));
-
-			majorStepLoggerElement.removeChildLoggerElements("button");
-
-			if (lastMajorStep) {
-				if (_containsMinorStepWarning) {
-					_warnStepLoggerElement(majorStepLoggerElement);
-				}
-				else {
-					_failStepLoggerElement(majorStepLoggerElement);
-				}
+			if (className.equals("screenshots")) {
+				summaryLogLoggerElement.removeChildLoggerElement(loggerElement);
 			}
-			else {
-				majorStepLoggerElement.removeChildLoggerElements("ul");
+			else if (className.equals("steps")) {
+				_removeUnneededStepsFromLoggerElement(loggerElement);
 			}
 		}
 
-		return loggerElement;
+		return summaryLogLoggerElement;
 	}
 
 	public static void passSummary(Element element) {
@@ -513,9 +500,10 @@ public final class SummaryLoggerHandler {
 		}
 
 		if (summary != null) {
-			summary = PoshiRunnerVariablesUtil.replaceCommandVars(summary);
+			summary = HtmlUtil.escape(
+				PoshiRunnerVariablesUtil.replaceCommandVars(summary));
 
-			return _replaceCommandVars(summary, element);
+			return _replaceExecuteVars(summary, element);
 		}
 
 		return null;
@@ -736,7 +724,37 @@ public final class SummaryLoggerHandler {
 		return sb.toString();
 	}
 
-	private static String _replaceCommandVars(String token, Element element)
+	private static void _removeUnneededStepsFromLoggerElement(
+		LoggerElement loggerElement) {
+
+		LoggerElement majorStepsLoggerElement = loggerElement.loggerElement(
+			"ul");
+
+		List<LoggerElement> majorStepLoggerElements =
+			majorStepsLoggerElement.loggerElements("li");
+
+		Iterator<LoggerElement> iterator = majorStepLoggerElements.iterator();
+
+		while (iterator.hasNext()) {
+			LoggerElement majorStepLoggerElement = iterator.next();
+
+			majorStepLoggerElement.removeChildLoggerElements("button");
+
+			if (iterator.hasNext()) {
+				majorStepLoggerElement.removeChildLoggerElements("ul");
+			}
+			else {
+				if (_containsMinorStepWarning) {
+					_warnStepLoggerElement(majorStepLoggerElement);
+				}
+				else {
+					_failStepLoggerElement(majorStepLoggerElement);
+				}
+			}
+		}
+	}
+
+	private static String _replaceExecuteVars(String token, Element element)
 		throws Exception {
 
 		Matcher matcher = _pattern.matcher(token);
@@ -747,8 +765,8 @@ public final class SummaryLoggerHandler {
 
 			String varName = matcher.group(1);
 
-			String varValue = PoshiRunnerVariablesUtil.getValueFromExecuteMap(
-				varName);
+			String varValue = HtmlUtil.escape(
+				PoshiRunnerVariablesUtil.getValueFromExecuteMap(varName));
 
 			if ((element.attributeValue("function") != null) &&
 				varName.startsWith("locator")) {

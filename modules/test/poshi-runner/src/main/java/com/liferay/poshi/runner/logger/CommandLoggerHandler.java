@@ -19,12 +19,17 @@ import com.liferay.poshi.runner.PoshiRunnerGetterUtil;
 import com.liferay.poshi.runner.PoshiRunnerStackTraceUtil;
 import com.liferay.poshi.runner.PoshiRunnerVariablesUtil;
 import com.liferay.poshi.runner.selenium.LiferaySeleniumHelper;
+import com.liferay.poshi.runner.selenium.WebDriverHelper;
+import com.liferay.poshi.runner.selenium.WebDriverUtil;
+import com.liferay.poshi.runner.util.HtmlUtil;
 import com.liferay.poshi.runner.util.StringUtil;
 import com.liferay.poshi.runner.util.Validator;
 
 import java.util.List;
 
 import org.dom4j.Element;
+
+import org.openqa.selenium.WebDriver;
 
 /**
  * @author Michael Hashimoto
@@ -36,6 +41,8 @@ public final class CommandLoggerHandler {
 		if (!_isCurrentCommand(element)) {
 			return;
 		}
+
+		_writeWebPage(_errorLinkId);
 
 		_commandElement = null;
 
@@ -104,6 +111,8 @@ public final class CommandLoggerHandler {
 			return;
 		}
 
+		_setHTMLSource();
+
 		_takeScreenshot("before", _errorLinkId);
 
 		_commandElement = element;
@@ -121,11 +130,20 @@ public final class CommandLoggerHandler {
 	}
 
 	public static void startRunning() throws Exception {
+		_commandLogLoggerElement = new LoggerElement("commandLog");
+
+		_commandLogLoggerElement.setAttribute("data-logid", "01");
+		_commandLogLoggerElement.setClassName("collapse command-log");
+		_commandLogLoggerElement.setName("ul");
+		_commandLogLoggerElement.setWrittenToLogger(true);
+
 		_xmlLogLoggerElement.addClassName("running");
 	}
 
 	public static void stopRunning() throws Exception {
 		_xmlLogLoggerElement.removeClassName("running");
+
+		_commandLogLoggerElement = null;
 	}
 
 	public static void warnCommand(Element element) throws Exception {
@@ -257,7 +275,9 @@ public final class CommandLoggerHandler {
 				String paramValue =
 					PoshiRunnerVariablesUtil.getValueFromExecuteMap(locatorKey);
 
-				sb.append(_getLineItemText("param-value", paramValue));
+				sb.append(
+					_getLineItemText(
+						"param-value", HtmlUtil.escape(paramValue)));
 			}
 
 			String valueKey = "value" + (i + 1);
@@ -269,7 +289,9 @@ public final class CommandLoggerHandler {
 				String paramValue =
 					PoshiRunnerVariablesUtil.getValueFromExecuteMap(valueKey);
 
-				sb.append(_getLineItemText("param-value", paramValue));
+				sb.append(
+					_getLineItemText(
+						"param-value", HtmlUtil.escape(paramValue)));
 			}
 		}
 
@@ -380,7 +402,8 @@ public final class CommandLoggerHandler {
 			sb.append(_getLineItemText("misc", " with parameters"));
 
 			for (String argument : arguments) {
-				sb.append(_getLineItemText("param-value", argument));
+				sb.append(
+					_getLineItemText("param-value", HtmlUtil.escape(argument)));
 			}
 		}
 
@@ -492,6 +515,12 @@ public final class CommandLoggerHandler {
 		_functionLinkId++;
 	}
 
+	private static void _setHTMLSource() throws Exception {
+		WebDriver webDriver = WebDriverUtil.getWebDriver();
+
+		_htmlSource = webDriver.getPageSource();
+	}
+
 	private static void _takeScreenshot(String screenshotName, int errorLinkId)
 		throws Exception {
 
@@ -517,21 +546,28 @@ public final class CommandLoggerHandler {
 				loggerElement.getID() + "')");
 	}
 
+	private static void _writeWebPage(int errorLinkId) throws Exception {
+		String testClassCommandName =
+			PoshiRunnerContext.getTestCaseCommandName();
+
+		testClassCommandName = StringUtil.replace(
+			testClassCommandName, "#", "_");
+
+		WebDriverHelper.saveWebPage(
+			PoshiRunnerGetterUtil.getCanonicalPath(".") + "/test-results/" +
+				testClassCommandName + "/web-pages/index" + errorLinkId +
+				".html",
+			_htmlSource);
+	}
+
 	private static int _btnLinkId;
 	private static Element _commandElement;
-	private static final LoggerElement _commandLogLoggerElement =
-		new LoggerElement("commandLog");
+	private static LoggerElement _commandLogLoggerElement;
 	private static int _errorLinkId;
 	private static int _functionLinkId;
+	private static String _htmlSource;
 	private static LoggerElement _lineGroupLoggerElement;
 	private static final LoggerElement _xmlLogLoggerElement = new LoggerElement(
 		"xml-log");
-
-	static {
-		_commandLogLoggerElement.setAttribute("data-logid", "01");
-		_commandLogLoggerElement.setClassName("collapse command-log");
-		_commandLogLoggerElement.setName("ul");
-		_commandLogLoggerElement.setWrittenToLogger(true);
-	}
 
 }

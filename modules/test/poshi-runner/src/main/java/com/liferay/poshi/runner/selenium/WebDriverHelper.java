@@ -16,6 +16,7 @@ package com.liferay.poshi.runner.selenium;
 
 import com.liferay.poshi.runner.exception.PoshiRunnerWarningException;
 import com.liferay.poshi.runner.util.CharPool;
+import com.liferay.poshi.runner.util.FileUtil;
 import com.liferay.poshi.runner.util.GetterUtil;
 import com.liferay.poshi.runner.util.HtmlUtil;
 import com.liferay.poshi.runner.util.PropsValues;
@@ -34,11 +35,18 @@ import junit.framework.TestCase;
 
 import net.jsourcerer.webdriver.jserrorcollector.JavaScriptError;
 
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Point;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
@@ -177,8 +185,8 @@ public class WebDriverHelper {
 		}
 	}
 
-	public static void executeJavaScriptMouseEvent(
-		WebDriver webDriver, String locator, String event) {
+	public static void executeJavaScriptEvent(
+		WebDriver webDriver, String locator, String eventType, String event) {
 
 		WebElement webElement = getWebElement(webDriver, locator);
 
@@ -196,8 +204,9 @@ public class WebDriverHelper {
 		StringBuilder sb = new StringBuilder(6);
 
 		sb.append("var element = arguments[0];");
-		sb.append("var event = document.createEvent('MouseEvents');");
-		sb.append("event.initEvent('");
+		sb.append("var event = document.createEvent('");
+		sb.append(eventType);
+		sb.append("');event.initEvent('");
 		sb.append(event);
 		sb.append("', true, false);");
 		sb.append("element.dispatchEvent(event);");
@@ -219,6 +228,45 @@ public class WebDriverHelper {
 		return webElement.getAttribute(attribute);
 	}
 
+	public static By getBy(String locator) {
+		if (locator.startsWith("//")) {
+			return By.xpath(locator);
+		}
+		else if (locator.startsWith("class=")) {
+			locator = locator.substring(6);
+
+			return By.className(locator);
+		}
+		else if (locator.startsWith("css=")) {
+			locator = locator.substring(4);
+
+			return By.cssSelector(locator);
+		}
+		else if (locator.startsWith("link=")) {
+			locator = locator.substring(5);
+
+			return By.linkText(locator);
+		}
+		else if (locator.startsWith("name=")) {
+			locator = locator.substring(5);
+
+			return By.name(locator);
+		}
+		else if (locator.startsWith("tag=")) {
+			locator = locator.substring(4);
+
+			return By.tagName(locator);
+		}
+		else if (locator.startsWith("xpath=") || locator.startsWith("xPath=")) {
+			locator = locator.substring(6);
+
+			return By.xpath(locator);
+		}
+		else {
+			return By.id(locator);
+		}
+	}
+
 	public static String getConfirmation(WebDriver webDriver) {
 		webDriver.switchTo();
 
@@ -237,6 +285,31 @@ public class WebDriverHelper {
 		catch (Exception e) {
 			throw new WebDriverException();
 		}
+	}
+
+	public static String getCSSSource(String htmlSource) throws Exception {
+		Document htmlDocument = Jsoup.parse(htmlSource);
+
+		Elements elements = htmlDocument.select("link[type=text/css]");
+
+		StringBuilder sb = new StringBuilder();
+
+		for (Element element : elements) {
+			String href = element.attr("href");
+
+			if (!href.contains(PropsValues.PORTAL_URL)) {
+				href = PropsValues.PORTAL_URL + href;
+			}
+
+			Connection connection = Jsoup.connect(href);
+
+			Document document = connection.get();
+
+			sb.append(document.text());
+			sb.append("\n");
+		}
+
+		return sb.toString();
 	}
 
 	public static String getDefaultWindowHandle() {
@@ -575,11 +648,7 @@ public class WebDriverHelper {
 			targetURL = url;
 		}
 
-		for (int second = 0;; second++) {
-			if (second >= PropsValues.TIMEOUT_IMPLICIT_WAIT) {
-				break;
-			}
-
+		for (int i = 0; i < 2; i++) {
 			try {
 				webDriver.get(targetURL);
 
@@ -602,6 +671,26 @@ public class WebDriverHelper {
 		WebDriver.Navigation navigation = webDriver.navigate();
 
 		navigation.refresh();
+
+		if (isAlertPresent(webDriver)) {
+			getConfirmation(webDriver);
+		}
+	}
+
+	public static void saveWebPage(String fileName, String htmlSource)
+		throws Exception {
+
+		if (!PropsValues.SAVE_WEB_PAGE) {
+			return;
+		}
+
+		StringBuilder sb = new StringBuilder(3);
+
+		sb.append("<style>");
+		sb.append(getCSSSource(htmlSource));
+		sb.append("</style></html>");
+
+		FileUtil.write(fileName, htmlSource.replace("<\\html>", sb.toString()));
 	}
 
 	public static void select(
@@ -841,49 +930,33 @@ public class WebDriverHelper {
 		}
 
 		try {
-			if (locator.startsWith("//")) {
-				return webDriver.findElements(By.xpath(locator));
-			}
-			else if (locator.startsWith("class=")) {
-				locator = locator.substring(6);
+			List<WebElement> webElements = new ArrayList<>();
 
-				return webDriver.findElements(By.className(locator));
-			}
-			else if (locator.startsWith("css=")) {
-				locator = locator.substring(4);
+			for (WebElement webElement :
+					webDriver.findElements(getBy(locator))) {
 
-				return webDriver.findElements(By.cssSelector(locator));
+				webElements.add(new RetryWebElementImpl(locator, webElement));
 			}
-			else if (locator.startsWith("link=")) {
-				locator = locator.substring(5);
 
-				return webDriver.findElements(By.linkText(locator));
-			}
-			else if (locator.startsWith("name=")) {
-				locator = locator.substring(5);
-
-				return webDriver.findElements(By.name(locator));
-			}
-			else if (locator.startsWith("tag=")) {
-				locator = locator.substring(4);
-
-				return webDriver.findElements(By.tagName(locator));
-			}
-			else if (locator.startsWith("xpath=") ||
-					 locator.startsWith("xPath=")) {
-
-				locator = locator.substring(6);
-
-				return webDriver.findElements(By.xpath(locator));
-			}
-			else {
-				return webDriver.findElements(By.id(locator));
-			}
+			return webElements;
 		}
 		finally {
 			if (timeout != null) {
 				setDefaultTimeoutImplicit(webDriver);
 			}
+		}
+	}
+
+	protected static boolean isAlertPresent(WebDriver webDriver) {
+		WebDriverWait webDriverWait = new WebDriverWait(webDriver, 1);
+
+		try {
+			webDriverWait.until(ExpectedConditions.alertIsPresent());
+
+			return true;
+		}
+		catch (TimeoutException te) {
+			return false;
 		}
 	}
 

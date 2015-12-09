@@ -63,6 +63,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletURL;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Provides general configuration methods for the portal, providing access to
@@ -264,7 +265,6 @@ public class ThemeDisplay
 	 * Returns the portal instance's default user.
 	 *
 	 * @return the portal instance's default user
-	 * @throws PortalException if a portal exception occurred
 	 */
 	public User getDefaultUser() throws PortalException {
 		if (_defaultUser == null) {
@@ -278,7 +278,6 @@ public class ThemeDisplay
 	 * Returns the ID of the portal instance's default user.
 	 *
 	 * @return the ID of the portal instance's default user
-	 * @throws PortalException if a portal exception occurred
 	 */
 	public long getDefaultUserId() throws PortalException {
 		return getDefaultUser().getUserId();
@@ -679,6 +678,10 @@ public class ThemeDisplay
 		return _realUser.getUserId();
 	}
 
+	public Group getRefererGroup() {
+		return _refererGroup;
+	}
+
 	public long getRefererGroupId() {
 		return _refererGroupId;
 	}
@@ -695,6 +698,16 @@ public class ThemeDisplay
 	@JSON(include = false)
 	public HttpServletRequest getRequest() {
 		return _request;
+	}
+
+	/**
+	 * Returns the currently served HTTP servlet response.
+	 *
+	 * @return the currently served HTTP servlet response
+	 */
+	@JSON(include = false)
+	public HttpServletResponse getResponse() {
+		return _response;
 	}
 
 	/**
@@ -719,7 +732,6 @@ public class ThemeDisplay
 	 * Returns the name of the scoped or sub-scoped active group (e.g. site).
 	 *
 	 * @return the name of the scoped or sub-scoped active group
-	 * @throws PortalException if a portal exception occurred
 	 */
 	public String getScopeGroupName() throws PortalException {
 		if (_scopeGroup == null) {
@@ -919,7 +931,7 @@ public class ThemeDisplay
 				PortletProvider.Action.VIEW);
 
 			_urlMyAccount = PortalUtil.getControlPanelPortletURL(
-				getRequest(), portletId, 0, PortletRequest.RENDER_PHASE);
+				getRequest(), portletId, PortletRequest.RENDER_PHASE);
 		}
 
 		return _urlMyAccount;
@@ -936,7 +948,7 @@ public class ThemeDisplay
 				Layout.class.getName(), PortletProvider.Action.EDIT);
 
 			_urlPageSettings = PortalUtil.getControlPanelPortletURL(
-				getRequest(), portletId, 0, PortletRequest.RENDER_PHASE);
+				getRequest(), portletId, PortletRequest.RENDER_PHASE);
 		}
 
 		return _urlPageSettings;
@@ -963,7 +975,7 @@ public class ThemeDisplay
 	public PortletURL getURLUpdateManager() {
 		if (_urlUpdateManager == null) {
 			_urlUpdateManager = PortalUtil.getControlPanelPortletURL(
-				getRequest(), PortletKeys.MARKETPLACE_STORE, 0,
+				getRequest(), PortletKeys.MARKETPLACE_STORE,
 				PortletRequest.RENDER_PHASE);
 		}
 
@@ -1545,6 +1557,15 @@ public class ThemeDisplay
 
 	public void setRefererGroupId(long refererGroupId) {
 		_refererGroupId = refererGroupId;
+
+		if (_refererGroupId > 0) {
+			try {
+				_refererGroup = GroupLocalServiceUtil.getGroup(_refererGroupId);
+			}
+			catch (Exception e) {
+				_log.error(e, e);
+			}
+		}
 	}
 
 	public void setRefererPlid(long refererPlid) {
@@ -1553,6 +1574,10 @@ public class ThemeDisplay
 
 	public void setRequest(HttpServletRequest request) {
 		_request = request;
+	}
+
+	public void setResponse(HttpServletResponse response) {
+		_response = response;
 	}
 
 	public void setScopeGroupId(long scopeGroupId) {
@@ -1882,9 +1907,11 @@ public class ThemeDisplay
 	private int _realCompanyLogoHeight;
 	private int _realCompanyLogoWidth;
 	private User _realUser;
+	private Group _refererGroup;
 	private long _refererGroupId;
 	private long _refererPlid;
 	private transient HttpServletRequest _request;
+	private transient HttpServletResponse _response;
 	private Group _scopeGroup;
 	private long _scopeGroupId;
 	private boolean _secure;

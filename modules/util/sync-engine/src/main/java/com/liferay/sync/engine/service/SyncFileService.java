@@ -114,7 +114,7 @@ public class SyncFileService {
 		syncFile.setFilePathName(filePathName);
 
 		if (MSOfficeFileUtil.isLegacyExcelFile(Paths.get(filePathName))) {
-			syncFile.setLocalExtraSettingsValue(
+			syncFile.setLocalExtraSetting(
 				"lastSavedDate",
 				MSOfficeFileUtil.getLastSavedDate(Paths.get(filePathName)));
 		}
@@ -124,6 +124,7 @@ public class SyncFileService {
 		syncFile.setName(name);
 		syncFile.setParentFolderId(parentFolderId);
 		syncFile.setRepositoryId(repositoryId);
+		syncFile.setSize(Files.size(Paths.get(filePathName)));
 		syncFile.setState(state);
 		syncFile.setSyncAccountId(syncAccountId);
 		syncFile.setType(type);
@@ -714,7 +715,7 @@ public class SyncFileService {
 		Path deltaFilePath = null;
 
 		if (MSOfficeFileUtil.isLegacyExcelFile(filePath)) {
-			syncFile.setLocalExtraSettingsValue(
+			syncFile.setLocalExtraSetting(
 				"lastSavedDate", MSOfficeFileUtil.getLastSavedDate(filePath));
 		}
 
@@ -740,6 +741,7 @@ public class SyncFileService {
 		syncFile.setChecksum(targetChecksum);
 		syncFile.setFilePathName(filePath.toString());
 		syncFile.setName(name);
+		syncFile.setSize(Files.size(filePath));
 
 		update(syncFile);
 

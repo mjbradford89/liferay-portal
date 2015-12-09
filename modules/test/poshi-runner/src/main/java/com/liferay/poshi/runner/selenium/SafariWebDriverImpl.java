@@ -18,15 +18,14 @@ import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.internal.WrapsDriver;
-import org.openqa.selenium.safari.SafariDriver;
 
 /**
  * @author Brian Wing Shun Chan
  */
 public class SafariWebDriverImpl extends BaseWebDriverImpl {
 
-	public SafariWebDriverImpl(String browserURL) {
-		super(browserURL, new SafariDriver());
+	public SafariWebDriverImpl(String browserURL, WebDriver webDriver) {
+		super(browserURL, webDriver);
 	}
 
 	@Override
@@ -68,19 +67,23 @@ public class SafariWebDriverImpl extends BaseWebDriverImpl {
 
 	@Override
 	public void mouseDown(String locator) {
-		WebDriverHelper.executeJavaScriptMouseEvent(this, locator, "mousedown");
+		WebDriverHelper.executeJavaScriptEvent(
+			this, locator, "MouseEvent", "mousedown");
 	}
 
 	@Override
 	public void mouseOver(String locator) {
-		WebDriverHelper.executeJavaScriptMouseEvent(this, locator, "mouseover");
+		WebDriverHelper.executeJavaScriptEvent(
+			this, locator, "MouseEvent", "mouseover");
 	}
 
 	@Override
 	public void mouseUp(String locator) {
-		WebDriverHelper.executeJavaScriptMouseEvent(this, locator, "mouseup");
+		WebDriverHelper.executeJavaScriptEvent(
+			this, locator, "MouseEvent", "mouseup");
 
-		WebDriverHelper.executeJavaScriptMouseEvent(this, locator, "click");
+		WebDriverHelper.executeJavaScriptEvent(
+			this, locator, "MouseEvent", "click");
 	}
 
 }

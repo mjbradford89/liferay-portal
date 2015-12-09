@@ -14,35 +14,15 @@
 
 package com.liferay.poshi.runner.selenium;
 
-import com.liferay.poshi.runner.util.PropsValues;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.WebDriver;
 
 /**
  * @author Brian Wing Shun Chan
  */
 public class ChromeWebDriverImpl extends BaseWebDriverImpl {
 
-	public ChromeWebDriverImpl(String browserURL) {
-		super(browserURL, new ChromeDriver(_desiredCapabilities));
-	}
-
-	private static final DesiredCapabilities _desiredCapabilities;
-
-	static {
-		_desiredCapabilities = DesiredCapabilities.chrome();
-
-		Map<String, Object> preferences = new HashMap<>();
-
-		preferences.put(
-			"download.default_directory", PropsValues.OUTPUT_DIR_NAME);
-		preferences.put("download.prompt_for_download", false);
-
-		_desiredCapabilities.setCapability("chrome.prefs", preferences);
+	public ChromeWebDriverImpl(String browserURL, WebDriver webDriver) {
+		super(browserURL, webDriver);
 	}
 
 }

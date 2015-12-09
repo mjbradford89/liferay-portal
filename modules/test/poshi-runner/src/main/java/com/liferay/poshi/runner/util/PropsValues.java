@@ -24,6 +24,9 @@ public class PropsValues {
 
 	public static final String BROWSER_TYPE = PropsUtil.get("browser.type");
 
+	public static final String BROWSER_VERSION = PropsUtil.get(
+		"browser.version");
+
 	public static final String CLUSTER_NODE_1 = PropsUtil.get("cluster.node1");
 
 	public static final String CLUSTER_NODE_2 = PropsUtil.get("cluster.node2");
@@ -104,29 +107,20 @@ public class PropsValues {
 
 	public static final String PROJECT_DIR = PropsUtil.get("project.dir");
 
-	public static final int TEST_BATCH_MAX_GROUP_SIZE = GetterUtil.getInteger(
-		PropsUtil.get("test.batch.max.group.size"));
-
-	public static final String[] TEST_BATCH_PROPERTY_NAMES = StringUtil.split(
-		PropsUtil.get("test.batch.property.names"));
-
-	public static final String[] TEST_BATCH_PROPERTY_VALUES = StringUtil.split(
-		PropsUtil.get("test.batch.property.values"));
-
 	public static final boolean SAVE_SCREENSHOT = GetterUtil.getBoolean(
 		PropsUtil.get("save.screenshot"));
 
 	public static final boolean SAVE_SOURCE = GetterUtil.getBoolean(
 		PropsUtil.get("save.source"));
 
+	public static final boolean SAVE_WEB_PAGE = GetterUtil.getBoolean(
+		PropsUtil.get("save.web.page"));
+
 	public static final String SELENIUM_CHROME_DRIVER_EXECUTABLE =
 		PropsUtil.get("selenium.chrome.driver.executable");
 
 	public static final String SELENIUM_DESIRED_CAPABILITIES_PLATFORM =
 		PropsUtil.get("selenium.desired.capabilities.platform");
-
-	public static final String SELENIUM_DESIRED_CAPABILITIES_VERSION =
-		PropsUtil.get("selenium.desired.capabilities.version");
 
 	public static final String SELENIUM_EXECUTABLE_DIR_NAME =
 		PropsUtil.get("selenium.executable.dir.name");
@@ -172,6 +166,15 @@ public class PropsValues {
 	public static final String TEST_BASE_DIR_NAME = PropsUtil.get(
 		"test.base.dir.name");
 
+	public static final int TEST_BATCH_MAX_GROUP_SIZE = GetterUtil.getInteger(
+		PropsUtil.get("test.batch.max.group.size"));
+
+	public static final String[] TEST_BATCH_PROPERTY_NAMES = StringUtil.split(
+		PropsUtil.get("test.batch.property.names"));
+
+	public static final String[] TEST_BATCH_PROPERTY_VALUES = StringUtil.split(
+		PropsUtil.get("test.batch.property.values"));
+
 	public static final String TEST_CASE_AVAILABLE_PROPERTY_NAMES =
 		PropsUtil.get("test.case.available.property.names");
 
@@ -192,6 +195,9 @@ public class PropsValues {
 
 	public static final String[] TEST_INCLUDE_DIR_NAMES = StringUtil.split(
 		PropsUtil.get("test.include.dir.names"));
+
+	public static final boolean TEST_PORTAL_INSTANCE = GetterUtil.getBoolean(
+		PropsUtil.get("test.portal.instance"));
 
 	public static final String TEST_POSHI_WARNINGS_FILE_NAME = PropsUtil.get(
 		"test.poshi.warnings.file.name");
