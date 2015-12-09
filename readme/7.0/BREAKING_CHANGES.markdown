@@ -3195,13 +3195,13 @@ Portal by means of an OSGi container.
 
 ---------------------------------------
 
-### The liferay-ui:social-activities has been deprecated and replaced with liferay-social:social-activities
+### The liferay-ui:social-activities has been removed and replaced with liferay-social:social-activities
 - **Date:** 2015-DEC-1
 - **JIRA Ticket:** LPS-60911
 
 #### What changed?
 
-The `liferay-ui:social-activities` taglib has been deprecated and replaced with
+The `liferay-ui:social-activities` taglib has been removed and replaced with
 `liferay-social:social-activities` taglib.
 
 #### Who is affected?
