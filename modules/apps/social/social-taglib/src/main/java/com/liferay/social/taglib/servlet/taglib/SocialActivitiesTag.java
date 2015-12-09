@@ -29,7 +29,7 @@ import javax.servlet.jsp.PageContext;
 /**
  * @author Raymond Augé
  */
-public class SocialActivitiesTag extends IncludeTag {
+public class ActivitiesTag extends IncludeTag {
 
 	public void setActivities(List<SocialActivity> activities) {
 		_activities = activities;
@@ -126,38 +126,30 @@ public class SocialActivitiesTag extends IncludeTag {
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
 		request.setAttribute(
-			"liferay-social:social-activities:activities", _activities);
+			"liferay-social:activities:activities", _activities);
+		request.setAttribute("liferay-social:activities:className", _className);
 		request.setAttribute(
-			"liferay-social:social-activities:className", _className);
+			"liferay-social:activities:classPK", String.valueOf(_classPK));
 		request.setAttribute(
-			"liferay-social:social-activities:classPK",
-			String.valueOf(_classPK));
-		request.setAttribute(
-			"liferay-social:social-activities:displayRSSFeed",
+			"liferay-social:activities:displayRSSFeed",
 			String.valueOf(_displayRSSFeed));
 		request.setAttribute(
-			"liferay-social:social-activities:feedDelta",
-			String.valueOf(_feedDelta));
+			"liferay-social:activities:feedDelta", String.valueOf(_feedDelta));
 		request.setAttribute(
-			"liferay-social:social-activities:feedDisplayStyle",
-			_feedDisplayStyle);
+			"liferay-social:activities:feedDisplayStyle", _feedDisplayStyle);
 		request.setAttribute(
-			"liferay-social:social-activities:feedEnabled",
+			"liferay-social:activities:feedEnabled",
 			String.valueOf(_feedEnabled));
 		request.setAttribute(
-			"liferay-social:social-activities:feedResourceURL",
-			_feedResourceURL);
+			"liferay-social:activities:feedResourceURL", _feedResourceURL);
+		request.setAttribute("liferay-social:activities:feedTitle", _feedTitle);
+		request.setAttribute("liferay-social:activities:feedType", _feedType);
+		request.setAttribute("liferay-social:activities:feedURL", _feedURL);
 		request.setAttribute(
-			"liferay-social:social-activities:feedTitle", _feedTitle);
-		request.setAttribute(
-			"liferay-social:social-activities:feedType", _feedType);
-		request.setAttribute(
-			"liferay-social:social-activities:feedURL", _feedURL);
-		request.setAttribute(
-			"liferay-social:social-activities:feedURLMessage", _feedURLMessage);
+			"liferay-social:activities:feedURLMessage", _feedURLMessage);
 	}
 
-	private static final String _PAGE = "/social_activities/page.jsp";
+	private static final String _PAGE = "/activities/page.jsp";
 
 	private List<SocialActivity> _activities;
 	private String _className = StringPool.BLANK;
