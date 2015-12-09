@@ -10,8 +10,8 @@
 	<short-name>liferay-social</short-name>
 	<uri>http://liferay.com/tld/social</uri>
 	<tag>
-		<name>social-activities</name>
-		<tag-class>com.liferay.social.taglib.servlet.taglib.SocialActivitiesTag</tag-class>
+		<name>activities</name>
+		<tag-class>com.liferay.social.taglib.servlet.taglib.ActivitiesTag</tag-class>
 		<body-content>JSP</body-content>
 		<attribute>
 			<name>activities</name>

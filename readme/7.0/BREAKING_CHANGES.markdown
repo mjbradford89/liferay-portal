@@ -3092,14 +3092,14 @@ services from `DLAppService` was the only sensible solution to this circularity.
 
 ---------------------------------------
 
-### The liferay-ui:social-activities has been removed and replaced with liferay-social:social-activities
+### The liferay-ui:social-activities has been removed and replaced with liferay-social:activities
 - **Date:** 2015-DEC-1
 - **JIRA Ticket:** LPS-60911
 
 #### What changed?
 
 The `liferay-ui:social-activities` taglib has been removed and replaced with
-`liferay-social:social-activities` taglib.
+`liferay-social:activities` taglib.
 
 #### Who is affected?
 
@@ -3110,7 +3110,7 @@ to update their usage of the tag.
 
 You should import the `liferay-frontend` tag library if it isn't already and
 update the tag namespace from `liferay-ui:social-activities` to
-`liferay-social:social-activities`.
+`liferay-social:activities`.
 
 #### Why was this change made?
 
