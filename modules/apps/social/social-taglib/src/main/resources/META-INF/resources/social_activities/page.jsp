@@ -17,96 +17,96 @@
 <%@ include file="/social_activities/init.jsp" %>
 
 <div class="taglib-social-activities">
-	<table>
-
-	<%
-	ServiceContext serviceContext = ServiceContextFactory.getInstance(request);
-
-	boolean hasActivities = false;
-
-	Date now = new Date();
-
-	int daysBetween = -1;
-
-	for (SocialActivity activity : activities) {
-		SocialActivityFeedEntry activityFeedEntry = SocialActivityInterpreterLocalServiceUtil.interpret(selector, activity, serviceContext);
-
-		if (activityFeedEntry == null) {
-			continue;
-		}
-
-		if (!hasActivities) {
-			hasActivities = true;
-		}
-
-		Portlet portlet = PortletLocalServiceUtil.getPortletById(company.getCompanyId(), activityFeedEntry.getPortletId());
-
-		int curDaysBetween = DateUtil.getDaysBetween(new Date(activity.getCreateDate()), now, timeZone);
-	%>
-
-		<c:if test="<%= curDaysBetween > daysBetween %>">
+	<c:choose>
+		<c:when test="<%= !activities.isEmpty() %>">
+			<table>
 
 			<%
-			daysBetween = curDaysBetween;
+			ServiceContext serviceContext = ServiceContextFactory.getInstance(request);
+
+			boolean hasActivities = false;
+
+			Date now = new Date();
+
+			int daysBetween = -1;
+
+			for (SocialActivity activity : activities) {
+				SocialActivityFeedEntry activityFeedEntry = SocialActivityInterpreterLocalServiceUtil.interpret(selector, activity, serviceContext);
+
+				if (activityFeedEntry == null) {
+					continue;
+				}
+
+				if (!hasActivities) {
+					hasActivities = true;
+				}
+
+				Portlet portlet = PortletLocalServiceUtil.getPortletById(company.getCompanyId(), activityFeedEntry.getPortletId());
+
+				int curDaysBetween = DateUtil.getDaysBetween(new Date(activity.getCreateDate()), now, timeZone);
 			%>
 
-			<tr>
-				<td class="day-separator" colspan="2">
-					<c:choose>
-						<c:when test="<%= curDaysBetween == 0 %>">
-							<liferay-ui:message key="today" />
-						</c:when>
-						<c:when test="<%= curDaysBetween == 1 %>">
-							<liferay-ui:message key="yesterday" />
-						</c:when>
-						<c:otherwise>
-							<%= dateFormatDate.format(activity.getCreateDate()) %>
-						</c:otherwise>
-					</c:choose>
-				</td>
-			</tr>
-		</c:if>
+				<c:if test="<%= curDaysBetween > daysBetween %>">
 
-		<tr>
-			<td class="portlet-icon">
-				<liferay-portlet:icon-portlet portlet="<%= portlet %>" />
-			</td>
-			<td class="activity-data">
-				<div class="activity-title">
-					<%= activityFeedEntry.getTitle() %>
-				</div>
-				<div class="activity-body">
-					<span class="time"><%= timeFormatDate.format(activity.getCreateDate()) %></span>
+					<%
+					daysBetween = curDaysBetween;
+					%>
 
-					<%= activityFeedEntry.getBody() %>
-				</div>
-			</td>
-		</tr>
+					<tr>
+						<td class="day-separator" colspan="2">
+							<c:choose>
+								<c:when test="<%= curDaysBetween == 0 %>">
+									<liferay-ui:message key="today" />
+								</c:when>
+								<c:when test="<%= curDaysBetween == 1 %>">
+									<liferay-ui:message key="yesterday" />
+								</c:when>
+								<c:otherwise>
+									<%= dateFormatDate.format(activity.getCreateDate()) %>
+								</c:otherwise>
+							</c:choose>
+						</td>
+					</tr>
+				</c:if>
 
-	<%
-	}
-	%>
+				<tr>
+					<td class="portlet-icon">
+						<liferay-portlet:icon-portlet portlet="<%= portlet %>" />
+					</td>
+					<td class="activity-data">
+						<div class="activity-title">
+							<%= activityFeedEntry.getTitle() %>
+						</div>
+						<div class="activity-body">
+							<span class="time"><%= timeFormatDate.format(activity.getCreateDate()) %></span>
 
-	</table>
+							<%= activityFeedEntry.getBody() %>
+						</div>
+					</td>
+				</tr>
 
-	<c:if test="<%= !hasActivities %>">
-		<liferay-ui:message key="there-are-no-recent-activities" />
-	</c:if>
+			<%
+			}
+			%>
+
+			</table>
+
+			<c:if test="<%= feedEnabled %>">
+				<div class="separator"><!-- --></div>
+
+				<liferay-ui:rss
+					delta="<%= feedDelta %>"
+					displayStyle="<%= feedDisplayStyle %>"
+					feedType="<%= feedType %>"
+					message="<%= feedURLMessage %>"
+					name="<%= feedTitle %>"
+					resourceURL="<%= feedResourceURL %>"
+					url="<%= feedURL %>"
+				/>
+			</c:if>
+		</c:when>
+		<c:otherwise>
+			<liferay-ui:message key="there-are-no-recent-activities" />
+		</c:otherwise>
+	</c:choose>
 </div>
-
-<c:if test="<%= feedEnabled && !activities.isEmpty() %>">
-	<div class="separator"><!-- --></div>
-
-	<liferay-ui:rss
-		delta="<%= feedDelta %>"
-		displayStyle="<%= feedDisplayStyle %>"
-		feedType="<%= feedType %>"
-		message="<%= feedURLMessage %>"
-		name="<%= feedTitle %>"
-		resourceURL="<%= feedResourceURL %>"
-		url="<%= feedURL %>"
-	/>
-</c:if>
-
-<%!
-%>
