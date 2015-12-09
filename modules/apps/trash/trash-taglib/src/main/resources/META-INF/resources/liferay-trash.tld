@@ -5,6 +5,26 @@
 	<short-name>liferay-trash</short-name>
 	<uri>http://liferay.com/tld/trash</uri>
 	<tag>
+		<name>restore-entry</name>
+		<tag-class>com.liferay.taglib.ui.RestoreEntryTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>overrideMessage</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>renameMessage</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>restoreURL</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+	<tag>
 		<description>Creates a component for users to permanently delete items such as images, articles, etc. from the recycle bin.</description>
 		<name>trash-empty</name>
 		<tag-class>com.liferay.trash.taglib.servlet.taglib.TrashEmptyTag</tag-class>
