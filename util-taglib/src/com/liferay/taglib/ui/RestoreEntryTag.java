@@ -22,7 +22,10 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author Roberto Diaz
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.trash.taglib.servlet.taglib.RestoreEntryTag}
  */
+@Deprecated
 public class RestoreEntryTag extends IncludeTag {
 
 	public void setOverrideMessage(String overrideMessage) {
