@@ -335,7 +335,7 @@ AssetEntry assetEntry = (AssetEntry)request.getAttribute("view_entry_content.jsp
 						</portlet:renderURL>
 
 						<div class="social-bookmarks">
-							<liferay-social:social-bookmarks
+							<liferay-social:bookmarks
 								contentId="<%= String.valueOf(entry.getEntryId()) %>"
 								displayStyle="<%= blogsPortletInstanceConfiguration.socialBookmarksDisplayStyle() %>"
 								target="_blank"

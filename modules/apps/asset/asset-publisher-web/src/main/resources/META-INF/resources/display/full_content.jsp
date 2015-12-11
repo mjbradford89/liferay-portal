@@ -118,7 +118,7 @@ request.setAttribute("view.jsp-showIconLabel", true);
 
 	<div class="asset-content" id="<portlet:namespace /><%= assetEntry.getEntryId() %>">
 		<c:if test='<%= assetPublisherDisplayContext.isEnableSocialBookmarks() && socialBookmarksDisplayPosition.equals("top") && !print %>'>
-			<liferay-social:social-bookmarks
+			<liferay-social:bookmarks
 				contentId="<%= String.valueOf(assetEntry.getEntryId()) %>"
 				displayStyle="<%= assetPublisherDisplayContext.getSocialBookmarksDisplayStyle() %>"
 				target="_blank"
@@ -146,7 +146,7 @@ request.setAttribute("view.jsp-showIconLabel", true);
 		</c:if>
 
 		<c:if test='<%= assetPublisherDisplayContext.isEnableSocialBookmarks() && socialBookmarksDisplayPosition.equals("bottom") && !print %>'>
-			<liferay-social:social-bookmarks
+			<liferay-social:bookmarks
 				displayStyle="<%= assetPublisherDisplayContext.getSocialBookmarksDisplayStyle() %>"
 				target="_blank"
 				title="<%= title %>"
