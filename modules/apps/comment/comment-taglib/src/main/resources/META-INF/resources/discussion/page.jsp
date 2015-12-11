@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/taglib/ui/discussion/init.jsp" %>
+<%@ include file="/discussion/init.jsp" %>
 
 <%
 String randomNamespace = StringUtil.randomId() + StringPool.UNDERLINE;
@@ -166,7 +166,7 @@ CommentSectionDisplayContext commentSectionDisplayContext = CommentDisplayContex
 							request.setAttribute("liferay-ui:discussion:randomNamespace", randomNamespace);
 						%>
 
-							<liferay-util:include page="/html/taglib/ui/discussion/view_message_thread.jsp" />
+							<liferay-util:include page="/discussion/view_message_thread.jsp"  servletContext="<%= application %>" />
 
 						<%
 						}

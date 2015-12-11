@@ -135,7 +135,7 @@ public class DiscussionTag extends IncludeTag {
 			"liferay-ui:discussion:userId", String.valueOf(_userId));
 	}
 
-	private static final String _PAGE = "/html/taglib/ui/discussion/page.jsp";
+	private static final String _PAGE = "/discussion/page.jsp";
 
 	private boolean _assetEntryVisible = true;
 	private String _className;
