@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.taglib.ui;
+package com.liferay.comment.taglib.servlet.taglib;
 
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.theme.PortletDisplay;
