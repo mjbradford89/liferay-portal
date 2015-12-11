@@ -6,7 +6,7 @@
 	<uri>http://liferay.com/tld/comment</uri>
 	<tag>
 		<name>discussion</name>
-		<tag-class>com.liferay.taglib.ui.DiscussionTag</tag-class>
+		<tag-class>com.liferay.comment.taglib.servlet.taglib.DiscussionTag</tag-class>
 		<body-content>JSP</body-content>
 		<attribute>
 			<name>assetEntryVisible</name>
