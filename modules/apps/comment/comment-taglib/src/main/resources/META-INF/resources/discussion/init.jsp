@@ -14,8 +14,6 @@
  */
 --%>
 
-<%@ include file="/html/taglib/init.jsp" %>
-
 <%@ page import="com.liferay.portal.comment.display.context.CommentDisplayContextProviderUtil" %><%@
 page import="com.liferay.portal.comment.display.context.util.DiscussionRequestHelper" %><%@
 page import="com.liferay.portal.comment.display.context.util.DiscussionTaglibHelper" %><%@
