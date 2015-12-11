@@ -24,13 +24,13 @@ page import="com.liferay.portal.kernel.util.StringUtil" %><%@
 page import="com.liferay.portal.kernel.util.Validator" %>
 
 <%
-String contentId = GetterUtil.getString((String)request.getAttribute("liferay-social:social-bookmark:contentId"));
-String types = GetterUtil.getString((String)request.getAttribute("liferay-social:social-bookmark:types"));
-String url = GetterUtil.getString((String)request.getAttribute("liferay-social:social-bookmark:url"));
-String title = GetterUtil.getString((String)request.getAttribute("liferay-social:social-bookmark:title"));
-String target = GetterUtil.getString((String)request.getAttribute("liferay-social:social-bookmark:target"));
+String contentId = GetterUtil.getString((String)request.getAttribute("liferay-social:bookmark:contentId"));
+String types = GetterUtil.getString((String)request.getAttribute("liferay-social:bookmark:types"));
+String url = GetterUtil.getString((String)request.getAttribute("liferay-social:bookmark:url"));
+String title = GetterUtil.getString((String)request.getAttribute("liferay-social:bookmark:title"));
+String target = GetterUtil.getString((String)request.getAttribute("liferay-social:bookmark:target"));
 
-String displayStyle = GetterUtil.getString((String)request.getAttribute("liferay-social:social-bookmarks:displayStyle"));
+String displayStyle = GetterUtil.getString((String)request.getAttribute("liferay-social:bookmarks:displayStyle"));
 
 String[] typesArray = null;
 

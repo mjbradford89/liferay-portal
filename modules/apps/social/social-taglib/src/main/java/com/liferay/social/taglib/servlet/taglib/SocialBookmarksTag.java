@@ -24,7 +24,7 @@ import javax.servlet.jsp.PageContext;
  * @author Brian Wing Shun Chan
  * @author Jorge Ferrer
  */
-public class SocialBookmarksTag extends IncludeTag {
+public class BookmarksTag extends IncludeTag {
 
 	public void setContentId(String contentId) {
 		_contentId = contentId;
@@ -74,18 +74,17 @@ public class SocialBookmarksTag extends IncludeTag {
 
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
-		request.setAttribute(
-			"liferay-social:social-bookmark:contentId", _contentId);
-		request.setAttribute("liferay-social:social-bookmark:target", _target);
-		request.setAttribute("liferay-social:social-bookmark:title", _title);
-		request.setAttribute("liferay-social:social-bookmark:types", _types);
-		request.setAttribute("liferay-social:social-bookmark:url", _url);
+		request.setAttribute("liferay-social:bookmark:contentId", _contentId);
+		request.setAttribute("liferay-social:bookmark:target", _target);
+		request.setAttribute("liferay-social:bookmark:title", _title);
+		request.setAttribute("liferay-social:bookmark:types", _types);
+		request.setAttribute("liferay-social:bookmark:url", _url);
 
 		request.setAttribute(
-			"liferay-social:social-bookmarks:displayStyle", _displayStyle);
+			"liferay-social:bookmarks:displayStyle", _displayStyle);
 	}
 
-	private static final String _PAGE = "/social_bookmarks/page.jsp";
+	private static final String _PAGE = "/bookmarks/page.jsp";
 
 	private String _contentId;
 	private String _displayStyle;
