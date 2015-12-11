@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/taglib/ui/discussion/init.jsp" %>
+<%@ include file="/discussion/init.jsp" %>
 
 <%
 int index = GetterUtil.getInteger(request.getAttribute("liferay-ui:discussion:index"));
@@ -42,7 +42,7 @@ if (discussionCommentIterator != null) {
 		request.setAttribute("liferay-ui:discussion:discussionComment", discussionCommentIterator.next());
 %>
 
-		<liferay-util:include page="/html/taglib/ui/discussion/view_message_thread.jsp" />
+		<liferay-util:include page="/discussion/view_message_thread.jsp"  servletContext="<%= application %>" />
 
 <%
 		index = GetterUtil.getInteger(request.getAttribute("liferay-ui:discussion:index"));

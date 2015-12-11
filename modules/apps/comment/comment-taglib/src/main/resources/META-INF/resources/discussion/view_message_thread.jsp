@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/taglib/ui/discussion/init.jsp" %>
+<%@ include file="/discussion/init.jsp" %>
 
 <%
 Discussion discussion = (Discussion)request.getAttribute("liferay-ui:discussion:discussion");
@@ -295,7 +295,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 			request.setAttribute("liferay-ui:discussion:discussionComment", curDiscussionComment);
 		%>
 
-			<liferay-util:include page="/html/taglib/ui/discussion/view_message_thread.jsp" />
+			<liferay-util:include page="/discussion/view_message_thread.jsp"  servletContext="<%= application %>" />
 
 		<%
 		}
