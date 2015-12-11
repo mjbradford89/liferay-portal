@@ -151,7 +151,7 @@ CommentSectionDisplayContext commentSectionDisplayContext = CommentDisplayContex
 						DiscussionCommentIterator discussionCommentIterator = rootDiscussionComment.getThreadDiscussionCommentIterator();
 
 						while (discussionCommentIterator.hasNext()) {
-							index = GetterUtil.getInteger(request.getAttribute("liferay-ui:discussion:index"), 1);
+							index = GetterUtil.getInteger(request.getAttribute("liferay-comment:discussion:index"), 1);
 
 							rootIndexPage = discussionCommentIterator.getIndexPage();
 
@@ -161,9 +161,9 @@ CommentSectionDisplayContext commentSectionDisplayContext = CommentDisplayContex
 								break;
 							}
 
-							request.setAttribute("liferay-ui:discussion:discussion", discussion);
-							request.setAttribute("liferay-ui:discussion:discussionComment", discussionCommentIterator.next());
-							request.setAttribute("liferay-ui:discussion:randomNamespace", randomNamespace);
+							request.setAttribute("liferay-comment:discussion:discussion", discussion);
+							request.setAttribute("liferay-comment:discussion:discussionComment", discussionCommentIterator.next());
+							request.setAttribute("liferay-comment:discussion:randomNamespace", randomNamespace);
 						%>
 
 							<liferay-util:include page="/discussion/view_message_thread.jsp"  servletContext="<%= application %>" />
