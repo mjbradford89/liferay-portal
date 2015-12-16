@@ -264,7 +264,7 @@ if (portletTitleBasedNavigation) {
 
 					<c:if test="<%= PropsValues.DL_FILE_ENTRY_COMMENTS_ENABLED && showComments %>">
 						<liferay-ui:panel collapsible="<%= true %>" cssClass="lfr-document-library-comments" extended="<%= true %>" persistState="<%= true %>" title="comments">
-							<liferay-ui:discussion
+							<liferay-comment:discussion
 								className="<%= DLFileEntryConstants.getClassName() %>"
 								classPK="<%= fileEntryId %>"
 								formName="fm2"

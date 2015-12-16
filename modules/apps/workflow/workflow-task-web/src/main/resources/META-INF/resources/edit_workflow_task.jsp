@@ -154,7 +154,7 @@ renderResponse.setTitle(headerTitle);
 					</liferay-ui:panel>
 
 					<liferay-ui:panel title="comments">
-						<liferay-ui:discussion
+						<liferay-comment:discussion
 							assetEntryVisible="<%= false %>"
 							className="<%= assetRenderer.getClassName() %>"
 							classPK="<%= assetRenderer.getClassPK() %>"
