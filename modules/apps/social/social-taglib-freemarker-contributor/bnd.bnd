@@ -1,0 +1,8 @@
+Bundle-Name: Liferay Social Taglib FreeMarker Contributor
+Bundle-SymbolicName: com.liferay.social.taglib.freemarker.contributor
+Fragment-Host: com.liferay.portal.template.freemarker
+Bundle-Version: 1.0.0
+Import-Package:\
+	com.liferay.social.taglib.servlet.taglib
+Include-Resource:\
+	@lib/com.liferay.social.taglib.jar!/META-INF/resources/liferay-social.tld
