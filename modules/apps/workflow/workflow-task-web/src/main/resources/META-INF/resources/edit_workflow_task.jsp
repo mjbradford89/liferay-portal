@@ -36,14 +36,11 @@ long classPK = workflowTaskDisplayContext.getWorkflowContextEntryClassPK(workflo
 
 WorkflowHandler<?> workflowHandler = workflowTaskDisplayContext.getWorkflowHandler(workflowTask);
 
-AssetEntry assetEntry = null;
-
 AssetRenderer<?> assetRenderer = workflowHandler.getAssetRenderer(classPK);
-AssetRendererFactory<?> assetRendererFactory = workflowHandler.getAssetRendererFactory();
 
-if (assetRenderer != null) {
-	assetEntry = assetRendererFactory.getAssetEntry(assetRendererFactory.getClassName(), assetRenderer.getClassPK());
-}
+AssetRendererFactory<?> assetRendererFactory = assetRenderer.getAssetRendererFactory();
+
+AssetEntry assetEntry = assetRendererFactory.getAssetEntry(assetRendererFactory.getClassName(), assetRenderer.getClassPK());
 
 String headerTitle = workflowTaskDisplayContext.getHeaderTitle(workflowTask);
 
@@ -164,7 +161,7 @@ renderResponse.setTitle(headerTitle);
 					</liferay-ui:panel>
 
 					<liferay-ui:panel title="comments">
-						<liferay-ui:discussion
+						<liferay-comment:discussion
 							assetEntryVisible="<%= false %>"
 							className="<%= assetRenderer.getClassName() %>"
 							classPK="<%= assetRenderer.getClassPK() %>"
