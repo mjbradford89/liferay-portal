@@ -1,0 +1,64 @@
+@include md() {
+	body, html {
+		height: 100%;
+	}
+
+	body.signed-in {
+		background-color: #222;
+		position: relative;
+
+		@include perspective(1500px);
+
+		&, &.sidenav-transition, .control-menu {
+			z-index: 501;
+
+			@include transition(none);
+		}
+
+		#wrapper {
+			background-color: #FFF;
+			bottom: 0;
+			left: 0;
+			margin-top: 64px;
+			overflow: auto;
+			position: fixed;
+			right: 0;
+			top: 0;
+			z-index: 501;
+
+			@include transition(transform 300ms);
+			@include transform-origin(right);
+		}
+
+		&.open {
+			.control-menu {
+				left: 0;
+			}
+
+			#wrapper {
+				overflow: hidden;
+
+				@include transform(translateZ(-400px) translateX(20px) rotateY(-30deg));
+			}
+		}
+	}
+
+	.lfr-product-menu-panel.sidenav-fixed.sidenav-menu-slider {
+		opacity: 1;
+		top: 64px;
+
+		@include transition(opacity 400ms, transform 300ms);
+		@include transition-delay(100ms);
+
+		&, &.closed {
+			width: 320px;
+		}
+
+		&.closed {
+			opacity: 0;
+
+			@include transform(translateX(-100px));
+			@include transition-delay(0);
+		}
+	}
+}
