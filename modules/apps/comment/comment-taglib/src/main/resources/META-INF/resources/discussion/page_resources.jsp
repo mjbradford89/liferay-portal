@@ -42,7 +42,7 @@ if (discussionCommentIterator != null) {
 		request.setAttribute("liferay-comment:discussion:discussionComment", discussionCommentIterator.next());
 %>
 
-		<liferay-util:include page="/discussion/view_message_thread.jsp"  servletContext="<%= application %>" />
+		<liferay-util:include page="/discussion/view_message_thread.jsp" servletContext="<%= application %>" />
 
 <%
 		index = GetterUtil.getInteger(request.getAttribute("liferay-comment:discussion:index"));
@@ -51,11 +51,11 @@ if (discussionCommentIterator != null) {
 %>
 
 <aui:script sandbox="<%= true %>">
-	var rootIndexPage = $('#<%= namespace %>rootIndexPage');
 	var index = $('#<%= namespace %>index');
+	var rootIndexPage = $('#<%= namespace %>rootIndexPage');
 
-	rootIndexPage.val('<%= String.valueOf(rootIndexPage) %>');
 	index.val('<%= String.valueOf(index) %>');
+	rootIndexPage.val('<%= String.valueOf(rootIndexPage) %>');
 
 	<c:if test="<%= (rootDiscussionComment != null) && (rootDiscussionComment.getThreadCommentsCount() <= (index + 1)) %>">
 		var moreCommentsLink = $('#<%= namespace %>moreComments');
