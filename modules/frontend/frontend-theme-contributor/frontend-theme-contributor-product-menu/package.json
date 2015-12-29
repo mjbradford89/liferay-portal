@@ -1,0 +1,20 @@
+{
+  "name": "lfr-product-menu-animation-themelet",
+  "version": "1.0.4",
+  "description": "Alternative style/animation for Liferay 7.0 product menu.",
+  "keywords": [
+    "liferay-theme"
+  ],
+  "files": [
+    "src"
+  ],
+  "liferayTheme": {
+    "screenshot": "https://raw.githubusercontent.com/Robert-Frampton/lfr-product-menu-animation-themelet/master/preview.gif",
+    "themelet": true,
+    "version": "7.0",
+    "themeContributorType":"product-menu"
+  },
+  "publishConfig": {
+    "tag": "7_0_x"
+  }
+}
