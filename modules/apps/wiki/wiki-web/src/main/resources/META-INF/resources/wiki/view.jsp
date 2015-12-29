@@ -260,7 +260,7 @@ contextObjects.put("wikiPortletInstanceOverriddenConfiguration", wikiPortletInst
 		</div>
 	</div>
 
-	<div>
+	<div class="wiki-content">
 		<%@ include file="/wiki/view_page_content.jspf" %>
 	</div>
 
