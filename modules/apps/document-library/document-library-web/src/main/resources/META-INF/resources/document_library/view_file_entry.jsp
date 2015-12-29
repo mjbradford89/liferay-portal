@@ -286,7 +286,7 @@ if (portletTitleBasedNavigation) {
 							</h3>
 						</c:if>
 
-						<div>
+						<div class="lfr-asset-workflow-status">
 							<aui:workflow-status model="<%= DLFileEntry.class %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= fileVersion.getStatus() %>" />
 						</div>
 
