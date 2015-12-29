@@ -23,7 +23,6 @@ import com.liferay.taglib.ui.AssetCategoriesSummaryTag;
 import com.liferay.taglib.ui.AssetLinksTag;
 import com.liferay.taglib.ui.AssetTagsSummaryTag;
 import com.liferay.taglib.ui.BreadcrumbTag;
-import com.liferay.taglib.ui.DiscussionTag;
 import com.liferay.taglib.ui.FlagsTag;
 import com.liferay.taglib.ui.IconTag;
 import com.liferay.taglib.ui.JournalArticleTag;
@@ -101,23 +100,6 @@ public interface VelocityTaglib {
 			boolean showLayout, boolean showPortletBreadcrumb)
 		throws Exception;
 
-	public void discussion(
-			String className, long classPK, String formAction, String formName,
-			boolean hideControls, boolean ratingsEnabled, String redirect,
-			long userId)
-		throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #discussion(String, long,
-	 *             String, String, boolean, boolean, String, long)})}
-	 */
-	@Deprecated
-	public void discussion(
-			String className, long classPK, String formAction, String formName,
-			boolean hideControls, boolean ratingsEnabled, String redirect,
-			String subject, long userId)
-		throws Exception;
-
 	public void doAsURL(long doAsUserId) throws Exception;
 
 	public void flags(
@@ -135,8 +117,6 @@ public interface VelocityTaglib {
 	public BreadcrumbTag getBreadcrumbTag() throws Exception;
 
 	public ColumnTag getColumnTag() throws Exception;
-
-	public DiscussionTag getDiscussionTag() throws Exception;
 
 	public FlagsTag getFlagsTag() throws Exception;
 

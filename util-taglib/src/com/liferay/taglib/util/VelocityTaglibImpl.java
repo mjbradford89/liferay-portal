@@ -44,7 +44,6 @@ import com.liferay.taglib.ui.AssetCategoriesSummaryTag;
 import com.liferay.taglib.ui.AssetLinksTag;
 import com.liferay.taglib.ui.AssetTagsSummaryTag;
 import com.liferay.taglib.ui.BreadcrumbTag;
-import com.liferay.taglib.ui.DiscussionTag;
 import com.liferay.taglib.ui.FlagsTag;
 import com.liferay.taglib.ui.IconTag;
 import com.liferay.taglib.ui.JournalArticleTag;
@@ -281,46 +280,6 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 	}
 
 	@Override
-	public void discussion(
-			String className, long classPK, String formAction, String formName,
-			boolean hideControls, boolean ratingsEnabled, String redirect,
-			long userId)
-		throws Exception {
-
-		DiscussionTag discussionTag = new DiscussionTag();
-
-		setUp(discussionTag);
-
-		discussionTag.setClassName(className);
-		discussionTag.setClassPK(classPK);
-		discussionTag.setFormAction(formAction);
-		discussionTag.setFormName(formName);
-		discussionTag.setHideControls(hideControls);
-		discussionTag.setRatingsEnabled(ratingsEnabled);
-		discussionTag.setRedirect(redirect);
-		discussionTag.setUserId(userId);
-
-		discussionTag.runTag();
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #discussion(String, long,
-	 *             String, String, boolean, boolean, String, long)})}
-	 */
-	@Deprecated
-	@Override
-	public void discussion(
-			String className, long classPK, String formAction, String formName,
-			boolean hideControls, boolean ratingsEnabled, String redirect,
-			String subject, long userId)
-		throws Exception {
-
-		discussion(
-			className, classPK, formAction, formName, hideControls,
-			ratingsEnabled, redirect, userId);
-	}
-
-	@Override
 	public void doAsURL(long doAsUserId) throws Exception {
 		DoAsURLTag.doTag(doAsUserId, _request);
 	}
@@ -392,15 +351,6 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 		setUp(columnTag);
 
 		return columnTag;
-	}
-
-	@Override
-	public DiscussionTag getDiscussionTag() throws Exception {
-		DiscussionTag discussionTag = new DiscussionTag();
-
-		setUp(discussionTag);
-
-		return discussionTag;
 	}
 
 	@Override
