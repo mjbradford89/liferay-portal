@@ -24,7 +24,6 @@ import com.liferay.taglib.ui.AssetCategoriesSummaryTag;
 import com.liferay.taglib.ui.AssetLinksTag;
 import com.liferay.taglib.ui.AssetTagsSummaryTag;
 import com.liferay.taglib.ui.BreadcrumbTag;
-import com.liferay.taglib.ui.DiscussionTag;
 import com.liferay.taglib.ui.FlagsTag;
 import com.liferay.taglib.ui.IconTag;
 import com.liferay.taglib.ui.JournalArticleTag;
@@ -124,25 +123,6 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 	}
 
 	@Override
-	public void discussion(
-		String className, long classPK, String formAction, String formName,
-		boolean hideControls, boolean ratingsEnabled, String redirect,
-		long userId) {
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #discussion(String, long,
-	 *             String, String, boolean, boolean, String, long)})}
-	 */
-	@Deprecated
-	@Override
-	public void discussion(
-		String className, long classPK, String formAction, String formName,
-		boolean hideControls, boolean ratingsEnabled, String redirect,
-		String subject, long userId) {
-	}
-
-	@Override
 	public void doAsURL(long doAsUserId) {
 	}
 
@@ -174,11 +154,6 @@ public class DummyVelocityTaglib implements VelocityTaglib {
 
 	@Override
 	public ColumnTag getColumnTag() {
-		return null;
-	}
-
-	@Override
-	public DiscussionTag getDiscussionTag() {
 		return null;
 	}
 
