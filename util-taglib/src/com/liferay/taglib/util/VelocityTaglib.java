@@ -15,7 +15,6 @@
 package com.liferay.taglib.util;
 
 import com.liferay.portal.kernel.portlet.PortletProvider;
-import com.liferay.portal.kernel.servlet.taglib.ui.Menu;
 import com.liferay.portal.model.Layout;
 import com.liferay.portal.model.Portlet;
 import com.liferay.taglib.aui.ColumnTag;
@@ -24,14 +23,11 @@ import com.liferay.taglib.ui.AssetCategoriesSummaryTag;
 import com.liferay.taglib.ui.AssetLinksTag;
 import com.liferay.taglib.ui.AssetTagsSummaryTag;
 import com.liferay.taglib.ui.BreadcrumbTag;
-import com.liferay.taglib.ui.DiscussionTag;
 import com.liferay.taglib.ui.FlagsTag;
 import com.liferay.taglib.ui.IconTag;
 import com.liferay.taglib.ui.JournalArticleTag;
-import com.liferay.taglib.ui.MenuTag;
 import com.liferay.taglib.ui.MySitesTag;
 import com.liferay.taglib.ui.PngImageTag;
-import com.liferay.taglib.ui.QuickAccessTag;
 import com.liferay.taglib.ui.RatingsTag;
 
 import javax.portlet.PortletURL;
@@ -104,23 +100,6 @@ public interface VelocityTaglib {
 			boolean showLayout, boolean showPortletBreadcrumb)
 		throws Exception;
 
-	public void discussion(
-			String className, long classPK, String formAction, String formName,
-			boolean hideControls, boolean ratingsEnabled, String redirect,
-			long userId)
-		throws Exception;
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #discussion(String, long,
-	 *             String, String, boolean, boolean, String, long)})}
-	 */
-	@Deprecated
-	public void discussion(
-			String className, long classPK, String formAction, String formName,
-			boolean hideControls, boolean ratingsEnabled, String redirect,
-			String subject, long userId)
-		throws Exception;
-
 	public void doAsURL(long doAsUserId) throws Exception;
 
 	public void flags(
@@ -139,8 +118,6 @@ public interface VelocityTaglib {
 
 	public ColumnTag getColumnTag() throws Exception;
 
-	public DiscussionTag getDiscussionTag() throws Exception;
-
 	public FlagsTag getFlagsTag() throws Exception;
 
 	public IconTag getIconTag() throws Exception;
@@ -149,15 +126,11 @@ public interface VelocityTaglib {
 
 	public LayoutTag getLayoutTag() throws Exception;
 
-	public MenuTag getMenuTag() throws Exception;
-
 	public MySitesTag getMySitesTag() throws Exception;
 
 	public PageContext getPageContext();
 
 	public PngImageTag getPngImageTag() throws Exception;
-
-	public QuickAccessTag getQuickAccessTag() throws Exception;
 
 	public RatingsTag getRatingsTag() throws Exception;
 
@@ -222,8 +195,6 @@ public interface VelocityTaglib {
 
 	public void layoutIcon(Layout layout) throws Exception;
 
-	public void menu(Menu menu) throws Exception;
-
 	public void metaTags() throws Exception;
 
 	/**
@@ -269,10 +240,6 @@ public interface VelocityTaglib {
 	public void portletIconPortlet() throws Exception;
 
 	public void portletIconPortlet(Portlet portlet) throws Exception;
-
-	public void quickAccess() throws Exception;
-
-	public void quickAccess(String contentId) throws Exception;
 
 	public void ratings(
 			String className, long classPK, int numberOfStars, String type,

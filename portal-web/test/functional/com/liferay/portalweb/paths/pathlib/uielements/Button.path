@@ -15,7 +15,7 @@
 </tr>
 <tr>
 	<td>ADD</td>
-	<td>//a[contains(.,'Add')] | //button[contains(.,'Add')]</td>
+	<td>//a[contains(.,'Add')] | //button[contains(@type,'submit') and contains(.,'Add')] | //button[contains(@type,'button') and contains(.,'Add')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -119,18 +119,13 @@
 	<td></td>
 </tr>
 <tr>
-	<td>BASIC_PREVIEW</td>
-	<td>//button[contains(.,'Basic Preview')]</td>
-	<td></td>
-</tr>
-<tr>
 	<td>BACK</td>
 	<td>//a[@title='Back']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>BROWSE</td>
-	<td>//input[@id='_195_fileName']</td>
+	<td>//input[contains(@id,'fileName')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -200,7 +195,7 @@
 </tr>
 <tr>
 	<td>CLOSE_PANEL</td>
-	<td>//button[contains(@id,'closePanelAdd')]</td>
+	<td>//a[contains(@id,'closePanelAdd')]</td>
 	<td></td>
 </tr>
 <tr>

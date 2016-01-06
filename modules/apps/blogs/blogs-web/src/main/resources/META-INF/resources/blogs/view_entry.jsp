@@ -16,6 +16,8 @@
 
 <%@ include file="/blogs/init.jsp" %>
 
+<liferay-util:dynamic-include key="com.liferay.blogs.web#/blogs/view_entry.jsp#pre" />
+
 <%
 String mvcRenderCommandName = ParamUtil.getString(request, "mvcRenderCommandName");
 
@@ -183,7 +185,7 @@ Discussion discussion = CommentManagerUtil.getDiscussion(user.getUserId(), scope
 			<aui:input inlineLabel="left" name="trackbackURL" type="resource" value='<%= PortalUtil.getLayoutFullURL(themeDisplay) + Portal.FRIENDLY_URL_SEPARATOR + "blogs/trackback/" + entry.getUrlTitle() %>' />
 		</c:if>
 
-		<liferay-ui:discussion
+		<liferay-comment:discussion
 			className="<%= BlogsEntry.class.getName() %>"
 			classPK="<%= entry.getEntryId() %>"
 			formName="fm2"
@@ -204,3 +206,5 @@ PortalUtil.setPageKeywords(ListUtil.toString(assetTags, AssetTag.NAME_ACCESSOR),
 
 PortalUtil.addPortletBreadcrumbEntry(request, entry.getTitle(), currentURL);
 %>
+
+<liferay-util:dynamic-include key="com.liferay.blogs.web#/blogs/view_entry.jsp#post" />

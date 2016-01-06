@@ -16,6 +16,8 @@
 
 <%@ include file="/init.jsp" %>
 
+<liferay-util:dynamic-include key="com.liferay.calendar.web#/view_calendar_booking.jsp#pre" />
+
 <%
 String backURL = ParamUtil.getString(request, "backURL");
 
@@ -147,7 +149,7 @@ AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBookin
 	<aui:fieldset>
 		<liferay-ui:panel-container extended="<%= false %>" id="calendarBookingPanelContainer" persistState="<%= true %>">
 			<liferay-ui:panel collapsible="<%= true %>" extended="<%= false %>" id="calendarBookingCommentsPanel" persistState="<%= true %>" title="comments">
-				<liferay-ui:discussion
+				<liferay-comment:discussion
 					className="<%= CalendarBooking.class.getName() %>"
 					classPK="<%= calendarBooking.getCalendarBookingId() %>"
 					formName="fm2"
@@ -269,3 +271,5 @@ AssetEntry layoutAssetEntry = AssetEntryLocalServiceUtil.getEntry(CalendarBookin
 		summaryNode.html(recurrenceSummary);
 	</aui:script>
 </c:if>
+
+<liferay-util:dynamic-include key="com.liferay.calendar.web#/view_calendar_booking.jsp#post" />

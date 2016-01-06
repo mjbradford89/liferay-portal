@@ -80,8 +80,9 @@ public class PortalPreferencesImpl
 				portalPreferences.getPreferences()),
 			signedIn);
 
-		_portalPreferences = (com.liferay.portal.model.PortalPreferences)
-			portalPreferences.clone();
+		_portalPreferences =
+			(com.liferay.portal.model.PortalPreferences)
+				portalPreferences.clone();
 	}
 
 	public PortalPreferencesImpl(
@@ -196,6 +197,7 @@ public class PortalPreferencesImpl
 
 				return null;
 			}
+
 		};
 
 		try {

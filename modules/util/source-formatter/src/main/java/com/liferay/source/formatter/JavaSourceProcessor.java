@@ -637,6 +637,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			newContent, new String[] {";\n/**", "\t/*\n\t *", ";;\n"},
 			new String[] {";\n\n/**", "\t/**\n\t *", ";\n"});
 
+		newContent = fixMissingEmptyLines(newContent);
+
 		while (true) {
 			Matcher matcher = _incorrectLineBreakPattern1.matcher(newContent);
 
@@ -671,10 +673,30 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			break;
 		}
 
+		Matcher matcher = _incorrectLineBreakPattern3.matcher(newContent);
+
+		while (matcher.find()) {
+			String match = matcher.group();
+
+			int closeParenthesesCount = StringUtil.count(
+				match, StringPool.CLOSE_PARENTHESIS);
+			int openParenthesesCount = StringUtil.count(
+				match, StringPool.OPEN_PARENTHESIS);
+
+			if (closeParenthesesCount == openParenthesesCount) {
+				String beforeMatch = newContent.substring(0, matcher.start());
+
+				int lineCount = StringUtil.count(beforeMatch, "\n") + 1;
+
+				processErrorMessage(
+					fileName, "line break: " + fileName + " " + lineCount);
+			}
+		}
+
 		newContent = formatAnnotations(
 			fileName, StringPool.BLANK, newContent, StringPool.BLANK);
 
-		Matcher matcher = _logPattern.matcher(newContent);
+		matcher = _logPattern.matcher(newContent);
 
 		if (matcher.find()) {
 			String logClassName = matcher.group(1);
@@ -1147,6 +1169,49 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		return content;
 	}
 
+	protected String fixMissingEmptyLines(String content) {
+		Matcher matcher = _missingEmptyLinePattern1.matcher(content);
+
+		while (matcher.find()) {
+			String match = matcher.group();
+
+			int closeParenthesesCount = StringUtil.count(
+				match, StringPool.CLOSE_PARENTHESIS);
+			int openParenthesesCount = StringUtil.count(
+				match, StringPool.OPEN_PARENTHESIS);
+
+			if (closeParenthesesCount == openParenthesesCount) {
+				content = StringUtil.replaceFirst(
+					content, "\n", "\n\n", matcher.start());
+			}
+		}
+
+		matcher = _missingEmptyLinePattern2.matcher(content);
+
+		while (matcher.find()) {
+			String match = matcher.group();
+
+			if (!match.contains(StringPool.OPEN_PARENTHESIS)) {
+				continue;
+			}
+
+			String whitespace = matcher.group(1);
+
+			int x = content.indexOf(
+				whitespace + StringPool.CLOSE_CURLY_BRACE + "\n",
+				matcher.end());
+			int y = content.indexOf(
+				whitespace + StringPool.CLOSE_CURLY_BRACE + "\n\n",
+				matcher.end());
+
+			if ((x != -1) && (x != y)) {
+				content = StringUtil.replaceFirst(content, "\n", "\n\n", x + 1);
+			}
+		}
+
+		return content;
+	}
+
 	protected String fixSystemExceptions(String content) {
 		if (!content.contains("SystemException")) {
 			return content;
@@ -1220,7 +1285,13 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 					if (matcher.find()) {
 						String match = matcher.group();
 
-						if (!match.endsWith("\n)\n") &&
+						int closeParenthesesCount = StringUtil.count(
+							match, StringPool.CLOSE_PARENTHESIS);
+						int openParenthesesCount = StringUtil.count(
+							match, StringPool.OPEN_PARENTHESIS);
+
+						if ((closeParenthesesCount == openParenthesesCount) &&
+							!match.endsWith("\n)\n") &&
 							!match.endsWith("\t)\n")) {
 
 							String tabs = matcher.group(1);
@@ -1639,6 +1710,11 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 						fileName, "line break: " + fileName + " " + lineCount);
 				}
 
+				if (trimmedLine.startsWith("},") && !trimmedLine.equals("},")) {
+					processErrorMessage(
+						fileName, "line break: " + fileName + " " + lineCount);
+				}
+
 				if (line.contains("ActionForm form")) {
 					processErrorMessage(
 						fileName,
@@ -1797,6 +1873,16 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 										lineCount);
 							}
 						}
+					}
+
+					if (!strippedQuotesLine.endsWith("{") &&
+						strippedQuotesLine.contains("{") &&
+						!strippedQuotesLine.contains("}") &&
+						!strippedQuotesLine.contains("\t//")) {
+
+						processErrorMessage(
+							fileName,
+							"line break: " + fileName + " " + lineCount);
 					}
 
 					if (previousLine.endsWith(StringPool.OPEN_PARENTHESIS) ||
@@ -2789,6 +2875,9 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 			(previousLineTabCount == lineTabCount) &&
 			!previousLine.contains(StringPool.CLOSE_CURLY_BRACE) &&
 			!line.endsWith(StringPool.EQUAL) &&
+			!line.endsWith(StringPool.QUESTION) &&
+			(!trimmedLine.startsWith(StringPool.OPEN_PARENTHESIS) ||
+			 !trimmedLine.endsWith(StringPool.CLOSE_PARENTHESIS)) &&
 			(line.endsWith(") {") ||
 			 !line.endsWith(StringPool.OPEN_CURLY_BRACE))) {
 
@@ -3658,6 +3747,8 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 		"\t(catch |else |finally |for |if |try |while ).*\\{\n\n\t+\\w");
 	private Pattern _incorrectLineBreakPattern2 = Pattern.compile(
 		"\\{\n\n\t*\\}");
+	private Pattern _incorrectLineBreakPattern3 = Pattern.compile(
+		", new .*\\(.*\\) \\{\n");
 	private Pattern[] _javaSerializationVulnerabilityPatterns = new Pattern[] {
 		Pattern.compile(
 			".*(new [a-z\\.\\s]*ObjectInputStream).*", Pattern.DOTALL),
@@ -3673,6 +3764,10 @@ public class JavaSourceProcessor extends BaseSourceProcessor {
 	private Pattern _logPattern = Pattern.compile(
 		"\n\tprivate static final Log _log = LogFactoryUtil.getLog\\(\n*" +
 			"\t*(.+)\\.class\\)");
+	private Pattern _missingEmptyLinePattern1 = Pattern.compile(
+		"(\t| = |return )new .*\\(.*\\) \\{\n\t+[^{\t]");
+	private Pattern _missingEmptyLinePattern2 = Pattern.compile(
+		"(\n\t*)(public|private|protected) [^;]+? \\{");
 	private Pattern _processCallablePattern = Pattern.compile(
 		"implements ProcessCallable\\b");
 	private List<String> _proxyExclusionFiles;

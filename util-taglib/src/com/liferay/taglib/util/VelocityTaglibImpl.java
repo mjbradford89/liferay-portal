@@ -18,7 +18,6 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.servlet.DirectRequestDispatcherFactoryUtil;
 import com.liferay.portal.kernel.servlet.JSPSupportServlet;
-import com.liferay.portal.kernel.servlet.taglib.ui.Menu;
 import com.liferay.portal.kernel.template.TemplateConstants;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -45,16 +44,13 @@ import com.liferay.taglib.ui.AssetCategoriesSummaryTag;
 import com.liferay.taglib.ui.AssetLinksTag;
 import com.liferay.taglib.ui.AssetTagsSummaryTag;
 import com.liferay.taglib.ui.BreadcrumbTag;
-import com.liferay.taglib.ui.DiscussionTag;
 import com.liferay.taglib.ui.FlagsTag;
 import com.liferay.taglib.ui.IconTag;
 import com.liferay.taglib.ui.JournalArticleTag;
 import com.liferay.taglib.ui.JournalContentSearchTag;
 import com.liferay.taglib.ui.LanguageTag;
-import com.liferay.taglib.ui.MenuTag;
 import com.liferay.taglib.ui.MySitesTag;
 import com.liferay.taglib.ui.PngImageTag;
-import com.liferay.taglib.ui.QuickAccessTag;
 import com.liferay.taglib.ui.RatingsTag;
 import com.liferay.taglib.ui.SearchTag;
 import com.liferay.taglib.ui.SitesDirectoryTag;
@@ -284,46 +280,6 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 	}
 
 	@Override
-	public void discussion(
-			String className, long classPK, String formAction, String formName,
-			boolean hideControls, boolean ratingsEnabled, String redirect,
-			long userId)
-		throws Exception {
-
-		DiscussionTag discussionTag = new DiscussionTag();
-
-		setUp(discussionTag);
-
-		discussionTag.setClassName(className);
-		discussionTag.setClassPK(classPK);
-		discussionTag.setFormAction(formAction);
-		discussionTag.setFormName(formName);
-		discussionTag.setHideControls(hideControls);
-		discussionTag.setRatingsEnabled(ratingsEnabled);
-		discussionTag.setRedirect(redirect);
-		discussionTag.setUserId(userId);
-
-		discussionTag.runTag();
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #discussion(String, long,
-	 *             String, String, boolean, boolean, String, long)})}
-	 */
-	@Deprecated
-	@Override
-	public void discussion(
-			String className, long classPK, String formAction, String formName,
-			boolean hideControls, boolean ratingsEnabled, String redirect,
-			String subject, long userId)
-		throws Exception {
-
-		discussion(
-			className, classPK, formAction, formName, hideControls,
-			ratingsEnabled, redirect, userId);
-	}
-
-	@Override
 	public void doAsURL(long doAsUserId) throws Exception {
 		DoAsURLTag.doTag(doAsUserId, _request);
 	}
@@ -398,15 +354,6 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 	}
 
 	@Override
-	public DiscussionTag getDiscussionTag() throws Exception {
-		DiscussionTag discussionTag = new DiscussionTag();
-
-		setUp(discussionTag);
-
-		return discussionTag;
-	}
-
-	@Override
 	public FlagsTag getFlagsTag() throws Exception {
 		FlagsTag flagsTag = new FlagsTag();
 
@@ -443,15 +390,6 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 	}
 
 	@Override
-	public MenuTag getMenuTag() throws Exception {
-		MenuTag menuTag = new MenuTag();
-
-		setUp(menuTag);
-
-		return menuTag;
-	}
-
-	@Override
 	public MySitesTag getMySitesTag() throws Exception {
 		MySitesTag mySitesTag = new MySitesTag();
 
@@ -472,15 +410,6 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 		setUp(pngImageTag);
 
 		return pngImageTag;
-	}
-
-	@Override
-	public QuickAccessTag getQuickAccessTag() throws Exception {
-		QuickAccessTag quickAccessTag = new QuickAccessTag();
-
-		setUp(quickAccessTag);
-
-		return quickAccessTag;
 	}
 
 	@Override
@@ -677,17 +606,6 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 	}
 
 	@Override
-	public void menu(Menu menu) throws Exception {
-		MenuTag menuTag = new MenuTag();
-
-		setUp(menuTag);
-
-		menuTag.setMenu(menu);
-
-		menuTag.runTag();
-	}
-
-	@Override
 	public void metaTags() throws Exception {
 		MetaTagsTag.doTag(_servletContext, _request, _response);
 	}
@@ -809,26 +727,6 @@ public class VelocityTaglibImpl implements VelocityTaglib {
 		iconPortletTag.setPortlet(portlet);
 
 		iconPortletTag.runTag();
-	}
-
-	@Override
-	public void quickAccess() throws Exception {
-		QuickAccessTag quickAccessTag = new QuickAccessTag();
-
-		setUp(quickAccessTag);
-
-		quickAccessTag.runTag();
-	}
-
-	@Override
-	public void quickAccess(String contentId) throws Exception {
-		QuickAccessTag quickAccessTag = new QuickAccessTag();
-
-		setUp(quickAccessTag);
-
-		quickAccessTag.setContentId(contentId);
-
-		quickAccessTag.runTag();
 	}
 
 	@Override

@@ -16,6 +16,8 @@
 
 <%@ include file="/document_library/init.jsp" %>
 
+<liferay-util:dynamic-include key="com.liferay.document.library.web#/document_library/view_file_entry.jsp#pre" />
+
 <%
 String tabs2 = ParamUtil.getString(request, "tabs2", "version-history");
 
@@ -262,7 +264,7 @@ if (portletTitleBasedNavigation) {
 
 					<c:if test="<%= PropsValues.DL_FILE_ENTRY_COMMENTS_ENABLED && showComments %>">
 						<liferay-ui:panel collapsible="<%= true %>" cssClass="lfr-document-library-comments" extended="<%= true %>" persistState="<%= true %>" title="comments">
-							<liferay-ui:discussion
+							<liferay-comment:discussion
 								className="<%= DLFileEntryConstants.getClassName() %>"
 								classPK="<%= fileEntryId %>"
 								formName="fm2"
@@ -284,7 +286,7 @@ if (portletTitleBasedNavigation) {
 							</h3>
 						</c:if>
 
-						<div>
+						<div class="lfr-asset-workflow-status">
 							<aui:workflow-status model="<%= DLFileEntry.class %>" showIcon="<%= false %>" showLabel="<%= false %>" status="<%= fileVersion.getStatus() %>" />
 						</div>
 
@@ -553,7 +555,7 @@ if (portletTitleBasedNavigation) {
 											<aui:input name="targetFileVersionId" type="hidden" value="<%= fileVersion.getFileVersionId() %>" />
 
 											<aui:button-row>
-												<aui:button type="submit" value="compare-versions" />
+												<aui:button cssClass="btn-lg" type="submit" value="compare-versions" />
 											</aui:button-row>
 										</aui:form>
 
@@ -685,3 +687,5 @@ if (addPortletBreadcrumbEntries) {
 	DLBreadcrumbUtil.addPortletBreadcrumbEntries(fileEntry, request, renderResponse);
 }
 %>
+
+<liferay-util:dynamic-include key="com.liferay.document.library.web#/document_library/view_file_entry.jsp#post" />
