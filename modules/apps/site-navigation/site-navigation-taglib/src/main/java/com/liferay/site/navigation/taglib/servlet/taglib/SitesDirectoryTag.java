@@ -14,9 +14,11 @@
 
 package com.liferay.site.navigation.taglib.servlet.taglib;
 
+import com.liferay.site.navigation.taglib.servlet.ServletContextUtil;
 import com.liferay.taglib.util.IncludeTag;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.PageContext;
 
 /**
  * @author Sergio González
@@ -33,6 +35,13 @@ public class SitesDirectoryTag extends IncludeTag {
 
 	public void setDisplayStyle(String displayStyle) {
 		_displayStyle = displayStyle;
+	}
+
+	@Override
+	public void setPageContext(PageContext pageContext) {
+		super.setPageContext(pageContext);
+
+		servletContext = ServletContextUtil.getServletContext();
 	}
 
 	public void setSites(String sites) {
@@ -53,9 +62,11 @@ public class SitesDirectoryTag extends IncludeTag {
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
 		request.setAttribute(
-			"liferay-site-navigation:sites-directory:displayStyle", _displayStyle);
+			"liferay-site-navigation:sites-directory:displayStyle",
+			_displayStyle);
 		request.setAttribute(
-			"liferay-site-navigation:sites-directory:sites", String.valueOf(_sites));
+			"liferay-site-navigation:sites-directory:sites",
+			String.valueOf(_sites));
 	}
 
 	private static final String _PAGE = "/sites_directory/page.jsp";
