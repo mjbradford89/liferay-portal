@@ -53,9 +53,9 @@ public class SitesDirectoryTag extends IncludeTag {
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
 		request.setAttribute(
-			"liferay-ui:sites-directory:displayStyle", _displayStyle);
+			"liferay-site-navigation:sites-directory:displayStyle", _displayStyle);
 		request.setAttribute(
-			"liferay-ui:sites-directory:sites", String.valueOf(_sites));
+			"liferay-site-navigation:sites-directory:sites", String.valueOf(_sites));
 	}
 
 	private static final String _PAGE =
