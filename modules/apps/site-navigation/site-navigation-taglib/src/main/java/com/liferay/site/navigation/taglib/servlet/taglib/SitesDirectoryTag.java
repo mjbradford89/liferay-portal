@@ -58,8 +58,7 @@ public class SitesDirectoryTag extends IncludeTag {
 			"liferay-site-navigation:sites-directory:sites", String.valueOf(_sites));
 	}
 
-	private static final String _PAGE =
-		"/html/taglib/ui/sites_directory/page.jsp";
+	private static final String _PAGE = "/sites_directory/page.jsp";
 
 	private String _displayStyle = "descriptive";
 	private String _sites = SITES_TOP_LEVEL;

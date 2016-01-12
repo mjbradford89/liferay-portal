@@ -14,7 +14,7 @@
  */
 --%>
 
-<%@ include file="/html/taglib/ui/sites_directory/init.jsp" %>
+<%@ include file="/sites_directory/init.jsp" %>
 
 <c:if test="<%= layout != null %>">
 
