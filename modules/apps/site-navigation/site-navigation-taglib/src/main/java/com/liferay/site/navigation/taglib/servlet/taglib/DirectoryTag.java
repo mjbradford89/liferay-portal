@@ -23,7 +23,7 @@ import javax.servlet.jsp.PageContext;
 /**
  * @author Sergio González
  */
-public class SitesDirectoryTag extends IncludeTag {
+public class DirectoryTag extends IncludeTag {
 
 	public static final String SITES_CHILDREN = "children";
 
@@ -62,14 +62,12 @@ public class SitesDirectoryTag extends IncludeTag {
 	@Override
 	protected void setAttributes(HttpServletRequest request) {
 		request.setAttribute(
-			"liferay-site-navigation:sites-directory:displayStyle",
-			_displayStyle);
+			"liferay-site-navigation:directory:displayStyle", _displayStyle);
 		request.setAttribute(
-			"liferay-site-navigation:sites-directory:sites",
-			String.valueOf(_sites));
+			"liferay-site-navigation:directory:sites", String.valueOf(_sites));
 	}
 
-	private static final String _PAGE = "/sites_directory/page.jsp";
+	private static final String _PAGE = "/directory/page.jsp";
 
 	private String _displayStyle = "descriptive";
 	private String _sites = SITES_TOP_LEVEL;

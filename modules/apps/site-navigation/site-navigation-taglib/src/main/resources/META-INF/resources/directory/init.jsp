@@ -20,8 +20,8 @@
 page import="com.liferay.taglib.ui.SitesDirectoryTag" %>
 
 <%
-String displayStyle = (String)request.getAttribute("liferay-site-navigation:sites-directory:displayStyle");
-String sites = (String)request.getAttribute("liferay-site-navigation:sites-directory:sites");
+String displayStyle = (String)request.getAttribute("liferay-site-navigation:directory:displayStyle");
+String sites = (String)request.getAttribute("liferay-site-navigation:directory:sites");
 
 Group group = GroupLocalServiceUtil.getGroup(scopeGroupId);
 %>
