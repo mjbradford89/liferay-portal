@@ -51,7 +51,7 @@
 	}
 	%>
 
-	<div class="nav-menu sites-directory-taglib">
+	<div class="sites-directory-taglib">
 		<c:choose>
 			<c:when test="<%= hidden %>">
 				<div class="alert alert-info">
@@ -214,7 +214,7 @@ private void _buildSitesList(Group rootGroup, Group curGroup, List<Group> branch
 
 	sb.append("<ul class=\"sites level-");
 	sb.append(groupLevel);
-	sb.append("\">");
+	sb.append(" list-group\">");
 
 	for (Group childGroup : childGroups) {
 		boolean open = false;
@@ -233,7 +233,7 @@ private void _buildSitesList(Group rootGroup, Group curGroup, List<Group> branch
 			className += "selected ";
 		}
 
-		sb.append("<li ");
+		sb.append("<li class=\"list-group-item ");
 
 		if (Validator.isNotNull(className)) {
 			sb.append("class=\"");
@@ -251,7 +251,6 @@ private void _buildSitesList(Group rootGroup, Group curGroup, List<Group> branch
 		}
 
 		if (Validator.isNotNull(className)) {
-			sb.append("class=\"");
 			sb.append(className);
 			sb.append("\" ");
 		}
