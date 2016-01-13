@@ -16,6 +16,10 @@
 
 <%@ include file="/directory/init.jsp" %>
 
+<liferay-util:html-top>
+	<link href="<%= ServletContextUtil.getContextPath() + "/directory/css/main.css" %>" rel="stylesheet" type="text/css" />
+</liferay-util:html-top>
+
 <c:if test="<%= layout != null %>">
 
 	<%
