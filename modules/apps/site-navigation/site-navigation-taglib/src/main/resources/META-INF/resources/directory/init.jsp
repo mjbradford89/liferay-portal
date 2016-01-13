@@ -17,7 +17,7 @@
 <%@ include file="/init.jsp" %>
 
 <%@ page import="com.liferay.portal.util.comparator.GroupNameComparator" %><%@
-page import="com.liferay.taglib.ui.SitesDirectoryTag" %>
+page import="com.liferay.site.navigation.taglib.servlet.taglib.DirectoryTag" %>
 
 <%
 String displayStyle = (String)request.getAttribute("liferay-site-navigation:directory:displayStyle");

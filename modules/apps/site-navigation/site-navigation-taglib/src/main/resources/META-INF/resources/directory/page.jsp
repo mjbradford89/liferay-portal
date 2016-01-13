@@ -27,20 +27,20 @@
 	branchGroups.add(group);
 	branchGroups.addAll(group.getAncestors());
 
-	if (sites.equals(SitesDirectoryTag.SITES_TOP_LEVEL)) {
+	if (sites.equals(DirectoryTag.SITES_TOP_LEVEL)) {
 	}
-	else if (sites.equals(SitesDirectoryTag.SITES_CHILDREN) && (branchGroups.size() > 0)) {
+	else if (sites.equals(DirectoryTag.SITES_CHILDREN) && (branchGroups.size() > 0)) {
 		rootGroup = branchGroups.get(0);
 	}
-	else if (sites.equals(SitesDirectoryTag.SITES_SIBLINGS) && (branchGroups.size() > 1)) {
+	else if (sites.equals(DirectoryTag.SITES_SIBLINGS) && (branchGroups.size() > 1)) {
 		rootGroup = branchGroups.get(1);
 	}
-	else if (sites.equals(SitesDirectoryTag.SITES_SIBLINGS) && group.isRoot()) {
+	else if (sites.equals(DirectoryTag.SITES_SIBLINGS) && group.isRoot()) {
 	}
-	else if (sites.equals(SitesDirectoryTag.SITES_PARENT_LEVEL) && (branchGroups.size() > 2)) {
+	else if (sites.equals(DirectoryTag.SITES_PARENT_LEVEL) && (branchGroups.size() > 2)) {
 		rootGroup = branchGroups.get(2);
 	}
-	else if (sites.equals(SitesDirectoryTag.SITES_PARENT_LEVEL) && (branchGroups.size() == 2)) {
+	else if (sites.equals(DirectoryTag.SITES_PARENT_LEVEL) && (branchGroups.size() == 2)) {
 	}
 	else {
 		hidden = true;
