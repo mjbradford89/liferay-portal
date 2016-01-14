@@ -26,7 +26,6 @@ public class InputSchedulerTag extends IncludeTag {
 		return _PAGE;
 	}
 
-	private static final String _PAGE =
-		"/html/taglib/ui/input_scheduler/page.jsp";
+	private static final String _PAGE = "/input_scheduler/page.jsp";
 
 }
