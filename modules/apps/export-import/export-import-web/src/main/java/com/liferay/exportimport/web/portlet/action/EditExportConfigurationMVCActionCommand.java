@@ -59,7 +59,7 @@ import org.osgi.service.component.annotations.Reference;
 @Component(
 	immediate = true,
 	property = {
-		"javax.portlet.name=" + ExportImportPortletKeys.EXPORT_IMPORT,
+		"javax.portlet.name=" + ExportImportPortletKeys.EXPORT,
 		"mvc.command.name=editExportConfiguration"
 	},
 	service = MVCActionCommand.class
@@ -258,9 +258,8 @@ public class EditExportConfigurationMVCActionCommand
 	private static final Log _log = LogFactoryUtil.getLog(
 		EditExportConfigurationMVCActionCommand.class);
 
-	private volatile ExportImportConfigurationService
-		_exportImportConfigurationService;
-	private volatile ExportImportService _exportImportService;
-	private volatile TrashEntryService _trashEntryService;
+	private ExportImportConfigurationService _exportImportConfigurationService;
+	private ExportImportService _exportImportService;
+	private TrashEntryService _trashEntryService;
 
 }

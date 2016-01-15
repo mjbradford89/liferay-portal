@@ -295,9 +295,11 @@ ManifestSummary manifestSummary = ExportImportHelperUtil.getManifestSummary(them
 				<portlet:param name="portletResource" value="<%= String.valueOf(portletResource) %>" />
 			</portlet:renderURL>
 
-			<aui:button href="<%= importPortletURL %>" name="back1" value="back" />
+			<aui:button-row>
+				<aui:button cssClass="btn-lg" href="<%= importPortletURL %>" name="back1" value="back" />
 
-			<aui:button name="continue" primary="<%= true %>" value="continue" />
+				<aui:button cssClass="btn-lg" name="continue" primary="<%= true %>" value="continue" />
+			</aui:button-row>
 		</div>
 
 		<div class="hide" id="<portlet:namespace />importStrategy">
@@ -316,9 +318,9 @@ ManifestSummary manifestSummary = ExportImportHelperUtil.getManifestSummary(them
 			</aui:fieldset>
 
 			<aui:button-row>
-				<aui:button name="back" value="back" />
+				<aui:button cssClass="btn-lg" name="back" value="back" />
 
-				<aui:button type="submit" value="import" />
+				<aui:button cssClass="btn-lg" type="submit" value="import" />
 			</aui:button-row>
 		</div>
 	</aui:form>

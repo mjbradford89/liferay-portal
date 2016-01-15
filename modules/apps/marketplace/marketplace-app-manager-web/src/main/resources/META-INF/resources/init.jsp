@@ -36,6 +36,7 @@ page import="com.liferay.marketplace.app.manager.web.util.MarketplaceAppManagerU
 page import="com.liferay.marketplace.app.manager.web.util.ModuleGroupDisplay" %><%@
 page import="com.liferay.marketplace.app.manager.web.util.ModuleGroupDisplayComparator" %><%@
 page import="com.liferay.marketplace.app.manager.web.util.ModuleGroupDisplayFactoryUtil" %><%@
+page import="com.liferay.marketplace.app.manager.web.util.ModuleServiceReferenceComparator" %><%@
 page import="com.liferay.marketplace.bundle.BundleManagerUtil" %><%@
 page import="com.liferay.marketplace.exception.FileExtensionException" %><%@
 page import="com.liferay.marketplace.model.App" %><%@
@@ -45,6 +46,7 @@ page import="com.liferay.portal.kernel.language.LanguageUtil" %><%@
 page import="com.liferay.portal.kernel.language.UnicodeLanguageUtil" %><%@
 page import="com.liferay.portal.kernel.portlet.LiferayWindowState" %><%@
 page import="com.liferay.portal.kernel.upload.UploadException" %><%@
+page import="com.liferay.portal.kernel.util.GetterUtil" %><%@
 page import="com.liferay.portal.kernel.util.HtmlUtil" %><%@
 page import="com.liferay.portal.kernel.util.ListUtil" %><%@
 page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
@@ -59,6 +61,7 @@ page import="com.liferay.taglib.search.ResultRow" %>
 
 <%@ page import="java.util.ArrayList" %><%@
 page import="java.util.Collection" %><%@
+page import="java.util.Collections" %><%@
 page import="java.util.Dictionary" %><%@
 page import="java.util.List" %>
 
@@ -72,3 +75,9 @@ page import="org.osgi.framework.ServiceReference" %>
 <portlet:defineObjects />
 
 <liferay-theme:defineObjects />
+
+<%
+PortletURL currentURLObj = PortletURLUtil.getCurrent(liferayPortletRequest, liferayPortletResponse);
+
+String currentURL = currentURLObj.toString();
+%>

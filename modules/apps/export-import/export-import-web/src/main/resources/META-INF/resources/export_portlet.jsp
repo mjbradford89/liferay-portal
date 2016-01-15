@@ -255,8 +255,9 @@ Layout exportableLayout = ExportImportHelperUtil.getExportableLayout(themeDispla
 									</liferay-util:buffer>
 
 									<liferay-ui:icon
-										iconCssClass="icon-calendar"
+										icon="calendar"
 										label="<%= true %>"
+										markupView="lexicon"
 										message='<%= LanguageUtil.get(request, "date-range") + selectedLabelsHTML %>'
 									/>
 								</li>
@@ -401,9 +402,9 @@ Layout exportableLayout = ExportImportHelperUtil.getExportableLayout(themeDispla
 				</c:if>
 
 				<aui:button-row>
-					<aui:button type="submit" value="export" />
+					<aui:button cssClass="btn-lg" type="submit" value="export" />
 
-					<aui:button href="<%= currentURL %>" type="cancel" />
+					<aui:button cssClass="btn-lg" href="<%= currentURL %>" type="cancel" />
 				</aui:button-row>
 			</div>
 		</aui:form>

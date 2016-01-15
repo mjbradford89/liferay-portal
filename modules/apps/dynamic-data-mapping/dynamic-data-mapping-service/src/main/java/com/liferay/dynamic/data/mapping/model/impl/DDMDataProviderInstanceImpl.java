@@ -21,17 +21,12 @@ import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderContext;
 import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderTrackerUtil;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesJSONDeserializerUtil;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
-import com.liferay.dynamic.data.mapping.model.Value;
-import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.KeyValuePair;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * @author Marcellus Tavares
@@ -40,6 +35,7 @@ import java.util.Map;
 public class DDMDataProviderInstanceImpl
 	extends DDMDataProviderInstanceBaseImpl {
 
+	@Override
 	public List<KeyValuePair> getData() throws PortalException {
 		DDMDataProvider ddmDataProvider =
 			DDMDataProviderTrackerUtil.getDDMDataProvider(getType());
@@ -51,28 +47,9 @@ public class DDMDataProviderInstanceImpl
 				ddmForm, getDefinition());
 
 		DDMDataProviderContext ddmDataProviderContext =
-			createDDMDataProviderContext(ddmFormValues);
+			new DDMDataProviderContext(ddmFormValues);
 
 		return ddmDataProvider.getData(ddmDataProviderContext);
-	}
-
-	protected DDMDataProviderContext createDDMDataProviderContext(
-		DDMFormValues ddmFormValues) {
-
-		Map<String, Object> properties = new HashMap<>();
-
-		Locale defaultLocale = ddmFormValues.getDefaultLocale();
-
-		for (DDMFormFieldValue ddmFormFieldValue :
-				ddmFormValues.getDDMFormFieldValues()) {
-
-			Value value = ddmFormFieldValue.getValue();
-
-			properties.put(
-				ddmFormFieldValue.getName(), value.getString(defaultLocale));
-		}
-
-		return new DDMDataProviderContext(properties);
 	}
 
 }

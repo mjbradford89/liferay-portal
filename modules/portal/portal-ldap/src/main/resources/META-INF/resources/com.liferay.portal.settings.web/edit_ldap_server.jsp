@@ -174,7 +174,7 @@ for (int i = 0; i < groupMappingArray.length; i++) {
 		</aui:field-wrapper>
 
 		<aui:button-row>
-			<aui:button onClick='<%= renderResponse.getNamespace() + "updateDefaultLdap();" %>' value="reset-values" />
+			<aui:button cssClass="btn-lg" onClick='<%= renderResponse.getNamespace() + "updateDefaultLdap();" %>' value="reset-values" />
 		</aui:button-row>
 	</aui:fieldset>
 
@@ -195,7 +195,7 @@ for (int i = 0; i < groupMappingArray.length; i++) {
 			String taglibOnClick = renderResponse.getNamespace() + "testSettings('ldapConnection');";
 			%>
 
-			<aui:button onClick="<%= taglibOnClick %>" value="test-ldap-connection" />
+			<aui:button cssClass="btn-lg" onClick="<%= taglibOnClick %>" value="test-ldap-connection" />
 		</aui:button-row>
 	</aui:fieldset>
 
@@ -240,7 +240,7 @@ for (int i = 0; i < groupMappingArray.length; i++) {
 			String taglibOnClick = renderResponse.getNamespace() + "testSettings('ldapUsers');";
 			%>
 
-			<aui:button onClick="<%= taglibOnClick %>" value="test-ldap-users" />
+			<aui:button cssClass="btn-lg" onClick="<%= taglibOnClick %>" value="test-ldap-users" />
 		</aui:button-row>
 	</aui:fieldset>
 
@@ -265,7 +265,7 @@ for (int i = 0; i < groupMappingArray.length; i++) {
 			String taglibOnClick = renderResponse.getNamespace() + "testSettings('ldapGroups');";
 			%>
 
-			<aui:button onClick="<%= taglibOnClick %>" value="test-ldap-groups" />
+			<aui:button cssClass="btn-lg" onClick="<%= taglibOnClick %>" value="test-ldap-groups" />
 		</aui:button-row>
 	</aui:fieldset>
 
@@ -287,9 +287,9 @@ for (int i = 0; i < groupMappingArray.length; i++) {
 		String taglibOnClick = renderResponse.getNamespace() + "saveLdap();";
 		%>
 
-		<aui:button name="saveButton" onClick="<%= taglibOnClick %>" value="save" />
+		<aui:button cssClass="btn-lg" name="saveButton" onClick="<%= taglibOnClick %>" value="save" />
 
-		<aui:button href="<%= redirect %>" name="cancelButton" type="cancel" />
+		<aui:button cssClass="btn-lg" href="<%= redirect %>" name="cancelButton" type="cancel" />
 	</aui:button-row>
 </aui:form>
 
@@ -534,10 +534,10 @@ for (int i = 0; i < groupMappingArray.length; i++) {
 			var data = {};
 
 			if (type == 'ldapConnection') {
-				url = '<portlet:renderURL windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="mvcRenderCommandName" value="/portal_settings/test_ldap_connection" /></portlet:renderURL>';
+				url = '<portlet:renderURL copyCurrentRenderParameters="<%= false %>" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="mvcRenderCommandName" value="/portal_settings/test_ldap_connection" /></portlet:renderURL>';
 			}
 			else if (type == 'ldapGroups') {
-				url = '<portlet:renderURL windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="mvcRenderCommandName" value="/portal_settings/test_ldap_groups" /></portlet:renderURL>';
+				url = '<portlet:renderURL copyCurrentRenderParameters="<%= false %>" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="mvcRenderCommandName" value="/portal_settings/test_ldap_groups" /></portlet:renderURL>';
 
 				data.<portlet:namespace />importGroupSearchFilter = document.<portlet:namespace />fm['<portlet:namespace />ldap--<%= LDAPConstants.GROUP_SEARCH_FILTER %>--'].value;
 				data.<portlet:namespace />groupMappingDescription = document.<portlet:namespace />fm['<portlet:namespace />groupMappingDescription'].value;
@@ -545,7 +545,7 @@ for (int i = 0; i < groupMappingArray.length; i++) {
 				data.<portlet:namespace />groupMappingUser = document.<portlet:namespace />fm['<portlet:namespace />groupMappingUser'].value;
 			}
 			else if (type == 'ldapUsers') {
-				url = '<portlet:renderURL windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="mvcRenderCommandName" value="/portal_settings/test_ldap_users" /></portlet:renderURL>';
+				url = '<portlet:renderURL copyCurrentRenderParameters="<%= false %>" windowState="<%= LiferayWindowState.EXCLUSIVE.toString() %>"><portlet:param name="mvcRenderCommandName" value="/portal_settings/test_ldap_users" /></portlet:renderURL>';
 
 				data.<portlet:namespace />importUserSearchFilter = document.<portlet:namespace />fm['<portlet:namespace />ldap--<%= LDAPConstants.USER_SEARCH_FILTER %>--'].value;
 				data.<portlet:namespace />userMappingEmailAddress = document.<portlet:namespace />fm['<portlet:namespace />userMappingEmailAddress'].value;

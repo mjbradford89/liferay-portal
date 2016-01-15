@@ -49,6 +49,8 @@ public interface AssetRenderer<T> extends Renderer {
 
 	public T getAssetObject();
 
+	public AssetRendererFactory<T> getAssetRendererFactory();
+
 	public int getAssetRendererType();
 
 	public String[] getAvailableLanguageIds() throws Exception;
@@ -118,7 +120,7 @@ public interface AssetRenderer<T> extends Renderer {
 
 	public String getUrlTitle();
 
-	public PortletURL getURLView(
+	public String getURLView(
 			LiferayPortletResponse liferayPortletResponse,
 			WindowState windowState)
 		throws Exception;

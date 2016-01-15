@@ -310,8 +310,9 @@ portletURL.setParameter("tabs3", "current-and-previous");
 											</liferay-util:buffer>
 
 											<liferay-ui:icon
-												iconCssClass="icon-calendar"
+												iconCssClass="calendar"
 												label="<%= true %>"
+												markupView="lexicon"
 												message='<%= LanguageUtil.get(request, "date-range") + selectedLabelsHTML %>'
 											/>
 										</li>
@@ -448,9 +449,9 @@ portletURL.setParameter("tabs3", "current-and-previous");
 						</c:if>
 
 						<aui:button-row>
-							<aui:button type="submit" value="publish-to-live" />
+							<aui:button cssClass="btn-lg" type="submit" value="publish-to-live" />
 
-							<aui:button onClick='<%= renderResponse.getNamespace() + "copyFromLive();" %>' value="copy-from-live" />
+							<aui:button cssClass="btn-lg" onClick='<%= renderResponse.getNamespace() + "copyFromLive();" %>' value="copy-from-live" />
 						</aui:button-row>
 					</div>
 				</aui:form>
