@@ -16,4 +16,5 @@
 
 <%@ include file="/init.jsp" %>
 
-<%@ page import="com.liferay.portal.kernel.captcha.CaptchaUtil" %>
+<%@ page import="com.liferay.portal.kernel.captcha.CaptchaMaxChallengesException" %><%@
+page import="com.liferay.portal.kernel.captcha.CaptchaUtil" %>
