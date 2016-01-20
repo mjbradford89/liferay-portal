@@ -127,6 +127,10 @@ AUI.add(
 
 				var plid = instance.extractPlid(node);
 
+				if (node.hasChildNodes()) {
+					node.eachChildren(A.bind(instance.restoreSelectedNode, instance));
+				}
+
 				if (plid === instance.get('selPlid')) {
 					node.select();
 				}
@@ -143,8 +147,6 @@ AUI.add(
 				var rootNode = instance.getChildren()[0];
 
 				instance.restoreSelectedNode(rootNode);
-
-				rootNode.eachChildren(A.bind(instance.restoreSelectedNode, instance));
 			},
 
 			_bindUILTBase: function() {
