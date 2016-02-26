@@ -25,10 +25,11 @@
 				show: 0
 			},
 			duration: <%= animationTime %>,
-			message: '<%= message %>',
+			icon: '<%= icon %>',
+			message: '<%= HtmlUtil.escapeJS(message) %>',
 			namespace: '<portlet:namespace />',
 			title: '<%= title %>',
 			type: '<%= type %>'
 		}
-	).render();
+	).render(A.one('<%= targetNode %>'));
 </aui:script>

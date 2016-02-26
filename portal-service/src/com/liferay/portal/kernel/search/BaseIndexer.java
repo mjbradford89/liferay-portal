@@ -14,13 +14,39 @@
 
 package com.liferay.portal.kernel.search;
 
-import com.liferay.portal.NoSuchCountryException;
-import com.liferay.portal.NoSuchModelException;
-import com.liferay.portal.NoSuchRegionException;
+import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
+import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetRendererFactory;
+import com.liferay.asset.kernel.model.AssetTag;
+import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetEntryLocalServiceUtil;
+import com.liferay.asset.kernel.service.AssetTagLocalServiceUtil;
+import com.liferay.expando.kernel.model.ExpandoBridge;
+import com.liferay.expando.kernel.model.ExpandoColumn;
+import com.liferay.expando.kernel.model.ExpandoColumnConstants;
+import com.liferay.expando.kernel.service.ExpandoColumnLocalServiceUtil;
+import com.liferay.expando.kernel.util.ExpandoBridgeFactoryUtil;
+import com.liferay.expando.kernel.util.ExpandoBridgeIndexerUtil;
+import com.liferay.portal.kernel.exception.NoSuchCountryException;
+import com.liferay.portal.kernel.exception.NoSuchModelException;
+import com.liferay.portal.kernel.exception.NoSuchRegionException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Address;
+import com.liferay.portal.kernel.model.AttachedModel;
+import com.liferay.portal.kernel.model.AuditedModel;
+import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.Country;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.GroupedModel;
+import com.liferay.portal.kernel.model.Region;
+import com.liferay.portal.kernel.model.ResourcedModel;
+import com.liferay.portal.kernel.model.TrashedModel;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.WorkflowedModel;
 import com.liferay.portal.kernel.search.facet.AssetEntriesFacet;
 import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.search.facet.MultiValueFacet;
@@ -32,6 +58,14 @@ import com.liferay.portal.kernel.search.filter.TermsFilter;
 import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
 import com.liferay.portal.kernel.search.generic.MatchAllQuery;
 import com.liferay.portal.kernel.search.hits.HitsProcessorRegistryUtil;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.service.CountryServiceUtil;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.RegionServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.trash.TrashHandler;
 import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -40,6 +74,7 @@ import com.liferay.portal.kernel.util.HashUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -48,44 +83,9 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.portal.model.Address;
-import com.liferay.portal.model.AttachedModel;
-import com.liferay.portal.model.AuditedModel;
-import com.liferay.portal.model.BaseModel;
-import com.liferay.portal.model.Country;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.GroupedModel;
-import com.liferay.portal.model.Region;
-import com.liferay.portal.model.ResourcedModel;
-import com.liferay.portal.model.TrashedModel;
-import com.liferay.portal.model.User;
-import com.liferay.portal.model.WorkflowedModel;
-import com.liferay.portal.security.permission.PermissionChecker;
-import com.liferay.portal.security.permission.PermissionThreadLocal;
-import com.liferay.portal.service.CountryServiceUtil;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.RegionServiceUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceContextThreadLocal;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.PortalUtil;
-import com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil;
-import com.liferay.portlet.asset.model.AssetCategory;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.model.AssetRendererFactory;
-import com.liferay.portlet.asset.model.AssetTag;
-import com.liferay.portlet.asset.service.AssetCategoryLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil;
-import com.liferay.portlet.asset.service.AssetTagLocalServiceUtil;
-import com.liferay.portlet.expando.model.ExpandoBridge;
-import com.liferay.portlet.expando.model.ExpandoColumn;
-import com.liferay.portlet.expando.model.ExpandoColumnConstants;
-import com.liferay.portlet.expando.service.ExpandoColumnLocalServiceUtil;
-import com.liferay.portlet.expando.util.ExpandoBridgeFactoryUtil;
-import com.liferay.portlet.expando.util.ExpandoBridgeIndexerUtil;
-import com.liferay.portlet.ratings.model.RatingsStats;
-import com.liferay.portlet.ratings.service.RatingsStatsLocalServiceUtil;
-import com.liferay.portlet.trash.model.TrashEntry;
+import com.liferay.ratings.kernel.model.RatingsStats;
+import com.liferay.ratings.kernel.service.RatingsStatsLocalServiceUtil;
+import com.liferay.trash.kernel.model.TrashEntry;
 
 import java.io.Serializable;
 
@@ -114,7 +114,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 	@Override
 	public void delete(long companyId, String uid) throws SearchException {
 		try {
-			SearchEngineUtil.deleteDocument(
+			IndexWriterHelperUtil.deleteDocument(
 				getSearchEngineId(), companyId, uid, _commitImmediately);
 		}
 		catch (SearchException se) {
@@ -212,7 +212,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 		if (searchContext.getUserId() > 0) {
 			SearchPermissionChecker searchPermissionChecker =
-				SearchEngineUtil.getSearchPermissionChecker();
+				SearchEngineHelperUtil.getSearchPermissionChecker();
 
 			long[] groupIds = searchContext.getGroupIds();
 
@@ -226,8 +226,8 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 			facetBooleanFilter =
 				searchPermissionChecker.getPermissionBooleanFilter(
 					searchContext.getCompanyId(), groupIds,
-				searchContext.getUserId(), className, facetBooleanFilter,
-				searchContext);
+					searchContext.getUserId(), className, facetBooleanFilter,
+					searchContext);
 		}
 
 		return facetBooleanFilter;
@@ -314,7 +314,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 					clazz.getName())));
 
 		if (Validator.isNotNull(searchEngineId)) {
-			SearchEngine searchEngine = SearchEngineUtil.getSearchEngine(
+			SearchEngine searchEngine = SearchEngineHelperUtil.getSearchEngine(
 				searchEngineId);
 
 			if (searchEngine != null) {
@@ -323,7 +323,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 		}
 
 		if (_searchEngineId == null) {
-			_searchEngineId = SearchEngineUtil.getDefaultSearchEngineId();
+			_searchEngineId = SearchEngineHelperUtil.getDefaultSearchEngineId();
 		}
 
 		if (_log.isDebugEnabled()) {
@@ -525,7 +525,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 	@Override
 	public void reindex(Collection<T> collection) {
-		if (SearchEngineUtil.isIndexReadOnly() || !isIndexerEnabled() ||
+		if (IndexWriterHelperUtil.isIndexReadOnly() || !isIndexerEnabled() ||
 			collection.isEmpty()) {
 
 			return;
@@ -546,8 +546,8 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 	@Override
 	public void reindex(String className, long classPK) throws SearchException {
 		try {
-			if (SearchEngineUtil.isIndexReadOnly() || !isIndexerEnabled() ||
-				(classPK <= 0)) {
+			if (IndexWriterHelperUtil.isIndexReadOnly() ||
+				!isIndexerEnabled() || (classPK <= 0)) {
 
 				return;
 			}
@@ -570,7 +570,9 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 	@Override
 	public void reindex(String[] ids) throws SearchException {
 		try {
-			if (SearchEngineUtil.isIndexReadOnly() || !isIndexerEnabled()) {
+			if (IndexWriterHelperUtil.isIndexReadOnly() ||
+				!isIndexerEnabled()) {
+
 				return;
 			}
 
@@ -587,7 +589,9 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 	@Override
 	public void reindex(T object) throws SearchException {
 		try {
-			if (SearchEngineUtil.isIndexReadOnly() || !isIndexerEnabled()) {
+			if (IndexWriterHelperUtil.isIndexReadOnly() ||
+				!isIndexerEnabled()) {
+
 				return;
 			}
 
@@ -625,6 +629,10 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 			if ((permissionChecker != null) &&
 				isUseSearchResultPermissionFilter(searchContext)) {
+
+				if (searchContext.getUserId() == 0) {
+					searchContext.setUserId(permissionChecker.getUserId());
+				}
 
 				SearchResultPermissionFilter searchResultPermissionFilter =
 					new DefaultSearchResultPermissionFilter(
@@ -689,7 +697,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 		fullQuery.setQueryConfig(queryConfig);
 
-		return SearchEngineUtil.searchCount(searchContext, fullQuery);
+		return IndexSearcherHelperUtil.searchCount(searchContext, fullQuery);
 	}
 
 	public void setCommitImmediately(boolean commitImmediately) {
@@ -1431,7 +1439,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 		document.addUID(getClassName(), field1);
 
-		SearchEngineUtil.deleteDocument(
+		IndexWriterHelperUtil.deleteDocument(
 			getSearchEngineId(), companyId, document.get(Field.UID),
 			_commitImmediately);
 	}
@@ -1443,7 +1451,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 		document.addUID(getClassName(), field1, field2);
 
-		SearchEngineUtil.deleteDocument(
+		IndexWriterHelperUtil.deleteDocument(
 			getSearchEngineId(), companyId, document.get(Field.UID),
 			_commitImmediately);
 	}
@@ -1508,7 +1516,7 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 		fullQuery.setQueryConfig(queryConfig);
 
-		return SearchEngineUtil.search(searchContext, fullQuery);
+		return IndexSearcherHelperUtil.search(searchContext, fullQuery);
 	}
 
 	protected Document getBaseModelDocument(
@@ -1728,7 +1736,8 @@ public abstract class BaseIndexer<T> implements Indexer<T> {
 
 		String localizedAssetCategoryTitlesName =
 			prefix +
-			DocumentImpl.getLocalizedName(locale, Field.ASSET_CATEGORY_TITLES);
+				DocumentImpl.getLocalizedName(
+					locale, Field.ASSET_CATEGORY_TITLES);
 		String localizedContentName =
 			prefix + DocumentImpl.getLocalizedName(locale, Field.CONTENT);
 		String localizedDescriptionName =

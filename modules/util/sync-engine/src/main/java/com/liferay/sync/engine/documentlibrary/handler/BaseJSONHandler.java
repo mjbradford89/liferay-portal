@@ -18,9 +18,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import com.liferay.sync.engine.documentlibrary.event.Event;
 import com.liferay.sync.engine.filesystem.Watcher;
-import com.liferay.sync.engine.filesystem.util.WatcherRegistry;
+import com.liferay.sync.engine.filesystem.util.WatcherManager;
 import com.liferay.sync.engine.model.SyncAccount;
 import com.liferay.sync.engine.model.SyncFile;
+import com.liferay.sync.engine.service.SyncAccountService;
 import com.liferay.sync.engine.service.SyncFileService;
 import com.liferay.sync.engine.session.Session;
 import com.liferay.sync.engine.session.SessionManager;
@@ -82,9 +83,7 @@ public class BaseJSONHandler extends BaseHandler {
 			exception = exceptionJsonNode.asText();
 
 			if (exception.startsWith("No JSON web service action")) {
-				return
-					"com.liferay.portal.kernel.jsonwebservice." +
-						"NoSuchJSONWebServiceException";
+				return "NoSuchJSONWebServiceException";
 			}
 		}
 
@@ -103,7 +102,7 @@ public class BaseJSONHandler extends BaseHandler {
 			exception = typeJsonNode.asText();
 		}
 
-		if (exception.equals("java.lang.RuntimeException")) {
+		if (exception.endsWith("RuntimeException")) {
 			JsonNode messageJsonNode = null;
 
 			if (errorJsonNode != null) {
@@ -116,9 +115,7 @@ public class BaseJSONHandler extends BaseHandler {
 			String message = messageJsonNode.asText();
 
 			if (message.startsWith("No JSON web service action")) {
-				return
-					"com.liferay.portal.kernel.jsonwebservice." +
-						"NoSuchJSONWebServiceException";
+				return "NoSuchJSONWebServiceException";
 			}
 		}
 
@@ -131,10 +128,13 @@ public class BaseJSONHandler extends BaseHandler {
 			return false;
 		}
 
-		int pos = exception.indexOf("$");
+		String innerException = "";
 
-		if (pos > 0) {
-			exception = exception.substring(0, pos);
+		if (exception.contains("$")) {
+			String[] exceptionParts = exception.split("$");
+
+			exception = exceptionParts[0];
+			innerException = exceptionParts[1];
 		}
 
 		boolean retryInProgress = ConnectionRetryUtil.retryInProgress(
@@ -144,72 +144,63 @@ public class BaseJSONHandler extends BaseHandler {
 			_logger.debug("Handling exception {}", exception);
 		}
 
-		if (exception.equals(
-				"com.liferay.portal.kernel.lock.DuplicateLockException")) {
+		if (exception.equals("Authenticated access required") ||
+			exception.equals("java.lang.SecurityException")) {
 
+			throw new HttpResponseException(
+				HttpStatus.SC_UNAUTHORIZED, "Authenticated access required");
+		}
+		else if (exception.endsWith("DuplicateLockException")) {
 			SyncFile syncFile = getLocalSyncFile();
+
+			if (syncFile == null) {
+				return true;
+			}
 
 			syncFile.setState(SyncFile.STATE_ERROR);
 			syncFile.setUiEvent(SyncFile.UI_EVENT_DUPLICATE_LOCK);
 
 			SyncFileService.update(syncFile);
 		}
-		else if (exception.equals(
-					"com.liferay.portal.kernel.upload.UploadException") ||
-				 exception.contains("SizeLimitExceededException")) {
-
+		else if (exception.endsWith("FileExtensionException")) {
 			SyncFile syncFile = getLocalSyncFile();
 
-			syncFile.setState(SyncFile.STATE_ERROR);
-			syncFile.setUiEvent(SyncFile.UI_EVENT_EXCEEDED_SIZE_LIMIT);
-
-			SyncFileService.update(syncFile);
-		}
-		else if (exception.equals(
-					"com.liferay.portal.security.auth.PrincipalException")) {
-
-			SyncFileService.setStatuses(
-				getLocalSyncFile(), SyncFile.STATE_ERROR,
-				SyncFile.UI_EVENT_INVALID_PERMISSIONS);
-		}
-		else if (exception.equals(
-					"com.liferay.portlet.documentlibrary." +
-						"FileExtensionException")) {
-
-			SyncFile syncFile = getLocalSyncFile();
+			if (syncFile == null) {
+				return true;
+			}
 
 			syncFile.setState(SyncFile.STATE_ERROR);
 			syncFile.setUiEvent(SyncFile.UI_EVENT_INVALID_FILE_EXTENSION);
 
 			SyncFileService.update(syncFile);
 		}
-		else if (exception.equals(
-					"com.liferay.portlet.documentlibrary.FileNameException") ||
-				 exception.equals(
-					 "com.liferay.portlet.documentlibrary." +
-						 "FolderNameException")) {
+		else if (exception.endsWith("FileNameException") ||
+				 exception.endsWith("FolderNameException")) {
 
 			SyncFile syncFile = getLocalSyncFile();
+
+			if (syncFile == null) {
+				return true;
+			}
 
 			syncFile.setState(SyncFile.STATE_ERROR);
 			syncFile.setUiEvent(SyncFile.UI_EVENT_INVALID_FILE_NAME);
 
 			SyncFileService.update(syncFile);
 		}
-		else if (exception.equals(
-					"com.liferay.portlet.documentlibrary." +
-						"NoSuchFileEntryException") ||
-				 exception.equals(
-					"com.liferay.portlet.documentlibrary." +
-						"NoSuchFolderException")) {
+		else if (exception.endsWith("NoSuchFileEntryException") ||
+				 exception.endsWith("NoSuchFolderException")) {
 
 			SyncFile syncFile = getLocalSyncFile();
+
+			if (syncFile == null) {
+				return true;
+			}
 
 			Path filePath = Paths.get(syncFile.getFilePathName());
 
 			if (Files.exists(filePath)) {
-				Watcher watcher = WatcherRegistry.getWatcher(
-					getSyncAccountId());
+				Watcher watcher = WatcherManager.getWatcher(getSyncAccountId());
 
 				List<String> deletedFilePathNames =
 					watcher.getDeletedFilePathNames();
@@ -221,34 +212,46 @@ public class BaseJSONHandler extends BaseHandler {
 
 			SyncFileService.deleteSyncFile(syncFile, false);
 		}
-		else if (exception.equals(
-					"com.liferay.sync.SyncClientMinBuildException")) {
+		else if (exception.endsWith("NoSuchJSONWebServiceException")) {
+			retryServerConnection(SyncAccount.UI_EVENT_SYNC_WEB_MISSING);
+		}
+		else if (exception.endsWith("PrincipalException")) {
+			SyncFile syncFile = getLocalSyncFile();
 
+			if (syncFile == null) {
+				return true;
+			}
+
+			SyncFileService.setStatuses(
+				syncFile, SyncFile.STATE_ERROR,
+				SyncFile.UI_EVENT_INVALID_PERMISSIONS);
+		}
+		else if (exception.endsWith("SyncClientMinBuildException")) {
 			retryServerConnection(
 				SyncAccount.UI_EVENT_MIN_BUILD_REQUIREMENT_FAILED);
 		}
-		else if (exception.equals(
-					"com.liferay.sync.SyncServicesUnavailableException")) {
-
+		else if (exception.endsWith("SyncDeviceActiveException")) {
+			retryServerConnection(SyncAccount.UI_EVENT_SYNC_ACCOUNT_NOT_ACTIVE);
+		}
+		else if (exception.endsWith("SyncDeviceWipeException")) {
+			SyncAccountService.deleteSyncAccount(getSyncAccountId(), false);
+		}
+		else if (exception.endsWith("SyncServicesUnavailableException")) {
 			retryServerConnection(
 				SyncAccount.UI_EVENT_SYNC_SERVICES_NOT_ACTIVE);
 		}
-		else if (exception.equals(
-					"com.liferay.sync.SyncSiteUnavailableException")) {
-
+		else if (exception.endsWith("SyncSiteUnavailableException")) {
 			handleSiteDeactivatedException();
 		}
-		else if (exception.equals(
-					"com.liferay.portal.kernel.jsonwebservice." +
-						"NoSuchJSONWebServiceException")) {
+		else if (exception.endsWith("UploadException") ||
+				 innerException.equals("SizeLimitExceededException")) {
 
-			retryServerConnection(SyncAccount.UI_EVENT_SYNC_WEB_MISSING);
-		}
-		else if (exception.equals("Authenticated access required") ||
-				 exception.equals("java.lang.SecurityException")) {
+			SyncFile syncFile = getLocalSyncFile();
 
-			retryServerConnection(
-				SyncAccount.UI_EVENT_AUTHENTICATION_EXCEPTION);
+			syncFile.setState(SyncFile.STATE_ERROR);
+			syncFile.setUiEvent(SyncFile.UI_EVENT_EXCEEDED_SIZE_LIMIT);
+
+			SyncFileService.update(syncFile);
 		}
 		else {
 			if (retryInProgress && _logger.isDebugEnabled()) {
@@ -269,6 +272,10 @@ public class BaseJSONHandler extends BaseHandler {
 	@Override
 	public Void handleResponse(HttpResponse httpResponse) {
 		try {
+			if (isEventCancelled()) {
+				return null;
+			}
+
 			StatusLine statusLine = httpResponse.getStatusLine();
 
 			if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
@@ -291,6 +298,8 @@ public class BaseJSONHandler extends BaseHandler {
 		}
 		finally {
 			processFinally();
+
+			removeEvent();
 		}
 
 		return null;
@@ -305,7 +314,7 @@ public class BaseJSONHandler extends BaseHandler {
 		if (header != null) {
 			Session session = SessionManager.getSession(getSyncAccountId());
 
-			session.setToken(header.getValue());
+			session.addHeader("Sync-JWT", header.getValue());
 		}
 
 		String response = getResponseString(httpResponse);

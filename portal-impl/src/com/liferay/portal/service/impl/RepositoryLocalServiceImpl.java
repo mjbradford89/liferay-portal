@@ -14,29 +14,29 @@
 
 package com.liferay.portal.service.impl;
 
-import com.liferay.portal.InvalidRepositoryException;
-import com.liferay.portal.NoSuchRepositoryException;
+import com.liferay.document.library.kernel.exception.RepositoryNameException;
+import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.portal.kernel.bean.BeanReference;
+import com.liferay.portal.kernel.exception.InvalidRepositoryException;
+import com.liferay.portal.kernel.exception.NoSuchRepositoryException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Repository;
+import com.liferay.portal.kernel.model.SystemEventConstants;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.InvalidRepositoryIdException;
 import com.liferay.portal.kernel.repository.LocalRepository;
 import com.liferay.portal.kernel.repository.RepositoryFactoryUtil;
 import com.liferay.portal.kernel.repository.RepositoryProvider;
 import com.liferay.portal.kernel.repository.capabilities.RepositoryEventTriggerCapability;
 import com.liferay.portal.kernel.repository.event.RepositoryEventType;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Repository;
-import com.liferay.portal.model.SystemEventConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.ServiceContext;
 import com.liferay.portal.service.base.RepositoryLocalServiceBaseImpl;
-import com.liferay.portlet.documentlibrary.RepositoryNameException;
-import com.liferay.portlet.documentlibrary.model.DLFolder;
 
 import java.util.List;
 
@@ -88,25 +88,6 @@ public class RepositoryLocalServiceImpl extends RepositoryLocalServiceBaseImpl {
 		}
 
 		return repository;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #addRepository(long, long,
-	 *             long, long, String, String, String, UnicodeProperties,
-	 *             boolean, ServiceContext)}
-	 */
-	@Deprecated
-	@Override
-	public Repository addRepository(
-			long userId, long groupId, long classNameId, long parentFolderId,
-			String name, String description, String portletId,
-			UnicodeProperties typeSettingsProperties,
-			ServiceContext serviceContext)
-		throws PortalException {
-
-		return addRepository(
-			userId, groupId, classNameId, parentFolderId, name, description,
-			portletId, typeSettingsProperties, false, serviceContext);
 	}
 
 	@Override

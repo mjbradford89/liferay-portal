@@ -1,3 +1,16 @@
+apply plugin: "com.liferay.maven.plugin.builder"
+
+buildPluginDescriptor {
+	ext {
+		autoClean = false
+	}
+
+	finalizedBy formatSource
+	finalizedBy formatXML
+
+	goalPrefix = "liferay"
+}
+
 dependencies {
 	compile group: "axis", name: "axis-wsdl4j", version: "1.5.1"
 	compile group: "com.liferay", name: "org.apache.axis", version: "1.4.LIFERAY-PATCHED-1"
@@ -18,6 +31,15 @@ dependencies {
 	provided group: "org.apache.maven", name: "maven-plugin-api", transitive: false, version: "3.0.4"
 }
 
+formatSource {
+	mustRunAfter formatXML
+}
+
 liferay {
-	deployDir = file("../../../tools/sdk/dependencies/${bundle.instructions['Bundle-SymbolicName']}/lib")
+	deployDir = "../../../tools/sdk/tmp/portal-tools/portal-tools-wsdd-builder"
+}
+
+updateFileVersions {
+	match(/\t\t\t\t<version>(.+)<\/version>/, "samples/pom.xml")
+	match(/com\.liferay\.portal\.tools\.wsdd\.builder=(.+)/, "../../sdk/gradle-plugins/src/main/resources/com/liferay/gradle/plugins/dependencies/portal-tools.properties")
 }

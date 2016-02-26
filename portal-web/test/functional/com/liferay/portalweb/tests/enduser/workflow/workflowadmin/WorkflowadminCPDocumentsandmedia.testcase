@@ -2,14 +2,7 @@
 	<property name="testray.main.component.name" value="Workflow" />
 
 	<set-up>
-		<var method="TestPropsUtil#get('test.portal.instance')" name="testPortalInstance" />
-
-		<if>
-			<equals arg1="${testPortalInstance}" arg2="true" />
-			<then>
-				<execute macro="SignIn#signInPortalInstanceSetUp" />
-			</then>
-		</if>
+		<execute macro="TestCase#setUpPortalInstance" />
 
 		<execute macro="User#firstLoginPG" />
 	</set-up>
@@ -31,7 +24,7 @@
 					<var name="portlet" value="Documents and Media" />
 				</execute>
 
-				<execute macro="Workflow#configureWorkflowViaFolderInfo">
+				<execute macro="Workflow#configureWorkflowViaPortlet">
 					<var name="workflowDefinition" value="No Workflow" />
 				</execute>
 
@@ -76,7 +69,7 @@
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
-		<execute macro="Workflow#configureWorkflowViaFolderInfo">
+		<execute macro="Workflow#configureWorkflowViaPortlet">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>
 
@@ -152,7 +145,7 @@
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
-		<execute macro="Workflow#configureWorkflowViaFolderInfo">
+		<execute macro="Workflow#configureWorkflowViaPortlet">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>
 
@@ -245,12 +238,14 @@
 		</execute>
 	</command>
 
-	<command name="ApproveInDMFolderSingleApproverTypeSpecificWorkflowCP" priority="4">
+	<command name="ApproveInDMFolderSingleApproverTypeSpecificWorkflowCP" priority="5">
 		<execute macro="Navigator#openURL" />
 
 		<execute macro="ProductMenu#gotoSitesContent">
 			<var name="portlet" value="Documents and Media" />
 		</execute>
+
+		<execute macro="DMNavigator#gotoDocumentType" />
 
 		<execute macro="DMDocumentType#add">
 			<var name="dmDocumentTypeDescription" value="DM Document Type Description" />
@@ -513,7 +508,7 @@
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
-		<execute macro="Workflow#configureWorkflowViaFolderInfo">
+		<execute macro="Workflow#configureWorkflowViaPortlet">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>
 
@@ -668,7 +663,7 @@
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
-		<execute macro="Workflow#configureWorkflowViaFolderInfo">
+		<execute macro="Workflow#configureWorkflowViaPortlet">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>
 
@@ -737,7 +732,7 @@
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
-		<execute macro="Workflow#configureWorkflowViaFolderInfo">
+		<execute macro="Workflow#configureWorkflowViaPortlet">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>
 
@@ -846,6 +841,8 @@
 		<execute macro="ProductMenu#gotoSitesContent">
 			<var name="portlet" value="Documents and Media" />
 		</execute>
+
+		<execute macro="DMNavigator#gotoDocumentType" />
 
 		<execute macro="DMDocumentType#add">
 			<var name="dmDocumentTypeDescription" value="DM Document Type Description" />
@@ -1116,7 +1113,7 @@
 			<var name="portlet" value="Documents and Media" />
 		</execute>
 
-		<execute macro="Workflow#configureWorkflowViaFolderInfo">
+		<execute macro="Workflow#configureWorkflowViaPortlet">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>
 
@@ -1358,7 +1355,7 @@
 
 		<execute macro="Button#clickSubmitForPublication" />
 
-		<execute macro="Alert#viewSuccess" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute macro="Page#gotoMyAccount">
 			<var name="portletName" value="My Workflow Tasks" />
@@ -1397,7 +1394,7 @@
 
 		<execute macro="Button#clickSaveAsDraft" />
 
-		<execute macro="Alert#viewSuccess" />
+		<execute macro="Alert#viewSuccessMessage" />
 
 		<execute macro="DMNavigator#gotoEditDocument">
 			<var name="dmDocumentTitle" value="DM Document Title" />

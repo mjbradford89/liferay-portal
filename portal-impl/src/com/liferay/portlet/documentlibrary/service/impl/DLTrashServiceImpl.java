@@ -16,6 +16,7 @@ package com.liferay.portlet.documentlibrary.service.impl;
 
 import aQute.bnd.annotation.ProviderType;
 
+import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.repository.Repository;
@@ -24,9 +25,8 @@ import com.liferay.portal.kernel.repository.capabilities.TrashCapability;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.FileShortcut;
 import com.liferay.portal.kernel.repository.model.Folder;
-import com.liferay.portal.security.permission.ActionKeys;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portlet.documentlibrary.service.base.DLTrashServiceBaseImpl;
 import com.liferay.portlet.documentlibrary.service.permission.DLFileEntryPermission;
 import com.liferay.portlet.documentlibrary.service.permission.DLFileShortcutPermission;
@@ -59,7 +59,11 @@ public class DLTrashServiceImpl extends DLTrashServiceBaseImpl {
 		DLFileEntryPermission.check(
 			getPermissionChecker(), fileEntry, ActionKeys.UPDATE);
 
-		Folder destinationFolder = repository.getFolder(newFolderId);
+		Folder destinationFolder = null;
+
+		if (newFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			destinationFolder = repository.getFolder(newFolderId);
+		}
 
 		TrashCapability trashCapability = repository.getCapability(
 			TrashCapability.class);
@@ -106,13 +110,25 @@ public class DLTrashServiceImpl extends DLTrashServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		FileShortcut fileShortcut = getFileShortcut(fileShortcutId);
+		Repository repository = repositoryProvider.getFileShortcutRepository(
+			fileShortcutId);
+
+		FileShortcut fileShortcut = repository.getFileShortcut(fileShortcutId);
 
 		DLFileShortcutPermission.check(
 			getPermissionChecker(), fileShortcut, ActionKeys.UPDATE);
 
-		return dlAppHelperLocalService.moveFileShortcutFromTrash(
-			getUserId(), fileShortcut, newFolderId, serviceContext);
+		Folder destinationFolder = null;
+
+		if (newFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
+			destinationFolder = repository.getFolder(newFolderId);
+		}
+
+		TrashCapability trashCapability = repository.getCapability(
+			TrashCapability.class);
+
+		return trashCapability.moveFileShortcutFromTrash(
+			getUserId(), fileShortcut, destinationFolder, serviceContext);
 	}
 
 	/**
@@ -229,13 +245,18 @@ public class DLTrashServiceImpl extends DLTrashServiceBaseImpl {
 	public void restoreFileShortcutFromTrash(long fileShortcutId)
 		throws PortalException {
 
-		FileShortcut fileShortcut = getFileShortcut(fileShortcutId);
+		Repository repository = repositoryProvider.getFileShortcutRepository(
+			fileShortcutId);
+
+		FileShortcut fileShortcut = repository.getFileShortcut(fileShortcutId);
 
 		DLFileShortcutPermission.check(
 			getPermissionChecker(), fileShortcut, ActionKeys.DELETE);
 
-		dlAppHelperLocalService.restoreFileShortcutFromTrash(
-			getUserId(), fileShortcut);
+		TrashCapability trashCapability = repository.getCapability(
+			TrashCapability.class);
+
+		trashCapability.restoreFileShortcutFromTrash(getUserId(), fileShortcut);
 	}
 
 	/**
@@ -257,15 +278,6 @@ public class DLTrashServiceImpl extends DLTrashServiceBaseImpl {
 			TrashCapability.class);
 
 		trashCapability.restoreFolderFromTrash(getUserId(), folder);
-	}
-
-	protected FileShortcut getFileShortcut(long fileShortcutId)
-		throws PortalException {
-
-		Repository repository = repositoryProvider.getFileShortcutRepository(
-			fileShortcutId);
-
-		return repository.getFileShortcut(fileShortcutId);
 	}
 
 	@BeanReference(type = RepositoryProvider.class)

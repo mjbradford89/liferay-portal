@@ -14,39 +14,39 @@
 
 package com.liferay.portal.servlet;
 
-import com.liferay.portal.NoSuchGroupException;
-import com.liferay.portal.NoSuchLayoutException;
+import com.liferay.portal.kernel.exception.NoSuchGroupException;
+import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.model.LayoutFriendlyURL;
+import com.liferay.portal.kernel.model.LayoutFriendlyURLComposite;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextFactory;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.PortalMessages;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.struts.LastPath;
 import com.liferay.portal.kernel.util.CharPool;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringBundler;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.LayoutConstants;
-import com.liferay.portal.model.LayoutFriendlyURL;
-import com.liferay.portal.model.LayoutFriendlyURLComposite;
-import com.liferay.portal.model.User;
-import com.liferay.portal.service.GroupLocalServiceUtil;
-import com.liferay.portal.service.LayoutFriendlyURLLocalServiceUtil;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.ServiceContextFactory;
-import com.liferay.portal.service.ServiceContextThreadLocal;
-import com.liferay.portal.service.UserLocalServiceUtil;
-import com.liferay.portal.util.Portal;
 import com.liferay.portal.util.PortalInstances;
-import com.liferay.portal.util.PortalUtil;
 
 import java.io.IOException;
 
@@ -132,7 +132,8 @@ public class FriendlyURLServlet extends HttpServlet {
 				else {
 					lastPath = new LastPath(
 						_friendlyURLPathPrefix, pathInfo,
-						request.getParameterMap());
+						HttpUtil.parameterMapToString(
+							request.getParameterMap()));
 				}
 
 				request.setAttribute(WebKeys.LAST_PATH, lastPath);
@@ -347,7 +348,12 @@ public class FriendlyURLServlet extends HttpServlet {
 						layoutFriendlyURLCompositeFriendlyURL.substring(0, pos);
 				}
 
-				if (isI18nRedirect(request, group.getGroupId()) ||
+				String i18nLanguageId = (String)request.getAttribute(
+					WebKeys.I18N_LANGUAGE_ID);
+
+				if ((Validator.isNotNull(i18nLanguageId) &&
+					 !LanguageUtil.isAvailableLocale(
+						 group.getGroupId(), i18nLanguageId)) ||
 					!StringUtil.equalsIgnoreCase(
 						layoutFriendlyURLCompositeFriendlyURL,
 						layout.getFriendlyURL(locale))) {
@@ -384,26 +390,6 @@ public class FriendlyURLServlet extends HttpServlet {
 			requestContext);
 
 		return new Object[] {actualURL, Boolean.FALSE};
-	}
-
-	protected boolean isI18nRedirect(HttpServletRequest request, long groupId) {
-		String i18nPath = (String)request.getAttribute(WebKeys.I18N_PATH);
-
-		if (Validator.isNull(i18nPath)) {
-			return false;
-		}
-
-		int pos = i18nPath.indexOf(StringPool.SLASH);
-
-		String i18nLanguageId = i18nPath.substring(pos + 1);
-
-		Locale i18nLocale = LanguageUtil.getLocale(i18nLanguageId);
-
-		if (LanguageUtil.isAvailableLocale(groupId, i18nLocale)) {
-			return false;
-		}
-
-		return true;
 	}
 
 	protected Locale setAlternativeLayoutFriendlyURL(

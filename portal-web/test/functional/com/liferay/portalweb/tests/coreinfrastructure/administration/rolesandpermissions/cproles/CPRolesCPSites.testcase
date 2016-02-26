@@ -2,14 +2,7 @@
 	<property name="testray.main.component.name" value="Permissions" />
 
 	<set-up>
-		<var method="TestPropsUtil#get('test.portal.instance')" name="testPortalInstance" />
-
-		<if>
-			<equals arg1="${testPortalInstance}" arg2="true" />
-			<then>
-				<execute macro="SignIn#signInPortalInstanceSetUp" />
-			</then>
-		</if>
+		<execute macro="TestCase#setUpPortalInstance" />
 
 		<execute macro="User#firstLoginPG" />
 	</set-up>
@@ -57,8 +50,8 @@
 			<var name="userLoginFullName" value="Test Test" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Roles" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Roles" />
 		</execute>
 
 		<execute macro="Role#definePermissionCP">
@@ -77,17 +70,17 @@
 
 		<execute function="Check" locator1="RolesPermissions#CONTROL_PANEL_USERS_ROLES_GENERAL_PERMISSIONS_ACCESS_IN_CONTROL_PANEL_CHECKBOX" />
 
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
+		<execute macro="Button#clickSave" />
 
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="The role permissions were updated." />
+		<execute function="AssertElementPresent" locator1="Message#SUCCESS" />
 
 		<execute macro="User#logoutAndLoginPG">
 			<var name="userLoginEmailAddress" value="userea@liferay.com" />
 			<var name="userLoginFullName" value="userfn userln" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Roles" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Roles" />
 		</execute>
 
 		<execute function="AssertElementNotPresent" locator1="Button#ADD" />
@@ -100,11 +93,12 @@
 			<var name="userLoginFullName" value="userfn userln" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
+			<var name="singleSiteTypePermission" value="true" />
 			<var name="siteName" value="Site Name" />
 		</execute>
 
@@ -116,24 +110,24 @@
 			<var name="userLoginFullName" value="userfn userln" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
-		<execute function="AssertElementNotPresent" locator1="Button#ADD" />
+		<execute function="AssertElementNotPresent#assertNotVisible" locator1="Button#ADD" />
 	</command>
 
 	<command name="SearchPermissions" priority="4">
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Roles" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Roles" />
 		</execute>
 
 		<execute macro="Role#addCP">
 			<var name="roleName" value="Roles Regrole Name" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Roles" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Roles" />
 		</execute>
 
 		<execute macro="Role#definePermissionCP">
@@ -162,8 +156,8 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Roles" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Roles" />
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
@@ -171,16 +165,16 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
 			<var name="siteName" value="Parent Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
@@ -188,9 +182,12 @@
 			<var name="siteName" value="Child SiteName" />
 		</execute>
 
-		<execute macro="Page#gotoUsersCP">
-			<var name="portletName" value="Site Memberships" />
-			<var name="siteScopeName" value="Parent Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Parent Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesMembers">
+			<var name="portlet" value="Site Memberships" />
 		</execute>
 
 		<execute macro="Site#addMemberCP">
@@ -201,9 +198,12 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoUsersCP">
-			<var name="portletName" value="Site Memberships" />
-			<var name="siteScopeName" value="Parent Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Parent Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesMembers">
+			<var name="portlet" value="Site Memberships" />
 		</execute>
 
 		<execute macro="Site#assignRoleCP">
@@ -214,9 +214,12 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoUsersCP">
-			<var name="portletName" value="Site Memberships" />
-			<var name="siteScopeName" value="Child SiteName" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Child SiteName" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesMembers">
+			<var name="portlet" value="Site Memberships" />
 		</execute>
 
 		<execute macro="Site#addMemberCP">
@@ -227,9 +230,12 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoUsersCP">
-			<var name="portletName" value="Site Memberships" />
-			<var name="siteScopeName" value="Child SiteName" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Child SiteName" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesMembers">
+			<var name="portlet" value="Site Memberships" />
 		</execute>
 
 		<execute macro="Site#assignRoleCP">
@@ -240,8 +246,8 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<var name="key_siteName" value="Parent Site Name" />
@@ -299,8 +305,8 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
@@ -308,9 +314,12 @@
 			<var name="siteName" value="Child SiteName1" />
 		</execute>
 
-		<execute macro="Page#gotoUsersCP">
-			<var name="portletName" value="Site Memberships" />
-			<var name="siteScopeName" value="Child SiteName1" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Child SiteName1" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesMembers">
+			<var name="portlet" value="Site Memberships" />
 		</execute>
 
 		<execute macro="Site#addMemberCP">
@@ -320,16 +329,16 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Roles" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Roles" />
 		</execute>
 
 		<execute macro="Role#addCP">
 			<var name="roleName" value="Regrole Name" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Roles" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Roles" />
 		</execute>
 
 		<execute macro="Role#assignRegRoleCP">
@@ -363,35 +372,34 @@
 			<var name="userLoginFullName" value="userfn userln" />
 		</execute>
 
-		<execute macro="Page#openURL" />
+		<execute macro="Navigator#openURL" />
 
 		<execute function="AssertClick#assertTextClickAtClickDockbar" locator1="ControlMenu#ADMIN" value1="Admin" />
 		<execute function="AssertClick" locator1="ControlMenu#ADMIN_CONTROL_PANEL" value1="Control Panel" />
 
 		<var name="key_siteName" value="Site Name" />
 
-		<execute function="Click" locator1="Sites#SITE_TABLE_ACTIONS" />
+		<execute function="Click#waitForMenuToggleJSClick" locator1="Sites#SITE_TABLE_ACTIONS" />
 		<execute function="AssertClick" locator1="MenuItem#ADD_CHILD_SITE" value1="Add Child Site" />
 
 		<execute function="Type" locator1="TextInput#NAME" value1="Child SiteName2" />
 		<execute function="Click" locator1="Button#SAVE" value1="Save" />
 
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="PortletEntry#save" />
 
-		<execute macro="Page#openURL" />
+		<execute macro="Navigator#openURL" />
 
 		<execute function="AssertClick#assertTextClickAtClickDockbar" locator1="ControlMenu#ADMIN" value1="Admin" />
 		<execute function="AssertClick" locator1="ControlMenu#ADMIN_CONTROL_PANEL" value1="Control Panel" />
 
 		<var name="key_siteName" value="Child SiteName1" />
 
-		<execute function="Click" locator1="Sites#SITE_TABLE_ACTIONS" />
+		<execute function="Click#waitForMenuToggleJSClick" locator1="Sites#SITE_TABLE_ACTIONS" />
 		<execute function="AssertElementNotPresent#assertNotVisible" locator1="MenuItem#SITE_ADMINISTRATION" value1="Site Administration" />
 
 		<var name="key_siteName" value="Child SiteName2" />
 
-		<execute function="Click" locator1="Sites#SITE_TABLE_ACTIONS" />
+		<execute function="Click#waitForMenuToggleJSClick" locator1="Sites#SITE_TABLE_ACTIONS" />
 		<execute function="AssertTextEquals" locator1="MenuItem#SITE_ADMINISTRATION" value1="Site Administration" />
 
 		<execute macro="Permissions#definePermissionLoginUserCP">
@@ -403,19 +411,19 @@
 			<var name="userLoginFullName" value="userfn userln" />
 		</execute>
 
-		<execute macro="Page#openURL" />
+		<execute macro="Navigator#openURL" />
 
 		<execute function="AssertClick#assertTextClickAtClickDockbar" locator1="ControlMenu#ADMIN" value1="Admin" />
 		<execute function="AssertClick" locator1="ControlMenu#ADMIN_CONTROL_PANEL" value1="Control Panel" />
 
 		<var name="key_siteName" value="Child SiteName1" />
 
-		<execute function="Click" locator1="Sites#SITE_TABLE_ACTIONS" />
+		<execute function="Click#waitForMenuToggleJSClick" locator1="Sites#SITE_TABLE_ACTIONS" />
 		<execute function="AssertTextEquals" locator1="MenuItem#SITE_ADMINISTRATION" value1="Site Administration" />
 
 		<var name="key_siteName" value="Child SiteName2" />
 
-		<execute function="Click" locator1="Sites#SITE_TABLE_ACTIONS" />
+		<execute function="Click#waitForMenuToggleJSClick" locator1="Sites#SITE_TABLE_ACTIONS" />
 		<execute function="AssertTextEquals" locator1="MenuItem#SITE_ADMINISTRATION" value1="Site Administration" />
 
 		<execute macro="Permissions#removePermissionLoginUserCP">
@@ -427,19 +435,19 @@
 			<var name="userLoginFullName" value="userfn userln" />
 		</execute>
 
-		<execute macro="Page#openURL" />
+		<execute macro="Navigator#openURL" />
 
 		<execute function="AssertClick#assertTextClickAtClickDockbar" locator1="ControlMenu#ADMIN" value1="Admin" />
 		<execute function="AssertClick" locator1="ControlMenu#ADMIN_CONTROL_PANEL" value1="Control Panel" />
 
 		<var name="key_siteName" value="Child SiteName1" />
 
-		<execute function="Click" locator1="Sites#SITE_TABLE_ACTIONS" />
+		<execute function="Click#waitForMenuToggleJSClick" locator1="Sites#SITE_TABLE_ACTIONS" />
 		<execute function="AssertElementNotPresent#assertNotVisible" locator1="MenuItem#SITE_ADMINISTRATION" value1="Site Administration" />
 
 		<var name="key_siteName" value="Child SiteName2" />
 
-		<execute function="Click" locator1="Sites#SITE_TABLE_ACTIONS" />
+		<execute function="Click#waitForMenuToggleJSClick" locator1="Sites#SITE_TABLE_ACTIONS" />
 		<execute function="AssertTextEquals" locator1="MenuItem#SITE_ADMINISTRATION" value1="Site Administration" />
 	</command>
 
@@ -455,22 +463,22 @@
 			<var name="userScreenName" value="usersn" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
+		<execute macro="Page#add">
 			<var name="page" value="Public Pages" />
+			<var name="pageName" value="Site Page" />
 			<var name="siteName" value="Site Name" />
-			<var name="sitePageName" value="Site Page" />
 		</execute>
 
 		<execute macro="Permissions#definePermissionLoginUserCP">
@@ -481,7 +489,7 @@
 			<var name="userLoginFullName" value="userfn userln" />
 		</execute>
 
-		<execute macro="Page#openURL" />
+		<execute macro="Navigator#openURL" />
 
 		<execute function="AssertClick#assertTextClickAtClickDockbar" locator1="ControlMenu#ADMIN" value1="Admin" />
 		<execute function="AssertClick" locator1="ControlMenu#ADMIN_CONTROL_PANEL" value1="Control Panel" />
@@ -504,19 +512,19 @@
 			<var name="userLoginFullName" value="userfn userln" />
 		</execute>
 
-		<execute macro="Page#openURL" />
+		<execute macro="Navigator#openURL" />
 
 		<execute function="AssertClick#assertTextClickAtClickDockbar" locator1="ControlMenu#ADMIN" value1="Admin" />
 		<execute function="AssertClick" locator1="ControlMenu#ADMIN_CONTROL_PANEL" value1="Control Panel" />
 
 		<var name="key_siteName" value="Liferay" />
 
-		<execute function="Click" locator1="Sites#SITE_TABLE_ACTIONS" />
+		<execute function="Click#waitForMenuToggleJSClick" locator1="Sites#SITE_TABLE_ACTIONS" />
 		<execute function="AssertTextEquals" locator1="MenuItem#SITE_ADMINISTRATION" value1="Site Administration" />
 
 		<var name="key_siteName" value="Site Name" />
 
-		<execute function="Click" locator1="Sites#SITE_TABLE_ACTIONS" />
+		<execute function="Click#waitForMenuToggleJSClick" locator1="Sites#SITE_TABLE_ACTIONS" />
 		<execute function="AssertTextEquals" locator1="MenuItem#SITE_ADMINISTRATION" value1="Site Administration" />
 
 		<execute macro="Permissions#removePermissionLoginUserCP">
@@ -535,7 +543,7 @@
 			<var name="userLoginFullName" value="userfn userln" />
 		</execute>
 
-		<execute macro="Page#openURL" />
+		<execute macro="Navigator#openURL" />
 
 		<execute function="AssertClick#assertTextClickAtClickDockbar" locator1="ControlMenu#ADMIN" value1="Admin" />
 		<execute function="AssertClick" locator1="ControlMenu#ADMIN_CONTROL_PANEL" value1="Control Panel" />

@@ -14,9 +14,9 @@
 
 package com.liferay.marketplace.app.manager.web.util;
 
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.util.PortalUtil;
 
 import javax.portlet.MimeResponse;
 import javax.portlet.PortletURL;
@@ -48,10 +48,12 @@ public class SimpleAppDisplay extends BaseAppDisplay {
 		_version = version;
 	}
 
+	@Override
 	public String getDescription() {
 		return _description;
 	}
 
+	@Override
 	public String getDisplayURL(MimeResponse mimeResponse) {
 		PortletURL portletURL = mimeResponse.createRenderURL();
 
@@ -67,14 +69,22 @@ public class SimpleAppDisplay extends BaseAppDisplay {
 		return portletURL.toString();
 	}
 
+	@Override
 	public String getIconURL(HttpServletRequest request) {
 		return PortalUtil.getPathContext(request) + "/images/icons.svg#apps";
 	}
 
+	@Override
+	public String getStoreURL(HttpServletRequest request) {
+		return StringPool.BLANK;
+	}
+
+	@Override
 	public String getTitle() {
 		return _title;
 	}
 
+	@Override
 	public String getVersion() {
 		return _version.toString();
 	}

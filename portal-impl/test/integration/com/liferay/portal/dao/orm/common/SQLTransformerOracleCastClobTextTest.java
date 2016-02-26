@@ -180,8 +180,8 @@ public class SQLTransformerOracleCastClobTextTest {
 					"id";
 
 		try (Connection connection = DataAccess.getConnection();
-			PreparedStatement preparedStatement = connection.prepareStatement(
-				SQLTransformer.transform(sql))) {
+			PreparedStatement preparedStatement =
+				connection.prepareStatement(SQLTransformer.transform(sql))) {
 
 			Clob clob1 = connection.createClob();
 

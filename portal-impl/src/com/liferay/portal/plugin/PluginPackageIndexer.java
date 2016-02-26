@@ -14,6 +14,7 @@
 
 package com.liferay.portal.plugin;
 
+import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.plugin.License;
 import com.liferay.portal.kernel.plugin.PluginPackage;
 import com.liferay.portal.kernel.search.BaseIndexer;
@@ -22,8 +23,8 @@ import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentImpl;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
 import com.liferay.portal.kernel.search.Summary;
 import com.liferay.portal.kernel.search.background.task.ReindexStatusMessageSenderUtil;
 import com.liferay.portal.kernel.search.filter.BooleanFilter;
@@ -34,7 +35,6 @@ import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.CompanyConstants;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -184,7 +184,7 @@ public class PluginPackageIndexer extends BaseIndexer<PluginPackage> {
 	protected void doReindex(PluginPackage pluginPackage) throws Exception {
 		Document document = getDocument(pluginPackage);
 
-		SearchEngineUtil.updateDocument(
+		IndexWriterHelperUtil.updateDocument(
 			getSearchEngineId(), CompanyConstants.SYSTEM, document,
 			isCommitImmediately());
 	}
@@ -195,7 +195,7 @@ public class PluginPackageIndexer extends BaseIndexer<PluginPackage> {
 
 	@Override
 	protected void doReindex(String[] ids) throws Exception {
-		SearchEngineUtil.deleteEntityDocuments(
+		IndexWriterHelperUtil.deleteEntityDocuments(
 			getSearchEngineId(), CompanyConstants.SYSTEM, CLASS_NAME,
 			isCommitImmediately());
 
@@ -215,7 +215,7 @@ public class PluginPackageIndexer extends BaseIndexer<PluginPackage> {
 			documents.add(document);
 		}
 
-		SearchEngineUtil.updateDocuments(
+		IndexWriterHelperUtil.updateDocuments(
 			getSearchEngineId(), CompanyConstants.SYSTEM, documents,
 			isCommitImmediately());
 

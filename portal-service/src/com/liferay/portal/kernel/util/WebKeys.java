@@ -25,9 +25,6 @@ public interface WebKeys {
 
 	public static final String ADDRESS = "ADDRESS";
 
-	@Distributed
-	public static final String ANNOUNCEMENTS_ENTRY = "LIFERAY_SHARED_ANNOUNCEMENTS_ENTRY";
-
 	public static final String ASSET_ADDON_ENTRIES = "ASSET_ADDON_ENTRIES";
 
 	public static final String ASSET_ADDON_ENTRY = "ASSET_ADDON_ENTRY";
@@ -142,6 +139,8 @@ public interface WebKeys {
 
 	public static final String ENCRYPT = "shuo";
 
+	public static final String ERROR_SECTION = "errorSection";
+
 	public static final String EXPANDO_COLUMN = "EXPANDO_COLUMN";
 
 	public static final String EXTEND_SESSION = "EXTEND_SESSION";
@@ -169,6 +168,8 @@ public interface WebKeys {
 	public static final String FTL_VARIABLES = "FTL_VARIABLES";
 
 	public static final String GOOGLE_GADGET = "GOOGLE_GADGET";
+
+	public static final String GOOGLE_INCOMPLETE_USER_ID = "GOOGLE_INCOMPLETE_USER_ID";
 
 	public static final String GROUP = "GROUP";
 
@@ -312,6 +313,10 @@ public interface WebKeys {
 	public static final String MESSAGE_BOARDS_CATEGORY = "MESSAGE_BOARDS_CATEGORY";
 
 	public static final String MESSAGE_BOARDS_MESSAGE = "MESSAGE_BOARDS_MESSAGE";
+
+	public static final String MESSAGE_BOARDS_MESSAGE_DISPLAY = "MESSAGE_BOARDS_MESSAGE_DISPLAY";
+
+	public static final String MESSAGE_BOARDS_TREE_INDEX = "MESSAGE_BOARDS_TREE_INDEX";
 
 	public static final String MESSAGE_BOARDS_TREE_WALKER = "MESSAGE_BOARDS_TREE_WALKER";
 
@@ -477,6 +482,8 @@ public interface WebKeys {
 
 	public static final String REQUESTED_LAYOUT = "REQUESTED_LAYOUT";
 
+	public static final String RESOURCE_BUNDLE_LOADER = "RESOURCE_BUNDLE_LOADER";
+
 	public static final String ROLE = "ROLE";
 
 	public static final String SEARCH_CONTAINER = "SEARCH_CONTAINER";
@@ -584,6 +591,8 @@ public interface WebKeys {
 
 	public static final String TEAM = "TEAM";
 
+	public static final String TEMPLATE = "TEMPLATE";
+
 	public static final String THEME = "THEME";
 
 	public static final String THEME_DISPLAY = "LIFERAY_SHARED_THEME_DISPLAY";
@@ -593,12 +602,6 @@ public interface WebKeys {
 	public static final String TITLE = "TITLE";
 
 	public static final String TRANSLATOR_TRANSLATION = "TRANSLATOR_TRANSLATION";
-
-	public static final String TRASH_CONTAINER_MODEL = "TRASH_CONTAINER_MODEL";
-
-	public static final String TRASH_ENTRY = "TRASH_ENTRY";
-
-	public static final String TRASH_RENDERER = "TRASH_RENDERER";
 
 	public static final String TREE_GROUP_ID = "TREE_GROUP_ID";
 

@@ -54,16 +54,22 @@ public class AlertTag extends IncludeTag {
 		setScopedAttribute("destroyOnHide", destroyOnHide);
 	}
 
+	public void setIcon(String icon) {
+		_icon = icon;
+
+		setScopedAttribute("icon", icon);
+	}
+
 	public void setMessage(String message) {
 		_message = message;
 
 		setScopedAttribute("message", message);
 	}
 
-	public void setTargetContainer(String targetContainer) {
-		_targetContainer = targetContainer;
+	public void setTargetNode(String targetNode) {
+		_targetNode = targetNode;
 
-		setScopedAttribute("targetContainer", targetContainer);
+		setScopedAttribute("targetNode", targetNode);
 	}
 
 	public void setTimeout(Integer timeout) {
@@ -90,10 +96,11 @@ public class AlertTag extends IncludeTag {
 
 		_animationTime = 500;
 		_closeable = true;
+		_icon = "info-circle";
 		_message = null;
 		_cssClass = null;
 		_destroyOnHide = false;
-		_targetContainer = null;
+		_targetNode = null;
 		_timeout = -1;
 		_title = null;
 		_type = "info";
@@ -108,10 +115,11 @@ public class AlertTag extends IncludeTag {
 	protected void setAttributes(HttpServletRequest request) {
 		setNamespacedAttribute(request, "animationTime", _animationTime);
 		setNamespacedAttribute(request, "closeable", _closeable);
+		setNamespacedAttribute(request, "icon", _icon);
 		setNamespacedAttribute(request, "message", _message);
 		setNamespacedAttribute(request, "cssClass", _cssClass);
 		setNamespacedAttribute(request, "destroyOnHide", _destroyOnHide);
-		setNamespacedAttribute(request, "targetContainer", _targetContainer);
+		setNamespacedAttribute(request, "targetNode", _targetNode);
 		setNamespacedAttribute(request, "timeout", _timeout);
 		setNamespacedAttribute(request, "title", _title);
 		setNamespacedAttribute(request, "type", _type);
@@ -125,8 +133,9 @@ public class AlertTag extends IncludeTag {
 	private boolean _closeable = true;
 	private String _cssClass;
 	private boolean _destroyOnHide;
+	private String _icon = "info-circle";
 	private String _message;
-	private String _targetContainer;
+	private String _targetNode;
 	private Integer _timeout = -1;
 	private String _title;
 	private String _type = "info";

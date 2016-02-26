@@ -14,19 +14,19 @@
 
 package com.liferay.portal.verify;
 
-import com.liferay.portal.LayoutFriendlyURLException;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
+import com.liferay.portal.kernel.exception.LayoutFriendlyURLException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutFriendlyURL;
+import com.liferay.portal.kernel.service.LayoutFriendlyURLLocalServiceUtil;
+import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Layout;
-import com.liferay.portal.model.LayoutFriendlyURL;
-import com.liferay.portal.service.LayoutFriendlyURLLocalServiceUtil;
-import com.liferay.portal.service.LayoutLocalServiceUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -192,7 +192,7 @@ public class VerifyLayout extends VerifyProcess {
 		runSQL(
 			"update Layout set layoutPrototypeLinkEnabled = [$FALSE$] where " +
 				"type_ = 'link_to_layout' and layoutPrototypeLinkEnabled = " +
-				"[$TRUE$]");
+					"[$TRUE$]");
 	}
 
 	protected void verifyUuid() throws Exception {

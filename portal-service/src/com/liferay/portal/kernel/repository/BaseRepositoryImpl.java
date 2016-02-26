@@ -14,9 +14,14 @@
 
 package com.liferay.portal.kernel.repository;
 
-import com.liferay.portal.NoSuchRepositoryEntryException;
+import com.liferay.asset.kernel.service.AssetEntryLocalService;
+import com.liferay.document.library.kernel.service.DLAppHelperLocalService;
+import com.liferay.document.library.kernel.service.DLFolderLocalService;
+import com.liferay.document.library.kernel.util.DL;
+import com.liferay.portal.kernel.exception.NoSuchRepositoryEntryException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.model.RepositoryEntry;
 import com.liferay.portal.kernel.repository.capabilities.Capability;
 import com.liferay.portal.kernel.repository.capabilities.CapabilityProvider;
 import com.liferay.portal.kernel.repository.model.FileEntry;
@@ -25,22 +30,17 @@ import com.liferay.portal.kernel.repository.search.RepositorySearchQueryBuilderU
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.search.SearchEngineUtil;
+import com.liferay.portal.kernel.search.SearchEngineHelper;
 import com.liferay.portal.kernel.search.SearchException;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
+import com.liferay.portal.kernel.service.CompanyLocalService;
+import com.liferay.portal.kernel.service.RepositoryEntryLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.service.persistence.RepositoryEntryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.portal.model.RepositoryEntry;
-import com.liferay.portal.security.auth.PrincipalThreadLocal;
-import com.liferay.portal.service.CompanyLocalService;
-import com.liferay.portal.service.RepositoryEntryLocalService;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.UserLocalService;
-import com.liferay.portal.service.persistence.RepositoryEntryUtil;
-import com.liferay.portlet.asset.service.AssetEntryLocalService;
-import com.liferay.portlet.documentlibrary.service.DLAppHelperLocalService;
-import com.liferay.portlet.documentlibrary.service.DLFolderLocalService;
-import com.liferay.portlet.documentlibrary.util.DL;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -267,8 +267,8 @@ public abstract class BaseRepositoryImpl
 	@Override
 	@SuppressWarnings("rawtypes")
 	public List<com.liferay.portal.kernel.repository.model.RepositoryEntry>
-		getFileEntriesAndFileShortcuts(
-			long folderId, int status, int start, int end)
+			getFileEntriesAndFileShortcuts(
+				long folderId, int status, int start, int end)
 		throws PortalException {
 
 		return (List)getFileEntries(folderId, start, end, null);
@@ -319,10 +319,10 @@ public abstract class BaseRepositoryImpl
 	@Override
 	@SuppressWarnings("rawtypes")
 	public List<com.liferay.portal.kernel.repository.model.RepositoryEntry>
-		getFoldersAndFileEntriesAndFileShortcuts(
-			long folderId, int status, String[] mimeTypes,
-			boolean includeMountFolders, int start, int end,
-			OrderByComparator<?> obc)
+			getFoldersAndFileEntriesAndFileShortcuts(
+				long folderId, int status, String[] mimeTypes,
+				boolean includeMountFolders, int start, int end,
+				OrderByComparator<?> obc)
 		throws PortalException {
 
 		return (List)getFoldersAndFileEntries(
@@ -501,7 +501,7 @@ public abstract class BaseRepositoryImpl
 
 	@Override
 	public Hits search(SearchContext searchContext) throws SearchException {
-		searchContext.setSearchEngineId(SearchEngineUtil.GENERIC_ENGINE_ID);
+		searchContext.setSearchEngineId(SearchEngineHelper.GENERIC_ENGINE_ID);
 
 		BooleanQuery fullQuery = RepositorySearchQueryBuilderUtil.getFullQuery(
 			searchContext);

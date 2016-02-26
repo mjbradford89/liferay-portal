@@ -15,6 +15,9 @@
 package com.liferay.portal.kernel.util;
 
 import com.liferay.portal.kernel.bean.ClassLoaderBeanHandler;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.registry.Filter;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
 import com.liferay.registry.ServiceTracker;
@@ -59,8 +62,19 @@ public class ProxyFactory {
 	public static <T> T newServiceTrackedInstance(Class<T> interfaceClass) {
 		return (T)ProxyUtil.newProxyInstance(
 			interfaceClass.getClassLoader(), new Class[] {interfaceClass},
-			new ServiceTrackedInvocationHandler<T>(interfaceClass));
+			new ServiceTrackedInvocationHandler<>(interfaceClass));
 	}
+
+	public static <T> T newServiceTrackedInstance(
+		Class<T> interfaceClass, String filterString) {
+
+		return (T)ProxyUtil.newProxyInstance(
+			interfaceClass.getClassLoader(), new Class[] {interfaceClass},
+			new ServiceTrackedInvocationHandler<>(
+				interfaceClass, filterString));
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(ProxyFactory.class);
 
 	private static class DummyInvocationHandler<T>
 		implements InvocationHandler {
@@ -116,6 +130,12 @@ public class ProxyFactory {
 				}
 			}
 
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Skipping " + method.getName() + " because " +
+						_interfaceClassName + " is not registered");
+			}
+
 			Class<?> returnType = method.getReturnType();
 
 			if (returnType.equals(boolean.class)) {
@@ -144,13 +164,47 @@ public class ProxyFactory {
 		}
 
 		private ServiceTrackedInvocationHandler(Class<T> interfaceClass) {
+			this(interfaceClass, null);
+		}
+
+		private ServiceTrackedInvocationHandler(
+			Class<T> interfaceClass, String filterString) {
+
+			_interfaceClassName = interfaceClass.getName();
+
 			Registry registry = RegistryUtil.getRegistry();
 
-			_serviceTracker = registry.trackServices(interfaceClass);
+			if (Validator.isNull(filterString)) {
+				_serviceTracker = registry.trackServices(interfaceClass);
+			}
+			else {
+				StringBundler sb = new StringBundler(7);
+
+				sb.append("(&(objectClass=");
+				sb.append(_interfaceClassName);
+				sb.append(StringPool.CLOSE_PARENTHESIS);
+
+				if (!filterString.startsWith(StringPool.OPEN_PARENTHESIS)) {
+					sb.append(StringPool.OPEN_PARENTHESIS);
+				}
+
+				sb.append(filterString);
+
+				if (!filterString.endsWith(StringPool.CLOSE_PARENTHESIS)) {
+					sb.append(StringPool.CLOSE_PARENTHESIS);
+				}
+
+				sb.append(StringPool.CLOSE_PARENTHESIS);
+
+				Filter filter = registry.getFilter(sb.toString());
+
+				_serviceTracker = registry.trackServices(filter);
+			}
 
 			_serviceTracker.open();
 		}
 
+		private final String _interfaceClassName;
 		private final ServiceTracker<T, T> _serviceTracker;
 
 	}

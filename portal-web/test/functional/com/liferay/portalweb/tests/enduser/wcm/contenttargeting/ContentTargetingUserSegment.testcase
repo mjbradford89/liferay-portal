@@ -4,14 +4,7 @@
 	<property name="testray.main.component.name" value="Content Targeting" />
 
 	<set-up>
-		<var method="TestPropsUtil#get('test.portal.instance')" name="testPortalInstance" />
-
-		<if>
-			<equals arg1="${testPortalInstance}" arg2="true" />
-			<then>
-				<execute macro="SignIn#signInPortalInstanceSetUp" />
-			</then>
-		</if>
+		<execute macro="TestCase#setUpPortalInstance" />
 
 		<execute macro="User#firstLoginPG" />
 
@@ -19,22 +12,22 @@
 
 		<execute macro="Portlet#startServer" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
+		<execute macro="Page#add">
 			<var name="page" value="Public Pages" />
+			<var name="pageName" value="Test Page Name" />
 			<var name="siteName" value="Site Name" />
-			<var name="sitePageName" value="Test Page Name" />
 		</execute>
 	</set-up>
 
@@ -58,9 +51,12 @@
 	</tear-down>
 
 	<command name="AddGlobalUserSegmentToSiteViaUserSegmentContentDisplayPortlet" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Global" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Global" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -74,9 +70,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Web Content" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Web Content" />
 		</execute>
 
 		<execute macro="WebContentNavigator#gotoAddCP" />
@@ -138,8 +137,8 @@
 	</command>
 
 	<command name="AddParentSiteUserSegmentToChildSiteViaUserSegmentContentDisplayPortlet" priority="4">
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
@@ -147,19 +146,26 @@
 			<var name="siteName" value="Child SiteName" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
-			<var name="page" value="Public Pages" />
+		<execute macro="Site#searchInputCP">
 			<var name="siteName" value="Child SiteName" />
-			<var name="sitePageName" value="Test Page Name" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="Page#add">
+			<var name="page" value="Public Pages" />
+			<var name="pageName" value="Test Page Name" />
+			<var name="siteName" value="Child SiteName" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -173,9 +179,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Child SiteName" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Child SiteName" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -189,9 +198,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Web Content" />
-			<var name="siteScopeName" value="Child SiteName" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Child SiteName" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Web Content" />
 		</execute>
 
 		<execute macro="WebContentNavigator#gotoAddCP" />
@@ -253,9 +265,12 @@
 	</command>
 
 	<command name="AddUserSegmentBehaviorContentVisitedCP" priority="4">
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Web Content" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Web Content" />
 		</execute>
 
 		<execute macro="WebContentNavigator#gotoAddCP" />
@@ -271,9 +286,12 @@
 			<var name="webContentTitle" value="WC WebContent Title" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -288,9 +306,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -301,9 +322,12 @@
 	</command>
 
 	<command name="AddUserSegmentBehaviorPageVisitedCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -317,9 +341,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -330,9 +357,12 @@
 	</command>
 
 	<command name="AddUserSegmentBehaviorScorePointsCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -346,9 +376,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -359,9 +392,12 @@
 	</command>
 
 	<command name="AddUserSegmentBlankCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -373,9 +409,12 @@
 	</command>
 
 	<command name="AddUserSegmentSocialFacebookAgeCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -390,9 +429,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -404,9 +446,12 @@
 	</command>
 
 	<command name="AddUserSegmentSocialFacebookCityCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -420,9 +465,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -433,9 +481,12 @@
 	</command>
 
 	<command name="AddUserSegmentSocialFacebookEducationCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -450,9 +501,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -464,9 +518,12 @@
 	</command>
 
 	<command name="AddUserSegmentSocialFacebookFriendsCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -481,9 +538,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -495,9 +555,12 @@
 	</command>
 
 	<command name="AddUserSegmentSocialFacebookGenderCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -511,9 +574,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -524,9 +590,12 @@
 	</command>
 
 	<command name="AddUserSegmentSocialFacebookPageLikeCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -540,9 +609,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -553,9 +625,12 @@
 	</command>
 
 	<command name="AddUserSegmentSystemAttributesBrowserCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -569,9 +644,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -582,9 +660,12 @@
 	</command>
 
 	<command name="AddUserSegmentSystemAttributesDeviceCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Mobile Device Families" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Mobile Device Families" />
 		</execute>
 
 		<execute macro="MobileDevice#addCP">
@@ -592,9 +673,12 @@
 			<var name="deviceFamilyName" value="Device Family Name" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -608,9 +692,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -621,9 +708,12 @@
 	</command>
 
 	<command name="AddUserSegmentSystemAttributesLocationCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -638,9 +728,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -652,9 +745,12 @@
 	</command>
 
 	<command name="AddUserSegmentSystemAttributesOperatingSystemCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -668,9 +764,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -681,9 +780,12 @@
 	</command>
 
 	<command name="AddUserSegmentSystemAttributesTimeCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -698,9 +800,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -712,9 +817,12 @@
 	</command>
 
 	<command name="AddUserSegmentUserAttributesAgeCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -729,9 +837,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -743,9 +854,12 @@
 	</command>
 
 	<command name="AddUserSegmentUserAttributesGenderCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -759,9 +873,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -772,18 +889,21 @@
 	</command>
 
 	<command name="AddUserSegmentUserAttributesOrganizationMemberCP" priority="4">
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Users and Organizations" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
 		<execute macro="Organization#addCP">
 			<var name="orgName" value="Organization Name" />
-			<var name="orgType" value="Regular Organization" />
+			<var name="orgType" value="Organization" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -797,9 +917,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -812,18 +935,21 @@
 	</command>
 
 	<command name="AddUserSegmentUserAttributesOrganizationRoleCP" priority="4">
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Users and Organizations" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
 		<execute macro="Organization#addCP">
 			<var name="orgName" value="Organization Name" />
-			<var name="orgType" value="Regular Organization" />
+			<var name="orgType" value="Organization" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -838,11 +964,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="organizationName" value="Organization Name" />
-			<var name="organizationRole" value="Organization Owner" />
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -856,9 +983,12 @@
 	</command>
 
 	<command name="AddUserSegmentUserAttributesRegularRoleCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -872,9 +1002,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -885,9 +1018,12 @@
 	</command>
 
 	<command name="AddUserSegmentUserAttributesSiteMemberCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -901,9 +1037,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -914,9 +1053,12 @@
 	</command>
 
 	<command name="AddUserSegmentUserAttributesSiteRoleCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -931,9 +1073,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -945,17 +1090,20 @@
 	</command>
 
 	<command name="AddUserSegmentUserAttributesUserGroupMemberCP" priority="4">
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="User Groups" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="User Groups" />
 		</execute>
 
 		<execute macro="UserGroup#addCP">
 			<var name="userGroupName" value="User Group Name" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -969,9 +1117,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -982,9 +1133,12 @@
 	</command>
 
 	<command name="AddUserSegmentUserAttributesUserSignedInCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -996,9 +1150,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -1008,9 +1165,12 @@
 	</command>
 
 	<command name="DeleteUserSegmentCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -1026,9 +1186,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#deleteUserSegmentCP">
@@ -1037,9 +1200,12 @@
 	</command>
 
 	<command name="EditUserSegmentCP" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -1055,9 +1221,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#editUserSegmentCP">
@@ -1070,9 +1239,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewRulesCP">
@@ -1085,9 +1257,12 @@
 	</command>
 
 	<command name="UserSegmentContentViewReport" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -1101,9 +1276,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Web Content" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Web Content" />
 		</execute>
 
 		<execute macro="WebContentNavigator#gotoAddCP" />
@@ -1119,9 +1297,8 @@
 			<var name="webContentTitle" value="WC Male View Title" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Site Name" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="Portlet#addPG">
@@ -1145,18 +1322,20 @@
 
 		<execute macro="UserSegmentContentDisplayPortlet#savePG" />
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Site Name" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="UserSegmentContentDisplayPortlet#viewEntryPG">
 			<var name="entryContentText" value="WC Male Content View" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#viewReport">
@@ -1180,9 +1359,12 @@
 	</command>
 
 	<command name="ViewRulesAppliedUserSegmentContentDisplayPortlet" priority="4">
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Audience Targeting" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Audience Targeting" />
 		</execute>
 
 		<execute macro="ContentTargetingUserSegment#addCP">
@@ -1196,9 +1378,12 @@
 
 		<execute macro="ContentTargetingUserSegment#saveCP" />
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Web Content" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Web Content" />
 		</execute>
 
 		<execute macro="WebContentNavigator#gotoAddCP" />
@@ -1219,9 +1404,12 @@
 			<var name="vocabularyName" value="User Segment" />
 		</execute>
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Web Content" />
-			<var name="siteScopeName" value="Site Name" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Web Content" />
 		</execute>
 
 		<execute macro="WebContentNavigator#gotoAddCP" />

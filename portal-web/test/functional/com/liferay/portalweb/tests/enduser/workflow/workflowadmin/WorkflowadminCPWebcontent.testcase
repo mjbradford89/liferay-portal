@@ -4,14 +4,7 @@
 	<var name="workflowAssetType" value="Web Content Article" />
 
 	<set-up>
-		<var method="TestPropsUtil#get('test.portal.instance')" name="testPortalInstance" />
-
-		<if>
-			<equals arg1="${testPortalInstance}" arg2="true" />
-			<then>
-				<execute macro="SignIn#signInPortalInstanceSetUp" />
-			</then>
-		</if>
+		<execute macro="TestCase#setUpPortalInstance" />
 
 		<execute macro="User#firstLoginPG" />
 
@@ -41,8 +34,6 @@
 	</tear-down>
 
 	<command name="AddWebContentCP" priority="5">
-		<property name="portal.acceptance" value="true" />
-
 		<var name="webContentContent" value="WC WebContent Content" />
 		<var name="webContentTitle" value="WC WebContent Title" />
 
@@ -591,7 +582,7 @@
 		</execute>
 	</command>
 
-	<command name="ApproveInWebContentFolderWithParentFolderSingleApproverWorkflowCP" priority="4">
+	<command name="ApproveInWebContentFolderWithParentFolderSingleApproverWorkflowCP" priority="5">
 		<execute macro="Workflow#configureWorkflowViaFolderInfo">
 			<var name="workflowDefinition" value="Single Approver (Version 1)" />
 		</execute>

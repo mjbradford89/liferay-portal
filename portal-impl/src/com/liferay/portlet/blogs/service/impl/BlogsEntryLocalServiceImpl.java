@@ -14,6 +14,17 @@
 
 package com.liferay.portlet.blogs.service.impl;
 
+import com.liferay.asset.kernel.model.AssetEntry;
+import com.liferay.asset.kernel.model.AssetLinkConstants;
+import com.liferay.blogs.kernel.exception.EntryContentException;
+import com.liferay.blogs.kernel.exception.EntryCoverImageCropException;
+import com.liferay.blogs.kernel.exception.EntryDisplayDateException;
+import com.liferay.blogs.kernel.exception.EntrySmallImageNameException;
+import com.liferay.blogs.kernel.exception.EntrySmallImageScaleException;
+import com.liferay.blogs.kernel.exception.EntryTitleException;
+import com.liferay.blogs.kernel.model.BlogsEntry;
+import com.liferay.blogs.kernel.util.comparator.EntryDisplayDateComparator;
+import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.portal.kernel.comment.CommentManager;
 import com.liferay.portal.kernel.comment.CommentManagerUtil;
 import com.liferay.portal.kernel.dao.orm.QueryDefinition;
@@ -22,77 +33,65 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.ModelHintsUtil;
+import com.liferay.portal.kernel.model.Repository;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.SystemEventConstants;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.notifications.UserNotificationDefinition;
 import com.liferay.portal.kernel.portlet.PortletProvider;
 import com.liferay.portal.kernel.portlet.PortletProviderUtil;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.servlet.taglib.ui.ImageSelector;
 import com.liferay.portal.kernel.servlet.taglib.ui.ImageSelectorProcessor;
 import com.liferay.portal.kernel.settings.LocalizedValuesMap;
 import com.liferay.portal.kernel.social.SocialActivityManagerUtil;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.GroupSubscriptionCheckSubscriptionSender;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
-import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.SubscriptionSender;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandlerRegistryUtil;
-import com.liferay.portal.model.Group;
-import com.liferay.portal.model.ModelHintsUtil;
-import com.liferay.portal.model.Repository;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.model.SystemEventConstants;
-import com.liferay.portal.model.User;
-import com.liferay.portal.portletfilerepository.PortletFileRepositoryUtil;
-import com.liferay.portal.service.ServiceContext;
-import com.liferay.portal.service.permission.ModelPermissions;
-import com.liferay.portal.theme.ThemeDisplay;
-import com.liferay.portal.util.GroupSubscriptionCheckSubscriptionSender;
 import com.liferay.portal.util.LayoutURLUtil;
-import com.liferay.portal.util.Portal;
-import com.liferay.portal.util.PortalUtil;
 import com.liferay.portal.util.PrefsPropsUtil;
 import com.liferay.portal.util.PropsValues;
-import com.liferay.portal.util.SubscriptionSender;
-import com.liferay.portlet.asset.model.AssetEntry;
-import com.liferay.portlet.asset.model.AssetLinkConstants;
 import com.liferay.portlet.blogs.BlogsEntryAttachmentFileEntryHelper;
 import com.liferay.portlet.blogs.BlogsGroupServiceSettings;
-import com.liferay.portlet.blogs.EntryContentException;
-import com.liferay.portlet.blogs.EntryCoverImageCropException;
-import com.liferay.portlet.blogs.EntryDisplayDateException;
-import com.liferay.portlet.blogs.EntrySmallImageNameException;
-import com.liferay.portlet.blogs.EntrySmallImageScaleException;
-import com.liferay.portlet.blogs.EntryTitleException;
 import com.liferay.portlet.blogs.constants.BlogsConstants;
-import com.liferay.portlet.blogs.model.BlogsEntry;
 import com.liferay.portlet.blogs.service.base.BlogsEntryLocalServiceBaseImpl;
 import com.liferay.portlet.blogs.service.permission.BlogsPermission;
 import com.liferay.portlet.blogs.social.BlogsActivityKeys;
 import com.liferay.portlet.blogs.util.BlogsUtil;
 import com.liferay.portlet.blogs.util.LinkbackProducerUtil;
-import com.liferay.portlet.blogs.util.comparator.EntryDisplayDateComparator;
-import com.liferay.portlet.documentlibrary.model.DLFolderConstants;
-import com.liferay.portlet.social.model.SocialActivityConstants;
-import com.liferay.portlet.trash.model.TrashEntry;
+import com.liferay.social.kernel.model.SocialActivityConstants;
+import com.liferay.trash.kernel.model.TrashEntry;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -645,37 +644,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		return null;
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getCompanyEntries(long,
-	 *             Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getCompanyEntries(
-		long companyId, Date displayDate, int status, int start, int end) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, null);
-
-		return getCompanyEntries(companyId, displayDate, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getCompanyEntries(long,
-	 *             Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getCompanyEntries(
-		long companyId, Date displayDate, int status, int start, int end,
-		OrderByComparator<BlogsEntry> obc) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, obc);
-
-		return getCompanyEntries(companyId, displayDate, queryDefinition);
-	}
-
 	@Override
 	public List<BlogsEntry> getCompanyEntries(
 		long companyId, Date displayDate,
@@ -693,21 +661,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 				queryDefinition.getStart(), queryDefinition.getEnd(),
 				queryDefinition.getOrderByComparator());
 		}
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getCompanyEntriesCount(long,
-	 *             Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public int getCompanyEntriesCount(
-		long companyId, Date displayDate, int status) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status);
-
-		return getCompanyEntriesCount(companyId, displayDate, queryDefinition);
 	}
 
 	@Override
@@ -749,37 +702,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		return blogsEntryPersistence.findByG_UT(groupId, urlTitle);
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getGroupEntries(long, Date,
-	 *             QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getGroupEntries(
-		long groupId, Date displayDate, int status, int start, int end) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, null);
-
-		return getGroupEntries(groupId, displayDate, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getGroupEntries(long, Date,
-	 *             QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getGroupEntries(
-		long groupId, Date displayDate, int status, int start, int end,
-		OrderByComparator<BlogsEntry> obc) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, obc);
-
-		return getGroupEntries(groupId, displayDate, queryDefinition);
-	}
-
 	@Override
 	public List<BlogsEntry> getGroupEntries(
 		long groupId, Date displayDate,
@@ -797,37 +719,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 				queryDefinition.getStart(), queryDefinition.getEnd(),
 				queryDefinition.getOrderByComparator());
 		}
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getGroupEntries(long,
-	 *             QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getGroupEntries(
-		long groupId, int status, int start, int end) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, null);
-
-		return getGroupEntries(groupId, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getGroupEntries(long,
-	 *             QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getGroupEntries(
-		long groupId, int status, int start, int end,
-		OrderByComparator<BlogsEntry> obc) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, obc);
-
-		return getGroupEntries(groupId, queryDefinition);
 	}
 
 	@Override
@@ -848,21 +739,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		}
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getGroupEntriesCount(long,
-	 *             Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public int getGroupEntriesCount(
-		long groupId, Date displayDate, int status) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status);
-
-		return getGroupEntriesCount(groupId, displayDate, queryDefinition);
-	}
-
 	@Override
 	public int getGroupEntriesCount(
 		long groupId, Date displayDate,
@@ -876,19 +752,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			return blogsEntryPersistence.countByG_LtD_S(
 				groupId, displayDate, queryDefinition.getStatus());
 		}
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getGroupEntriesCount(long,
-	 *             QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public int getGroupEntriesCount(long groupId, int status) {
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status);
-
-		return getGroupEntriesCount(groupId, queryDefinition);
 	}
 
 	@Override
@@ -905,23 +768,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		}
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getGroupsEntries(long, long,
-	 *             Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getGroupsEntries(
-		long companyId, long groupId, Date displayDate, int status, int start,
-		int end) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, null);
-
-		return getGroupsEntries(
-			companyId, groupId, displayDate, queryDefinition);
-	}
-
 	@Override
 	public List<BlogsEntry> getGroupsEntries(
 		long companyId, long groupId, Date displayDate,
@@ -929,40 +775,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 
 		return blogsEntryFinder.findByGroupIds(
 			companyId, groupId, displayDate, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getGroupUserEntries(long,
-	 *             long, Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getGroupUserEntries(
-		long groupId, long userId, Date displayDate, int status, int start,
-		int end) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, null);
-
-		return getGroupUserEntries(
-			groupId, userId, displayDate, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getGroupUserEntries(long,
-	 *             long, Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getGroupUserEntries(
-		long groupId, long userId, Date displayDate, int status, int start,
-		int end, OrderByComparator<BlogsEntry> obc) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, obc);
-
-		return getGroupUserEntries(
-			groupId, userId, displayDate, queryDefinition);
 	}
 
 	@Override
@@ -982,22 +794,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 				queryDefinition.getStart(), queryDefinition.getEnd(),
 				queryDefinition.getOrderByComparator());
 		}
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #getGroupUserEntriesCount(long, long, Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public int getGroupUserEntriesCount(
-		long groupId, long userId, Date displayDate, int status) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status);
-
-		return getGroupUserEntriesCount(
-			groupId, userId, displayDate, queryDefinition);
 	}
 
 	@Override
@@ -1020,61 +816,12 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		return blogsEntryFinder.findByNoAssets();
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getOrganizationEntries(long,
-	 *             Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getOrganizationEntries(
-		long organizationId, Date displayDate, int status, int start, int end) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, null);
-
-		return getOrganizationEntries(
-			organizationId, displayDate, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link #getOrganizationEntries(long,
-	 *             Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public List<BlogsEntry> getOrganizationEntries(
-		long organizationId, Date displayDate, int status, int start, int end,
-		OrderByComparator<BlogsEntry> obc) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status, start, end, obc);
-
-		return getOrganizationEntries(
-			organizationId, displayDate, queryDefinition);
-	}
-
 	@Override
 	public List<BlogsEntry> getOrganizationEntries(
 		long organizationId, Date displayDate,
 		QueryDefinition<BlogsEntry> queryDefinition) {
 
 		return blogsEntryFinder.findByOrganizationId(
-			organizationId, displayDate, queryDefinition);
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, replaced by {@link
-	 *             #getOrganizationEntriesCount(long, Date, QueryDefinition)}
-	 */
-	@Deprecated
-	@Override
-	public int getOrganizationEntriesCount(
-		long organizationId, Date displayDate, int status) {
-
-		QueryDefinition<BlogsEntry> queryDefinition = new QueryDefinition<>(
-			status);
-
-		return getOrganizationEntriesCount(
 			organizationId, displayDate, queryDefinition);
 	}
 
@@ -1985,7 +1732,7 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 			Time.getSimpleDate(entry.getCreateDate(), "yyyy/MM/dd"),
 			"[$BLOGS_ENTRY_DESCRIPTION$]", entry.getDescription(),
 			"[$BLOGS_ENTRY_SITE_NAME$]",
-				group.getDescriptiveName(serviceContext.getLocale()),
+			group.getDescriptiveName(serviceContext.getLocale()),
 			"[$BLOGS_ENTRY_STATUS_BY_USER_NAME$]", entry.getStatusByUserName(),
 			"[$BLOGS_ENTRY_TITLE$]", entryTitle,
 			"[$BLOGS_ENTRY_UPDATE_COMMENT$]",

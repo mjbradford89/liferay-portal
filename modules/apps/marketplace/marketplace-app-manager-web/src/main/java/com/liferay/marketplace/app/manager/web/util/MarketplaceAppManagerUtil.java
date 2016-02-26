@@ -21,10 +21,10 @@ import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.util.PortalUtil;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -136,7 +136,11 @@ public class MarketplaceAppManagerUtil {
 
 		String string = GetterUtil.getString(object);
 
-		return HtmlUtil.escape(StringUtil.shorten(string, 400));
+		string = StringUtil.shorten(string, 400);
+		string = HtmlUtil.stripHtml(string);
+		string = HtmlUtil.escape(string);
+
+		return string;
 	}
 
 	protected static List<String> getAppCategories(List<App> apps) {

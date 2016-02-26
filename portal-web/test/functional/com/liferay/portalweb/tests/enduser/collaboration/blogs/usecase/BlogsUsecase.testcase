@@ -1,21 +1,15 @@
 <definition component-name="portal-collaboration">
+	<property name="custom.properties" value="default.layout.template.id=1_column" />
 	<property name="testray.main.component.name" value="Blogs" />
 
 	<var name="pageName" value="Blogs Page" />
 
 	<set-up>
-		<var method="TestPropsUtil#get('test.portal.instance')" name="testPortalInstance" />
-
-		<if>
-			<equals arg1="${testPortalInstance}" arg2="true" />
-			<then>
-				<execute macro="SignIn#signInPortalInstanceSetUp" />
-			</then>
-		</if>
+		<execute macro="TestCase#setUpPortalInstance" />
 
 		<execute macro="User#firstLoginPG" />
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
@@ -108,7 +102,7 @@
 			<var name="uploadFileName" value="Document_1.jpg" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="${pageName}" />
@@ -130,24 +124,22 @@
 	</command>
 
 	<command name="AllowMultiplePortletConfigurationsPerSite" priority="4">
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Sites" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Site#addBlankCP">
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
+		<execute macro="Page#add">
 			<var name="page" value="Public Pages" />
-			<var name="sitePageName" value="Site Page 1" />
-			<var name="siteScopeSelected" value="true" />
+			<var name="pageName" value="Site Page 1" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
+		<execute macro="Page#add">
 			<var name="page" value="Public Pages" />
-			<var name="sitePageName" value="Site Page 2" />
-			<var name="siteScopeSelected" value="true" />
+			<var name="pageName" value="Site Page 2" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -192,10 +184,12 @@
 
 		<execute macro="BlogsConfiguration#saveConfigurationIFrame" />
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Site Name" />
-			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="Portlet#gotoPortletOptions">
@@ -224,10 +218,12 @@
 
 		<execute macro="BlogsConfiguration#viewDefaultConfiguration" />
 
-		<execute macro="Page#gotoContentCP">
-			<var name="portletName" value="Blogs" />
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="Liferay" />
-			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
 		</execute>
 
 		<execute macro="Portlet#gotoPortletOptions">
@@ -357,10 +353,8 @@
 	<command name="DemoTrackbackURL" priority="4">
 		<property name="custom.properties" value="blogs.trackback.enabled=true" />
 
-		<var name="ipAddress" value="${getIPAddress()}" />
-
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName}" />
+			<var name="pageName" value="Blogs Page" />
 		</execute>
 
 		<execute macro="Blogs#addEntry">
@@ -373,7 +367,7 @@
 			<var name="entryContent2" value="Blogs Entry2 Content" />
 			<var name="entryTitle" value="Blogs Entry1 Title" />
 			<var name="entryTitle2" value="Blogs Entry2 Title" />
-			<var name="pageName" value="${pageName}" />
+			<var name="pageName" value="Blogs Page" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
@@ -391,12 +385,15 @@
 			<var name="userFullName" value="Test Test" />
 		</execute>
 
-		<execute function="AssertClick" locator1="//div[@class='lfr-discussion-message']/a" value1="Read More" />
-		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_TITLE" value1="Blogs Entry2 Title" />
-		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_CONTENT" value1="Blogs Entry2 Content" />
+		<execute function="AssertClick" locator1="Link#READ_MORE" value1="Read More" />
+
+		<execute macro="BlogsEntry#viewPG">
+			<var name="entryContent" value="Blogs Entry2 Content" />
+			<var name="entryTitle" value="Blogs Entry2 Title" />
+		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
-			<var name="portlet" value="Portal Instances" />
+			<var name="portlet" value="Virtual Instances" />
 		</execute>
 
 		<execute macro="PortalInstances#addCP">
@@ -411,14 +408,17 @@
 			<var name="virtualHostsURL" value="http://www.able.com:8080" />
 		</execute>
 
-		<execute macro="Page#addPG">
-			<var name="defaultURL" value="false" />
-			<var name="pageName" value="${pageName}" />
+		<execute macro="Page#add">
+			<var name="page" value="Public Pages" />
+			<var name="pageName" value="Blogs Page" />
+			<var name="siteScopeSelected" value="true" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName}" />
-			<var name="virtualHostsURL" value="www.able.com:8080" />
+			<var name="pageName" value="Blogs Page" />
+			<var name="siteName" value="http://www.able.com:8080" />
+			<var name="siteURL" value="true" />
+			<var name="virtualHostsURL" value="http://www.able.com:8080" />
 		</execute>
 
 		<execute macro="Portlet#addPG">
@@ -430,14 +430,22 @@
 			<var name="entryTitle" value="Blogs Entry3 Title" />
 		</execute>
 
-		<execute function="AssertClick" locator1="PGBlogs#ENTRY_COMMENT_1" value1="0 Comments" />
-		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_TITLE" value1="Blogs Entry3 Title" />
-		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_CONTENT" value1="Blogs Entry3 Content" />
-		<execute function="AssertTextEquals#assertValue" locator1="PGBlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry3-title" />
+		<var name="key_entryTitle" value="Blogs Entry3 Title" />
+
+		<execute function="AssertClick" locator1="Blogs#ENTRY_COMMENTS_COUNT" value1="0" />
+
+		<execute macro="BlogsEntry#viewPG">
+			<var name="entryContent" value="Blogs Entry3 Content" />
+			<var name="entryTitle" value="Blogs Entry3 Title" />
+		</execute>
+
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry3-title" />
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName}" />
-			<var name="virtualHostsURL" value="www.able.com:8080" />
+			<var name="pageName" value="Blogs Page" />
+			<var name="siteName" value="http://www.able.com:8080" />
+			<var name="siteURL" value="true" />
+			<var name="virtualHostsURL" value="http://www.able.com:8080" />
 		</execute>
 
 		<execute macro="BlogsEntry#addWithTrackbackURLPG">
@@ -445,15 +453,16 @@
 			<var name="entryContent2" value="Blogs Entry4 Content" />
 			<var name="entryTitle" value="Blogs Entry3 Title" />
 			<var name="entryTitle2" value="Blogs Entry4 Title" />
-			<var name="pageName" value="${pageName}" />
+			<var name="pageName" value="Blogs Page" />
+			<var name="siteName" value="http://www.able.com:8080" />
 			<var name="virtualHosts" value="true" />
 			<var name="virtualHostsURL" value="www.able.com:8080" />
 		</execute>
 
-		<var name="key_entryTitle" value="Blogs Entry4 Title" />
-
-		<execute function="AssertTextEquals" locator1="PGBlogs#ENTRY_TITLE" value1="Blogs Entry4 Title" />
-		<execute function="AssertTextEquals" locator1="PGBlogs#ENTRY_CONTENT" value1="Blogs Entry4 Content" />
+		<execute macro="BlogsEntry#viewPG">
+			<var name="entryContent" value="Blogs Entry4 Content" />
+			<var name="entryTitle" value="Blogs Entry4 Title" />
+		</execute>
 
 		<execute macro="BlogsNavigator#gotoEntryPG">
 			<var name="entryContent" value="Blogs Entry3 Content" />
@@ -461,26 +470,33 @@
 		</execute>
 
 		<execute macro="BlogsEntryComment#viewPG">
+			<var name="commentCount" value="1" />
 			<var name="entryComment" value="[...] Blogs Entry4 Content [...] Read More" />
 			<var name="entryContent" value="Blogs Entry3 Content" />
 			<var name="entryTitle" value="Blogs Entry3 Title" />
 			<var name="userFullName" value="Test Test" />
 		</execute>
 
-		<execute function="AssertTextEquals#assertValue" locator1="PGBlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry3-title" />
-		<execute function="AssertClick" locator1="//div[@class='lfr-discussion-message']/a" value1="Read More" />
-		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_TITLE" value1="Blogs Entry4 Title" />
-		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_CONTENT" value1="Blogs Entry4 Content" />
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry3-title" />
+
+		<execute function="AssertClick" locator1="Link#READ_MORE" value1="Read More" />
+
+		<execute macro="BlogsEntry#viewPG">
+			<var name="entryContent" value="Blogs Entry4 Content" />
+			<var name="entryTitle" value="Blogs Entry4 Title" />
+		</execute>
 
 		<execute macro="User#firstLoginPG">
 			<var name="password" value="test" />
 			<var name="userEmailAddress" value="test@liferay.com" />
-			<var name="virtualHostsURL" value="http://${ipAddress}:8080" />
+			<var name="virtualHostsURL" value="http://www.able.com:8080" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName}" />
-			<var name="virtualHostsURL" value="http://${ipAddress}:8080" />
+			<var name="pageName" value="Blogs Page" />
+			<var name="siteName" value="http://www.able.com:8080" />
+			<var name="siteURL" value="true" />
+			<var name="virtualHostsURL" value="http://www.able.com:8080" />
 		</execute>
 
 		<execute macro="Blogs#addEntry">
@@ -488,14 +504,22 @@
 			<var name="entryTitle" value="Blogs Entry5 Title" />
 		</execute>
 
-		<execute function="AssertClick" locator1="PGBlogs#ENTRY_COMMENT_1" value1="0 Comments" />
-		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_TITLE" value1="Blogs Entry5 Title" />
-		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_CONTENT" value1="Blogs Entry5 Content" />
-		<execute function="AssertTextEquals#assertValue" locator1="PGBlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://${ipAddress}:8080/web/guest/blogs-page/-/blogs/trackback/blogs-entry5-title" />
+		<var name="key_entryTitle" value="Blogs Entry5 Title" />
+
+		<execute function="AssertClick" locator1="Blogs#ENTRY_COMMENTS_COUNT" value1="0" />
+
+		<execute macro="BlogsEntry#viewPG">
+			<var name="entryContent" value="Blogs Entry5 Content" />
+			<var name="entryTitle" value="Blogs Entry5 Title" />
+		</execute>
+
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry5-title" />
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName}" />
-			<var name="virtualHostsURL" value="http://${ipAddress}:8080" />
+			<var name="pageName" value="Blogs Page" />
+			<var name="siteName" value="http://www.able.com:8080" />
+			<var name="siteURL" value="true" />
+			<var name="virtualHostsURL" value="http://www.able.com:8080" />
 		</execute>
 
 		<execute macro="BlogsEntry#addWithTrackbackURLPG">
@@ -503,15 +527,15 @@
 			<var name="entryContent2" value="Blogs Entry6 Content" />
 			<var name="entryTitle" value="Blogs Entry5 Title" />
 			<var name="entryTitle2" value="Blogs Entry6 Title" />
-			<var name="pageName" value="${pageName}" />
+			<var name="pageName" value="Blogs Page" />
 			<var name="virtualHosts" value="true" />
-			<var name="virtualHostsURL" value="http://${ipAddress}:8080" />
+			<var name="virtualHostsURL" value="http://www.able.com:8080" />
 		</execute>
 
-		<var name="key_entryTitle" value="Blogs Entry6 Title" />
-
-		<execute function="AssertTextEquals" locator1="PGBlogs#ENTRY_TITLE" value1="Blogs Entry6 Title" />
-		<execute function="AssertTextEquals" locator1="PGBlogs#ENTRY_CONTENT" value1="Blogs Entry6 Content" />
+		<execute macro="BlogsEntry#viewPG">
+			<var name="entryContent" value="Blogs Entry6 Content" />
+			<var name="entryTitle" value="Blogs Entry6 Title" />
+		</execute>
 
 		<execute macro="BlogsNavigator#gotoPG">
 			<var name="entryContent" value="Blogs Entry5 Content" />
@@ -519,20 +543,18 @@
 		</execute>
 
 		<execute macro="BlogsEntryComment#viewPG">
+			<var name="commentCount" value="1" />
 			<var name="entryComment" value="[...] Blogs Entry6 Content [...] Read More" />
 			<var name="userFullName" value="Test Test" />
 		</execute>
 
-		<execute function="AssertTextEquals#assertValue" locator1="PGBlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://${ipAddress}:8080/web/guest/blogs-page/-/blogs/trackback/blogs-entry5-title" />
-		<execute function="AssertClick" locator1="//div[@class='lfr-discussion-message']/a" value1="Read More" />
-		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_TITLE" value1="Blogs Entry6 Title" />
-		<execute function="AssertTextEquals" locator1="PGBlogsEntry#ENTRY_CONTENT" value1="Blogs Entry6 Content" />
+		<execute function="AssertTextEquals#assertValue" locator1="BlogsEntry#COMMENTS_TRACKBACK_URL" value1="http://www.able.com:8080/blogs-page/-/blogs/trackback/blogs-entry5-title" />
 
-		<execute macro="User#logoutPG" />
+		<execute function="AssertClick" locator1="Link#READ_MORE" value1="Read More" />
 
-		<execute macro="User#loginPG">
-			<var name="password" value="test" />
-			<var name="userEmailAddress" value="test@liferay.com" />
+		<execute macro="BlogsEntry#viewPG">
+			<var name="entryContent" value="Blogs Entry6 Content" />
+			<var name="entryTitle" value="Blogs Entry6 Title" />
 		</execute>
 	</command>
 
@@ -641,6 +663,8 @@
 	</command>
 
 	<command name="RestoreBlogsEntry" priority="5">
+		<property name="portal.acceptance" value="true" />
+
 		<var name="assetRestoreLocation" value="Blogs" />
 
 		<execute macro="Navigator#openURL" />
@@ -702,6 +726,323 @@
 			<var name="entryContent" value="Blogs Entry Content" />
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
+	</command>
+
+	<command name="StagingBlogs" priority="3">
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Site#addCP">
+			<var name="siteName" value="Site Name" />
+			<var name="siteType" value="Blank" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Page#add">
+			<var name="page" value="Public Pages" />
+			<var name="pageName" value="Site Page Name" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Staging" />
+		</execute>
+
+		<execute macro="Staging#activateStagingCP">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Page#add">
+			<var name="pageName" value="Blogs Page 1" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Blogs" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 1" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Blogs Aggregator" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 1" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Recent Bloggers" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Page#add">
+			<var name="pageName" value="Blogs Page 2" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="Portlet#addPG">
+			<var name="portletName" value="Blogs" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 1" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="Blogs#addEntry">
+			<var name="entryContent" value="Blogs Entry Content 1" />
+			<var name="entryTitle" value="Blogs Entry Title 1" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 1" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="RecentBloggers#viewPG">
+			<var name="entryAuthor" value="Test Test" />
+			<var name="postCount" value="1" />
+		</execute>
+
+		<execute macro="BlogsNavigator#gotoEntryPG">
+			<var name="entryContent" value="Blogs Entry Content 1" />
+			<var name="entryTitle" value="Blogs Entry Title 1" />
+		</execute>
+
+		<var name="key_entryTitle" value="Blogs Entry Title 1" />
+
+		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="Blogs Entry Title 1" />
+
+		<execute macro="BlogsEntry#viewPG">
+			<var name="entryContent" value="Blogs Entry Content 1" />
+			<var name="entryTitle" value="Blogs Entry Title 1" />
+		</execute>
+
+		<execute macro="Navigator#gotoSitePage">
+			<var name="pageName" value="Site Page Name" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoStagingSite" />
+
+		<execute macro="Staging#gotoPublishToLive" />
+
+		<execute macro="Staging#configurePublishToLive">
+			<var name="checkPageName" value="Blogs Page 1" />
+		</execute>
+
+		<execute macro="Staging#publishToLive" />
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 1" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="RecentBloggers#viewPG">
+			<var name="entryAuthor" value="Test Test" />
+			<var name="postCount" value="1" />
+		</execute>
+
+		<var name="key_entryTitle" value="Blogs Entry Title 1" />
+
+		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="Blogs Entry Title 1" />
+
+		<execute macro="BlogsNavigator#gotoEntryPG">
+			<var name="entryContent" value="Blogs Entry Content 1" />
+			<var name="entryTitle" value="Blogs Entry Title 1" />
+		</execute>
+
+		<execute macro="BlogsEntry#viewPG">
+			<var name="entryContent" value="Blogs Entry Content 1" />
+			<var name="entryTitle" value="Blogs Entry Title 1" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 2" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="BlogsConfiguration#configureScopePG">
+			<var name="scopeSelection" value="Blogs Page 2 (Create New)" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 2" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="Blogs#addEntry">
+			<var name="entryContent" value="Blogs Entry Content 2" />
+			<var name="entryTitle" value="Blogs Entry Title 2" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 1" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<var name="key_entryTitle" value="Blogs Entry Title 1" />
+
+		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="Blogs Entry Title 1" />
+
+		<var name="key_entryTitle" value="Blogs Entry Title 2" />
+
+		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="Blogs Entry Title 2" />
+
+		<execute macro="BlogsAggregatorPortlet#configureSelectionMethod">
+			<var name="selectionMethod" value="Scope" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 1" />
+			<var name="pageStaging" value="true" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<var name="key_entryTitle" value="Blogs Entry Title 1" />
+
+		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="Blogs Entry Title 1" />
+
+		<var name="key_entryTitle" value="Blogs Entry Title 2" />
+
+		<execute function="AssertElementNotPresent" locator1="BlogsEntry#TITLE" value1="Blogs Entry Title 2" />
+
+		<execute macro="ProductMenu#gotoSitesPages">
+			<var name="page" value="Public Pages" />
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="Staging#gotoPublishToLive" />
+
+		<execute macro="Staging#configurePublishToLive">
+			<var name="checkPageName" value="Blogs Page 2" />
+			<var name="contentDateRange" value="All" />
+		</execute>
+
+		<execute macro="Staging#publishToLive" />
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 2" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<execute macro="BlogsNavigator#gotoEntryPG">
+			<var name="entryContent" value="Blogs Entry Content 2" />
+			<var name="entryTitle" value="Blogs Entry Title 2" />
+		</execute>
+
+		<execute macro="BlogsEntry#viewPG">
+			<var name="entryContent" value="Blogs Entry Content 2" />
+			<var name="entryTitle" value="Blogs Entry Title 2" />
+		</execute>
+
+		<execute macro="Page#gotoPG">
+			<var name="pageName" value="Blogs Page 1" />
+			<var name="siteName" value="Site Name" />
+			<var name="siteURL" value="true" />
+		</execute>
+
+		<var name="key_entryTitle" value="Blogs Entry Title 1" />
+
+		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="Blogs Entry Title 1" />
+
+		<var name="key_entryTitle" value="Blogs Entry Title 2" />
+
+		<execute function="AssertElementNotPresent" locator1="BlogsEntry#TITLE" value1="Blogs Entry Title 2" />
+	</command>
+
+	<command name="StagingBlogsCP" priority="3">
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Site#addCP">
+			<var name="siteName" value="Site Name" />
+			<var name="siteType" value="Blank" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
+		</execute>
+
+		<execute macro="Page#add">
+			<var name="page" value="Public Pages" />
+			<var name="pageName" value="Site Page Name" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="Navigator#openSiteURL">
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesPublishing">
+			<var name="portlet" value="Staging" />
+		</execute>
+
+		<execute macro="Staging#activateStagingCP">
+			<var name="pageVersioningEnabled" value="true" />
+			<var name="siteName" value="Site Name" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Blogs" />
+			<var name="siteScopeName" value="Site Name" />
+		</execute>
+
+		<execute macro="Blogs#addEntry">
+			<var name="entryContent" value="Blogs Entry Content" />
+			<var name="entryTitle" value="Blogs Entry Title" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="Site Name" />
+		</execute>
+
+		<execute macro="Navigator#gotoStagedView" />
+
+		<execute macro="Staging#gotoPublishToLive" />
+
+		<execute macro="Staging#publishToLive" />
 	</command>
 
 	<command name="ViewBlogsEntriesAsGuestViaAP" priority="4">
@@ -789,7 +1130,7 @@
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelConfiguration">
-			<var name="portlet" value="Portal Instances" />
+			<var name="portlet" value="Virtual Instances" />
 		</execute>
 
 		<execute macro="PortalInstances#addCP">
@@ -817,22 +1158,19 @@
 
 		<execute macro="ProductMenu#gotoSitesPages">
 			<var name="page" value="Public Pages" />
-			<var name="portlet" value="Site Pages" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
+		<execute macro="Page#add">
 			<var name="page" value="Public Pages" />
-			<var name="sitePageName" value="Public Blogs Page" />
-			<var name="siteScopeSelected" value="true" />
+			<var name="pageName" value="Public Blogs Page" />
 		</execute>
 
-		<execute macro="SitePage#addCP">
-			<var name="page" value="Private Pages" />
-			<var name="sitePageName" value="Private Blogs Page" />
-			<var name="siteScopeSelected" value="true" />
+		<execute macro="Page#add">
+			<var name="pageName" value="Private Blogs Page" />
+			<var name="sitePagePrivacy" value="Private" />
 		</execute>
 
-		<execute macro="ProductMenuHelper#gotoSites" />
+		<execute macro="ProductMenuHelper#expandPanelSites" />
 
 		<execute function="Click" locator1="ProductMenu#SITES_COMPASS" />
 
@@ -877,7 +1215,7 @@
 			<var name="virtualHostsURL" value="http://www.baker.com:8080" />
 		</execute>
 
-		<execute macro="ProductMenuHelper#gotoSites" />
+		<execute macro="ProductMenuHelper#expandPanelSites" />
 
 		<execute function="Click" locator1="ProductMenu#SITES_COMPASS" />
 
@@ -903,7 +1241,7 @@
 	</command>
 
 	<command name="ViewBlogsEntryAsPublishedViaAP" priority="3">
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Asset Publisher Page" />
 		</execute>
 
@@ -1024,7 +1362,7 @@
 			<var name="entryTitle" value="${entryTitle}" />
 		</execute>
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="Recent Bloggers Page" />
 		</execute>
 
@@ -1060,7 +1398,7 @@
 			<var name="pageName" value="${pageName}" />
 		</execute>
 
-		<execute macro="Page#addPG">
+		<execute macro="Page#add">
 			<var name="pageName" value="${pageName2}" />
 		</execute>
 
@@ -1203,7 +1541,7 @@
 			<var name="uploadFileName" value="Document_1.jpg" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Blogs Page" />
@@ -1286,13 +1624,13 @@
 		</execute>
 
 		<execute macro="BlogsEntry#viewAbstractDisplay">
-			<var name="entryAbstractDescription" value="Liferay Portal provides an excellent platform for building web applications, websites, and portals, but it can additionally be used for a new category of web applications called social applications. The definition is simple: a social application is a web application that additionally leverages social identity, data, and features or services. In the left figure, the light blue squares represent..." />
+			<var name="entryAbstractDescription" value="Liferay Portal provides an excellent platform for building web applications, websites, and portals, but it can additionally be used for a new category of web applications called social applications. The definition is simple: a social application is a web application that additionally leverages social identity, data, and features or services. In the left figure, the light blue squares..." />
 			<var name="entryContent" value="Blogs Entry Content" />
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
 		<execute macro="BlogsNavigator#gotoEntryWithAbstractPG">
-			<var name="entryAbstractDescription" value="Liferay Portal provides an excellent platform for building web applications, websites, and portals, but it can additionally be used for a new category of web applications called social applications. The definition is simple: a social application is a web application that additionally leverages social identity, data, and features or services. In the left figure, the light blue squares represent..." />
+			<var name="entryAbstractDescription" value="Liferay Portal provides an excellent platform for building web applications, websites, and portals, but it can additionally be used for a new category of web applications called social applications. The definition is simple: a social application is a web application that additionally leverages social identity, data, and features or services. In the left figure, the light blue squares..." />
 			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
@@ -1303,43 +1641,39 @@
 	</command>
 
 	<command name="ViewBlogsEntryWithFutureDisplayDateViaBlogsAggregator" priority="3">
-		<var name="entryAbstractDescription" value="Blogs Entry Abstract Description" />
-		<var name="entryContent" value="Blogs Entry Content" />
-		<var name="entryTitle" value="Blogs Entry Title" />
-		<var name="pageName2" value="Blogs Aggregator Page" />
-		<var name="portletName2" value="Blogs Aggregator" />
-
-		<execute macro="Page#addPG">
-			<var name="pageName" value="${pageName2}" />
+		<execute macro="Page#add">
+			<var name="pageName" value="Blogs Aggregator Page" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName2}" />
+			<var name="pageName" value="Blogs Aggregator Page" />
 		</execute>
 
 		<execute macro="Portlet#addPG">
-			<var name="portletName" value="${portletName2}" />
+			<var name="portletName" value="Blogs Aggregator" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName}" />
+			<var name="pageName" value="Blogs Page" />
 		</execute>
 
 		<execute macro="BlogsNavigator#gotoAddEntry" />
 
 		<execute macro="BlogsEntry#addEntryContent">
-			<var name="entryContent" value="${entryContent}" />
-			<var name="entryTitle" value="${entryTitle}" />
+			<var name="entryContent" value="Blogs Entry Content" />
+			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
 		<execute macro="BlogsNavigator#gotoSettings" />
 
 		<execute macro="BlogsEntry#scheduleBlogEntry" />
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
+
+		<execute function="AssertClick" locator1="Blogs#MY_PENDING_ENTRIES_PANEL_COLLAPSED" value1="My Pending Entries" />
 
 		<execute macro="BlogsEntry#gotoScheduledEditPG">
-			<var name="entryTitle" value="${entryTitle}" />
+			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
 		<execute macro="BlogsNavigator#gotoAbstractField" />
@@ -1348,43 +1682,49 @@
 			<var name="entryAbstractDescription" value="Blogs Entry Abstract Description" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName2}" />
+			<var name="pageName" value="Blogs Aggregator Page" />
 		</execute>
 
-		<execute macro="BlogsEntry#viewNoEntryViaBlogsAggregatorPG">
-			<var name="entryTitle" value="${entryTitle}" />
-		</execute>
+		<execute macro="BlogsEntry#viewNoEntryViaBlogsAggregatorPG" />
 
 		<execute macro="User#logoutPG" />
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName}" />
+			<var name="pageName" value="Blogs Page" />
 		</execute>
 
 		<execute macro="BlogsEntry#viewNoEntryAsGuestPG">
-			<var name="entryTitle" value="${entryTitle}" />
+			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName2}" />
+			<var name="pageName" value="Blogs Aggregator Page" />
 		</execute>
 
-		<execute macro="BlogsEntry#viewNoEntryAsGuestViaBlogsAggregatorPG">
-			<var name="entryTitle" value="${entryTitle}" />
-		</execute>
+		<execute macro="BlogsEntry#viewNoEntryViaBlogsAggregatorPG" />
 
 		<execute function="Pause" locator1="120000" />
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName2}" />
+			<var name="pageName" value="Blogs Aggregator Page" />
 		</execute>
 
-		<execute macro="BlogsEntry#viewEntryAsGuestViaBlogsAggregatorPG">
-			<var name="entryContent" value="${entryContent}" />
-			<var name="entryTitle" value="${entryTitle}" />
+		<execute function="AssertTextEquals" locator1="Portlet#H2_HEADER" value1="Blogs Aggregator" />
+
+		<var name="key_entryAbstractDescription" value="Blogs Entry Abstract Description" />
+		<var name="key_entryTitle" value="Blogs Entry Title" />
+
+		<execute function="AssertTextEquals" locator1="BlogsEntry#TITLE" value1="Blogs Entry Title" />
+		<execute function="AssertTextEquals" locator1="BlogsEntry#CONTENT_ABSTRACT" value1="Blogs Entry Abstract Description" />
+
+		<execute function="AssertClick" locator1="BlogsEntry#TITLE_LINK" value1="Blogs Entry Title" />
+
+		<execute macro="BlogsEntry#viewEntry">
+			<var name="entryContent" value="Blogs Entry Content" />
+			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 
 		<execute macro="User#loginPG">
@@ -1393,13 +1733,17 @@
 		</execute>
 
 		<execute macro="Page#gotoPG">
-			<var name="pageName" value="${pageName2}" />
+			<var name="pageName" value="Blogs Aggregator Page" />
 		</execute>
 
-		<execute macro="BlogsEntry#viewEntryViaBlogsAggregatorPG">
-			<var name="entryAbstractDescription" value="${entryAbstractDescription}" />
-			<var name="entryContent" value="${entryContent}" />
-			<var name="entryTitle" value="${entryTitle}" />
+		<execute function="AssertTextEquals" locator1="Portlet#H2_HEADER" value1="Blogs Aggregator" />
+		<execute function="AssertTextEquals" locator1="BlogsEntry#CONTENT_ABSTRACT" value1="Blogs Entry Abstract Description" />
+
+		<execute function="AssertClick" locator1="BlogsEntry#TITLE_LINK" value1="Blogs Entry Title" />
+
+		<execute macro="BlogsEntry#viewEntry">
+			<var name="entryContent" value="Blogs Entry Content" />
+			<var name="entryTitle" value="Blogs Entry Title" />
 		</execute>
 	</command>
 
@@ -1418,7 +1762,7 @@
 			<var name="uploadFileName" value="Document_1.jpg" />
 		</execute>
 
-		<execute macro="BlogsEntry#publish" />
+		<execute macro="PortletEntry#publish" />
 
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="Blogs Page" />
@@ -1436,10 +1780,6 @@
 	</command>
 
 	<command name="ViewParentOrganizationViaSelectOrganizationInBlogsConfiguration" priority="4">
-		<execute macro="Page#addPG">
-			<var name="pageName" value="${pageName}" />
-		</execute>
-
 		<execute macro="Page#gotoPG">
 			<var name="pageName" value="${pageName}" />
 		</execute>
@@ -1457,7 +1797,7 @@
 
 		<execute function="SelectFrame" locator1="IFrame#CONFIGURATION" />
 
-		<execute function="AssertClick" locator1="Configuration#NAVIGATION_SETUP" value1="Setup" />
+		<execute function="AssertClick" locator1="NavBar#SETUP" value1="Setup" />
 
 		<execute function="AssertClick" locator1="Button#SELECT" value1="Select" />
 
@@ -1465,10 +1805,12 @@
 
 		<execute function="SelectFrame" locator1="UsersAndOrganizationsSelectOrganization#SELECT_ORGANIZATION_IFRAME" />
 
-		<execute function="AssertElementPresent" locator1="Message#INFO_1" />
+		<execute function="AssertElementPresent" locator1="Message#EMPTY_INFO" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Users and Organizations" />
+		<execute macro="IFrame#selectTopFrame" />
+
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
 		</execute>
 
 		<var name="orgNameList" value="Organization1 Name,Organization2 Name,Organization3 Name" />
@@ -1476,22 +1818,31 @@
 		<for list="${orgNameList}" param="orgName">
 			<execute macro="Organization#addCP">
 				<var name="orgName" value="${orgName}" />
-				<var name="orgType" value="Regular Organization" />
+				<var name="orgType" value="Organization" />
 			</execute>
 
-			<execute macro="Page#gotoCP">
-				<var name="portletName" value="Users and Organizations" />
+			<execute macro="ProductMenu#gotoControlPanelUsers">
+				<var name="portlet" value="Users and Organizations" />
 			</execute>
 		</for>
+
+		<execute macro="UsersAndOrganizationsNavigator#gotoOrganizations" />
+
+		<execute macro="Organization#searchCP">
+			<var name="orgName" value="Organization3 Name" />
+			<var name="searchTerm" value="Organization3 Name" />
+		</execute>
 
 		<execute macro="Organization#selectParentOrganizationCP">
 			<var name="orgName" value="Organization3 Name" />
 			<var name="parentOrgName" value="Organization1 Name" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Users and Organizations" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
 		</execute>
+
+		<execute macro="UsersAndOrganizationsNavigator#gotoOrganizations" />
 
 		<execute macro="Organization#viewParentOrganizationCP">
 			<var name="orgName" value="Organization1 Name" />
@@ -1500,9 +1851,11 @@
 			<var name="subOrgName" value="Organization3 Name" />
 		</execute>
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Users and Organizations" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
 		</execute>
+
+		<execute macro="UsersAndOrganizationsNavigator#gotoOrganizations" />
 
 		<execute macro="Organization#viewParentOrganizationCP">
 			<var name="orgName" value="Organization2 Name" />

@@ -102,7 +102,7 @@
 									/>
 
 									<liferay-ui:search-container-row
-										className="com.liferay.portal.model.Group"
+										className="com.liferay.portal.kernel.model.Group"
 										keyProperty="groupId"
 										modelVar="childGroup"
 									>
@@ -113,7 +113,7 @@
 													assetCategoryClassPK="<%= childGroup.getGroupId() %>"
 													assetTagClassName="<%= Group.class.getName() %>"
 													assetTagClassPK="<%= childGroup.getGroupId() %>"
-													description="<%= HtmlUtil.escape(childGroup.getDescription(locale)) %>"
+													description="<%= childGroup.getDescription(locale) %>"
 													displayStyle="<%= displayStyle %>"
 													showCheckbox="<%= false %>"
 													thumbnailSrc="<%= childGroup.getLogoURL(themeDisplay, true) %>"

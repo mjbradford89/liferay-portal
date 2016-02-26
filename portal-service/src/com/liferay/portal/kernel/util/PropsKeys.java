@@ -99,13 +99,9 @@ public interface PropsKeys {
 
 	public static final String ASSET_RENDERER_ENABLED = "asset.renderer.enabled.";
 
-	public static final String ASSET_TAG_SUGGESTIONS_ENABLED = "asset.tag.suggestions.enabled";
-
 	public static final String ASSET_VOCABULARY_DEFAULT = "asset.vocabulary.default";
 
-	public static final String AUDIT_MESSAGE_COM_LIFERAY_PORTAL_MODEL_LAYOUT_VIEW = "audit.message.com.liferay.portal.model.Layout.VIEW";
-
-	public static final String AUDIT_MESSAGE_SCHEDULER_JOB = "audit.message.scheduler.job";
+	public static final String AUDIT_MESSAGE_COM_LIFERAY_PORTAL_MODEL_LAYOUT_VIEW = "audit.message.com.liferay.portal.kernel.model.Layout.VIEW";
 
 	public static final String AUTH_FAILURE = "auth.failure";
 
@@ -495,10 +491,6 @@ public interface PropsKeys {
 
 	public static final String DEFAULT_GUEST_PUBLIC_LAYOUT_TEMPLATE_ID = "default.guest.public.layout.template.id";
 
-	public static final String DEFAULT_GUEST_PUBLIC_LAYOUT_WAP_COLOR_SCHEME_ID = "default.guest.public.layout.wap.color.scheme.id";
-
-	public static final String DEFAULT_GUEST_PUBLIC_LAYOUT_WAP_THEME_ID = "default.guest.public.layout.wap.theme.id";
-
 	public static final String DEFAULT_GUEST_PUBLIC_LAYOUTS_LAR = "default.guest.public.layouts.lar";
 
 	public static final String DEFAULT_LANDING_PAGE_PATH = "default.landing.page.path";
@@ -529,10 +521,6 @@ public interface PropsKeys {
 
 	public static final String DEFAULT_USER_PRIVATE_LAYOUT_TEMPLATE_ID = "default.user.private.layout.template.id";
 
-	public static final String DEFAULT_USER_PRIVATE_LAYOUT_WAP_COLOR_SCHEME_ID = "default.user.private.layout.wap.color.scheme.id";
-
-	public static final String DEFAULT_USER_PRIVATE_LAYOUT_WAP_THEME_ID = "default.user.private.layout.wap.theme.id";
-
 	public static final String DEFAULT_USER_PRIVATE_LAYOUTS_LAR = "default.user.private.layouts.lar";
 
 	public static final String DEFAULT_USER_PUBLIC_LAYOUT_FRIENDLY_URL = "default.user.public.layout.friendly.url";
@@ -547,15 +535,7 @@ public interface PropsKeys {
 
 	public static final String DEFAULT_USER_PUBLIC_LAYOUT_TEMPLATE_ID = "default.user.public.layout.template.id";
 
-	public static final String DEFAULT_USER_PUBLIC_LAYOUT_WAP_COLOR_SCHEME_ID = "default.user.public.layout.wap.color.scheme.id";
-
-	public static final String DEFAULT_USER_PUBLIC_LAYOUT_WAP_THEME_ID = "default.user.public.layout.wap.theme.id";
-
 	public static final String DEFAULT_USER_PUBLIC_LAYOUTS_LAR = "default.user.public.layouts.lar";
-
-	public static final String DEFAULT_WAP_COLOR_SCHEME_ID = "default.wap.color.scheme.id";
-
-	public static final String DEFAULT_WAP_THEME_ID = "default.wap.theme.id";
 
 	public static final String DIRECT_SERVLET_CONTEXT_ENABLED = "direct.servlet.context.enabled";
 
@@ -649,6 +629,10 @@ public interface PropsKeys {
 
 	public static final String DL_FILE_ENTRY_PREVIEW_FORK_PROCESS_ENABLED = "dl.file.entry.preview.fork.process.enabled";
 
+	public static final String DL_FILE_ENTRY_PREVIEW_GENERATION_TIMEOUT_GHOSTSCRIPT = "dl.file.entry.preview.generation.timeout.ghostscript";
+
+	public static final String DL_FILE_ENTRY_PREVIEW_GENERATION_TIMEOUT_PDFBOX = "dl.file.entry.preview.generation.timeout.pdfbox";
+
 	public static final String DL_FILE_ENTRY_PREVIEW_IMAGE_MIME_TYPES = "dl.file.entry.preview.image.mime.types";
 
 	public static final String DL_FILE_ENTRY_PREVIEW_VIDEO = "dl.file.entry.preview.video.";
@@ -717,8 +701,6 @@ public interface PropsKeys {
 
 	public static final String DL_FOLDER_ICON_CHECK_COUNT = "dl.folder.icon.check.count";
 
-	public static final String DL_FOLDER_MENU_VISIBLE = "dl.folder.menu.visible";
-
 	public static final String DL_FOLDERS_SEARCH_VISIBLE = "dl.folders.search.visible";
 
 	public static final String DL_NAME_BLACKLIST = "dl.name.blacklist";
@@ -749,8 +731,6 @@ public interface PropsKeys {
 
 	public static final String DL_WEBDAV_SUBSTITUTION_CHAR = "dl.webdav.substitution.char";
 
-	public static final String DOCKBAR_ADD_PORTLETS = "dockbar.add.portlets";
-
 	public static final String DYNAMIC_RESOURCE_SERVLET_ALLOWED_PATHS = "dynamic.resource.servlet.allowed.paths";
 
 	public static final String EDITOR_WYSIWYG_DEFAULT = "editor.wysiwyg.default";
@@ -759,15 +739,13 @@ public interface PropsKeys {
 
 	public static final String EHCACHE_BOOTSTRAP_CACHE_LOADER_ENABLED = "ehcache.bootstrap.cache.loader.enabled";
 
-	public static final String EHCACHE_BOOTSTRAP_CACHE_LOADER_FACTORY = "ehcache.bootstrap.cache.loader.factory";
+	public static final String EHCACHE_BOOTSTRAP_CACHE_LOADER_PROPERTIES = "ehcache.bootstrap.cache.loader.properties";
 
-	public static final String EHCACHE_CACHE_EVENT_LISTENER_FACTORY = "ehcache.cache.event.listener.factory";
+	public static final String EHCACHE_BOOTSTRAP_CACHE_LOADER_PROPERTIES_DEFAULT = "ehcache.bootstrap.cache.loader.properties.default";
 
-	public static final String EHCACHE_CACHE_MANAGER_PEER_LISTENER_FACTORY = "ehcache.cache.manager.peer.listener.factory";
+	public static final String EHCACHE_CLUSTER_LINK_REPLICATOR_PROPERTIES = "ehcache.cluster.link.replicator.properties";
 
-	public static final String EHCACHE_CACHE_MANAGER_PEER_PROVIDER_FACTORY = "ehcache.cache.manager.peer.provider.factory";
-
-	public static final String EHCACHE_CLUSTER_LINK_REPLICATION_ENABLED = "ehcache.cluster.link.replication.enabled";
+	public static final String EHCACHE_CLUSTER_LINK_REPLICATOR_PROPERTIES_DEFAULT = "ehcache.cluster.link.replicator.properties.default";
 
 	public static final String EHCACHE_MULTI_VM_CONFIG_LOCATION = "ehcache.multi.vm.config.location";
 
@@ -803,25 +781,13 @@ public interface PropsKeys {
 
 	public static final String FIELD_EDITABLE_USER_TYPES = "field.editable.user.types";
 
-	public static final String FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_CONTACT_BIRTHDAY = "field.enable.com.liferay.portal.model.Contact.birthday";
+	public static final String FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_CONTACT_BIRTHDAY = "field.enable.com.liferay.portal.kernel.model.Contact.birthday";
 
-	public static final String FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_CONTACT_MALE = "field.enable.com.liferay.portal.model.Contact.male";
+	public static final String FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_CONTACT_MALE = "field.enable.com.liferay.portal.kernel.model.Contact.male";
 
-	public static final String FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_ORGANIZATION_STATUS = "field.enable.com.liferay.portal.model.Organization.status";
+	public static final String FIELD_ENABLE_COM_LIFERAY_PORTAL_MODEL_ORGANIZATION_STATUS = "field.enable.com.liferay.portal.kernel.model.Organization.status";
 
 	public static final String FINALIZE_MANAGER_THREAD_ENABLED = "finalize.manager.thread.enabled";
-
-	public static final String FLAGS_EMAIL_BODY = "flags.email.body";
-
-	public static final String FLAGS_EMAIL_FROM_ADDRESS = "flags.email.from.address";
-
-	public static final String FLAGS_EMAIL_FROM_NAME = "flags.email.from.name";
-
-	public static final String FLAGS_EMAIL_SUBJECT = "flags.email.subject";
-
-	public static final String FLAGS_GUEST_USERS_ENABLED = "flags.guest.users.enabled";
-
-	public static final String FLAGS_REASONS = "flags.reasons";
 
 	public static final String FULL_PAGE_DISPLAYABLE = "full.page.displayable";
 
@@ -881,8 +847,6 @@ public interface PropsKeys {
 
 	public static final String IMAGEMAGICK_RESOURCE_LIMIT = "imagemagick.resource.limit.";
 
-	public static final String INDEX_COMMIT_IMMEDIATELY = "index.commit.immediately";
-
 	public static final String INDEX_DATE_FORMAT_PATTERN = "index.date.format.pattern";
 
 	public static final String INDEX_DUMP_COMPRESSION_ENABLED = "index.dump.compression.enabled";
@@ -894,8 +858,6 @@ public interface PropsKeys {
 	public static final String INDEX_ON_UPGRADE = "index.on.upgrade";
 
 	public static final String INDEX_PERMISSION_FILTER_SEARCH_AMPLIFICATION_FACTOR = "index.permission.filter.search.amplification.factor";
-
-	public static final String INDEX_READ_ONLY = "index.read.only";
 
 	public static final String INDEX_SEARCH_COLLATED_SPELL_CHECK_RESULT_ENABLED = "index.search.collated.spell.check.result.enabled";
 
@@ -1098,6 +1060,10 @@ public interface PropsKeys {
 	public static final String LAYOUT_PROTOTYPE_MERGE_LOCK_MAX_TIME = "layout.prototype.merge.lock.max.time";
 
 	public static final String LAYOUT_REMEMBER_MAXIMIZED_WINDOW_STATE = "layout.remember.maximized.window.state";
+
+	public static final String LAYOUT_SCOPE_GROUP_FINDER_ENABLED = "layout.scope.group.finder.enabled";
+
+	public static final String LAYOUT_SCOPE_GROUP_FINDER_THRESHOLD = "layout.scope.group.finder.threshold";
 
 	public static final String LAYOUT_SET_FORM_UPDATE = "layout.set.form.update";
 
@@ -1329,13 +1295,7 @@ public interface PropsKeys {
 
 	public static final String MESSAGE_BOARDS_THREAD_AS_QUESTION_BY_DEFAULT = "message.boards.thread.as.question.by.default";
 
-	public static final String MESSAGE_BOARDS_THREAD_PREVIOUS_AND_NEXT_NAVIGATION_ENABLED = "message.boards.thread.previous.and.next.navigation.enabled";
-
 	public static final String MESSAGE_BOARDS_THREAD_PRIORITIES = "message.boards.thread.priorities";
-
-	public static final String MESSAGE_BOARDS_THREAD_VIEWS = "message.boards.thread.views";
-
-	public static final String MESSAGE_BOARDS_THREAD_VIEWS_DEFAULT = "message.boards.thread.views.default";
 
 	public static final String MESSAGE_BOARDS_USER_RANKS = "message.boards.user.ranks";
 
@@ -1362,8 +1322,6 @@ public interface PropsKeys {
 	public static final String MOBILE_DEVICE_RULES_RULE_GROUP_COPY_POSTFIX = "mobile.device.rules.rule.group.copy.postfix";
 
 	public static final String MOBILE_DEVICE_SESSION_CACHE_ENABLED = "mobile.device.session.cache.enabled";
-
-	public static final String MOBILE_DEVICE_STYLING_WAP_ENABLED = "mobile.device.styling.wap.enabled";
 
 	public static final String MODEL_HINTS_CONFIGS = "model.hints.configs";
 
@@ -1843,14 +1801,6 @@ public interface PropsKeys {
 
 	public static final String RTL_CSS_EXCLUDED_PATHS_REGEXP = "rtl.css.excluded.paths.regexp";
 
-	public static final String SANDBOX_DEPLOY_DIR = "sandbox.deploy.dir";
-
-	public static final String SANDBOX_DEPLOY_ENABLED = "sandbox.deploy.enabled";
-
-	public static final String SANDBOX_DEPLOY_INTERVAL = "sandbox.deploy.interval";
-
-	public static final String SANDBOX_DEPLOY_LISTENERS = "sandbox.deploy.listeners";
-
 	public static final String SANITIZER_IMPL = "sanitizer.impl";
 
 	public static final String SCHEDULER_DESCRIPTION_MAX_LENGTH = "scheduler.description.max.length";
@@ -2113,17 +2063,17 @@ public interface PropsKeys {
 
 	public static final String SPRITE_ROOT_DIR = "sprite.root.dir";
 
-	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_COUNTRY_COUNTRY_ID = "sql.data.com.liferay.portal.model.Country.country.id";
+	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_COUNTRY_COUNTRY_ID = "sql.data.com.liferay.portal.kernel.model.Country.country.id";
 
-	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_ACCOUNT_ADDRESS = "sql.data.com.liferay.portal.model.ListType.account.address";
+	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_ACCOUNT_ADDRESS = "sql.data.com.liferay.portal.kernel.model.ListType.account.address";
 
-	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_ACCOUNT_EMAIL_ADDRESS = "sql.data.com.liferay.portal.model.ListType.account.email.address";
+	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_ACCOUNT_EMAIL_ADDRESS = "sql.data.com.liferay.portal.kernel.model.ListType.account.email.address";
 
-	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_CONTACT_EMAIL_ADDRESS = "sql.data.com.liferay.portal.model.ListType.contact.email.address";
+	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_CONTACT_EMAIL_ADDRESS = "sql.data.com.liferay.portal.kernel.model.ListType.contact.email.address";
 
-	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_ORGANIZATION_STATUS = "sql.data.com.liferay.portal.model.ListType.organization.status";
+	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_LISTTYPE_ORGANIZATION_STATUS = "sql.data.com.liferay.portal.kernel.model.ListType.organization.status";
 
-	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_REGION_REGION_ID = "sql.data.com.liferay.portal.model.Region.region.id";
+	public static final String SQL_DATA_COM_LIFERAY_PORTAL_MODEL_REGION_REGION_ID = "sql.data.com.liferay.portal.kernel.model.Region.region.id";
 
 	public static final String SQL_DATA_MAX_PARAMETERS = "sql.data.max.parameters";
 

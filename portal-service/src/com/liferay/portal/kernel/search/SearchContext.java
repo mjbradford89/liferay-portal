@@ -15,11 +15,11 @@
 package com.liferay.portal.kernel.search;
 
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.search.facet.Facet;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.model.Layout;
 
 import java.io.Serializable;
 
@@ -186,7 +186,7 @@ public class SearchContext implements Serializable {
 
 	public String getSearchEngineId() {
 		if (Validator.isNull(_searchEngineId)) {
-			return SearchEngineUtil.getDefaultSearchEngineId();
+			return SearchEngineHelperUtil.getDefaultSearchEngineId();
 		}
 
 		return _searchEngineId;

@@ -83,11 +83,9 @@
 		<var name="userScreenName2" value="socialoffice02" />
 		<var name="userScreenName3" value="socialoffice03" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Users and Organizations" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
 		</execute>
-
-		<execute function="AssertClick" locator1="NavTab#ALL_USERS" value1="All Users" />
 
 		<var name="key_userScreenName" value="${adminScreenName}" />
 
@@ -98,8 +96,7 @@
 
 		<execute function="Type" locator1="UsersAndOrganizationsEditUser#DETAILS_FIRST_NAME_FIELD" value1="${adminFirstName}" />
 		<execute function="Type" locator1="UsersAndOrganizationsEditUser#DETAILS_LAST_NAME_FIELD" value1="${adminLastName}" />
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="PortletEntry#save" />
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
@@ -821,11 +818,9 @@
 		<var name="userSocialNetworkTwitter" value="&lt;script&gt;alert(&quot;socialoffice01&quot;);&lt;/script&gt;" />
 		<var name="userTag" value="tag1" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Users and Organizations" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
 		</execute>
-
-		<execute function="AssertClick" locator1="NavTab#ALL_USERS" value1="All Users" />
 
 		<var name="key_userScreenName" value="${adminScreenName}" />
 
@@ -836,8 +831,7 @@
 
 		<execute function="Type" locator1="UsersAndOrganizationsEditUser#DETAILS_FIRST_NAME_FIELD" value1="${adminFirstName}" />
 		<execute function="Type" locator1="UsersAndOrganizationsEditUser#DETAILS_LAST_NAME_FIELD" value1="${adminLastName}" />
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="PortletEntry#save" />
 
 		<execute macro="SOContactsCenter#addConnection">
 			<var name="adminEmailAddress" value="${adminEmailAddress}" />
@@ -945,7 +939,7 @@
 		</execute>
 
 		<execute function="Click" locator1="ControlMenu#USER_NAME" />
-		<execute function="Click" locator1="UserBar#USER_MY_PROFILE" value1="My Profile" />
+		<execute function="Click" locator1="UserBar#USER_PROFILE" value1="Profile" />
 
 		<execute function="AssertAlertNotPresent" />
 
@@ -1009,11 +1003,9 @@
 		<var name="userScreenName3" value="socialoffice03" />
 		<var name="wikiPageContent" value="Wiki FrontPage Content" />
 
-		<execute macro="Page#gotoCP">
-			<var name="portletName" value="Users and Organizations" />
+		<execute macro="ProductMenu#gotoControlPanelUsers">
+			<var name="portlet" value="Users and Organizations" />
 		</execute>
-
-		<execute function="AssertClick" locator1="NavTab#ALL_USERS" value1="All Users" />
 
 		<var name="key_userScreenName" value="${adminScreenName}" />
 
@@ -1024,8 +1016,7 @@
 
 		<execute function="Type" locator1="UsersAndOrganizationsEditUser#DETAILS_FIRST_NAME_FIELD" value1="${adminFirstName}" />
 		<execute function="Type" locator1="UsersAndOrganizationsEditUser#DETAILS_LAST_NAME_FIELD" value1="${adminLastName}" />
-		<execute function="AssertClick" locator1="Button#SAVE" value1="Save" />
-		<execute function="AssertTextEquals" locator1="Message#SUCCESS" value1="Your request completed successfully." />
+		<execute macro="PortletEntry#save" />
 
 		<execute macro="SOUser#addUserWithSORole">
 			<var name="userEmailAddress" value="${userEmailAddress1}" />
@@ -1057,9 +1048,12 @@
 			<var name="siteType" value="${siteType}" />
 		</execute>
 
-		<execute macro="Page#gotoConfigurationCP">
-			<var name="portletName" value="Site Settings" />
-			<var name="siteScopeName" value="${siteName}" />
+		<execute macro="ProductMenu#gotoSite">
+			<var name="site" value="${siteName}" />
+		</execute>
+
+		<execute macro="ProductMenu#gotoSitesConfiguration">
+			<var name="portlet" value="Site Settings" />
 		</execute>
 
 		<execute macro="Site#editFriendlyURLCP">
@@ -1429,10 +1423,8 @@
 			<var name="userLoginFullName" value="${admin}" />
 		</execute>
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteNameFriendly}" />
-			<var name="siteURL" value="true" />
-			<var name="soPage" value="true" />
 		</execute>
 
 		<execute function="AssertAlertNotPresent" />
@@ -1444,9 +1436,8 @@
 
 		<execute function="AssertAlertNotPresent" />
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteNameFriendly}" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute function="AssertAlertNotPresent" />
@@ -1459,9 +1450,8 @@
 
 		<execute function="AssertAlertNotPresent" />
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteNameFriendly}" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute function="AssertAlertNotPresent" />
@@ -1474,9 +1464,8 @@
 
 		<execute function="AssertAlertNotPresent" />
 
-		<execute macro="Page#openURL">
+		<execute macro="Navigator#openSiteURL">
 			<var name="siteName" value="${siteNameFriendly}" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute function="AssertAlertNotPresent" />

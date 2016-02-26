@@ -17,6 +17,7 @@ package com.liferay.portal.kernel.util;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -51,6 +52,19 @@ public class AggregateResourceBundle extends ResourceBundle {
 	}
 
 	@Override
+	public Locale getLocale() {
+		for (ResourceBundle resourceBundle : _resourceBundles) {
+			Locale locale = resourceBundle.getLocale();
+
+			if (locale != null) {
+				return locale;
+			}
+		}
+
+		return super.getLocale();
+	}
+
+	@Override
 	protected Object handleGetObject(String key) {
 		if (key == null) {
 			throw new NullPointerException();
@@ -74,17 +88,19 @@ public class AggregateResourceBundle extends ResourceBundle {
 	@Override
 	protected Set<String> handleKeySet() {
 		if (_keys == null) {
-			_keys = new HashSet<>();
+			Set<String> keys = new HashSet<>();
 
 			for (ResourceBundle resourceBundle : _resourceBundles) {
-				_keys.addAll(resourceBundle.keySet());
+				keys.addAll(resourceBundle.keySet());
 			}
+
+			_keys = keys;
 		}
 
 		return _keys;
 	}
 
-	private Set<String> _keys;
+	private volatile Set<String> _keys;
 	private final ResourceBundle[] _resourceBundles;
 
 }

@@ -17,17 +17,17 @@ package com.liferay.portal.upgrade.util;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
+import com.liferay.portal.kernel.model.PortletConstants;
+import com.liferay.portal.kernel.model.PortletInstance;
+import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.service.permission.PortletPermissionUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
-import com.liferay.portal.model.LayoutTypePortletConstants;
-import com.liferay.portal.model.PortletConstants;
-import com.liferay.portal.model.PortletInstance;
-import com.liferay.portal.model.ResourceConstants;
-import com.liferay.portal.service.permission.PortletPermissionUtil;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -259,7 +259,7 @@ public class UpgradePortletId extends UpgradeProcess {
 		ResultSet rs = null;
 
 		try {
-			StringBundler sb = new StringBundler(14);
+			StringBundler sb = new StringBundler(18);
 
 			sb.append("select plid, typeSettings from Layout where ");
 			sb.append("typeSettings like '%=");
@@ -309,9 +309,7 @@ public class UpgradePortletId extends UpgradeProcess {
 				"update Portlet set portletId = '" + newRootPortletId +
 					"' where portletId = '" + oldRootPortletId + "'");
 
-			runSQL(
-				"update ResourceAction set name = '" + newRootPortletId +
-					"' where name = '" + oldRootPortletId + "'");
+			updateResourceAction(oldRootPortletId, newRootPortletId);
 
 			updateResourcePermission(oldRootPortletId, newRootPortletId, true);
 
@@ -348,6 +346,14 @@ public class UpgradePortletId extends UpgradeProcess {
 		finally {
 			DataAccess.cleanUp(ps);
 		}
+	}
+
+	protected void updateResourceAction(String oldName, String newName)
+		throws Exception {
+
+		runSQL(
+			"update ResourceAction set name = '" + newName +
+				"' where name = '" + oldName + "'");
 	}
 
 	protected void updateResourcePermission(

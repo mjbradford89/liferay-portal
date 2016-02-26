@@ -20,7 +20,7 @@ feature or API will be dropped in an upcoming version.
 replaces an old API, in spite of the old API being kept in Liferay Portal for
 backwards compatibility.
 
-*This document has been reviewed through commit `5b13a9e`.*
+*This document has been reviewed through commit `09adf28`.*
 
 ## Breaking Changes Contribution Guidelines
 
@@ -47,7 +47,7 @@ Here's the template to use for each breaking change (note how it ends with a
 horizontal rule):
 
 ```
-### [Title]
+### Title
 - **Date:**
 - **JIRA Ticket:**
 
@@ -125,7 +125,7 @@ New way:
     <liferay-ui:logo-selector
         currentLogoURL="<%= selUser.getPortraitURL(themeDisplay) %>"
         defaultLogoURL="<%= UserConstants.getPortraitURL(themeDisplay.getPathImage(), selUser.isMale(), 0) %>"
-        hasUpdateLogoPermission='<%= UsersAdminUtil.hasUpdateFieldPermission(selUser, "portrait") %>'
+        hasUpdateLogoPermission='<%= UsersAdminUtil.hasUpdateFieldPermission(permissionChecker, null, selUser, "portrait") %>'
         imageId="<%= selUser.getPortraitId() %>"
         logoDisplaySelector=".user-logo"
         maxFileSize="<%= PrefsPropsUtil.getLong(PropsKeys.USERS_IMAGE_MAX_SIZE) / 1024 %>"
@@ -2449,9 +2449,7 @@ In Velocity:
 
 In FreeMarker:
 
-    <#assign liferay_portlet = PortalJspTagLibs["/WEB-INF/tld/liferay-portlet-ext.tld"] />
-
-    <@liferay_portlet["runtime"] portletName="145" />
+    <@liferay_portlet_ext["runtime"] portletName="145" />
 
 #### Why was this change made?
 
@@ -2928,14 +2926,41 @@ the preference is no longer used.
 
 ---------------------------------------
 
+### Removed the liferay-ui:navigation Tag and Replaced with liferay-site-navigation:navigation Tag
+- **Date:** 2015-Nov-20
+- **JIRA Ticket:** LPS-60328
+
+#### What changed?
+
+The `liferay-ui:navigation` tag has been removed and replaced with the
+`liferay-site-navigation:navigation` tag.
+
+#### Who is affected?
+
+Plugins or templates that are using the `liferay-ui:navigation` tag need to
+update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-site-navigation` tag library (if necessary) and
+update the tag namespace from `liferay-ui:navigation` to
+`liferay-site-navigation:navigation`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
 ### Removed Software Catalog Portlet and Services
 - **Date:** 2015-Nov-21
 - **JIRA Ticket:** LPS-60705
 
 #### What changed?
 
-The Software Catalog portlet and its associated services are no longer part
-of Liferay's source code or binaries.
+The Software Catalog portlet and its associated services are no longer part of
+Liferay's source code or binaries.
 
 #### Who is affected?
 
@@ -2956,6 +2981,85 @@ later become Liferay's Marketplace. It was later replaced and has not been used
 by Liferay since then. It has also been used minimally outside of Liferay. The
 decision was made to remove it so Liferay could be more lightweight and free
 time to focus on other areas of the product that add more value.
+
+---------------------------------------
+
+### Removed the liferay-ui:asset-categories-navigation Tag and Replaced with liferay-asset:asset-categories-navigation
+- **Date:** 2015-Nov-25
+- **JIRA Ticket:** LPS-60753
+
+#### What changed?
+
+The `liferay-ui:asset-categories-navigation` tag has been removed and replaced
+with the `liferay-asset:asset-categories-navigation` tag.
+
+#### Who is affected?
+
+Plugins or templates that are using the `liferay-ui:asset-categories-navigation`
+tag need to update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-asset` tag library (if necessary) and update the
+tag namespace from `liferay-ui:asset-categories-navigation` to
+`liferay-asset:asset-categories-navigation`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### Removed the liferay-ui:trash-empty Tag and Replaced with liferay-trash:empty
+- **Date:** 2015-Nov-30
+- **JIRA Ticket:** LPS-60779
+
+#### What changed?
+
+The `liferay-ui:trash-empty` tag has been removed and replaced with the
+`liferay-trash:empty` tag.
+
+#### Who is affected?
+
+Plugins and templates that are using the `liferay-ui:trash-empty` tag need to
+update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-trash` tag library (if necessary) and update the
+tag namespace from `liferay-ui:trash-empty` to `liferay-trash:empty`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### Removed the liferay-ui:trash-undo Tag and Replaced with liferay-trash:undo
+- **Date:** 2015-Nov-30
+- **JIRA Ticket:** LPS-60779
+
+#### What changed?
+
+The `liferay-ui:trash-undo` taglib has been removed and replaced with the
+`liferay-trash:undo` tag.
+
+#### Who is affected?
+
+Plugins and templates that are using the `liferay-ui:trash-undo` tag need to
+update their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-trash` tag library (if necessary) and update the
+tag namespace from `liferay-ui:trash-undo` to `liferay-trash:undo`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
 
 ---------------------------------------
 
@@ -3063,7 +3167,7 @@ flexibility for all developers.
 
 ---------------------------------------
 
-### Moved Recycle Bin logic into a new `DLTrashService` interface
+### Moved Recycle Bin Logic Into a New DLTrashService Interface
 - **Date:** 2015-Dec-02
 - **JIRA Ticket:** LPS-60810
 
@@ -3089,3 +3193,760 @@ circular dependencies. Until now, `DLAppService` was responsible for exposing
 the Recycle Bin logic, delegating it to other components. The problem was, the
 components depended on `DLAppService` to implement their logic. Extracting the
 services from `DLAppService` was the only sensible solution to this circularity.
+
+---------------------------------------
+
+### Deprecated the liferay-ui:flags Tag and Replaced with liferay-flags:flags
+- **Date:** 2015-Dec-02
+- **JIRA Ticket:** LPS-60967
+
+#### What changed?
+
+The `liferay-ui:flags` tag has been deprecated and replaced with the
+`liferay-flags:flags` tag.
+
+#### Who is affected?
+
+Plugins or templates that are using the `liferay-ui:flags` tag need to update
+their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-flags` tag library (if necessary) and update the
+tag namespace from `liferay-ui:flags` to `liferay-flags:flags`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### Removed the liferay-ui:diff Tag and Replaced with liferay-frontend:diff
+- **Date:** 2015-Dec-14
+- **JIRA Ticket:** LPS-61326
+
+#### What changed?
+
+The `liferay-ui:diff` tag has been removed and replaced with the
+`liferay-frontend:diff` tag.
+
+#### Who is affected?
+
+Plugins and templates that are using the `liferay-ui:diff` tag need to update
+their usage of the tag.
+
+#### How should I update my code?
+
+You should import the `liferay-frontend` tag library (if necessary) and update
+the tag namespace from `liferay-ui:diff` to `liferay-frontend:diff`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### Taglibs Are No Longer Accessible via the theme Variable in FreeMarker
+- **Date:** 2016-Jan-06
+- **JIRA Ticket:** LPS-61683
+
+#### What changed?
+
+The `${theme}` variable previously injected in the FreeMarker context providing
+access to various tags and utilities is no longer available.
+
+#### Who is affected?
+
+This affects FreeMarker templates that are using the `${theme}` variable.
+
+#### How should I update my code?
+
+All the tags and utility methods formerly accessed via the `${theme}` variable
+should now be accessed directly via tags.
+
+**Example 1**
+
+    ${theme.runtime("com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry", portletProviderAction.VIEW, "", default_preferences)}
+
+can be replaced by:
+
+    <@liferay_portlet["runtime"]
+        defaultPreferences=default_preferences
+        portletProviderAction=portletProviderAction.VIEW
+        portletProviderClassName="com.liferay.portal.kernel.servlet.taglib.ui.BreadcrumbEntry"
+    />
+
+**Example 2**
+
+    ${theme.include(content_include)}
+
+can be replaced by:
+
+    <@liferay_util["include"] page=content_include />
+
+**Example 3**
+
+    ${theme.wrapPortlet("portlet.ftl", content_include)}
+
+can be replaced by:
+
+    <@liferay_theme["wrap-portlet"] page="portlet.ftl">
+        <@liferay_util["include"] page=content_include />
+    </@>
+
+**Example 4**
+
+    ${theme.iconHelp(portlet_description)}
+
+can be replaced by:
+
+    <@liferay_ui["icon-help"] message=portlet_description />
+
+**Example 5**
+
+    ${nav_item.icon()}
+
+can be replaced by:
+
+    <@liferay_theme["layout-icon"] layout=${nav_item.getLayout()} />
+
+#### Why was this change made?
+
+Previously, the `{$theme}` variable was being injected with the
+`VelocityTaglibImpl` class. This created coupling between template engines and
+coupling between specific tags and template engines at the same time.
+
+FreeMarker already offers native support for tags which cover all the
+functionality originally provided by the `{$theme}` variable. Removing this
+coupling helps future development while still keeping all the existing
+functionality.
+
+---------------------------------------
+
+### Portlet Configuration Options May Not Always Be Displayed
+- **Date:** 2016-Jan-07
+- **JIRA Ticket:** LPS-54620 and LPS-61820
+
+#### What changed?
+
+The portlet configuration options (e.g., configuration, export/import, look and
+feel, etc.) were always displayed in every view of the portlet and couldn't be
+customized.
+
+With Lexicon, the configuration options displayed are based on the portlet's
+context, so not all options will always be displayed.
+
+#### Who is affected?
+
+This affects portlets that should always display all configuration options no
+matter which view of the portlet is rendered.
+
+#### How should I update my code?
+
+If you don't apply any change to your source code, you will experience the
+following behaviors based on the portlet type:
+
+- **Struts Portlet:** If you've defined a `view-action` init parameter, the
+configuration options are only displayed for that particular view when invoking
+a URL with a parameter `struts_action` with the value indicated in the
+`view-action` init parameter and also in the default view of the portlet (when
+there is no `struts_action` parameter in the request).
+
+- **Liferay MVC Portlet:** If you've defined a `view-template` init parameter,
+the configuration options are only displayed when that template is rendered by
+invoking a URL with a parameter `mvcPath` with the value indicated in the
+`view-template` init parameter. and also in the default view of the portlet
+(when there is no `mvcPath` parameter in the request).
+
+- If it's a portlet using any other framework, the configuration options are
+always displayed.
+
+In order to keep the old behavior of adding the configuration options in every
+view, you need to add the init parameter
+`always-display-default-configuration-icons` with the value `true`.
+
+#### Why was this change made?
+
+Lexicon patterns require the ability to specify different configuration options
+depending on the view of the portlet by adding or removing options. This can be
+easily achieved by using the `PortletConfigurationIcon` classes.
+
+---------------------------------------
+
+### The getURLView Method of AssetRenderer Returns String Instead of PortletURL
+- **Date:** 2016-Jan-08
+- **JIRA Ticket:** LPS-61853
+
+#### What changed?
+
+The `AssetRenderer` interface's `getURLView` method has changed and now returns
+`String` instead of `PortletURL`.
+
+#### Who is affected?
+
+This affects all custom assets that implement the `AssetRenderer` interface.
+
+#### How should I update my code?
+
+You should update the method signature to reflect that it returns a `String` and
+you should adapt your implementation accordingly.
+
+In general, it should be as easy as returning `portletURL.toString()`.
+
+#### Why was this change made?
+
+The API was forcing implementations to return a `PortletURL`, making it
+difficult to return another type of link. For example, in the case of Bookmarks,
+developers wanted to automatically redirect to other potential URLs.
+
+---------------------------------------
+
+### Removed the icon Method from NavItem
+- **Date:** 2016-Jan-11
+- **JIRA Ticket:** LPS-61900
+
+#### What changed?
+
+The `NavItem` interface has changed and the method `icon` that would render the
+nav item icon has been removed.
+
+#### Who is affected?
+
+This affects all themes using the `nav_item.icon()` method.
+
+#### How should I update my code?
+
+You should update your code to call the method `nav_item.iconURL` to return the
+image's URL and then use it as you prefer.
+
+**Example:**
+
+    <img alt="Page Icon" class="layout-logo" src="<%= nav_item.iconURL()" />
+
+To keep the previous behavior in Velocity:
+
+    $theme.layoutIcon($nav_item.getLayout())
+
+To keep the previous behavior in FreeMarker:
+
+    <@liferay_theme["layout-icon"] layout=nav_item_layout />
+
+#### Why was this change made?
+
+The API was forcing developers to have a dependency on a taglib, which didn't
+allow for much flexibility.
+
+---------------------------------------
+
+### Renamed Packages to Fix the Split Packages Problem
+- **Date:** 2016-Jan-19
+- **JIRA Ticket:** LPS-61952
+
+#### What changed?
+
+Split packages are caused when two or more bundles export the same package name
+and version. When the classloader loads a package, exactly one exporter of that
+package is chosen; so if a package is split across multiple bundles, then an
+importer only sees a subset of the package.
+
+#### Who is affected?
+
+The `portal-service` and `portal-impl` folders have many packages with the same
+name. Therefore, all of these packages are affected by the split package
+problem.
+
+#### How should I update my code?
+
+You should rename duplicated package names if they currently exist somewhere
+else.
+
+**Example**
+
+- `com.liferay.counter` &rarr; `com.liferay.counter.kernel`
+
+- `com.liferay.mail.model` &rarr; `com.liferay.mail.kernel.model`
+
+- `com.liferay.mail.service` &rarr; `com.liferay.mail.kernel.service`
+
+- `com.liferay.mail.util` &rarr; `com.liferay.mail.kernel.util`
+
+- `com.liferay.portal.exception` &rarr; `com.liferay.portal.kernel.exception`
+
+- `com.liferay.portal.jdbc.pool.metrics` &rarr; `com.liferay.portal.kernel.jdbc.pool.metrics`
+
+- `com.liferay.portal.kernel.mail` &rarr; `com.liferay.mail.kernel.model`
+
+- `com.liferay.portal.layoutconfiguration.util` &rarr; `com.liferay.portal.kernel.layoutconfiguration.util`
+
+- `com.liferay.portal.layoutconfiguration.util.xml` &rarr; `com.liferay.portal.kernel.layoutconfiguration.util.xml`
+
+- `com.liferay.portal.mail` &rarr; `com.liferay.portal.kernel.mail`
+
+- `com.liferay.portal.model` &rarr; `com.liferay.portal.kernel.model`
+
+- `com.liferay.portal.model.adapter` &rarr; `com.liferay.portal.kernel.model.adapter`
+
+- `com.liferay.portal.model.impl` &rarr; `com.liferay.portal.kernel.model.impl`
+
+- `com.liferay.portal.portletfilerepository` &rarr; `com.liferay.portal.kernel.portletfilerepository`
+
+- `com.liferay.portal.repository.proxy` &rarr; `com.liferay.portal.kernel.repository.proxy`
+
+- `com.liferay.portal.security.auth` &rarr; `com.liferay.portal.kernel.security.auth`
+
+- `com.liferay.portal.security.exportimport` &rarr; `com.liferay.portal.kernel.security.exportimport`
+
+- `com.liferay.portal.security.ldap` &rarr; `com.liferay.portal.kernel.security.ldap`
+
+- `com.liferay.portal.security.membershippolicy` &rarr; `com.liferay.portal.kernel.security.membershippolicy`
+
+- `com.liferay.portal.security.permission` &rarr; `com.liferay.portal.kernel.security.permission`
+
+- `com.liferay.portal.security.permission.comparator` &rarr; `com.liferay.portal.kernel.security.permission.comparator`
+
+- `com.liferay.portal.security.pwd` &rarr; `com.liferay.portal.kernel.security.pwd`
+
+- `com.liferay.portal.security.xml` &rarr; `com.liferay.portal.kernel.security.xml`
+
+- `com.liferay.portal.service.configuration` &rarr; `com.liferay.portal.kernel.service.configuration`
+
+- `com.liferay.portal.service.http` &rarr; `com.liferay.portal.kernel.service.http`
+
+- `com.liferay.portal.service.permission` &rarr; `com.liferay.portal.kernel.service.permission`
+
+- `com.liferay.portal.service.persistence.impl` &rarr; `com.liferay.portal.kernel.service.persistence.impl`
+
+- `com.liferay.portal.theme` &rarr; `com.liferay.portal.kernel.theme`
+
+- `com.liferay.portal.util` &rarr; `com.liferay.portal.kernel.util`
+
+- `com.liferay.portal.util.comparator` &rarr; `com.liferay.portal.kernel.util.comparator`
+
+- `com.liferay.portal.verify.model` &rarr; `com.liferay.portal.kernel.verify.model`
+
+- `com.liferay.portal.webserver` &rarr; `com.liferay.portal.kernel.webserver`
+
+- `com.liferay.portlet` &rarr; `com.liferay.kernel.portlet`
+
+- `com.liferay.portlet.admin.util` &rarr; `com.liferay.admin.kernel.util`
+
+- `com.liferay.portlet.announcements` &rarr; `com.liferay.announcements.kernel`
+
+- `com.liferay.portlet.asset` &rarr; `com.liferay.asset.kernel`
+
+- `com.liferay.portlet.backgroundtask.util.comparator` &rarr; `com.liferay.background.task.kernel.util.comparator`
+
+- `com.liferay.portlet.blogs` &rarr; `com.liferay.blogs.kernel`
+
+- `com.liferay.portlet.blogs.exception` &rarr; `com.liferay.blogs.kernel.exception`
+
+- `com.liferay.portlet.blogs.model` &rarr; `com.liferay.blogs.kernel.model`
+
+- `com.liferay.portlet.blogs.service` &rarr; `com.liferay.blogs.kernel.service`
+
+- `com.liferay.portlet.blogs.service.persistence` &rarr; `com.liferay.blogs.service.persistence`
+
+- `com.liferay.portlet.blogs.util.comparator` &rarr; `com.liferay.blogs.kernel.util.comparator`
+
+- `com.liferay.portlet.documentlibrary` &rarr; `com.liferay.document.library.kernel`
+
+- `com.liferay.portlet.dynamicdatamapping` &rarr; `com.liferay.dynamic.data.mapping.kernel`
+
+- `com.liferay.portlet.expando` &rarr; `com.liferay.expando.kernel`
+
+- `com.liferay.portlet.exportimport` &rarr; `com.liferay.exportimport.kernel`
+
+- `com.liferay.portlet.imagegallerydisplay.display.context` &rarr; `com.liferay.image.gallery.display.kernel.display.context`
+
+- `com.liferay.portlet.journal.util` &rarr; `com.liferay.journal.kernel.util`
+
+- `com.liferay.portlet.layoutsadmin.util` &rarr; `com.liferay.layouts.admin.kernel.util`
+
+- `com.liferay.portlet.messageboards` &rarr; `com.liferay.message.boards.kernel`
+
+- `com.liferay.portlet.messageboards.constants` &rarr; `com.liferay.message.boards.kernel.constants`
+
+- `com.liferay.portlet.messageboards.exception` &rarr; `com.liferay.message.boards.kernel.exception`
+
+- `com.liferay.portlet.messageboards.model` &rarr; `com.liferay.message.boards.kernel.model`
+
+- `com.liferay.portlet.messageboards.service` &rarr; `com.liferay.message.boards.kernel.service`
+
+- `com.liferay.portlet.messageboards.service.persistence` &rarr; `com.liferay.message.boards.kernel.service.persistence`
+
+- `com.liferay.portlet.messageboards.util` &rarr; `com.liferay.message.boards.kernel.util`
+
+- `com.liferay.portlet.messageboards.util.comparator` &rarr; `com.liferay.message.boards.kernel.util.comparator`
+
+- `com.liferay.portlet.mobiledevicerules` &rarr; `com.liferay.mobile.device.rules`
+
+- `com.liferay.portlet.portletconfiguration.util` &rarr; `com.liferay.portlet.configuration.kernel.util`
+
+- `com.liferay.portlet.rolesadmin.util` &rarr; `com.liferay.roles.admin.kernel.util`
+
+- `com.liferay.portlet.sites.util` &rarr; `com.liferay.sites.kernel.util`
+
+- `com.liferay.portlet.social` &rarr; `com.liferay.social.kernel`
+
+- `com.liferay.portlet.trash` &rarr; `com.liferay.trash.kernel`
+
+- `com.liferay.portlet.useradmin.util` &rarr; `com.liferay.users.admin.kernel.util`
+
+- `com.liferay.portlet.ratings` &rarr; `com.liferay.ratings.kernel`
+
+- `com.liferay.portlet.ratings.definition` &rarr; `com.liferay.ratings.kernel.definition`
+
+- `com.liferay.portlet.ratings.display.context` &rarr; `com.liferay.ratings.kernel.display.context`
+
+- `com.liferay.portlet.ratings.exception` &rarr; `com.liferay.ratings.kernel.exception`
+
+- `com.liferay.portlet.ratings.model` &rarr; `com.liferay.ratings.kernel.model`
+
+- `com.liferay.portlet.ratings.service` &rarr; `com.liferay.ratings.kernel.service`
+
+- `com.liferay.portlet.ratings.service.persistence` &rarr; `com.liferay.ratings.kernel.service.persistence`
+
+- `com.liferay.portlet.ratings.transformer` &rarr; `com.liferay.ratings.kernel.transformer`
+
+#### Why was this change made?
+
+This change was necessary to solve the current split package problems and
+prevent future ones.
+
+---------------------------------------
+
+### Removed the aui:column Tag and Replaced with aui:col
+- **Date:** 2016-Jan-19
+- **JIRA Ticket:** LPS-62208
+
+#### What changed?
+
+The `aui:column` tag has been removed and replaced with the `aui:col` tag.
+
+#### Who is affected?
+
+Plugins or templates that are using the `aui:column` tag must update their usage
+of the tag.
+
+#### How should I update my code?
+
+You should import the `aui` tag library (if necessary) and update the tag
+namespace from `aui:column` to `aui:col`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to modularize Liferay
+Portal by means of an OSGi container.
+
+---------------------------------------
+
+### The title Field of FileEntry Models is Now Mandatory
+- **Date:** 2016-Jan-25
+- **JIRA Ticket:** LPS-62251
+
+#### What changed?
+
+The `title` field of file entries was optional as long as a source file name was
+provided. To avoid confusion, the title is now required by the API and is filled
+automatically by the UI when a source file name is present.
+
+#### Who is affected?
+
+This affects any user of the local or remote API. Users of the Web UI are
+unaffected.
+
+#### How should I update my code?
+
+You should pass a non-null, non-empty string for the `title` parameter of the
+`addFileEntry` and `updateFileEntry` methods.
+
+#### Why was this change made?
+
+The `title` field was marked as mandatory, but it was possible to create a
+document without filling it, as the backend would infer a value from the source
+file name automatically. This was considered confusing from a UX perspective.
+
+---------------------------------------
+
+### DLUtil.getImagePreviewURL and DLUtil.getThumbnailSrc Can Return Empty Strings
+- **Date:** 2016-Jan-28
+- **JIRA Ticket:** LPS-62643
+
+#### What changed?
+
+The `DLUtil.getImagePreviewURL` and `DLUtil.getThumbnailSrc` methods return an
+empty string if there are no previews or thumbnails for the specific image,
+video, or document.
+
+Previously, if there were no previews or thumbnails, these methods would return
+a URL to an image based on the document.
+
+#### Who is affected?
+
+This affects any developer invoking `DLUtil.getImagePreviewURL` or
+`DLUtil.getThumbnailSrc`.
+
+#### How should I update my code?
+
+You should be aware that the method could return an empty string and act
+accordingly. For example, you could display the `documents-and-media` Lexicon
+icon instead.
+
+#### Why was this change made?
+
+In order to display the `documents-and-media` Lexicon icon in Documents and
+Media, this change was necessary.
+
+---------------------------------------
+
+### Removed the aui:button-item Tag and Replaced with aui:button
+- **Date:** 2016-Feb-04
+- **JIRA Ticket:** LPS-62922
+
+#### What changed?
+
+The `aui:button-item` tag has been removed and replaced with the `aui:button`
+tag.
+
+#### Who is affected?
+
+Plugins or templates that are using the `aui:button-item` tag must update their
+usage of the tag.
+
+#### How should I update my code?
+
+You should import the `aui` tag library (if necessary) and update the tag
+namespace from `aui:button-item` to `aui:button`.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to remove deprecated
+code.
+
+---------------------------------------
+
+### Removed the WAP Functionality
+- **Date:** 2016-Feb-05
+- **JIRA Ticket:** LPS-62920
+
+#### What changed?
+
+The WAP functionality has been removed.
+
+#### Who is affected?
+
+This affects developers that use the WAP functionality.
+
+#### How should I update my code?
+
+If you are using any of the following methods, you need to remove the parameters
+in those methods related to WAP.
+
+- `LayoutLocalServiceUtil.updateLookAndFeel`
+- `LayoutRevisionLocalServiceUtil.addLayoutRevision`
+- `LayoutRevisionLocalServiceUtil.updateLayoutRevision`
+- `LayoutRevisionServiceUtil.addLayoutRevision`
+- `LayoutServiceUtil.updateLookAndFeel`
+- `LayoutSetLocalServiceUtil.updateLookAndFeel`
+- `LayoutSetServiceUtil.updateLookAndFeel`
+- `ThemeLocalServiceUtil.getColorScheme`
+- `ThemeLocalServiceUtil.getControlPanelThemes`
+- `ThemeLocalServiceUtil.getPageThemes`
+- `ThemeLocalServiceUtil.getTheme`
+
+#### Why was this change made?
+
+This change was made because WAP is an obsolete functionality.
+
+---------------------------------------
+
+### Removed the aui:layout Tag with No Direct Replacement
+- **Date:** 2016-Feb-08
+- **JIRA Ticket:** LPS-62935
+
+#### What changed?
+
+The `aui:layout` tag has been removed with no direct replacement.
+
+#### Who is affected?
+
+Plugins or templates that are using the `aui:layout` tag must remove their usage
+of the tag.
+
+#### How should I update my code?
+
+There is no direct replacement. You should remove all usages of the `aui:layout`
+tag.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to remove deprecated
+tags.
+
+---------------------------------------
+
+### Deprecated the liferay-portlet:icon-back Tag with No Direct Replacement
+- **Date:** 2016-Feb-10
+- **JIRA Ticket:** LPS-63101
+
+#### What changed?
+
+The `liferay-portlet:icon-back` tag has been deprecated with no direct
+replacement.
+
+#### Who is affected?
+
+Plugins or templates that are using the `liferay-portlet:icon-back` tag must
+remove their usage of the tag.
+
+#### How should I update my code?
+
+There is no direct replacement. You should remove all usages of the
+`liferay-portlet:icon-back` tag.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to deprecate unused tags.
+
+---------------------------------------
+
+### Deprecated the liferay-security:encrypt Tag with No Direct Replacement
+- **Date:** 2016-Feb-10
+- **JIRA Ticket:** LPS-63106
+
+#### What changed?
+
+The `liferay-security:encrypt` tag has been deprecated with no direct
+replacement.
+
+#### Who is affected?
+
+Plugins or templates that are using the `liferay-security:encrypt` tag must
+remove their usage of the tag.
+
+#### How should I update my code?
+
+There is no direct replacement. You should remove all usages of the
+`liferay-security:encrypt` tag.
+
+#### Why was this change made?
+
+This change was made as a part of the ongoing strategy to deprecate unused tags.
+
+---------------------------------------
+
+### Removed the Ability to Specify Class Loaders in Scripting
+- **Date:** 2016-Feb-17
+- **JIRA Ticket:** LPS-63180
+
+#### What changed?
+
+- `com.liferay.portal.kernel.scripting.ScriptingExecutor` no longer uses the
+provided class loaders in the eval methods.
+- `com.liferay.portal.kernel.scripting.Scripting` no longer uses the provided
+class loaders and servlet context names in eval and exec methods.
+
+#### Who is affected?
+
+- All implementations of `com.liferay.portal.kernel.scripting.ScriptingExecutor`
+are affected.
+- All classes that call `com.liferay.portal.kernel.scripting.Scripting` are
+affected.
+
+#### How should I update my code?
+
+You should remove class loader and servlect context parameters from calls to the
+modified methods.
+
+#### Why was this change made?
+
+This change was made since custom class loader management is no longer necessary
+in the OSGi container.
+
+---------------------------------------
+
+### User Operation and Importer/Exporter Classes and Utilities Have Been Moved or Removed From portal-kernel  
+- **Date:** 2016-Feb-17
+- **JIRA Ticket:** LPS-63205
+
+#### What changed?
+
+- `com.liferay.portal.kernel.security.exportimport.UserImporter`,
+`com.liferay.portal.kernel.security.exportimport.UserExporter`,
+and `com.liferay.portal.kernel.security.exportimport.UserOperation`  have been
+moved from portal-kernel to the portal-security-export-import-api module.
+
+- `com.liferay.portal.kernel.security.exportimport.UserImporterUtil` and
+`com.liferay.portal.kernel.security.exportimport.UserExporterUtil` have been
+removed with no replacement.
+
+#### Who is affected?
+
+- All implementations of
+`com.liferay.portal.kernel.security.exportimport.UserImporter` or
+`com.liferay.portal.kernel.security.exportimport.UserExporter`
+are affected.
+
+- All code that uses
+`com.liferay.portal.kernel.security.exportimport.UserImporterUtil`,
+`com.liferay.portal.kernel.security.exportimport.UserExporterUtil`,
+`com.liferay.portal.kernel.security.exportimport.UserImporter`, or
+`com.liferay.portal.kernel.security.exportimport.UserExporter`
+is affected.
+
+#### How should I update my code?
+
+If you are in an OSGi module, you can simply inject the UserImporter or
+UserExporter references
+
+    @Reference
+    private UserExporter_userExporter;
+
+    @Reference
+    private UserImporter _userImporter;
+
+If you are in a legacy WAR or WAB, you will need a snippet like:
+
+    Bundle bundle = FrameworkUtil.getBundle(getClass());
+
+    BundleContext bundleContext = bundle.getBundleContext();
+
+    ServiceReference<UserImporter> serviceReference =
+        bundleContext.getServiceReference(UserImporter.class);
+
+    UserImporter userImporter = bundleContext.getService(serviceReference);
+
+#### Why was this change made?
+
+The change was made to improve modularity of the user import/export subsystem in
+the product.
+
+---------------------------------------
+
+### Deprecated Category Entry for Users
+- **Date:** 2016-Feb-22
+- **JIRA Ticket:** LPS-63466
+
+#### What changed?
+
+The category entry for Site Administration &rarr; Users has been deprecated in
+favor of Site Administration &rarr; Members.
+
+#### Who is affected?
+
+All developers who specified a `control-panel-entry-category` to be visible in
+Site Administration &rarr; Users are affected.
+
+#### How should I update my code?
+
+You should change the entry from `site_administration.users` to
+`site_administration.members` to make it visible in the category.
+
+#### Why was this change made?
+
+This change standardizes naming conventions and separates concepts between Users
+in the Control Panel and Site Members.
+
+---------------------------------------

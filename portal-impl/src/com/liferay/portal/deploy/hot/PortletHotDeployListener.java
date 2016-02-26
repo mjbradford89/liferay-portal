@@ -24,8 +24,19 @@ import com.liferay.portal.kernel.javadoc.JavadocManagerUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.PortletApp;
+import com.liferay.portal.kernel.model.PortletCategory;
+import com.liferay.portal.kernel.model.PortletFilter;
+import com.liferay.portal.kernel.model.PortletURLListener;
+import com.liferay.portal.kernel.portlet.CustomUserAttributes;
+import com.liferay.portal.kernel.portlet.InvokerPortlet;
 import com.liferay.portal.kernel.portlet.PortletBag;
 import com.liferay.portal.kernel.portlet.PortletBagPool;
+import com.liferay.portal.kernel.portlet.PortletInstanceFactoryUtil;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
+import com.liferay.portal.kernel.service.PortletLocalServiceUtil;
+import com.liferay.portal.kernel.service.ResourceActionLocalServiceUtil;
 import com.liferay.portal.kernel.servlet.DirectServletRegistryUtil;
 import com.liferay.portal.kernel.servlet.FileTimestampUtil;
 import com.liferay.portal.kernel.servlet.PortletServlet;
@@ -36,29 +47,19 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.InfrastructureUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.ServerDetector;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.model.Portlet;
-import com.liferay.portal.model.PortletApp;
-import com.liferay.portal.model.PortletCategory;
-import com.liferay.portal.model.PortletFilter;
-import com.liferay.portal.model.PortletURLListener;
-import com.liferay.portal.security.permission.ResourceActionsUtil;
-import com.liferay.portal.service.PortletLocalServiceUtil;
-import com.liferay.portal.service.ResourceActionLocalServiceUtil;
-import com.liferay.portal.util.Portal;
+import com.liferay.portal.language.LanguageResources;
 import com.liferay.portal.util.PortalInstances;
 import com.liferay.portal.util.WebAppPool;
-import com.liferay.portlet.CustomUserAttributes;
-import com.liferay.portlet.InvokerPortlet;
 import com.liferay.portlet.PortletContextBag;
 import com.liferay.portlet.PortletContextBagPool;
 import com.liferay.portlet.PortletFilterFactory;
-import com.liferay.portlet.PortletInstanceFactoryUtil;
 import com.liferay.portlet.PortletURLListenerFactory;
 import com.liferay.registry.Registry;
 import com.liferay.registry.RegistryUtil;
@@ -73,6 +74,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -182,13 +184,38 @@ public class PortletHotDeployListener extends BaseHotDeployListener {
 		Registry registry = RegistryUtil.getRegistry();
 
 		for (Locale locale : LanguageUtil.getAvailableLocales()) {
-			ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
-				portlet.getResourceBundle(), locale, classLoader);
+			try {
+				ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+					portlet.getResourceBundle(), locale, classLoader);
+
+				Map<String, Object> properties = new HashMap<>();
+
+				properties.put("language.id", LocaleUtil.toLanguageId(locale));
+				properties.put("javax.portlet.name", portlet.getPortletId());
+
+				ServiceRegistration<ResourceBundle> serviceRegistration =
+					registry.registerService(
+						ResourceBundle.class, resourceBundle, properties);
+
+				_serviceRegistrations.put(resourceBundle, serviceRegistration);
+			}
+			catch (MissingResourceException mre) {
+				if (_log.isInfoEnabled()) {
+					_log.info(
+						"Portlet " + portlet.getPortletName() + " does " +
+							"not have translations for available locale " +
+								locale);
+				}
+			}
 
 			Map<String, Object> properties = new HashMap<>();
 
 			properties.put("language.id", LocaleUtil.toLanguageId(locale));
 			properties.put("javax.portlet.name", portlet.getPortletId());
+			properties.put("service.ranking", Integer.MIN_VALUE);
+
+			ResourceBundle resourceBundle = LanguageResources.getResourceBundle(
+				locale);
 
 			ServiceRegistration<ResourceBundle> serviceRegistration =
 				registry.registerService(

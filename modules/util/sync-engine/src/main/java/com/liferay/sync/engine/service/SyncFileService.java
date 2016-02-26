@@ -224,9 +224,7 @@ public class SyncFileService {
 		deleteSyncFile(syncFile, true);
 	}
 
-	public static void deleteSyncFile(
-		final SyncFile syncFile, final boolean notify) {
-
+	public static void deleteSyncFile(SyncFile syncFile, boolean notify) {
 		try {
 
 			// Sync file
@@ -235,6 +233,19 @@ public class SyncFileService {
 
 			// Sync files
 
+			deleteSyncFiles(syncFile, notify);
+		}
+		catch (SQLException sqle) {
+			if (_logger.isDebugEnabled()) {
+				_logger.debug(sqle.getMessage(), sqle);
+			}
+		}
+	}
+
+	public static void deleteSyncFiles(
+		final SyncFile syncFile, final boolean notify) {
+
+		try {
 			if (!syncFile.isFolder()) {
 				return;
 			}
@@ -248,6 +259,10 @@ public class SyncFileService {
 							syncFile.getFilePathName());
 
 					for (SyncFile childSyncFile : childSyncFiles) {
+						if (childSyncFile.isSystem()) {
+							continue;
+						}
+
 						childSyncFile.setUiEvent(syncFile.getUiEvent());
 
 						doDeleteSyncFile(childSyncFile, notify);
@@ -321,6 +336,19 @@ public class SyncFileService {
 			}
 
 			return null;
+		}
+	}
+
+	public static List<SyncFile> findSyncFiles(int state, long syncAccountId) {
+		try {
+			return _syncFilePersistence.findByS_S(state, syncAccountId);
+		}
+		catch (SQLException sqle) {
+			if (_logger.isDebugEnabled()) {
+				_logger.debug(sqle.getMessage(), sqle);
+			}
+
+			return Collections.emptyList();
 		}
 	}
 
@@ -401,21 +429,6 @@ public class SyncFileService {
 		}
 	}
 
-	public static List<SyncFile> findSyncFilesByRepositoryId(
-		long repositoryId, long syncAccountId) {
-
-		try {
-			return _syncFilePersistence.findByR_S(repositoryId, syncAccountId);
-		}
-		catch (SQLException sqle) {
-			if (_logger.isDebugEnabled()) {
-				_logger.debug(sqle.getMessage(), sqle);
-			}
-
-			return Collections.emptyList();
-		}
-	}
-
 	public static SyncFilePersistence getSyncFilePersistence() {
 		if (_syncFilePersistence != null) {
 			return _syncFilePersistence;
@@ -450,19 +463,6 @@ public class SyncFileService {
 		}
 	}
 
-	public static long getSyncFilesCount(long syncAccountId, int uiEvent) {
-		try {
-			return _syncFilePersistence.countByS_U(syncAccountId, uiEvent);
-		}
-		catch (SQLException sqle) {
-			if (_logger.isDebugEnabled()) {
-				_logger.debug(sqle.getMessage(), sqle);
-			}
-
-			return 0;
-		}
-	}
-
 	public static long getSyncFilesCount(
 		long syncAccountId, String type, int uiEvent) {
 
@@ -476,6 +476,46 @@ public class SyncFileService {
 			}
 
 			return 0;
+		}
+	}
+
+	public static boolean hasSyncFiles(long syncAccountId, int uiEvent) {
+		try {
+			SyncFile syncFile = _syncFilePersistence.fetchByS_U_First(
+				syncAccountId, uiEvent);
+
+			if (syncFile == null) {
+				return false;
+			}
+
+			return true;
+		}
+		catch (SQLException sqle) {
+			if (_logger.isDebugEnabled()) {
+				_logger.debug(sqle.getMessage(), sqle);
+			}
+
+			return false;
+		}
+	}
+
+	public static boolean hasSyncFiles(String parentFilePathName, int state) {
+		try {
+			SyncFile syncFile = _syncFilePersistence.fetchByPF_S_First(
+				parentFilePathName, state);
+
+			if (syncFile == null) {
+				return false;
+			}
+
+			return true;
+		}
+		catch (SQLException sqle) {
+			if (_logger.isDebugEnabled()) {
+				_logger.debug(sqle.getMessage(), sqle);
+			}
+
+			return false;
 		}
 	}
 
@@ -708,6 +748,10 @@ public class SyncFileService {
 	public static SyncFile updateFileSyncFile(
 			Path filePath, long syncAccountId, SyncFile syncFile)
 		throws Exception {
+
+		if (Files.notExists(filePath)) {
+			return null;
+		}
 
 		// Local sync file
 

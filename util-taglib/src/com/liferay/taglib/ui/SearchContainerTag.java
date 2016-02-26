@@ -103,7 +103,9 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 				_searchContainer.setHeaderNames(_headerNames);
 			}
 
-			_searchContainer.setId(_id);
+			if (Validator.isNotNull(_id)) {
+				_searchContainer.setId(_id);
+			}
 
 			if (Validator.isNotNull(_orderByColParam)) {
 				_searchContainer.setOrderByColParam(_orderByColParam);
@@ -250,14 +252,6 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 		return _deltaConfigurable;
 	}
 
-	/**
-	 * @deprecated As of 6.2.0, with no direct replacement. See LPS-41307.
-	 */
-	@Deprecated
-	public boolean isHasResults() {
-		return true;
-	}
-
 	public void setCssClass(String cssClass) {
 		_cssClass = cssClass;
 	}
@@ -284,13 +278,6 @@ public class SearchContainerTag<R> extends ParamAndPropertyAncestorTagImpl {
 
 	public void setEmptyResultsMessage(String emptyResultsMessage) {
 		_emptyResultsMessage = emptyResultsMessage;
-	}
-
-	/**
-	 * @deprecated As of 6.2.0, see LPS-41307
-	 */
-	@Deprecated
-	public void setHasResults(boolean hasResults) {
 	}
 
 	public void setHeaderNames(String headerNames) {

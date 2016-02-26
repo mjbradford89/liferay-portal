@@ -27,7 +27,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,7 +51,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Point;
-import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
@@ -316,6 +320,36 @@ public class WebDriverHelper {
 		return _defaultWindowHandle;
 	}
 
+	public static String getEditorName(WebDriver webDriver, String locator) {
+		String titleAttribute = getAttribute(webDriver, locator + "@title");
+
+		if (titleAttribute.contains("Rich Text Editor,")) {
+			int x = titleAttribute.indexOf(",");
+			int y = titleAttribute.indexOf(",", x + 1);
+
+			if (y == -1) {
+				y = titleAttribute.length();
+			}
+
+			return titleAttribute.substring(x + 2, y);
+		}
+
+		String idAttribute = getAttribute(webDriver, locator + "@id");
+
+		if (idAttribute.contains("cke__")) {
+			int x = idAttribute.indexOf("cke__");
+			int y = idAttribute.indexOf("cke__", x + 1);
+
+			if (y == -1) {
+				y = idAttribute.length();
+			}
+
+			return idAttribute.substring(x + 4, y);
+		}
+
+		return idAttribute;
+	}
+
 	public static int getElementHeight(WebDriver webDriver, String locator) {
 		WebElement webElement = getWebElement(webDriver, locator, "1");
 
@@ -431,8 +465,72 @@ public class WebDriverHelper {
 		return point.getY();
 	}
 
-	public static String getLocation(WebDriver webDriver) {
-		return webDriver.getCurrentUrl();
+	public static String getLocation(WebDriver webDriver) throws Exception {
+		List<Exception> exceptions = new ArrayList<>();
+
+		for (int i = 0; i < 3; i++) {
+			FutureTask<String> futureTask = new FutureTask<>(
+				new Callable<String>() {
+
+					@Override
+					public String call() throws Exception {
+						return _webDriver.getCurrentUrl();
+					}
+
+					private Callable<String> init(WebDriver webDriver)
+						throws Exception {
+
+						_webDriver = webDriver;
+
+						return this;
+					}
+
+					private WebDriver _webDriver;
+
+				}.init(webDriver));
+
+			Thread thread = new Thread(futureTask);
+
+			thread.start();
+
+			try {
+				String location = futureTask.get(
+					PropsValues.TIMEOUT_EXPLICIT_WAIT, TimeUnit.SECONDS);
+
+				return location;
+			}
+			catch (CancellationException ce) {
+				exceptions.add(ce);
+			}
+			catch (ExecutionException ee) {
+				exceptions.add(ee);
+			}
+			catch (InterruptedException ie) {
+				exceptions.add(ie);
+			}
+			catch (TimeoutException te) {
+				exceptions.add(te);
+			}
+			finally {
+				thread.interrupt();
+			}
+
+			System.out.println("WebDriverHelper#getLocation(WebDriver):");
+			System.out.println(webDriver.toString());
+
+			Set<String> windowHandles = webDriver.getWindowHandles();
+
+			for (String windowHandle : windowHandles) {
+				System.out.println(windowHandle);
+			}
+		}
+
+		if (!exceptions.isEmpty()) {
+			throw new Exception(exceptions.get(0));
+		}
+		else {
+			throw new TimeoutException();
+		}
 	}
 
 	public static int getNavigationBarHeight() {
@@ -639,31 +737,16 @@ public class WebDriverHelper {
 	}
 
 	public static void open(WebDriver webDriver, String url) {
-		String targetURL = "";
+		String targetURL = url.trim();
 
-		if (url.startsWith("/")) {
-			targetURL = PropsValues.PORTAL_URL + url;
-		}
-		else {
-			targetURL = url;
+		if (targetURL.startsWith("/")) {
+			targetURL = PropsValues.PORTAL_URL + targetURL;
 		}
 
-		for (int i = 0; i < 2; i++) {
-			try {
-				webDriver.get(targetURL);
+		webDriver.get(targetURL);
 
-				if (PropsValues.BROWSER_TYPE.equals("internetexplorer")) {
-					refresh(webDriver);
-				}
-
-				if (targetURL.equals(getLocation(webDriver))) {
-					break;
-				}
-
-				Thread.sleep(1000);
-			}
-			catch (Exception e) {
-			}
+		if (PropsValues.BROWSER_TYPE.equals("internetexplorer")) {
+			refresh(webDriver);
 		}
 	}
 
@@ -725,7 +808,7 @@ public class WebDriverHelper {
 						optionWebElement.getAttribute("value");
 
 					if (optionWebElementValue.equals(value)) {
-						label = optionWebElement.getText();
+						label = optionWebElementValue;
 
 						break;
 					}
@@ -889,6 +972,26 @@ public class WebDriverHelper {
 		javascriptExecutor.executeScript(sb.toString());
 	}
 
+	public static void typeEditor(
+		WebDriver webDriver, String locator, String value) {
+
+		WrapsDriver wrapsDriver = (WrapsDriver)getWebElement(
+			webDriver, locator);
+
+		JavascriptExecutor javascriptExecutor =
+			(JavascriptExecutor)wrapsDriver.getWrappedDriver();
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("CKEDITOR.instances[\"");
+		sb.append(getEditorName(webDriver, locator));
+		sb.append("\"].setData(\"");
+		sb.append(HtmlUtil.escapeJS(value.replace("\\", "\\\\")));
+		sb.append("\");");
+
+		javascriptExecutor.executeScript(sb.toString());
+	}
+
 	public static void uncheck(WebDriver webdDriver, String locator) {
 		WebElement webElement = getWebElement(webdDriver, locator);
 
@@ -955,7 +1058,7 @@ public class WebDriverHelper {
 
 			return true;
 		}
-		catch (TimeoutException te) {
+		catch (org.openqa.selenium.TimeoutException te) {
 			return false;
 		}
 	}
@@ -971,7 +1074,7 @@ public class WebDriverHelper {
 			(JavascriptExecutor)wrappedWebDriver;
 
 		javascriptExecutor.executeScript(
-			"arguments[0].scrollIntoView();", webElement);
+			"arguments[0].scrollIntoView(false);", webElement);
 	}
 
 	protected static void selectByRegexpText(
