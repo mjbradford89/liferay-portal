@@ -97,8 +97,6 @@ themes = ListUtil.sort(themes, new ThemeNameComparator(orderByType.equals("asc")
 		>
 
 			<%
-			row.setCssClass("col-md-2 col-sm-3 col-xs-6");
-
 			PluginPackage selPluginPackage = theme.getPluginPackage();
 
 			String cssClass = "theme-selector";
