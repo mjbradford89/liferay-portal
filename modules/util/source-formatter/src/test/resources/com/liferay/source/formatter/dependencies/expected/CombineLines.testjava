@@ -40,8 +40,14 @@ public class CombineLines extends SuperClass {
 	public static final String STRING_1;
 
 	@Meta.AD(deflt = "false", required = false)
-	public String getString(String test) {
+	public String getString1(String test) {
 		return test;
+	}
+
+	public String getString2(String test) {
+		return StringUtil.replace(
+			test, "Hello World Hello World Hello",
+			"World Hello World Hello World");
 	}
 
 	public String[][] getStringArray() {
@@ -148,6 +154,11 @@ public class CombineLines extends SuperClass {
 			"Hello World " + "Hello World Hello" +
 				"Hello World Hello World Hello";
 	}
+
+	protected final List<String> listWithAMediumLongVariableName =
+		new ArrayList<>();
+	protected final List<String> listWithAnLongerNameThanTheMediumLongNameOne =
+		new ArrayList<>();
 
 	private class SubClass1
 		extends SomeOtherClassWithALongNameThatDoesNotFitOnPreviousLine {

@@ -14,7 +14,7 @@
 
 package com.liferay.portal.search.elasticsearch.connection;
 
-import com.liferay.bnd.util.ConfigurableUtil;
+import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -170,10 +170,7 @@ public class ElasticsearchConnectionManager {
 				oldElasticsearchConnection.close();
 			}
 			catch (Exception e) {
-				if (_log.isErrorEnabled()) {
-					_log.error(
-						"Unable to close " + oldElasticsearchConnection, e);
-				}
+				_log.error("Unable to close " + oldElasticsearchConnection, e);
 			}
 		}
 

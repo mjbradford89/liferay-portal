@@ -199,6 +199,28 @@
 	<command name="addPGViaPanel">
 		<execute function="SelectFrame" locator1="IFrame#EDIT_ASSET" />
 
+		<if>
+			<isset var="templateName" />
+			<then>
+				<execute macro="Panel#expandPanel">
+					<var name="panelHeading" value="Structure and Template" />
+				</execute>
+
+				<execute function="AssertClick" locator1="WCEditWebContent#SELECT_TEMPLATE" value1="Select" />
+
+				<execute function="SelectFrame" value1="relative=top" />
+				<execute function="SelectFrame" locator1="IFrame#TEMPLATES" />
+
+				<var name="key_ddlTemplateName" value="${templateName}" />
+
+				<execute function="AssertClickNoError" locator1="DDMSelectTemplate#TEMPLATE_TABLE_CHOOSE_BUTTON" value1="Choose" />
+				<execute function="Confirm#assertConfirmationNoWait" value1="Selecting a new template deletes all unsaved content. Do you want to proceed?" />
+
+				<execute function="SelectFrame" value1="relative=top" />
+				<execute function="SelectFrame" locator1="IFrame#EDIT_ASSET" />
+			</then>
+		</if>
+
 		<execute macro="WebContent#addCP">
 			<var name="webContentContent" value="${webContentContent}" />
 			<var name="webContentTitle" value="${webContentTitle}" />
@@ -1148,7 +1170,7 @@
 		<execute function="AssertClickNoError" locator1="DDMSelectTemplate#TEMPLATE_TABLE_CHOOSE_BUTTON" value1="Choose" />
 		<execute function="Confirm#assertConfirmationNoWait" value1="Selecting a new template deletes all unsaved content. Do you want to proceed?" />
 
-		<execute macro="PortletEntry#publish" />
+		<execute macro="IFrame#selectTopFrame" />
 	</command>
 
 	<command name="subscribeCP">
@@ -1652,7 +1674,7 @@
 	</command>
 
 	<command name="viewTranslationPGViaWCD">
-		<execute function="SelectFrame" locator1="IFrame#EDIT_ASSET" />
+		<execute function="SelectFrame" locator1="IFrame#MODAL_IFRAME" />
 
 		<if>
 			<isset var="structureLocalizationName" />
@@ -1681,7 +1703,7 @@
 			<then>
 				<var name="key_localizedLanguage" value="${webContentTranslationLanguage}" />
 
-				<execute function="AssertClick" locator1="Translation#AVAILABLE_TRANSLATION" value1="${webContentTranslationLanguage}" />
+				<execute function="Click" locator1="Translation#AVAILABLE_TRANSLATION" />
 
 				<if>
 					<isset var="localizedTitle" />

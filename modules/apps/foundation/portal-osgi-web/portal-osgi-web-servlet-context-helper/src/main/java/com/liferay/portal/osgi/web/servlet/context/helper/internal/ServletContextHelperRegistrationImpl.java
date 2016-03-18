@@ -74,39 +74,40 @@ public class ServletContextHelperRegistrationImpl
 
 		String contextPath = getContextPath(bundle);
 
-		String servletContextName = getServletContextName(bundle, contextPath);
-
-		boolean wabShapedBundle = false;
+		_servletContextName = getServletContextName(bundle, contextPath);
 
 		URL url = bundle.getEntry("WEB-INF/");
 
 		if (url != null) {
-			wabShapedBundle = true;
+			_wabShapedBundle = true;
+		}
+		else {
+			_wabShapedBundle = false;
 		}
 
-		BundleContext bundleContext = bundle.getBundleContext();
+		_bundleContext = bundle.getBundleContext();
 
 		_customServletContextHelper = new CustomServletContextHelper(
-			bundle, wabShapedBundle);
+			bundle, _wabShapedBundle);
 
 		_servletContextHelperServiceRegistration = createServletContextHelper(
-			bundleContext, servletContextName, contextPath);
+			_bundleContext, _servletContextName, contextPath);
 
 		_servletContextListenerServiceRegistration =
-			createServletContextListener(bundleContext, servletContextName);
+			createServletContextListener(_bundleContext, _servletContextName);
 
 		_defaultServletServiceRegistration = createDefaultServlet(
-			bundleContext, servletContextName, wabShapedBundle);
+			_bundleContext, _servletContextName);
 
 		_jspServletServiceRegistration = createJspServlet(
-			bundleContext, servletContextName);
+			_bundleContext, _servletContextName);
 
 		_portletServletServiceRegistration = createPortletServlet(
-			bundleContext, servletContextName, wabShapedBundle);
+			_bundleContext, _servletContextName);
 
 		_portletServletRequestFilterServiceRegistration =
 			createRestrictPortletServletRequestFilter(
-				bundleContext, servletContextName);
+				_bundleContext, _servletContextName);
 	}
 
 	@Override
@@ -134,17 +135,8 @@ public class ServletContextHelperRegistrationImpl
 	}
 
 	@Override
-	public ServiceReference<ServletContextHelper>
-		getServletContextHelperSeviceReference() {
-
-		return _servletContextHelperServiceRegistration.getReference();
-	}
-
-	@Override
-	public ServiceReference<ServletContextListener>
-		getServletContextListenerSeviceReference() {
-
-		return _servletContextListenerServiceRegistration.getReference();
+	public boolean isWabShapedBundle() {
+		return _wabShapedBundle;
 	}
 
 	@Override
@@ -190,8 +182,7 @@ public class ServletContextHelperRegistrationImpl
 	}
 
 	protected ServiceRegistration<?> createDefaultServlet(
-		BundleContext bundleContext, String servletContextName,
-		boolean wabShapedBundle) {
+		BundleContext bundleContext, String servletContextName) {
 
 		Dictionary<String, Object> properties = new HashMapDictionary<>();
 
@@ -201,7 +192,7 @@ public class ServletContextHelperRegistrationImpl
 
 		String prefix = "/META-INF/resources";
 
-		if (wabShapedBundle) {
+		if (_wabShapedBundle) {
 			prefix = "/";
 		}
 
@@ -238,17 +229,17 @@ public class ServletContextHelperRegistrationImpl
 		properties.put(
 			HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_NAME, "jsp");
 		properties.put(
-			HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN, "*.jsp");
+			HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_PATTERN,
+			new String[] {"*.jsp", "*.jspx"});
 
 		return bundleContext.registerService(
 			Servlet.class, new JspServletWrapper(), properties);
 	}
 
 	protected ServiceRegistration<Servlet> createPortletServlet(
-		BundleContext bundleContext, String servletContextName,
-		boolean wabShapedBundle) {
+		BundleContext bundleContext, String servletContextName) {
 
-		if (wabShapedBundle) {
+		if (_wabShapedBundle) {
 			return null;
 		}
 
@@ -270,6 +261,10 @@ public class ServletContextHelperRegistrationImpl
 
 	protected ServiceRegistration<?> createRestrictPortletServletRequestFilter(
 		BundleContext bundleContext, String servletContextName) {
+
+		if (_wabShapedBundle) {
+			return null;
+		}
 
 		if (!GetterUtil.getBoolean(
 				_props.get(PropsKeys.PORTLET_CONTAINER_RESTRICT))) {
@@ -372,6 +367,7 @@ public class ServletContextHelperRegistrationImpl
 	private static final String _SERVLET_INIT_PARAM_PREFIX =
 		HttpWhiteboardConstants.HTTP_WHITEBOARD_SERVLET_INIT_PARAM_PREFIX;
 
+	private final BundleContext _bundleContext;
 	private final CustomServletContextHelper _customServletContextHelper;
 	private final ServiceRegistration<?> _defaultServletServiceRegistration;
 	private final ServiceRegistration<Servlet> _jspServletServiceRegistration;
@@ -385,6 +381,8 @@ public class ServletContextHelperRegistrationImpl
 		_servletContextHelperServiceRegistration;
 	private final ServiceRegistration<ServletContextListener>
 		_servletContextListenerServiceRegistration;
+	private final String _servletContextName;
+	private final boolean _wabShapedBundle;
 
 	private static class JspServletWrapper extends HttpServlet {
 

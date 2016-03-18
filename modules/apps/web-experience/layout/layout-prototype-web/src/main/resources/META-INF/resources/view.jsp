@@ -166,11 +166,6 @@ PortletURL portletURL = renderResponse.createRenderURL();
 					/>
 				</c:when>
 				<c:when test='<%= displayStyle.equals("icon") %>'>
-
-					<%
-					row.setCssClass("col-md-2 col-sm-4 col-xs-6");
-					%>
-
 					<liferay-ui:search-container-column-text>
 						<liferay-frontend:icon-vertical-card
 							actionJsp="/layout_prototype_action.jsp"
@@ -212,8 +207,9 @@ PortletURL portletURL = renderResponse.createRenderURL();
 				</c:when>
 				<c:when test='<%= displayStyle.equals("list") %>'>
 					<liferay-ui:search-container-column-text
-						cssClass="text-strong"
+						cssClass="content-column name-column title-column"
 						name="name"
+						truncate="<%= true %>"
 					>
 						<aui:a href="<%= layoutPrototypeGroup.getDisplayURL(themeDisplay, true) %>" target="_blank"><%= layoutPrototype.getName(locale) %></aui:a>
 
@@ -227,23 +223,25 @@ PortletURL portletURL = renderResponse.createRenderURL();
 					</liferay-ui:search-container-column-text>
 
 					<liferay-ui:search-container-column-text
+						cssClass="content-column description-column"
 						name="description"
+						truncate="<%= true %>"
 						value="<%= layoutPrototype.getDescription(locale) %>"
 					/>
 
 					<liferay-ui:search-container-column-date
+						cssClass="create-date-column text-column"
 						name="create-date"
 						property="createDate"
 					/>
 
 					<liferay-ui:search-container-column-text
-						cssClass="list-group-item-field"
+						cssClass="page-active-column"
 						name="active"
 						value='<%= LanguageUtil.get(request, layoutPrototype.isActive()? "yes" : "no") %>'
 					/>
 
 					<liferay-ui:search-container-column-jsp
-						cssClass="list-group-item-field"
 						path="/layout_prototype_action.jsp"
 					/>
 				</c:when>

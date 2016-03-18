@@ -317,6 +317,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>LOGO_UPLOAD_IMAGE_BUTTON</td>
+	<td>//label[contains(@for,'ImageUploaderPortlet')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -386,7 +391,7 @@
 </tr>
 <tr>
 	<td>EDIT_PUBLIC_PAGE_MENUITEM</td>
-	<td>//*[@data-qa-id='editPublicPage']</td>
+	<td>//*[@data-qa-id='editPublicPages']</td>
 	<td></td>
 </tr>
 <tr>
@@ -395,23 +400,23 @@
 	<td></td>
 </tr>
 <tr>
-	<td>EDIT_PUBLIC_PAGE_MENUITEM</td>
-	<td>//*[@data-qa-id='editPrivatePage']</td>
+	<td>EDIT_PRIVATE_PAGE_MENUITEM</td>
+	<td>//*[@data-qa-id='editPrivatePages']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>ADD_CHILD_PAGE</td>
-	<td>//div[*[@aria-expanded='true']]//*[@data-qa-id='addChildPage']</td>
+	<td>//div[*[@aria-expanded='true']]//*[@data-qa-id='addChildPage']/span[contains(.,'Add Child Page of ${key_page}')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>EDIT_SPECIFIC_PAGE</td>
-	<td>//li[contains(.,'${key_pageName}')]/*[@data-qa-id='editPage']</td>
+	<td>//li[contains(.,'${key_page}')]/*[@data-qa-id='editPage']</td>
 	<td></td>
 </tr>
 <tr>
 	<td>DELETE_SPECIFIC_PAGE</td>
-	<td>//li[contains(.,'${key_pageName}')]/*[@data-qa-id='deletePage']</td>
+	<td>//li[contains(.,'${key_page}')]/*[@data-qa-id='deletePage']</td>
 	<td></td>
 </tr>
 <!--ELLIPSIS-->
@@ -432,7 +437,7 @@
 </tr>
 <tr>
 	<td>SPECIFIC_PAGE_ELLIPSIS</td>
-	<td>//div[contains(.,'${key_pageName}')]/*[@data-qa-id='pageOptions']</td>
+	<td>//div[contains(.,'${key_page}')]/*[@data-qa-id='pageOptions']</td>
 	<td></td>
 </tr>
 </tbody>

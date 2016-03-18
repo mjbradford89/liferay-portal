@@ -15,8 +15,9 @@
 package com.liferay.portal.upgrade.v6_0_2;
 
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
+import com.liferay.portal.kernel.util.CharPool;
+import com.liferay.portal.kernel.util.LoggingTimer;
 import com.liferay.portal.kernel.util.PortletKeys;
-import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.sql.PreparedStatement;
@@ -35,7 +36,24 @@ public class UpgradeNestedPortlets extends UpgradeProcess {
 
 	@Override
 	protected void doUpgrade() throws Exception {
-		try (PreparedStatement ps = connection.prepareStatement(_GET_LAYOUT);
+		updateLayouts();
+	}
+
+	protected void updateLayout(long plid, String typeSettings)
+		throws Exception {
+
+		try (PreparedStatement ps = connection.prepareStatement(
+				"update Layout set typeSettings = ? where plid = " + plid)) {
+
+			ps.setString(1, typeSettings);
+
+			ps.executeUpdate();
+		}
+	}
+
+	protected void updateLayouts() throws Exception {
+		try (LoggingTimer loggingTimer = new LoggingTimer();
+			PreparedStatement ps = connection.prepareStatement(_GET_LAYOUT);
 			ResultSet rs = ps.executeQuery()) {
 
 			while (rs.next()) {
@@ -50,7 +68,7 @@ public class UpgradeNestedPortlets extends UpgradeProcess {
 					String nestedColumnIds = matcher.group();
 
 					int underlineCount = StringUtil.count(
-						nestedColumnIds, StringPool.UNDERLINE);
+						nestedColumnIds, CharPool.UNDERLINE);
 
 					if (underlineCount == _UNDERLINE_COUNT) {
 						String newNestedColumnIds =
@@ -69,18 +87,6 @@ public class UpgradeNestedPortlets extends UpgradeProcess {
 		}
 	}
 
-	protected void updateLayout(long plid, String typeSettings)
-		throws Exception {
-
-		try (PreparedStatement ps = connection.prepareStatement(
-				"update Layout set typeSettings = ? where plid = " + plid)) {
-
-			ps.setString(1, typeSettings);
-
-			ps.executeUpdate();
-		}
-	}
-
 	private static final String _GET_LAYOUT =
 		"select plid, typeSettings from Layout where typeSettings like " +
 			"'%nested-column-ids=" + PortletKeys.NESTED_PORTLETS +
@@ -89,7 +95,7 @@ public class UpgradeNestedPortlets extends UpgradeProcess {
 	private static final String _INSTANCE_SEPARATOR = "_INSTANCE_";
 
 	private static final int _UNDERLINE_COUNT = StringUtil.count(
-		_INSTANCE_SEPARATOR, StringPool.UNDERLINE) + 1;
+		_INSTANCE_SEPARATOR, CharPool.UNDERLINE) + 1;
 
 	private static final Pattern _pattern = Pattern.compile(
 		"(" + PortletKeys.NESTED_PORTLETS + _INSTANCE_SEPARATOR +

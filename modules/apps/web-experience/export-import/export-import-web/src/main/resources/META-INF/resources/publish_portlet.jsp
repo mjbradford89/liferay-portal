@@ -245,8 +245,9 @@ portletURL.setParameter("tabs3", "current-and-previous");
 															</div>
 
 															<div class="flex-item-center range-options">
+																<liferay-ui:icon icon="reload" markupView="lexicon" />
 																<aui:a cssClass="modify-link" href="javascript:;" id="rangeLink" method="get">
-																	<liferay-ui:message key="apply-filter" />
+																	<liferay-ui:message key="refresh-counts" />
 																</aui:a>
 															</div>
 														</div>
@@ -466,7 +467,7 @@ portletURL.setParameter("tabs3", "current-and-previous");
 
 									<liferay-staging:deletions cmd="<%= Constants.PUBLISH %>" />
 
-									<liferay-staging:permissions action="publish" descriptionCSSClass="permissions-description" global="<%= group.isCompany() %>" labelCSSClass="permissions-label" />
+									<liferay-staging:permissions action="<%= Constants.PUBLISH %>" descriptionCSSClass="permissions-description" global="<%= group.isCompany() %>" labelCSSClass="permissions-label" />
 								</c:if>
 							</aui:fieldset-group>
 

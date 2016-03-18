@@ -55,6 +55,7 @@ import com.liferay.calendar.util.RSSUtil;
 import com.liferay.calendar.util.RecurrenceUtil;
 import com.liferay.calendar.web.upgrade.CalendarWebUpgrade;
 import com.liferay.calendar.workflow.CalendarBookingWorkflowConstants;
+import com.liferay.portal.dao.orm.custom.sql.CustomSQLUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -103,7 +104,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.util.comparator.UserFirstNameComparator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.util.dao.orm.CustomSQLUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -152,8 +152,6 @@ import org.osgi.service.component.annotations.Reference;
 		"com.liferay.portlet.display-category=category.collaboration",
 		"com.liferay.portlet.friendly-url-mapping=calendar",
 		"com.liferay.portlet.header-portlet-css=/css/main.css",
-		"com.liferay.portlet.header-portlet-javascript=/js/components.js",
-		"com.liferay.portlet.header-portlet-javascript=/js/javascript.js",
 		"com.liferay.portlet.icon=/icons/calendar.png",
 		"com.liferay.portlet.preferences-owned-by-group=true",
 		"com.liferay.portlet.preferences-unique-per-layout=false",
