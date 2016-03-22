@@ -108,7 +108,10 @@ public class JavaClass {
 
 			checkUnusedParameters(javaTerm);
 
-			checkChaining(javaTerm);
+			if (javaTerm.isMethod() || javaTerm.isConstructor()) {
+				checkChaining(javaTerm);
+				checkLineBreak(javaTerm);
+			}
 
 			if (_fileName.endsWith("LocalServiceImpl.java") &&
 				javaTerm.hasAnnotation("Indexable") &&
@@ -250,10 +253,6 @@ public class JavaClass {
 	}
 
 	protected void checkChaining(JavaTerm javaTerm) {
-		if (!javaTerm.isMethod() && !javaTerm.isConstructor()) {
-			return;
-		}
-
 		Matcher matcher = _chainingPattern.matcher(javaTerm.getContent());
 
 		while (matcher.find()) {
@@ -468,6 +467,17 @@ public class JavaClass {
 			checkMutableFieldType(javaTerm, javaFieldType);
 		}
 
+		if (!isFinal && !javaTerm.isPublic() &&
+			!_fileName.endsWith("ObjectGraphUtilTest.java")) {
+
+			matcher = _isNullPattern.matcher(javaTermContent);
+
+			if (matcher.find()) {
+				_classContent = StringUtil.replace(
+					_classContent, javaTermContent, matcher.replaceFirst(";$1"));
+			}
+		}
+
 		if (!javaTerm.isPrivate()) {
 			return;
 		}
@@ -485,6 +495,26 @@ public class JavaClass {
 		else {
 			checkFinalableFieldType(
 				javaTerm, annotationsExclusions, modifierDefinition);
+		}
+	}
+
+	protected void checkLineBreak(JavaTerm javaTerm) {
+		Matcher matcher = _lineBreakPattern.matcher(javaTerm.getContent());
+
+		while (matcher.find()) {
+			if (_javaSourceProcessor.getLevel(matcher.group(2)) >= 0) {
+				continue;
+			}
+
+			int lineCount =
+				javaTerm.getLineCount() +
+					_javaSourceProcessor.getLineCount(
+						javaTerm.getContent(), matcher.end(1));
+
+			_javaSourceProcessor.processErrorMessage(
+				_fileName,
+				"Create a new var for " + StringUtil.trim(matcher.group(1)) +
+					" for better readability: " + _fileName + " " + lineCount);
 		}
 	}
 
@@ -562,16 +592,16 @@ public class JavaClass {
 		}
 
 		checkAnnotationForMethod(
-			javaTerm, "After", "^.*tearDown\\z", JavaTerm.TYPE_METHOD_PUBLIC,
-			_fileName);
+			javaTerm, "After", "\\btearDown(?!Class)",
+			JavaTerm.TYPE_METHOD_PUBLIC, _fileName);
 		checkAnnotationForMethod(
-			javaTerm, "AfterClass", "^.*tearDownClass\\z",
+			javaTerm, "AfterClass", "\\btearDownClass",
 			JavaTerm.TYPE_METHOD_PUBLIC_STATIC, _fileName);
 		checkAnnotationForMethod(
-			javaTerm, "Before", "^.*setUp\\z", JavaTerm.TYPE_METHOD_PUBLIC,
-			_fileName);
+			javaTerm, "Before", "\\bsetUp(?!Class)",
+			JavaTerm.TYPE_METHOD_PUBLIC, _fileName);
 		checkAnnotationForMethod(
-			javaTerm, "BeforeClass", "^.*setUpClass\\z",
+			javaTerm, "BeforeClass", "\\bsetUpClass",
 			JavaTerm.TYPE_METHOD_PUBLIC_STATIC, _fileName);
 		checkAnnotationForMethod(
 			javaTerm, "Test", "^.*test", JavaTerm.TYPE_METHOD_PUBLIC,
@@ -1139,7 +1169,7 @@ public class JavaClass {
 
 		if (y != -1) {
 			int spaceCount = StringUtil.count(
-				line.substring(0, y), StringPool.SPACE);
+				line.substring(0, y), CharPool.SPACE);
 
 			if (spaceCount == 1) {
 				return getJavaTermTuple(
@@ -1416,9 +1446,13 @@ public class JavaClass {
 	private final String _fileName;
 	private final String _indent;
 	private final List<JavaClass> _innerClasses = new ArrayList<>();
+	private final Pattern _isNullPattern = Pattern.compile(
+		" =\\s+null;(\\s+)$");
 	private final JavaSourceProcessor _javaSourceProcessor;
 	private final List<String> _javaTermAccessLevelModifierExcludes;
 	private Set<JavaTerm> _javaTerms;
+	private final Pattern _lineBreakPattern = Pattern.compile(
+		"\n(.*)\\(\n((.+,\n)*.*\\)) \\+\n");
 	private final int _lineCount;
 	private final String _name;
 	private final JavaClass _outerClass;

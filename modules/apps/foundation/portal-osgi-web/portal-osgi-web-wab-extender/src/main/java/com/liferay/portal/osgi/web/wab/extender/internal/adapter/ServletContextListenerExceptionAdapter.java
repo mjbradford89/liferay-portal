@@ -14,6 +14,7 @@
 
 package com.liferay.portal.osgi.web.wab.extender.internal.adapter;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -24,15 +25,18 @@ public class ServletContextListenerExceptionAdapter
 	implements ServletContextListener {
 
 	public ServletContextListenerExceptionAdapter(
-		ServletContextListener servletContextListener) {
+		ServletContextListener servletContextListener,
+		ServletContext servletContext) {
 
 		_servletContextListener = servletContextListener;
+		_servletContext = servletContext;
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent servletContextEvent) {
 		try {
-			_servletContextListener.contextDestroyed(servletContextEvent);
+			_servletContextListener.contextDestroyed(
+				new ServletContextEvent(_servletContext));
 		}
 		catch (Exception e) {
 			_exception = e;
@@ -44,7 +48,8 @@ public class ServletContextListenerExceptionAdapter
 		final ServletContextEvent servletContextEvent) {
 
 		try {
-			_servletContextListener.contextInitialized(servletContextEvent);
+			_servletContextListener.contextInitialized(
+				new ServletContextEvent(_servletContext));
 		}
 		catch (Exception e) {
 			_exception = e;
@@ -56,6 +61,7 @@ public class ServletContextListenerExceptionAdapter
 	}
 
 	private Exception _exception;
+	private final ServletContext _servletContext;
 	private final ServletContextListener _servletContextListener;
 
 }

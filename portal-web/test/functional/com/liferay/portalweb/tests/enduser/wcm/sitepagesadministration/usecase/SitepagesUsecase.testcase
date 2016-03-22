@@ -76,21 +76,22 @@
 	</command>
 
 	<command name="CannotDeleteLastPrivatePage" priority="3">
-		<execute macro="SitePageNavigator#gotoPages">
-			<var name="page" value="Private Pages" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Page#add">
 			<var name="pageName" value="Site Page Name" />
-			<var name="sitePagePrivacy" value="Private Pages" />
+			<var name="sitePagePrivacy" value="Private" />
 		</execute>
 
-		<execute macro="SitePageNavigator#gotoPages">
-			<var name="page" value="Private Pages" />
+		<execute macro="ProductMenu#gotoControlPanelSites">
+			<var name="portlet" value="Sites" />
 		</execute>
 
 		<execute macro="Page#assertCannotDeleteOnlyPage">
 			<var name="pageName" value="Site Page Name" />
+			<var name="sitePagePrivacy" value="Private Pages" />
 		</execute>
 	</command>
 
@@ -152,9 +153,9 @@
 		<execute macro="Page#addChild">
 			<var name="childSitepageName" value="true" />
 			<var name="page" value="Public Pages" />
+			<var name="pageName" value="Site Page2 Name" />
 			<var name="siteChildPageName" value="Child Page Name" />
 			<var name="siteName" value="Site Name" />
-			<var name="sitePageName" value="Site Page2 Name" />
 		</execute>
 
 		<execute macro="SitePageNavigator#gotoPages">
@@ -168,10 +169,9 @@
 			<var name="pageType" value="Link to a Page of This Site" />
 		</execute>
 
-		<execute macro="Page#gotoPG">
+		<execute macro="Navigator#gotoSitePage">
 			<var name="pageName" value="Site Page1 Name" />
 			<var name="siteName" value="Site Name" />
-			<var name="siteURL" value="true" />
 		</execute>
 
 		<execute macro="SitePageNavigator#gotoPages">
@@ -243,8 +243,8 @@
 		<for list="${childPageNameList}" param="siteChildPageName">
 			<execute macro="Page#addChild">
 				<var name="page" value="Public Pages" />
+				<var name="pageName" value="Welcome" />
 				<var name="siteChildPageName" value="${siteChildPageName}" />
-				<var name="sitePageName" value="Welcome" />
 				<var name="siteScopeSelected" value="true" />
 			</execute>
 		</for>
@@ -305,8 +305,6 @@
 	</command>
 
 	<command name="SitesPrivatePagesPermissions" priority="4">
-		<var name="sitePageName" value="Site Page" />
-
 		<execute macro="ProductMenu#gotoControlPanelSites">
 			<var name="portlet" value="Sites" />
 		</execute>
@@ -377,12 +375,11 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="SitePageNavigator#gotoPages">
-			<var name="page" value="Private Pages" />
-		</execute>
+		<execute macro="ProductMenu#gotoPrivatePages" />
 
 		<execute macro="PermissionsInline#gotoSitepageCP">
-			<var name="sitePageName" value="Site Page" />
+			<var name="pageName" value="Site Page" />
+			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="Role#removePermissionPG">
@@ -401,8 +398,8 @@
 		</execute>
 
 		<execute macro="Navigator#openPrivateSitePageURL">
+			<var name="pageName" value="Site Page" />
 			<var name="siteName" value="Site Name" />
-			<var name="sitePageName" value="Site Page" />
 		</execute>
 
 		<execute function="AssertTextNotPresent" locator1="Home#ERROR_MESSAGE_ALERT_ERROR" value1="Not Found" />
@@ -417,13 +414,12 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="SitePageNavigator#gotoPages">
-			<var name="page" value="Private Pages" />
-		</execute>
+		<execute macro="ProductMenu#gotoPrivatePages" />
 
 		<execute macro="PermissionsInline#gotoSitepageCP">
 			<var name="page" value="Private" />
-			<var name="sitePageName" value="Site Page" />
+			<var name="pageName" value="Site Page" />
+			<var name="siteName" value="Site Name" />
 		</execute>
 
 		<execute macro="Role#removePermissionPG">
@@ -437,8 +433,8 @@
 		</execute>
 
 		<execute macro="Navigator#openPrivateSitePageURL">
+			<var name="pageName" value="Site Page" />
 			<var name="siteName" value="Site Name" />
-			<var name="sitePageName" value="Site Page" />
 		</execute>
 
 		<execute function="AssertTextEquals" locator1="Home#ERROR_MESSAGE_ALERT_ERROR" value1="Not Found" />
@@ -1233,7 +1229,7 @@
 		</execute>
 
 		<execute macro="Page#firstPageCanNotBeOfTypeLinkToURL">
-			<var name="sitePageName" value="Blank Page" />
+			<var name="pageName" value="Blank Page" />
 		</execute>
 
 		<execute macro="ProductMenu#gotoControlPanelSites">
@@ -1260,8 +1256,8 @@
 
 		<execute macro="Page#viewPanelPortletListCP">
 			<var name="componentName" value="Community" />
+			<var name="pageName" value="Panel Page" />
 			<var name="portletNameList" value="Bookmarks,Friends Directory,Invitation,My Sites,My Sites Directory,Page Comments,Page Flags,Page Ratings,Portal Directory,Site Members Directory" />
-			<var name="sitePageName" value="Panel Page" />
 		</execute>
 
 		<execute macro="Navigator#openSiteURL">

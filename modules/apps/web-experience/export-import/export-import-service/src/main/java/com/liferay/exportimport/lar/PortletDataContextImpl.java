@@ -2186,10 +2186,9 @@ public class PortletDataContextImpl implements PortletDataContext {
 			return null;
 		}
 
-		StringBundler sb = new StringBundler(6);
+		StringBundler sb = new StringBundler(5);
 
-		sb.append("staged-model");
-		sb.append("[@");
+		sb.append("staged-model[@");
 		sb.append(attribute);
 		sb.append(StringPool.EQUAL);
 		sb.append(HtmlUtil.escapeXPathAttribute(value));
@@ -2393,9 +2392,7 @@ public class PortletDataContextImpl implements PortletDataContext {
 			return getUserId(userUuid);
 		}
 		catch (SystemException se) {
-			if (_log.isErrorEnabled()) {
-				_log.error(se, se);
-			}
+			_log.error(se, se);
 		}
 
 		return 0;
