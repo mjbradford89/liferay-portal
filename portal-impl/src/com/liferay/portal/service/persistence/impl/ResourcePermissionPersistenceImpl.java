@@ -42,7 +42,6 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.model.impl.ResourcePermissionImpl;
 import com.liferay.portal.model.impl.ResourcePermissionModelImpl;
 
@@ -56,6 +55,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -2084,7 +2084,7 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 			if ((list != null) && !list.isEmpty()) {
 				for (ResourcePermission resourcePermission : list) {
 					if ((companyId != resourcePermission.getCompanyId()) ||
-							!Validator.equals(name, resourcePermission.getName()) ||
+							!Objects.equals(name, resourcePermission.getName()) ||
 							(scope != resourcePermission.getScope())) {
 						list = null;
 
@@ -2716,7 +2716,7 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 				for (ResourcePermission resourcePermission : list) {
 					if ((companyId != resourcePermission.getCompanyId()) ||
 							(scope != resourcePermission.getScope()) ||
-							!Validator.equals(primKey,
+							!Objects.equals(primKey,
 								resourcePermission.getPrimKey())) {
 						list = null;
 
@@ -3354,9 +3354,9 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 			if ((list != null) && !list.isEmpty()) {
 				for (ResourcePermission resourcePermission : list) {
 					if ((companyId != resourcePermission.getCompanyId()) ||
-							!Validator.equals(name, resourcePermission.getName()) ||
+							!Objects.equals(name, resourcePermission.getName()) ||
 							(scope != resourcePermission.getScope()) ||
-							!Validator.equals(primKey,
+							!Objects.equals(primKey,
 								resourcePermission.getPrimKey())) {
 						list = null;
 
@@ -4132,9 +4132,9 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 			if ((list != null) && !list.isEmpty()) {
 				for (ResourcePermission resourcePermission : list) {
 					if ((companyId != resourcePermission.getCompanyId()) ||
-							!Validator.equals(name, resourcePermission.getName()) ||
+							!Objects.equals(name, resourcePermission.getName()) ||
 							(scope != resourcePermission.getScope()) ||
-							!Validator.equals(primKey,
+							!Objects.equals(primKey,
 								resourcePermission.getPrimKey()) ||
 							!ArrayUtil.contains(roleIds,
 								resourcePermission.getRoleId())) {
@@ -4302,8 +4302,8 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 
 			msg.append(StringPool.CLOSE_CURLY_BRACE);
 
-			if (_log.isWarnEnabled()) {
-				_log.warn(msg.toString());
+			if (_log.isDebugEnabled()) {
+				_log.debug(msg.toString());
 			}
 
 			throw new NoSuchResourcePermissionException(msg.toString());
@@ -4357,9 +4357,9 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 			ResourcePermission resourcePermission = (ResourcePermission)result;
 
 			if ((companyId != resourcePermission.getCompanyId()) ||
-					!Validator.equals(name, resourcePermission.getName()) ||
+					!Objects.equals(name, resourcePermission.getName()) ||
 					(scope != resourcePermission.getScope()) ||
-					!Validator.equals(primKey, resourcePermission.getPrimKey()) ||
+					!Objects.equals(primKey, resourcePermission.getPrimKey()) ||
 					(roleId != resourcePermission.getRoleId())) {
 				result = null;
 			}
@@ -4901,7 +4901,7 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 			if ((list != null) && !list.isEmpty()) {
 				for (ResourcePermission resourcePermission : list) {
 					if ((companyId != resourcePermission.getCompanyId()) ||
-							!Validator.equals(name, resourcePermission.getName()) ||
+							!Objects.equals(name, resourcePermission.getName()) ||
 							(scope != resourcePermission.getScope()) ||
 							(primKeyId != resourcePermission.getPrimKeyId()) ||
 							(roleId != resourcePermission.getRoleId()) ||
@@ -5517,7 +5517,7 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 			if ((list != null) && !list.isEmpty()) {
 				for (ResourcePermission resourcePermission : list) {
 					if ((companyId != resourcePermission.getCompanyId()) ||
-							!Validator.equals(name, resourcePermission.getName()) ||
+							!Objects.equals(name, resourcePermission.getName()) ||
 							(scope != resourcePermission.getScope()) ||
 							(primKeyId != resourcePermission.getPrimKeyId()) ||
 							!ArrayUtil.contains(roleIds,
@@ -6084,8 +6084,8 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 					primaryKey);
 
 			if (resourcePermission == null) {
-				if (_log.isWarnEnabled()) {
-					_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+				if (_log.isDebugEnabled()) {
+					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
 				throw new NoSuchResourcePermissionException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +
@@ -6387,8 +6387,8 @@ public class ResourcePermissionPersistenceImpl extends BasePersistenceImpl<Resou
 		ResourcePermission resourcePermission = fetchByPrimaryKey(primaryKey);
 
 		if (resourcePermission == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
+			if (_log.isDebugEnabled()) {
+				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
 			throw new NoSuchResourcePermissionException(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY +

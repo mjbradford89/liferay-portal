@@ -20,12 +20,12 @@ import com.liferay.expando.kernel.model.ExpandoBridge;
 
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.service.ServiceContext;
-import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -100,8 +100,38 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	}
 
 	@Override
-	public java.lang.Object clone() {
-		return new AssetTagStatsWrapper((AssetTagStats)_assetTagStats.clone());
+	public boolean isCachedModel() {
+		return _assetTagStats.isCachedModel();
+	}
+
+	@Override
+	public boolean isEscapedModel() {
+		return _assetTagStats.isEscapedModel();
+	}
+
+	@Override
+	public boolean isNew() {
+		return _assetTagStats.isNew();
+	}
+
+	@Override
+	public com.liferay.asset.kernel.model.AssetTagStats toEscapedModel() {
+		return new AssetTagStatsWrapper(_assetTagStats.toEscapedModel());
+	}
+
+	@Override
+	public com.liferay.asset.kernel.model.AssetTagStats toUnescapedModel() {
+		return new AssetTagStatsWrapper(_assetTagStats.toUnescapedModel());
+	}
+
+	@Override
+	public ExpandoBridge getExpandoBridge() {
+		return _assetTagStats.getExpandoBridge();
+	}
+
+	@Override
+	public com.liferay.portal.kernel.model.CacheModel<com.liferay.asset.kernel.model.AssetTagStats> toCacheModel() {
+		return _assetTagStats.toCacheModel();
 	}
 
 	@Override
@@ -120,6 +150,21 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 		return _assetTagStats.getAssetCount();
 	}
 
+	@Override
+	public int hashCode() {
+		return _assetTagStats.hashCode();
+	}
+
+	@Override
+	public Serializable getPrimaryKeyObj() {
+		return _assetTagStats.getPrimaryKeyObj();
+	}
+
+	@Override
+	public java.lang.Object clone() {
+		return new AssetTagStatsWrapper((AssetTagStats)_assetTagStats.clone());
+	}
+
 	/**
 	* Returns the fully qualified class name of this asset tag stats.
 	*
@@ -128,6 +173,16 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	@Override
 	public java.lang.String getClassName() {
 		return _assetTagStats.getClassName();
+	}
+
+	@Override
+	public java.lang.String toString() {
+		return _assetTagStats.toString();
+	}
+
+	@Override
+	public java.lang.String toXmlString() {
+		return _assetTagStats.toXmlString();
 	}
 
 	/**
@@ -150,11 +205,6 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 		return _assetTagStats.getCompanyId();
 	}
 
-	@Override
-	public ExpandoBridge getExpandoBridge() {
-		return _assetTagStats.getExpandoBridge();
-	}
-
 	/**
 	* Returns the primary key of this asset tag stats.
 	*
@@ -163,11 +213,6 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	@Override
 	public long getPrimaryKey() {
 		return _assetTagStats.getPrimaryKey();
-	}
-
-	@Override
-	public Serializable getPrimaryKeyObj() {
-		return _assetTagStats.getPrimaryKeyObj();
 	}
 
 	/**
@@ -188,26 +233,6 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	@Override
 	public long getTagStatsId() {
 		return _assetTagStats.getTagStatsId();
-	}
-
-	@Override
-	public int hashCode() {
-		return _assetTagStats.hashCode();
-	}
-
-	@Override
-	public boolean isCachedModel() {
-		return _assetTagStats.isCachedModel();
-	}
-
-	@Override
-	public boolean isEscapedModel() {
-		return _assetTagStats.isEscapedModel();
-	}
-
-	@Override
-	public boolean isNew() {
-		return _assetTagStats.isNew();
 	}
 
 	@Override
@@ -256,14 +281,14 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(
-		com.liferay.portal.kernel.model.BaseModel<?> baseModel) {
-		_assetTagStats.setExpandoBridgeAttributes(baseModel);
+	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
+		_assetTagStats.setExpandoBridgeAttributes(expandoBridge);
 	}
 
 	@Override
-	public void setExpandoBridgeAttributes(ExpandoBridge expandoBridge) {
-		_assetTagStats.setExpandoBridgeAttributes(expandoBridge);
+	public void setExpandoBridgeAttributes(
+		com.liferay.portal.kernel.model.BaseModel<?> baseModel) {
+		_assetTagStats.setExpandoBridgeAttributes(baseModel);
 	}
 
 	@Override
@@ -312,31 +337,6 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 	}
 
 	@Override
-	public com.liferay.portal.kernel.model.CacheModel<com.liferay.asset.kernel.model.AssetTagStats> toCacheModel() {
-		return _assetTagStats.toCacheModel();
-	}
-
-	@Override
-	public com.liferay.asset.kernel.model.AssetTagStats toEscapedModel() {
-		return new AssetTagStatsWrapper(_assetTagStats.toEscapedModel());
-	}
-
-	@Override
-	public java.lang.String toString() {
-		return _assetTagStats.toString();
-	}
-
-	@Override
-	public com.liferay.asset.kernel.model.AssetTagStats toUnescapedModel() {
-		return new AssetTagStatsWrapper(_assetTagStats.toUnescapedModel());
-	}
-
-	@Override
-	public java.lang.String toXmlString() {
-		return _assetTagStats.toXmlString();
-	}
-
-	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
@@ -348,7 +348,7 @@ public class AssetTagStatsWrapper implements AssetTagStats,
 
 		AssetTagStatsWrapper assetTagStatsWrapper = (AssetTagStatsWrapper)obj;
 
-		if (Validator.equals(_assetTagStats, assetTagStatsWrapper._assetTagStats)) {
+		if (Objects.equals(_assetTagStats, assetTagStatsWrapper._assetTagStats)) {
 			return true;
 		}
 
