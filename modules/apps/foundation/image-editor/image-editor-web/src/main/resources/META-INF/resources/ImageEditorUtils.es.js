@@ -83,14 +83,14 @@ class ImageEditorUtils {
 	}
 
 	imageData2DataURL_(imageData) {
-        let canvas = document.createElement('canvas');
-        canvas.width = imageData.width;
-        canvas.height = imageData.height;
+		let canvas = document.createElement('canvas');
+		canvas.width = imageData.width;
+		canvas.height = imageData.height;
 
-        let ctx = canvas.getContext('2d');
-        ctx.putImageData(imageData, 0, 0);
+		let ctx = canvas.getContext('2d');
+		ctx.putImageData(imageData, 0, 0);
 
-        return canvas.toDataURL();
+		return canvas.toDataURL();
 	}
 }
 

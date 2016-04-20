@@ -18,8 +18,8 @@ class ImageEditor extends Component {
 		super(opt_config);
 
 		/**
-     	 * This index points to the current state in the history.
-     	 *
+	 	 * This index points to the current state in the history.
+	 	 *
 		 * @type {Number}
 		 * @protected
 		 */
@@ -33,7 +33,7 @@ class ImageEditor extends Component {
 		 * - State entries are objects with
 		 *     - url: the url representing the image
 		 *     - utils: image utils for this image
-     	 *
+	 	 *
 		 * @type {Array.<Object>}
 		 * @protected
 		 */
