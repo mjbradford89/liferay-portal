@@ -10,7 +10,7 @@ $chemachop-history-controls-side: $chemachop-btn-space !default;
 
 // Skin
 
-$brand-primary: darken(#428bca, 6.5%) !default; // #337ab7
+$brand-primary: darken(#428BCA, 6.5%) !default; // #337ab7
 
 $chemachop-bg: #869CAD !default;
 $chemachop-history-controls-btn-color: #1E5EC8 !default;
@@ -138,8 +138,8 @@ $slider-height: 20px;
 			.handle {
 				background-color: $brand-primary;
 				border-radius: $slider-height/2;
-				margin-left: -10px;
 				height: $slider-height;
+				margin-left: -10px;
 				width: $slider-height;
 			}
 		}

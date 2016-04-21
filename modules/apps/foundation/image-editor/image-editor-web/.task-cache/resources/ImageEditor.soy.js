@@ -78,6 +78,8 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
     var itext = IncrementalDom.text;
     var iattr = IncrementalDom.attr;
 
+    var $templateAlias1 = _Soy2.default.getTemplate('Dropdown.incrementaldom', 'render');
+
     /**
      * @param {Object<string, *>=} opt_data
      * @param {(null|undefined)=} opt_ignored
@@ -98,7 +100,7 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
       ie_void('canvas', null, null, 'class', 'image-preview ' + (opt_data.imagePreview ? '' : 'hide'));
       ie_close('div');
       ie_open('div', null, null, 'class', 'lfr-image-editor-tools-container');
-      $tools_controls(opt_data, null, opt_ijData);
+      $tools(opt_data, null, opt_ijData);
       ie_close('div');
       ie_open('div', null, null, 'class', 'lfr-image-editor-history-container');
       if (!opt_data.selectedTool) {
@@ -125,42 +127,23 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
      * @return {void}
      * @suppress {checkTypes}
      */
-    function $tools_controls(opt_data, opt_ignored, opt_ijData) {
+    function $tools(opt_data, opt_ignored, opt_ijData) {
       ie_open('div', null, null, 'class', 'controls text-center');
       ie_open('ul', null, null, 'class', 'list-inline');
-      var toolList54 = opt_data.tools;
-      var toolListLen54 = toolList54.length;
-      for (var toolIndex54 = 0; toolIndex54 < toolListLen54; toolIndex54++) {
-        var toolData54 = toolList54[toolIndex54];
-        ie_open('li', null, null, 'class', opt_data.selectedTool && opt_data.selectedTool.name == toolData54.name ? 'open' : '', 'id', opt_data.id + '-' + toolData54.name, 'style', 'display: inline;');
-        ie_open('a', null, null, 'class', 'btn', 'data-tool', toolData54.name, 'data-onclick', 'edit', 'href', 'javascript:;');
-        ie_void('span', null, null, 'class', 'icon-' + toolData54.icon + ' icon-monospaced');
-        ie_close('a');
-        ie_open('div', null, null, 'class', 'filters');
-        ie_open('div', null, null, 'class', 'col-md-2 col-sm-2 col-xs-2 btn-space');
-        ie_open('a', null, null, 'class', 'btn btn-link btn-primary modal-btn-icon icon-ok', 'data-onclick', 'accept', 'href', 'javascript:;');
-        itext('Apply');
-        ie_close('a');
-        ie_close('div');
-        ie_open('div', null, null, 'class', 'col-md-8 col-sm-8 col-xs-8 filters-list');
-        if (opt_data.selectedTool && opt_data.selectedTool.name == toolData54.name) {
-          $active_tool_controls(soy.$$augmentMap(opt_data, { controlsId: toolData54.controls }), null, opt_ijData);
-        }
-        ie_close('div');
-        ie_open('div', null, null, 'class', 'col-md-2 col-sm-2 col-xs-2 btn-space');
-        ie_open('a', null, null, 'class', 'btn btn-link close-modal modal-btn-icon icon-remove', 'data-onclick', 'discard', 'href', 'javascript:;');
-        itext('Cancel');
-        ie_close('a');
-        ie_close('div');
-        ie_close('div');
+      var toolList46 = opt_data.capabilities.tools;
+      var toolListLen46 = toolList46.length;
+      for (var toolIndex46 = 0; toolIndex46 < toolListLen46; toolIndex46++) {
+        var toolData46 = toolList46[toolIndex46];
+        ie_open('li', null, null, 'class', opt_data.selectedTool == 'tool-' + toolIndex46 ? 'open' : '', 'style', 'display:inline');
+        $tool(soy.$$augmentMap(opt_data, { tool: toolData46, toolIndex: toolIndex46 }), null, opt_ijData);
         ie_close('li');
       }
       ie_close('ul');
       ie_close('div');
     }
-    exports.tools_controls = $tools_controls;
+    exports.tools = $tools;
     if (goog.DEBUG) {
-      $tools_controls.soyTemplateName = 'ImageEditor.tools_controls';
+      $tools.soyTemplateName = 'ImageEditor.tools';
     }
 
     /**
@@ -170,12 +153,21 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
      * @return {void}
      * @suppress {checkTypes}
      */
-    function __deltemplate_s57_266044fb(opt_data, opt_ignored, opt_ijData) {}
-    exports.__deltemplate_s57_266044fb = __deltemplate_s57_266044fb;
-    if (goog.DEBUG) {
-      __deltemplate_s57_266044fb.soyTemplateName = 'ImageEditor.__deltemplate_s57_266044fb';
+    function $tool(opt_data, opt_ignored, opt_ijData) {
+      if (opt_data.tool.controls.length > 1) {
+        $tool_dropdown(opt_data, null, opt_ijData);
+      } else {
+        var control__soy55 = opt_data.tool.controls[0];
+        ie_open('a', null, null, 'class', 'btn', 'data-onclick', 'requestEditorEdit', 'data-control', control__soy55.variant, 'data-tool', 'tool-' + opt_data.toolIndex, 'href', 'javascript:;');
+        ie_void('span', null, null, 'class', 'icon-' + opt_data.tool.icon + ' icon-monospaced');
+        ie_close('a');
+        $tool_control(soy.$$augmentMap(opt_data, { control: control__soy55 }), null, opt_ijData);
+      }
     }
-    soy.$$registerDelegateFn(soy.$$getDelTemplateId('ImageEditor.Controls.idom'), '', 0, __deltemplate_s57_266044fb);
+    exports.tool = $tool;
+    if (goog.DEBUG) {
+      $tool.soyTemplateName = 'ImageEditor.tool';
+    }
 
     /**
      * @param {Object<string, *>=} opt_data
@@ -184,20 +176,109 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
      * @return {void}
      * @suppress {checkTypes}
      */
-    function $active_tool_controls(opt_data, opt_ignored, opt_ijData) {
-      soy.$$getDelegateFn(soy.$$getDelTemplateId('ImageEditor.Controls.idom'), opt_data.controlsId, true)(soy.$$augmentMap(opt_data, { key: opt_data.id + '_selected_tool_' + opt_data.controlsId }), null, opt_ijData);
+    function $tool_dropdown(opt_data, opt_ignored, opt_ijData) {
+      var param66 = function param66() {
+        ie_open('a', null, null, 'class', 'btn', 'data-onclick', 'toggle', 'href', 'javascript:;');
+        ie_void('span', null, null, 'class', 'icon-' + opt_data.tool.icon + ' icon-monospaced');
+        ie_close('a');
+      };
+      var param70 = function param70() {
+        var controlList80 = opt_data.tool.controls;
+        var controlListLen80 = controlList80.length;
+        for (var controlIndex80 = 0; controlIndex80 < controlListLen80; controlIndex80++) {
+          var controlData80 = controlList80[controlIndex80];
+          ie_open('li');
+          ie_open('a', null, null, 'data-onclick', opt_data.requestEditorEdit, 'data-control', controlData80.variant, 'data-tool', 'tool-' + opt_data.toolIndex);
+          itext((goog.asserts.assert(controlData80.label != null), controlData80.label));
+          ie_close('a');
+          ie_close('li');
+        }
+      };
+      $templateAlias1({ header: param66, body: param70 }, null, opt_ijData);
+      var controlList85 = opt_data.tool.controls;
+      var controlListLen85 = controlList85.length;
+      for (var controlIndex85 = 0; controlIndex85 < controlListLen85; controlIndex85++) {
+        var controlData85 = controlList85[controlIndex85];
+        $tool_control(soy.$$augmentMap(opt_data, { control: controlData85 }), null, opt_ijData);
+      }
     }
-    exports.active_tool_controls = $active_tool_controls;
+    exports.tool_dropdown = $tool_dropdown;
     if (goog.DEBUG) {
-      $active_tool_controls.soyTemplateName = 'ImageEditor.active_tool_controls';
+      $tool_dropdown.soyTemplateName = 'ImageEditor.tool_dropdown';
     }
 
-    exports.render.params = ["getEditorImage", "getEditorImageContainer", "history", "id", "image", "imagePreview", "requestEditorPreview", "selectedTool", "tools"];
-    exports.render.types = { "getEditorImage": "any", "getEditorImageContainer": "any", "history": "any", "id": "any", "image": "any", "imagePreview": "any", "requestEditorPreview": "any", "selectedTool": "any", "tools": "any" };
-    exports.tools_controls.params = ["id", "selectedTool", "tools"];
-    exports.tools_controls.types = { "id": "any", "selectedTool": "any", "tools": "any" };
-    exports.active_tool_controls.params = ["controlsId", "id"];
-    exports.active_tool_controls.types = { "controlsId": "any", "id": "any" };
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $tool_control(opt_data, opt_ignored, opt_ijData) {
+      ie_open('div', null, null, 'class', 'filters');
+      ie_open('div', null, null, 'class', 'col-md-2 col-sm-2 col-xs-2 btn-space');
+      ie_open('a', null, null, 'class', 'btn btn-link btn-primary modal-btn-icon icon-ok', 'data-onclick', 'accept', 'href', 'javascript:;');
+      itext('Apply');
+      ie_close('a');
+      ie_close('div');
+      ie_open('div', null, null, 'class', 'col-md-8 col-sm-8 col-xs-8 filters-list');
+      if (opt_data.selectedControl && opt_data.selectedControl.label == opt_data.control.label) {
+        $active_controls(soy.$$augmentMap(opt_data, { variant: opt_data.control.variant }), null, opt_ijData);
+      }
+      ie_close('div');
+      ie_open('div', null, null, 'class', 'col-md-2 col-sm-2 col-xs-2 btn-space');
+      ie_open('a', null, null, 'class', 'btn btn-link close-modal modal-btn-icon icon-remove', 'data-onclick', 'discard', 'href', 'javascript:;');
+      itext('Cancel');
+      ie_close('a');
+      ie_close('div');
+      ie_close('div');
+    }
+    exports.tool_control = $tool_control;
+    if (goog.DEBUG) {
+      $tool_control.soyTemplateName = 'ImageEditor.tool_control';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function $active_controls(opt_data, opt_ignored, opt_ijData) {
+      soy.$$getDelegateFn(soy.$$getDelTemplateId('ImageEditor.Controls.idom'), opt_data.variant, true)(soy.$$augmentMap(opt_data, { key: opt_data.id + '_selected_control_' + opt_data.variant }), null, opt_ijData);
+    }
+    exports.active_controls = $active_controls;
+    if (goog.DEBUG) {
+      $active_controls.soyTemplateName = 'ImageEditor.active_controls';
+    }
+
+    /**
+     * @param {Object<string, *>=} opt_data
+     * @param {(null|undefined)=} opt_ignored
+     * @param {Object<string, *>=} opt_ijData
+     * @return {void}
+     * @suppress {checkTypes}
+     */
+    function __deltemplate_s97_266044fb(opt_data, opt_ignored, opt_ijData) {}
+    exports.__deltemplate_s97_266044fb = __deltemplate_s97_266044fb;
+    if (goog.DEBUG) {
+      __deltemplate_s97_266044fb.soyTemplateName = 'ImageEditor.__deltemplate_s97_266044fb';
+    }
+    soy.$$registerDelegateFn(soy.$$getDelTemplateId('ImageEditor.Controls.idom'), '', 0, __deltemplate_s97_266044fb);
+
+    exports.render.params = ["capabilities", "history", "id", "image", "imagePreview", "selectedControl", "selectedTool", "getEditorImage", "getEditorImageContainer", "requestEditorEdit", "requestEditorPreview"];
+    exports.render.types = { "capabilities": "any", "history": "any", "id": "any", "image": "any", "imagePreview": "any", "selectedControl": "any", "selectedTool": "any", "getEditorImage": "any", "getEditorImageContainer": "any", "requestEditorEdit": "any", "requestEditorPreview": "any" };
+    exports.tools.params = ["capabilities", "selectedTool"];
+    exports.tools.types = { "capabilities": "any", "selectedTool": "any" };
+    exports.tool.params = ["tool", "toolIndex"];
+    exports.tool.types = { "tool": "any", "toolIndex": "any" };
+    exports.tool_dropdown.params = ["requestEditorEdit", "tool", "toolIndex"];
+    exports.tool_dropdown.types = { "requestEditorEdit": "any", "tool": "any", "toolIndex": "any" };
+    exports.tool_control.params = ["control", "selectedControl"];
+    exports.tool_control.types = { "control": "any", "selectedControl": "any" };
+    exports.active_controls.params = ["id", "variant"];
+    exports.active_controls.types = { "id": "any", "variant": "any" };
     exports.templates = templates = exports;
     return exports;
   });
