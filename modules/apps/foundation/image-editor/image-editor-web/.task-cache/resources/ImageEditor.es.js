@@ -1,4 +1,4 @@
-define("liferay-image-editor-web@1.0.0/ImageEditor.es", ['exports', 'metal-component/src/Component', 'metal-soy/src/Soy', 'metal-promise/src/promise/Promise', './ImageEditorUtils.es', './ImageEditor.soy'], function (exports, _Component2, _Soy, _Promise, _ImageEditorUtils, _ImageEditor) {
+define("liferay-image-editor-web@1.0.0/ImageEditor.es", ['exports', 'metal-component/src/Component', 'metal-soy/src/Soy', 'metal-promise/src/promise/Promise', 'metal-dropdown/src/Dropdown', './ImageEditorUtils.es', './ImageEditor.soy'], function (exports, _Component2, _Soy, _Promise, _Dropdown, _ImageEditorUtils, _ImageEditor) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -8,6 +8,8 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.es", ['exports', 'metal-compo
 	var _Component3 = _interopRequireDefault(_Component2);
 
 	var _Soy2 = _interopRequireDefault(_Soy);
+
+	var _Dropdown2 = _interopRequireDefault(_Dropdown);
 
 	var _ImageEditorUtils2 = _interopRequireDefault(_ImageEditorUtils);
 
@@ -62,8 +64,8 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.es", ['exports', 'metal-compo
 			var _this = _possibleConstructorReturn(this, _Component.call(this, opt_config));
 
 			/**
-      	 * This index points to the current state in the history.
-      	 *
+   	 * This index points to the current state in the history.
+   	 *
     * @type {Number}
     * @protected
     */
@@ -77,7 +79,7 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.es", ['exports', 'metal-compo
     * - State entries are objects with
     *     - url: the url representing the image
     *     - utils: image utils for this image
-      	 *
+   	 *
     * @type {Array.<Object>}
     * @protected
     */
@@ -89,7 +91,7 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.es", ['exports', 'metal-compo
 		}
 
 		/**
-   * Accepts the current changes applied by the active tool and creates
+   * Accepts the current changes applied by the active control and creates
    * a new entry in the history stack. Doing this will wipe out any
    * stale redo states.
    */
@@ -98,16 +100,17 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.es", ['exports', 'metal-compo
 		ImageEditor.prototype.accept = function accept() {
 			var _this2 = this;
 
-			var selectedTool = this.components[this.id + '_selected_tool_' + this.selectedTool.controls];
+			var selectedControl = this.components[this.id + '_selected_control_' + this.selectedControl.variant];
 			var utils = this.history_[this.historyIndex_].utils;
 
 			utils.getImageData().then(function (imageData) {
-				return selectedTool.process(imageData);
+				return selectedControl.process(imageData);
 			}).then(function (imageURL) {
 				return _this2.createHistoryEntry_(imageURL);
 			}).then(function () {
-				_this2.selectedTool = null;
 				_this2.imagePreview = false;
+				_this2.selectedControl = null;
+				_this2.selectedTool = null;
 				_this2.syncHistory_();
 			});
 		};
@@ -125,19 +128,9 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.es", ['exports', 'metal-compo
 		};
 
 		ImageEditor.prototype.discard = function discard() {
+			this.selectedControl = null;
 			this.selectedTool = null;
 			this.syncHistory_();
-		};
-
-		ImageEditor.prototype.edit = function edit(event) {
-			this.selectedTool = this.tools.filter(function (tool) {
-				return tool.name === event.delegateTarget.getAttribute('data-tool');
-			})[0];
-
-			this.syncHistory_();
-
-			this.imagePreview = true;
-			this.history_[this.historyIndex_].utils.enablePreview();
 		};
 
 		ImageEditor.prototype.getEditorImage = function getEditorImage() {
@@ -153,12 +146,32 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.es", ['exports', 'metal-compo
 			this.syncHistory_();
 		};
 
+		ImageEditor.prototype.requestEditorEdit = function requestEditorEdit(event) {
+			var controls = this.capabilities.tools.reduce(function (prev, curr) {
+				return prev.concat(curr.controls);
+			}, []);
+
+			var target = event.delegateTarget || event.currentTarget;
+			var targetControl = target.getAttribute('data-control');
+			var targetTool = target.getAttribute('data-tool');
+
+			this.selectedControl = controls.filter(function (tool) {
+				return tool.variant === targetControl;
+			})[0];
+			this.selectedTool = targetTool;
+
+			this.syncHistory_();
+
+			this.imagePreview = true;
+			this.history_[this.historyIndex_].utils.enablePreview();
+		};
+
 		ImageEditor.prototype.requestEditorPreview = function requestEditorPreview() {
-			var selectedTool = this.components[this.id + '_selected_tool_' + this.selectedTool.controls];
+			var selectedControl = this.components[this.id + '_selected_control_' + this.selectedControl.variant];
 			var utils = this.history_[this.historyIndex_].utils;
 
 			utils.getImageData().then(function (imageData) {
-				return selectedTool.preview(imageData);
+				return selectedControl.preview(imageData);
 			}).then(function (imageData) {
 				return utils.preview(imageData);
 			});

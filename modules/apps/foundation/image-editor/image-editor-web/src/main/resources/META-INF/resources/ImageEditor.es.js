@@ -2,6 +2,7 @@ import Component from 'metal-component/src/Component';
 import Soy from 'metal-soy/src/Soy';
 
 import { CancellablePromise } from 'metal-promise/src/promise/Promise';
+import Dropdown from 'metal-dropdown/src/Dropdown';
 
 import ImageStateUtils from './ImageEditorUtils.es';
 
@@ -44,20 +45,21 @@ class ImageEditor extends Component {
 	}
 
 	/**
-	 * Accepts the current changes applied by the active tool and creates
+	 * Accepts the current changes applied by the active control and creates
 	 * a new entry in the history stack. Doing this will wipe out any
 	 * stale redo states.
 	 */
 	accept() {
-		let selectedTool = this.components[this.id + '_selected_tool_' + this.selectedTool.controls];
+		let selectedControl = this.components[this.id + '_selected_control_' + this.selectedControl.variant];
 		let utils = this.history_[this.historyIndex_].utils;
 
 		utils.getImageData()
-			.then((imageData) => selectedTool.process(imageData))
+			.then((imageData) => selectedControl.process(imageData))
 			.then((imageURL) => this.createHistoryEntry_(imageURL))
 			.then(() => {
-				this.selectedTool = null;
 				this.imagePreview = false;
+				this.selectedControl = null;
+				this.selectedTool = null;
 				this.syncHistory_();
 			});
 	}
@@ -80,28 +82,13 @@ class ImageEditor extends Component {
 	}
 
 	/**
-	 * Discards the current changes applied by the active tool and reverts
-	 * the image to its state before the tool activation.
+	 * Discards the current changes applied by the active control and reverts
+	 * the image to its state before the control activation.
 	 */
 	discard() {
+		this.selectedControl = null;
 		this.selectedTool = null;
 		this.syncHistory_();
-	}
-
-	/**
-	 * Selects a tool and starts the edition phase for it.
-	 *
-	 * @param  {MouseEvent} event
-	 */
-	edit(event) {
-		this.selectedTool = this.tools.filter(
-			(tool) => (tool.name === event.delegateTarget.getAttribute('data-tool')
-		))[0];
-
-		this.syncHistory_();
-
-		this.imagePreview = true;
-		this.history_[this.historyIndex_].utils.enablePreview();
 	}
 
 	/**
@@ -133,15 +120,37 @@ class ImageEditor extends Component {
 	}
 
 	/**
+	 * Selects a control and starts the edition phase for it.
+	 *
+	 * @param  {MouseEvent} event
+	 */
+	requestEditorEdit(event) {
+		let controls = this.capabilities.tools.reduce(
+			(prev, curr) => prev.concat(curr.controls), []);
+
+		let target = event.delegateTarget || event.currentTarget;
+		let targetControl = target.getAttribute('data-control');
+		let targetTool = target.getAttribute('data-tool');
+
+		this.selectedControl = controls.filter(tool => tool.variant === targetControl)[0];
+		this.selectedTool = targetTool;
+
+		this.syncHistory_();
+
+		this.imagePreview = true;
+		this.history_[this.historyIndex_].utils.enablePreview();
+	}
+
+	/**
 	 * Queues a request for a preview process of the current image by the
-	 * currently selected tool.
+	 * currently selected control.
 	 */
 	requestEditorPreview() {
-		let selectedTool = this.components[this.id + '_selected_tool_' + this.selectedTool.controls];
+		let selectedControl = this.components[this.id + '_selected_control_' + this.selectedControl.variant];
 		let utils = this.history_[this.historyIndex_].utils;
 
 		utils.getImageData()
-			.then((imageData) => selectedTool.preview(imageData))
+			.then((imageData) => selectedControl.preview(imageData))
 			.then((imageData) => utils.preview(imageData));
 	}
 
