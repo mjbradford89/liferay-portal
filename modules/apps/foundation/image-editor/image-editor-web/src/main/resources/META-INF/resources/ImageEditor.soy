@@ -147,6 +147,7 @@
 		<div class="col-md-8 col-sm-8 col-xs-8 filters-list">
 			{if $selectedControl and $selectedControl.label == $control.label}
 				{call .active_controls data="all"}
+					{param modulePath: $control.modulePath /}
 					{param variant: $control.variant /}
 				{/call}
 			{/if}

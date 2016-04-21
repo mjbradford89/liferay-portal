@@ -223,7 +223,7 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
       ie_close('div');
       ie_open('div', null, null, 'class', 'col-md-8 col-sm-8 col-xs-8 filters-list');
       if (opt_data.selectedControl && opt_data.selectedControl.label == opt_data.control.label) {
-        $active_controls(soy.$$augmentMap(opt_data, { variant: opt_data.control.variant }), null, opt_ijData);
+        $active_controls(soy.$$augmentMap(opt_data, { modulePath: opt_data.control.modulePath, variant: opt_data.control.variant }), null, opt_ijData);
       }
       ie_close('div');
       ie_open('div', null, null, 'class', 'col-md-2 col-sm-2 col-xs-2 btn-space');
@@ -260,12 +260,12 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
      * @return {void}
      * @suppress {checkTypes}
      */
-    function __deltemplate_s97_266044fb(opt_data, opt_ignored, opt_ijData) {}
-    exports.__deltemplate_s97_266044fb = __deltemplate_s97_266044fb;
+    function __deltemplate_s98_266044fb(opt_data, opt_ignored, opt_ijData) {}
+    exports.__deltemplate_s98_266044fb = __deltemplate_s98_266044fb;
     if (goog.DEBUG) {
-      __deltemplate_s97_266044fb.soyTemplateName = 'ImageEditor.__deltemplate_s97_266044fb';
+      __deltemplate_s98_266044fb.soyTemplateName = 'ImageEditor.__deltemplate_s98_266044fb';
     }
-    soy.$$registerDelegateFn(soy.$$getDelTemplateId('ImageEditor.Controls.idom'), '', 0, __deltemplate_s97_266044fb);
+    soy.$$registerDelegateFn(soy.$$getDelTemplateId('ImageEditor.Controls.idom'), '', 0, __deltemplate_s98_266044fb);
 
     exports.render.params = ["capabilities", "history", "id", "image", "imagePreview", "selectedControl", "selectedTool", "getEditorImage", "getEditorImageContainer", "requestEditorEdit", "requestEditorPreview"];
     exports.render.types = { "capabilities": "any", "history": "any", "id": "any", "image": "any", "imagePreview": "any", "selectedControl": "any", "selectedTool": "any", "getEditorImage": "any", "getEditorImageContainer": "any", "requestEditorEdit": "any", "requestEditorPreview": "any" };
