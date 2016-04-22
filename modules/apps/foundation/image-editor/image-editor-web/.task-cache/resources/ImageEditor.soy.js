@@ -130,12 +130,12 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
     function $tools(opt_data, opt_ignored, opt_ijData) {
       ie_open('div', null, null, 'class', 'controls text-center');
       ie_open('ul', null, null, 'class', 'list-inline');
-      var toolList46 = opt_data.capabilities.tools;
-      var toolListLen46 = toolList46.length;
-      for (var toolIndex46 = 0; toolIndex46 < toolListLen46; toolIndex46++) {
-        var toolData46 = toolList46[toolIndex46];
-        ie_open('li', null, null, 'class', opt_data.selectedTool == 'tool-' + toolIndex46 ? 'open' : '', 'style', 'display:inline');
-        $tool(soy.$$augmentMap(opt_data, { tool: toolData46, toolIndex: toolIndex46 }), null, opt_ijData);
+      var toolList47 = opt_data.capabilities.tools;
+      var toolListLen47 = toolList47.length;
+      for (var toolIndex47 = 0; toolIndex47 < toolListLen47; toolIndex47++) {
+        var toolData47 = toolList47[toolIndex47];
+        ie_open('li', null, null, 'class', opt_data.selectedTool == 'tool-' + toolIndex47 ? 'open' : '', 'style', 'display:inline');
+        $tool(soy.$$augmentMap(opt_data, { tool: toolData47, toolIndex: toolIndex47 }), null, opt_ijData);
         ie_close('li');
       }
       ie_close('ul');
@@ -157,11 +157,11 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
       if (opt_data.tool.controls.length > 1) {
         $tool_dropdown(opt_data, null, opt_ijData);
       } else {
-        var control__soy55 = opt_data.tool.controls[0];
-        ie_open('a', null, null, 'class', 'btn', 'data-onclick', 'requestEditorEdit', 'data-control', control__soy55.variant, 'data-tool', 'tool-' + opt_data.toolIndex, 'href', 'javascript:;');
+        var control__soy56 = opt_data.tool.controls[0];
+        ie_open('a', null, null, 'class', 'btn', 'data-onclick', 'requestEditorEdit', 'data-control', control__soy56.variant, 'data-tool', 'tool-' + opt_data.toolIndex, 'href', 'javascript:;');
         ie_void('span', null, null, 'class', 'icon-' + opt_data.tool.icon + ' icon-monospaced');
         ie_close('a');
-        $tool_control(soy.$$augmentMap(opt_data, { control: control__soy55 }), null, opt_ijData);
+        $tool_control(soy.$$augmentMap(opt_data, { control: control__soy56 }), null, opt_ijData);
       }
     }
     exports.tool = $tool;
@@ -177,29 +177,29 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
      * @suppress {checkTypes}
      */
     function $tool_dropdown(opt_data, opt_ignored, opt_ijData) {
-      var param66 = function param66() {
+      var param67 = function param67() {
         ie_open('a', null, null, 'class', 'btn', 'data-onclick', 'toggle', 'href', 'javascript:;');
         ie_void('span', null, null, 'class', 'icon-' + opt_data.tool.icon + ' icon-monospaced');
         ie_close('a');
       };
-      var param70 = function param70() {
-        var controlList80 = opt_data.tool.controls;
-        var controlListLen80 = controlList80.length;
-        for (var controlIndex80 = 0; controlIndex80 < controlListLen80; controlIndex80++) {
-          var controlData80 = controlList80[controlIndex80];
+      var param71 = function param71() {
+        var controlList81 = opt_data.tool.controls;
+        var controlListLen81 = controlList81.length;
+        for (var controlIndex81 = 0; controlIndex81 < controlListLen81; controlIndex81++) {
+          var controlData81 = controlList81[controlIndex81];
           ie_open('li');
-          ie_open('a', null, null, 'data-onclick', opt_data.requestEditorEdit, 'data-control', controlData80.variant, 'data-tool', 'tool-' + opt_data.toolIndex);
-          itext((goog.asserts.assert(controlData80.label != null), controlData80.label));
+          ie_open('a', null, null, 'data-onclick', opt_data.requestEditorEdit, 'data-control', controlData81.variant, 'data-tool', 'tool-' + opt_data.toolIndex);
+          itext((goog.asserts.assert(controlData81.label != null), controlData81.label));
           ie_close('a');
           ie_close('li');
         }
       };
-      $templateAlias1({ header: param66, body: param70 }, null, opt_ijData);
-      var controlList85 = opt_data.tool.controls;
-      var controlListLen85 = controlList85.length;
-      for (var controlIndex85 = 0; controlIndex85 < controlListLen85; controlIndex85++) {
-        var controlData85 = controlList85[controlIndex85];
-        $tool_control(soy.$$augmentMap(opt_data, { control: controlData85 }), null, opt_ijData);
+      $templateAlias1({ header: param67, body: param71 }, null, opt_ijData);
+      var controlList86 = opt_data.tool.controls;
+      var controlListLen86 = controlList86.length;
+      for (var controlIndex86 = 0; controlIndex86 < controlListLen86; controlIndex86++) {
+        var controlData86 = controlList86[controlIndex86];
+        $tool_control(soy.$$augmentMap(opt_data, { control: controlData86 }), null, opt_ijData);
       }
     }
     exports.tool_dropdown = $tool_dropdown;
@@ -260,15 +260,15 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.soy", ['exports', 'metal-comp
      * @return {void}
      * @suppress {checkTypes}
      */
-    function __deltemplate_s98_266044fb(opt_data, opt_ignored, opt_ijData) {}
-    exports.__deltemplate_s98_266044fb = __deltemplate_s98_266044fb;
+    function __deltemplate_s99_266044fb(opt_data, opt_ignored, opt_ijData) {}
+    exports.__deltemplate_s99_266044fb = __deltemplate_s99_266044fb;
     if (goog.DEBUG) {
-      __deltemplate_s98_266044fb.soyTemplateName = 'ImageEditor.__deltemplate_s98_266044fb';
+      __deltemplate_s99_266044fb.soyTemplateName = 'ImageEditor.__deltemplate_s99_266044fb';
     }
-    soy.$$registerDelegateFn(soy.$$getDelTemplateId('ImageEditor.Controls.idom'), '', 0, __deltemplate_s98_266044fb);
+    soy.$$registerDelegateFn(soy.$$getDelTemplateId('ImageEditor.Controls.idom'), '', 0, __deltemplate_s99_266044fb);
 
-    exports.render.params = ["capabilities", "history", "id", "image", "imagePreview", "selectedControl", "selectedTool", "getEditorImage", "getEditorImageContainer", "requestEditorEdit", "requestEditorPreview"];
-    exports.render.types = { "capabilities": "any", "history": "any", "id": "any", "image": "any", "imagePreview": "any", "selectedControl": "any", "selectedTool": "any", "getEditorImage": "any", "getEditorImageContainer": "any", "requestEditorEdit": "any", "requestEditorPreview": "any" };
+    exports.render.params = ["capabilities", "history", "id", "image", "imagePreview", "selectedControl", "selectedTool", "getEditorImage", "getEditorImageContainer", "getEditorImageData", "requestEditorEdit", "requestEditorPreview"];
+    exports.render.types = { "capabilities": "any", "history": "any", "id": "any", "image": "any", "imagePreview": "any", "selectedControl": "any", "selectedTool": "any", "getEditorImage": "any", "getEditorImageContainer": "any", "getEditorImageData": "any", "requestEditorEdit": "any", "requestEditorPreview": "any" };
     exports.tools.params = ["capabilities", "selectedTool"];
     exports.tools.types = { "capabilities": "any", "selectedTool": "any" };
     exports.tool.params = ["tool", "toolIndex"];

@@ -109,6 +109,10 @@ class ImageEditor extends Component {
 		return this.element.querySelector('.lfr-image-editor-image-container');
 	}
 
+	getEditorImageData() {
+		return this.history_[this.historyIndex_].utils.getImageData();
+	}
+
 	/**
 	 * Updates the image back to a previously undone state in the history.
 	 * Redoing an recovers the undone image changes and enables the undo

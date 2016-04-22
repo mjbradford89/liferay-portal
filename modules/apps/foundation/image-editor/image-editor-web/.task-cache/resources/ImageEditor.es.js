@@ -141,6 +141,10 @@ define("liferay-image-editor-web@1.0.0/ImageEditor.es", ['exports', 'metal-compo
 			return this.element.querySelector('.lfr-image-editor-image-container');
 		};
 
+		ImageEditor.prototype.getEditorImageData = function getEditorImageData() {
+			return this.history_[this.historyIndex_].utils.getImageData();
+		};
+
 		ImageEditor.prototype.redo = function redo() {
 			this.historyIndex_++;
 			this.syncHistory_();
