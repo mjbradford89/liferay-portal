@@ -113,8 +113,8 @@ if (!draggableImage.equals("none")) {
 }
 %>
 
-<liferay-portlet:renderURL portletName="<%= ImageEditorPortletKeys.NAME %>" var="imageEditorUrl" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
-	<liferay-portlet:param name="mvcPath" value="ImageEditor" />
+<liferay-portlet:renderURL portletName="<%= ImageEditorPortletKeys.IMAGE_EDITOR %>" var="imageEditorUrl" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+	<liferay-portlet:param name="mvcRenderCommandName" value="View" />
 </liferay-portlet:renderURL>
 
 <aui:script use="<%= modules %>">
