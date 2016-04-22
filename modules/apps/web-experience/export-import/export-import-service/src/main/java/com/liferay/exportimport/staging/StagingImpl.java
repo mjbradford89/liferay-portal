@@ -141,6 +141,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.portlet.PortletPreferences;
@@ -303,6 +304,9 @@ public class StagingImpl implements Staging {
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
+		long scopeGroupId = PortalUtil.getScopeGroupId(
+			PortalUtil.getHttpServletRequest(portletRequest),
+			portlet.getPortletId());
 		long plid = ParamUtil.getLong(portletRequest, "plid");
 
 		Map<String, String[]> parameterMap =
@@ -310,7 +314,7 @@ public class StagingImpl implements Staging {
 				portletRequest);
 
 		return publishPortlet(
-			themeDisplay.getUserId(), themeDisplay.getScopeGroupId(), plid,
+			themeDisplay.getUserId(), scopeGroupId, plid,
 			portlet.getPortletId(), parameterMap, true);
 	}
 
@@ -800,7 +804,8 @@ public class StagingImpl implements Staging {
 				errorMessage = LanguageUtil.get(
 					locale,
 					"there-are-missing-references-that-could-not-be-found-in-" +
-						"the-live-environment");
+						"the-live-environment-the-following-elements-are-" +
+							"published-from-their-own-site");
 			}
 			else {
 				errorMessage = LanguageUtil.get(
@@ -850,7 +855,7 @@ public class StagingImpl implements Staging {
 				errorMessage = LanguageUtil.format(
 					locale,
 					"the-x-x-has-missing-references-that-could-not-be-found-" +
-						"during-the-export",
+						"during-the-process",
 					new String[] {
 						ResourceActionsUtil.getModelResource(
 							locale, referrerClassName),
@@ -1598,6 +1603,8 @@ public class StagingImpl implements Staging {
 		long exportImportConfigurationId = ParamUtil.getLong(
 			portletRequest, "exportImportConfigurationId");
 
+		String name = ParamUtil.getString(portletRequest, "name");
+
 		if (exportImportConfigurationId > 0) {
 			ExportImportConfiguration exportImportConfiguration =
 				_exportImportConfigurationLocalService.
@@ -1614,6 +1621,10 @@ public class StagingImpl implements Staging {
 				parameterMap.put(
 					PortletDataHandlerKeys.PERFORM_DIRECT_BINARY_IMPORT,
 					new String[] {Boolean.TRUE.toString()});
+
+				if (!Validator.isBlank(name)) {
+					parameterMap.put("name", new String[] {name});
+				}
 			}
 		}
 
@@ -1636,8 +1647,6 @@ public class StagingImpl implements Staging {
 						user, sourceGroupId, targetGroupId, privateLayout,
 						layoutIds, parameterMap);
 		}
-
-		String name = ParamUtil.getString(portletRequest, "name");
 
 		ExportImportConfiguration exportImportConfiguration = null;
 
@@ -1670,6 +1679,10 @@ public class StagingImpl implements Staging {
 		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 
+		long scopeGroupId = PortalUtil.getScopeGroupId(
+			PortalUtil.getHttpServletRequest(portletRequest),
+			portlet.getPortletId());
+
 		long plid = ParamUtil.getLong(portletRequest, "plid");
 
 		Map<String, String[]> parameterMap =
@@ -1677,7 +1690,7 @@ public class StagingImpl implements Staging {
 				portletRequest);
 
 		return publishPortlet(
-			themeDisplay.getUserId(), themeDisplay.getScopeGroupId(), plid,
+			themeDisplay.getUserId(), scopeGroupId, plid,
 			portlet.getPortletId(), parameterMap, false);
 	}
 
@@ -1712,6 +1725,8 @@ public class StagingImpl implements Staging {
 		long exportImportConfigurationId = ParamUtil.getLong(
 			portletRequest, "exportImportConfigurationId");
 
+		String name = ParamUtil.getString(portletRequest, "name");
+
 		if (exportImportConfigurationId > 0) {
 			ExportImportConfiguration exportImportConfiguration =
 				_exportImportConfigurationLocalService.
@@ -1731,6 +1746,14 @@ public class StagingImpl implements Staging {
 					publishLayoutRemoteSettingsMap, "secureConnection");
 				remotePrivateLayout = MapUtil.getBoolean(
 					publishLayoutRemoteSettingsMap, "remotePrivateLayout");
+
+				if (!Validator.isBlank(name)) {
+					Map<String, String[]> parameterMap =
+						(Map<String, String[]>)publishLayoutRemoteSettingsMap.
+							get("parameterMap");
+
+					parameterMap.put("name", new String[] {name});
+				}
 			}
 		}
 
@@ -1776,8 +1799,6 @@ public class StagingImpl implements Staging {
 			secureConnection, remoteGroupId);
 
 		ExportImportConfiguration exportImportConfiguration = null;
-
-		String name = ParamUtil.getString(portletRequest, "name");
 
 		if (Validator.isNotNull(name)) {
 			exportImportConfiguration =
@@ -1863,7 +1884,8 @@ public class StagingImpl implements Staging {
 					"parameterMap");
 				privateLayout = MapUtil.getBoolean(
 					settingsMap, "privateLayout");
-				layoutIds = (long[])settingsMap.get("layoutIds");
+				layoutIds = GetterUtil.getLongValues(
+					settingsMap.get("layoutIds"));
 			}
 		}
 
@@ -2567,9 +2589,7 @@ public class StagingImpl implements Staging {
 		ClassName className = ClassNameServiceHttp.fetchByClassNameId(
 			httpPrincipal, group.getClassNameId());
 
-		if (Validator.equals(
-				className.getClassName(), Company.class.getName())) {
-
+		if (Objects.equals(className.getClassName(), Company.class.getName())) {
 			return true;
 		}
 
@@ -2919,7 +2939,7 @@ public class StagingImpl implements Staging {
 				httpPrincipal, remoteGroupId);
 
 			if (group.equals(remoteGroup) &&
-				Validator.equals(group.getUuid(), remoteGroup.getUuid())) {
+				Objects.equals(group.getUuid(), remoteGroup.getUuid())) {
 
 				RemoteExportException ree = new RemoteExportException(
 					RemoteExportException.SAME_GROUP);

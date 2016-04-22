@@ -132,6 +132,35 @@
 		</execute>
 	</command>
 
+	<command name="CreateUntitledForm" priority="3">
+		<description message="This is a use case for LPS-64379." />
+
+		<execute macro="Navigator#openURL" />
+
+		<execute macro="ProductMenu#gotoSitesContent">
+			<var name="portlet" value="Forms" />
+		</execute>
+
+		<execute macro="FormsAdminNavigator#gotoAddForm" />
+
+		<execute macro="Form#gotoAddFirstField">
+			<var name="fieldType" value="Text" />
+		</execute>
+
+		<execute macro="Form#editFieldLabel">
+			<var name="fieldValue" value="Text Field" />
+		</execute>
+
+		<execute macro="FormFields#save" />
+
+		<execute macro="Form#save" />
+
+		<execute macro="FormsAdmin#viewForm">
+			<var name="formDescription" value="" />
+			<var name="formName" value="Untitled Form" />
+		</execute>
+	</command>
+
 	<command name="EditFormsConfigurationViaSystemSettings" priority="3">
 		<description message="This is a use case for LPS-59749" />
 
@@ -950,26 +979,6 @@
 		</execute>
 	</command>
 
-	<command name="SubmitFormWithoutAFormNameAndViewErrorMessage" priority="3">
-		<description message="This is a use case for LPS-59664." />
-
-		<execute macro="Navigator#openURL" />
-
-		<execute macro="ProductMenu#gotoSitesContent">
-			<var name="portlet" value="Forms" />
-		</execute>
-
-		<execute macro="FormsAdminNavigator#gotoAddForm" />
-
-		<execute macro="Form#saveWithoutFormName" />
-
-		<execute macro="Form#editName" />
-
-		<execute macro="Form#editDescription" />
-
-		<execute macro="Form#save" />
-	</command>
-
 	<command name="SubmitFormWithParagraphField" priority="4">
 		<description message="This is a use case for LPS-61450 and LPS-61252." />
 
@@ -1103,9 +1112,11 @@
 		</execute>
 
 		<execute macro="FormFields#viewCheckboxLabel">
-			<var name="fieldLabel" value="Checkbox Field*" />
+			<var name="fieldLabel" value="Checkbox Field" />
 			<var name="fieldName" value="CheckboxField" />
 		</execute>
+
+		<execute macro="FormFields#viewRequiredAsterisk" />
 
 		<execute macro="FormPortlet#submitWithValidationError" />
 

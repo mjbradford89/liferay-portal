@@ -17,6 +17,7 @@ package com.liferay.portal.service.impl;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
+import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
 import com.liferay.portal.kernel.exception.AccountNameException;
@@ -65,7 +66,6 @@ import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -103,6 +103,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.Callable;
@@ -228,7 +229,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 			company = companyPersistence.create(companyId);
 
 			try {
-				company.setKey(Base64.objectToString(Encryptor.generateKey()));
+				company.setKey(Encryptor.serializeKey(Encryptor.generateKey()));
 			}
 			catch (EncryptorException ee) {
 				throw new SystemException(ee);
@@ -474,7 +475,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		}
 
 		try {
-			company.setKey(Base64.objectToString(Encryptor.generateKey()));
+			company.setKey(Encryptor.serializeKey(Encryptor.generateKey()));
 		}
 		catch (EncryptorException ee) {
 			throw new SystemException(ee);
@@ -1088,7 +1089,7 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 				String oldLanguageIds = portletPreferences.getValue(
 					PropsKeys.LOCALES, StringPool.BLANK);
 
-				if (!Validator.equals(oldLanguageIds, newLanguageIds)) {
+				if (!Objects.equals(oldLanguageIds, newLanguageIds)) {
 					validateLanguageIds(newLanguageIds);
 
 					LanguageUtil.resetAvailableLocales(companyId);
@@ -1147,6 +1148,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		catch (Exception e) {
 			throw new SystemException(e);
 		}
+
+		_clearCompanyCache(companyId);
 	}
 
 	/**
@@ -1202,6 +1205,8 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		catch (IOException | PortletException e) {
 			throw new SystemException(e);
 		}
+
+		_clearCompanyCache(companyId);
 	}
 
 	protected Company checkLogo(long companyId) throws PortalException {
@@ -1715,6 +1720,28 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 		private long _parentOrganizationId =
 			OrganizationConstants.DEFAULT_PARENT_ORGANIZATION_ID;
 
+	}
+
+	private void _clearCompanyCache(long companyId) {
+		final Company company = companyPersistence.fetchByPrimaryKey(companyId);
+
+		if (company != null) {
+			TransactionCommitCallbackUtil.registerCallback(
+				new Callable<Void>() {
+
+					@Override
+					public Void call() throws Exception {
+						EntityCacheUtil.removeResult(
+							company.isEntityCacheEnabled(), company.getClass(),
+							company.getPrimaryKeyObj());
+
+						return null;
+					}
+
+				});
+
+			companyPersistence.clearCache(company);
+		}
 	}
 
 	private static final String _DEFAULT_VIRTUAL_HOST = "localhost";
