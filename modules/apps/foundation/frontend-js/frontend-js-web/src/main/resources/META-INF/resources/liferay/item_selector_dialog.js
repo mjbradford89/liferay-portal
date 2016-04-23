@@ -20,6 +20,10 @@ AUI.add(
 						validator: Lang.isString
 					},
 
+					saveUrl: {
+						validator: Lang.isString
+					},
+
 					selectedItem: {
 					},
 
@@ -108,19 +112,62 @@ AUI.add(
 											portletURL.setParameter('image_editor_url', instance._currentItem.value);
 
 											Liferay.Util.openWindow(
-												{
+												{	
+													id: eventName + 'editImageWindow',
 													dialog: {
 														zIndex: ++zIndex,
 														'toolbars.footer': [
 															{
 																cssClass: 'btn-lg btn-primary',
 																id: 'saveButton',
-																label: strings.save
+																label: strings.save,
+																on: {
+																	click: function() {
+																		//move this logic out of here eventually
+																		var dialog = Liferay.Util.getWindow(eventName + 'editImageWindow');
+
+																		var dialogDoc = dialog.iframe.node.get('contentWindow').get('document');
+
+																		var canvasElement = dialogDoc.one('.img-responsive')._node;
+
+																		var binStr = canvasElement.toDataURL('image/jpeg', 1).split(',')[1];
+
+																		var len = binStr.length;
+
+																		var	arr = new Uint8Array(len);
+
+																		for (var i=0; i < len; i++) {
+																			arr[i] = binStr.charCodeAt(i);
+																		}
+
+																		var imageBlob = new Blob([arr], {type: 'image/jpeg'});
+
+																		var formData = new FormData();
+
+																		formData.append('file', imageBlob);
+
+																		var url = new Liferay.PortletURL.createURL(instance.get('saveUrl'));
+
+																		A.io.request(
+																			url.toString(),
+																			{
+																				data: formData,
+																				type: 'POST'
+																			}
+																		);
+																	}
+																},
+																render: true
 															},
 															{
 																cssClass: 'btn-lg btn-link close-modal',
 																id: 'cancelButton',
-																label: strings.cancel
+																label: strings.cancel,
+																on: {
+																	click: function() {
+																		debugger;
+																	}
+																}
 															}
 														]
 													},

@@ -72,7 +72,16 @@ public class ImageEditorConfigContributor extends BaseEditorConfigContributor {
 				PortletProviderUtil.getPortletId(
 					Image.class.getName(), PortletProvider.Action.EDIT));
 
+		PortletURL imageSaveUrl =
+			requestBackedPortletURLFactory.createActionURL(
+				"com_liferay_document_library_web_portlet_DLPortlet");
+
 		imageEditUrl.setParameter("mvcRenderCommandName", "/image_editor/view");
+
+		imageSaveUrl.setParameter("javax.portlet.action", "/document_library/edit_file_entry");
+		imageSaveUrl.setParameter("cmd", "add");
+		imageSaveUrl.setParameter("folderId", "0");
+		imageSaveUrl.setParameter("repositoryId", "20233");
 
 		try {
 			imageEditUrl.setWindowState(LiferayWindowState.POP_UP);
@@ -86,6 +95,7 @@ public class ImageEditorConfigContributor extends BaseEditorConfigContributor {
 			jsonObject.put(
 				"filebrowserImageBrowseUrl", itemSelectorURL.toString());
 			jsonObject.put("imageEditUrl", imageEditUrl);
+			jsonObject.put("imageSaveUrl", imageSaveUrl);
 		}
 	}
 
