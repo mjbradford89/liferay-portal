@@ -112,7 +112,7 @@ AUI.add(
 											portletURL.setParameter('image_editor_url', instance._currentItem.value);
 
 											Liferay.Util.openWindow(
-												{	
+												{
 													id: eventName + 'editImageWindow',
 													dialog: {
 														zIndex: ++zIndex,
@@ -128,33 +128,55 @@ AUI.add(
 
 																		var dialogDoc = dialog.iframe.node.get('contentWindow').get('document');
 
-																		var canvasElement = dialogDoc.one('.img-responsive')._node;
+																		var canvasElement = dialogDoc.one('canvas')._node;
 
-																		var binStr = canvasElement.toDataURL('image/jpeg', 1).split(',')[1];
+																		canvasElement.toBlob(function(imageBlob) {
+																			var formData = new FormData();
 
-																		var len = binStr.length;
+																			formData.append('file', imageBlob);
 
-																		var	arr = new Uint8Array(len);
+																			var url = new Liferay.PortletURL.createURL(instance.get('saveUrl'), {
+																				title: 'file_' + Date.now()
+																			});
 
-																		for (var i=0; i < len; i++) {
-																			arr[i] = binStr.charCodeAt(i);
-																		}
-
-																		var imageBlob = new Blob([arr], {type: 'image/jpeg'});
-
-																		var formData = new FormData();
-
-																		formData.append('file', imageBlob);
-
-																		var url = new Liferay.PortletURL.createURL(instance.get('saveUrl'));
-
-																		A.io.request(
-																			url.toString(),
-																			{
+																			$.ajax({
+																				contentType: false,
 																				data: formData,
-																				type: 'POST'
-																			}
-																		);
+																				processData: false,
+																				success: function() {
+																					debugger;
+																				},
+																				type: 'POST',
+																				url: url.toString(),
+																				xhr: function() {
+																				    var xhr = new window.XMLHttpRequest();
+
+																				    //Upload progress
+																				    xhr.upload.addEventListener("progress", function(evt){
+																				      if (evt.lengthComputable) {
+																				        var percentComplete = evt.loaded / evt.total;
+																				        //Do something with upload progress
+																				        console.log(percentComplete);
+																				      }
+																				    }, false);
+
+																				    return xhr;
+																				}
+																			});
+																			/*
+																			A.io.request(
+																				url.toString(),
+																				{
+																					data: formData,
+																					headers: {
+																						'Content-Type': 'multipart/form-data'
+																					},
+																					type: 'POST'
+																				}
+																			);
+																			*/
+
+																		});
 																	}
 																},
 																render: true
