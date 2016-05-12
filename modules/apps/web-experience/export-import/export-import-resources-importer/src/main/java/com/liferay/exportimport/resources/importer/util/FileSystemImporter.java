@@ -38,11 +38,11 @@ import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
 import com.liferay.dynamic.data.mapping.storage.StorageType;
 import com.liferay.dynamic.data.mapping.util.DDMUtil;
 import com.liferay.dynamic.data.mapping.util.DDMXML;
+import com.liferay.exportimport.resources.importer.portlet.preferences.PortletPreferencesTranslator;
 import com.liferay.journal.configuration.JournalServiceConfigurationValues;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleConstants;
 import com.liferay.journal.service.JournalArticleLocalService;
-import com.liferay.journal.service.JournalArticleService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -68,6 +68,7 @@ import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutPrototypeLocalService;
 import com.liferay.portal.kernel.service.LayoutSetLocalService;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
+import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
 import com.liferay.portal.kernel.service.RepositoryLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
@@ -85,6 +86,7 @@ import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.xml.Attribute;
@@ -130,13 +132,14 @@ public class FileSystemImporter extends BaseImporter {
 		DLFolderLocalService dlFolderLocalService,
 		IndexStatusManager indexStatusManager, IndexerRegistry indexerRegistry,
 		JournalArticleLocalService journalArticleLocalService,
-		JournalArticleService journalArticleService,
 		LayoutLocalService layoutLocalService,
 		LayoutPrototypeLocalService layoutPrototypeLocalService,
 		LayoutSetLocalService layoutSetLocalService,
 		LayoutSetPrototypeLocalService layoutSetPrototypeLocalService,
 		MimeTypes mimeTypes, Portal portal,
 		PortletPreferencesFactory portletPreferencesFactory,
+		PortletPreferencesLocalService portletPreferencesLocalService,
+		Map<String, PortletPreferencesTranslator> portletPreferencesTranslators,
 		RepositoryLocalService repositoryLocalService, SAXReader saxReader,
 		ThemeLocalService themeLocalService) {
 
@@ -152,7 +155,6 @@ public class FileSystemImporter extends BaseImporter {
 		this.indexStatusManager = indexStatusManager;
 		this.indexerRegistry = indexerRegistry;
 		this.journalArticleLocalService = journalArticleLocalService;
-		this.journalArticleService = journalArticleService;
 		this.layoutLocalService = layoutLocalService;
 		this.layoutPrototypeLocalService = layoutPrototypeLocalService;
 		this.layoutSetLocalService = layoutSetLocalService;
@@ -160,6 +162,8 @@ public class FileSystemImporter extends BaseImporter {
 		this.mimeTypes = mimeTypes;
 		this.portal = portal;
 		this.portletPreferencesFactory = portletPreferencesFactory;
+		this.portletPreferencesLocalService = portletPreferencesLocalService;
+		this.portletPreferencesTranslators = portletPreferencesTranslators;
 		this.repositoryLocalService = repositoryLocalService;
 		this.saxReader = saxReader;
 		this.themeLocalService = themeLocalService;
@@ -1073,6 +1077,8 @@ public class FileSystemImporter extends BaseImporter {
 					friendlyURLMap, serviceContext);
 			}
 			else {
+				resetLayoutColumns(layout);
+
 				layout = layoutLocalService.updateLayout(
 					groupId, privateLayout, layout.getLayoutId(),
 					parentLayoutId, nameMap, titleMap,
@@ -1168,6 +1174,19 @@ public class FileSystemImporter extends BaseImporter {
 			throw new ImporterException("portletId is not specified");
 		}
 
+		PortletPreferencesTranslator portletPreferencesTranslator =
+			portletPreferencesTranslators.get(rootPortletId);
+
+		if (portletPreferencesTranslator == null) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					"No PortletPreferenceRetriever configured for : " +
+						rootPortletId);
+			}
+
+			return;
+		}
+
 		String portletId = layoutTypePortlet.addPortletId(
 			userId, rootPortletId, columnId, -1, false);
 
@@ -1192,15 +1211,8 @@ public class FileSystemImporter extends BaseImporter {
 		while (iterator.hasNext()) {
 			String key = iterator.next();
 
-			String value = portletPreferencesJSONObject.getString(key);
-
-			if (rootPortletId.equals(_JOURNAL_CONTENT_PORTLET_ID) &&
-				key.equals("articleId")) {
-
-				value = getJournalId(value);
-			}
-
-			portletSetup.setValue(key, value);
+			portletPreferencesTranslator.translate(
+				portletPreferencesJSONObject, key, portletSetup);
 		}
 
 		portletSetup.store();
@@ -1570,20 +1582,18 @@ public class FileSystemImporter extends BaseImporter {
 
 			Set<Long> primaryKeys = primaryKeysEntry.getValue();
 
-			Indexer indexer = indexerRegistry.getIndexer(className);
+			Indexer<?> indexer = indexerRegistry.getIndexer(className);
 
 			if (indexer == null) {
 				if (_log.isWarnEnabled()) {
-					_log.warn(
-						"No indexer within the IndexerRegistry for: " +
-							className);
+					_log.warn("No indexer for " + className);
 				}
 
 				continue;
 			}
 
 			if (_log.isDebugEnabled()) {
-				_log.debug("Indexing: " + className);
+				_log.debug("Indexing " + className);
 			}
 
 			for (long primaryKey : primaryKeys) {
@@ -1593,8 +1603,8 @@ public class FileSystemImporter extends BaseImporter {
 				catch (SearchException se) {
 					if (_log.isWarnEnabled()) {
 						_log.warn(
-							"Cannot index entry: className=" + className +
-								", primaryKey=" + primaryKey,
+							"Unable to index entry for class name " +
+								className + " and primary key " + primaryKey,
 							se);
 					}
 				}
@@ -1608,12 +1618,12 @@ public class FileSystemImporter extends BaseImporter {
 		Set<Long> primaryKeys = _primaryKeys.get(
 			JournalArticle.class.getName());
 
-		Indexer indexer = indexerRegistry.getIndexer(
+		Indexer<?> indexer = indexerRegistry.getIndexer(
 			JournalArticle.class.getName());
 
 		for (String ddmStructureKey : _ddmStructureKeys) {
 			List<JournalArticle> journalArticles =
-				journalArticleService.getArticlesByStructureId(
+				journalArticleLocalService.getArticlesByStructureId(
 					getGroupId(), ddmStructureKey, QueryUtil.ALL_POS,
 					QueryUtil.ALL_POS, null);
 
@@ -1698,6 +1708,44 @@ public class FileSystemImporter extends BaseImporter {
 		}
 
 		return content;
+	}
+
+	protected void resetLayoutColumns(Layout layout) {
+		UnicodeProperties typeSettings = layout.getTypeSettingsProperties();
+
+		int count = 1;
+
+		do {
+			String portletIds = typeSettings.remove("column-" + count++);
+
+			if (Validator.isNull(portletIds)) {
+				break;
+			}
+
+			String[] portletIdsArray = StringUtil.split(portletIds);
+
+			for (String portletId : portletIdsArray) {
+				try {
+					portletPreferencesLocalService.deletePortletPreferences(
+						PortletKeys.PREFS_OWNER_ID_DEFAULT,
+						PortletKeys.PREFS_OWNER_TYPE_LAYOUT, layout.getPlid(),
+						portletId);
+				}
+				catch (PortalException pe) {
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							"Unable to delete portlet preferences for " +
+								"portlet " + portletId,
+							pe);
+					}
+				}
+			}
+		}
+		while (true);
+
+		layout.setTypeSettingsProperties(typeSettings);
+
+		layoutLocalService.updateLayout(layout);
 	}
 
 	protected void setServiceContext(String name) {
@@ -1886,7 +1934,6 @@ public class FileSystemImporter extends BaseImporter {
 	protected final IndexerRegistry indexerRegistry;
 	protected final IndexStatusManager indexStatusManager;
 	protected final JournalArticleLocalService journalArticleLocalService;
-	protected final JournalArticleService journalArticleService;
 	protected final LayoutLocalService layoutLocalService;
 	protected final LayoutPrototypeLocalService layoutPrototypeLocalService;
 	protected final LayoutSetLocalService layoutSetLocalService;
@@ -1895,6 +1942,10 @@ public class FileSystemImporter extends BaseImporter {
 	protected final MimeTypes mimeTypes;
 	protected final Portal portal;
 	protected final PortletPreferencesFactory portletPreferencesFactory;
+	protected final PortletPreferencesLocalService
+		portletPreferencesLocalService;
+	protected final Map<String, PortletPreferencesTranslator>
+		portletPreferencesTranslators;
 	protected final RepositoryLocalService repositoryLocalService;
 	protected final SAXReader saxReader;
 	protected ServiceContext serviceContext;
@@ -1923,6 +1974,7 @@ public class FileSystemImporter extends BaseImporter {
 			},
 			{"rss_feed", "com.liferay.rss.web.util.RSSFeed"},
 			{"site_map", "com.liferay.portal.kernel.model.LayoutSet"},
+			{"site_navigation", "com.liferay.portal.kernel.theme.NavItem"},
 			{"wiki_page", "com.liferay.wiki.model.WikiPage"}
 		};
 

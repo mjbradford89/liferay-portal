@@ -15,7 +15,6 @@
 package com.liferay.portal.upgrade.v7_0_0;
 
 import com.liferay.portal.dao.jdbc.spring.DataSourceFactoryBean;
-import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.upgrade.UpgradeProcess;
@@ -36,9 +35,12 @@ import com.liferay.portal.upgrade.v7_0_0.util.ServiceComponentTable;
 import com.liferay.portal.upgrade.v7_0_0.util.VirtualHostTable;
 import com.liferay.portal.util.PropsUtil;
 
+import java.io.IOException;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +56,25 @@ public class UpgradeSharding extends UpgradeProcess {
 			Connection sourceConnection, Connection targetConnection,
 			String tableName, Object[][] columns, String createSQL)
 		throws Exception {
+
+		try {
+			if (!hasRows(targetConnection, tableName)) {
+				if (_log.isWarnEnabled()) {
+					_log.warn(
+						"Control table " + tableName + " should not contain " +
+							"data in a nondefault shard");
+				}
+			}
+
+			dropTable(targetConnection, tableName);
+		}
+		catch (SQLException sqle) {
+			if (_log.isInfoEnabled()) {
+				_log.info(
+					"Unable to drop control table " + tableName +
+						" because it  does not exist in the target shard");
+			}
+		}
 
 		UpgradeTable upgradeTable = UpgradeTableFactoryUtil.getUpgradeTable(
 			tableName, columns);
@@ -96,46 +117,40 @@ public class UpgradeSharding extends UpgradeProcess {
 
 		DataSource dataSource = dataSourceFactoryBean.createInstance();
 
-		try (Connection sourceConnection =
-				DataAccess.getUpgradeOptimizedConnection();
-			Connection targetConnection = dataSource.getConnection()) {
-
+		try (Connection targetConnection = dataSource.getConnection()) {
 			copyControlTable(
-				sourceConnection, targetConnection, ClassNameTable.TABLE_NAME,
+				connection, targetConnection, ClassNameTable.TABLE_NAME,
 				ClassNameTable.TABLE_COLUMNS, ClassNameTable.TABLE_SQL_CREATE);
 			copyControlTable(
-				sourceConnection, targetConnection,
-				ClusterGroupTable.TABLE_NAME, ClusterGroupTable.TABLE_COLUMNS,
+				connection, targetConnection, ClusterGroupTable.TABLE_NAME,
+				ClusterGroupTable.TABLE_COLUMNS,
 				ClusterGroupTable.TABLE_SQL_CREATE);
 			copyControlTable(
-				sourceConnection, targetConnection, CounterTable.TABLE_NAME,
+				connection, targetConnection, CounterTable.TABLE_NAME,
 				CounterTable.TABLE_COLUMNS, CounterTable.TABLE_SQL_CREATE);
 			copyControlTable(
-				sourceConnection, targetConnection, CountryTable.TABLE_NAME,
+				connection, targetConnection, CountryTable.TABLE_NAME,
 				CountryTable.TABLE_COLUMNS, CountryTable.TABLE_SQL_CREATE);
 			copyControlTable(
-				sourceConnection, targetConnection,
-				PortalPreferencesTable.TABLE_NAME,
+				connection, targetConnection, PortalPreferencesTable.TABLE_NAME,
 				PortalPreferencesTable.TABLE_COLUMNS,
 				PortalPreferencesTable.TABLE_SQL_CREATE);
 			copyControlTable(
-				sourceConnection, targetConnection, RegionTable.TABLE_NAME,
+				connection, targetConnection, RegionTable.TABLE_NAME,
 				RegionTable.TABLE_COLUMNS, RegionTable.TABLE_SQL_CREATE);
 			copyControlTable(
-				sourceConnection, targetConnection, ReleaseTable.TABLE_NAME,
+				connection, targetConnection, ReleaseTable.TABLE_NAME,
 				ReleaseTable.TABLE_COLUMNS, ReleaseTable.TABLE_SQL_CREATE);
 			copyControlTable(
-				sourceConnection, targetConnection,
-				ResourceActionTable.TABLE_NAME,
+				connection, targetConnection, ResourceActionTable.TABLE_NAME,
 				ResourceActionTable.TABLE_COLUMNS,
 				ResourceActionTable.TABLE_SQL_CREATE);
 			copyControlTable(
-				sourceConnection, targetConnection,
-				ServiceComponentTable.TABLE_NAME,
+				connection, targetConnection, ServiceComponentTable.TABLE_NAME,
 				ServiceComponentTable.TABLE_COLUMNS,
 				ServiceComponentTable.TABLE_SQL_CREATE);
 			copyControlTable(
-				sourceConnection, targetConnection, VirtualHostTable.TABLE_NAME,
+				connection, targetConnection, VirtualHostTable.TABLE_NAME,
 				VirtualHostTable.TABLE_COLUMNS,
 				VirtualHostTable.TABLE_SQL_CREATE);
 		}
@@ -155,6 +170,16 @@ public class UpgradeSharding extends UpgradeProcess {
 		copyControlTables(shardNames);
 	}
 
+	protected void dropTable(Connection connection, String tableName)
+		throws IOException, SQLException {
+
+		runSQL(connection, "drop table " + tableName);
+
+		if (_log.isDebugEnabled()) {
+			_log.debug("Deleted table " + tableName);
+		}
+	}
+
 	protected List<String> getShardNames() throws Exception {
 		try (LoggingTimer loggingTimer = new LoggingTimer();
 			PreparedStatement ps = connection.prepareStatement(
@@ -169,6 +194,29 @@ public class UpgradeSharding extends UpgradeProcess {
 
 			return shardNames;
 		}
+	}
+
+	/**
+	 * @see com.liferay.portal.kernel.dao.db.BaseDBProcess#hasRows(String)
+	 */
+	protected boolean hasRows(Connection connection, String tableName) {
+		try (PreparedStatement ps = connection.prepareStatement(
+				"select count(*) from " + tableName);
+			ResultSet rs = ps.executeQuery()) {
+
+			while (rs.next()) {
+				int count = rs.getInt(1);
+
+				if (count > 0) {
+					return true;
+				}
+			}
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+		}
+
+		return false;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

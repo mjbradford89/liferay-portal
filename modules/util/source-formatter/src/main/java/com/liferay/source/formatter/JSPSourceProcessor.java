@@ -187,15 +187,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 	}
 
 	protected void checkDefineObjectsVariables(
-		String line, String fileName, int lineCount) {
-
-		if (portalSource) {
-			for (String[] defineObject : _LIFERAY_FRONTEND_DEFINE_OBJECTS) {
-				checkDefineObjectsVariable(
-					line, fileName, lineCount, defineObject[0], defineObject[1],
-					defineObject[2], "liferay-frontend");
-			}
-		}
+		String line, String fileName, String absolutePath, int lineCount) {
 
 		for (String[] defineObject : _LIFERAY_THEME_DEFINE_OBJECTS) {
 			checkDefineObjectsVariable(
@@ -207,6 +199,28 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 			checkDefineObjectsVariable(
 				line, fileName, lineCount, defineObject[0], defineObject[1],
 				defineObject[2], "portlet");
+		}
+
+		if (!portalSource) {
+			return;
+		}
+
+		try {
+			for (String directoryName :
+					getPluginsInsideModulesDirectoryNames()) {
+
+				if (absolutePath.contains(directoryName)) {
+					return;
+				}
+			}
+		}
+		catch (Exception e) {
+		}
+
+		for (String[] defineObject : _LIFERAY_FRONTEND_DEFINE_OBJECTS) {
+			checkDefineObjectsVariable(
+				line, fileName, lineCount, defineObject[0], defineObject[1],
+				defineObject[2], "liferay-frontend");
 		}
 	}
 
@@ -368,6 +382,23 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 		newContent = formatMultilineTagAttributes(fileName, newContent);
 
+		Matcher matcher = _directiveLinePattern.matcher(newContent);
+
+		while (matcher.find()) {
+			String directiveLine = matcher.group();
+
+			String newDirectiveLine = formatIncorrectSyntax(
+				directiveLine, " =", "=", false);
+
+			newDirectiveLine = formatIncorrectSyntax(
+				newDirectiveLine, "= ", "=", false);
+
+			if (!directiveLine.equals(newDirectiveLine)) {
+				newContent = StringUtil.replace(
+					newContent, directiveLine, newDirectiveLine);
+			}
+		}
+
 		if (_stripJSPImports && !_jspContents.isEmpty()) {
 			try {
 				newContent = formatJSPImportsOrTaglibs(
@@ -485,7 +516,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 		checkValidatorEquals(fileName, newContent);
 
-		Matcher matcher = _javaClassPattern.matcher(newContent);
+		matcher = _javaClassPattern.matcher(newContent);
 
 		if (matcher.find()) {
 			String javaClassContent = matcher.group();
@@ -799,7 +830,8 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 				checkResourceUtil(line, fileName, lineCount);
 
-				checkDefineObjectsVariables(line, fileName, lineCount);
+				checkDefineObjectsVariables(
+					line, fileName, absolutePath, lineCount);
 
 				if (!fileName.endsWith("test.jsp") &&
 					line.contains("System.out.print")) {
@@ -1758,7 +1790,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 
 				if (portalSource && _moveFrequentlyUsedImportsToCommonInit &&
 					fileName.endsWith("/init.jsp") &&
-					!isModulesFile(absolutePath) &&
+					!isModulesFile(absolutePath, true) &&
 					!fileName.endsWith("/common/init.jsp")) {
 
 					addImportCounts(content);
@@ -2041,6 +2073,7 @@ public class JSPSourceProcessor extends BaseSourceProcessor {
 		"(<.*\n*taglib uri=\".*>\n*)+", Pattern.MULTILINE);
 	private final Pattern _defineObjectsPattern = Pattern.compile(
 		"\n\t*(<.*:defineObjects />)(\n|$)");
+	private final Pattern _directiveLinePattern = Pattern.compile("<%@\n?.*%>");
 	private final List<String> _duplicateImportClassNames = new ArrayList<>();
 	private final Pattern _emptyJavaSourceTagPattern = Pattern.compile(
 		"\n\t*<%\n+\t*%>\n");

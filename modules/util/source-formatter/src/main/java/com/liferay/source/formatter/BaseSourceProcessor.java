@@ -500,6 +500,10 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected void checkPropertyUtils(String fileName, String content) {
+		if (fileName.endsWith("TypeConvertorUtil.java")) {
+			return;
+		}
+
 		if (content.contains("org.apache.commons.beanutils.PropertyUtils")) {
 			processErrorMessage(
 				fileName,
@@ -921,8 +925,15 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 			String attribute = s.substring(0, x);
 
-			if (!isAttributName(attribute)) {
+			String trimmedAttribute = StringUtil.trim(attribute);
+
+			if (!isAttributName(trimmedAttribute)) {
 				return line;
+			}
+
+			if (!attribute.equals(trimmedAttribute)) {
+				return StringUtil.replace(
+					line, attribute + "=", trimmedAttribute + "=");
 			}
 
 			if (Validator.isNotNull(previousAttribute) &&
@@ -937,6 +948,11 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 			if ((delimeter != CharPool.APOSTROPHE) &&
 				(delimeter != CharPool.QUOTE)) {
+
+				if (delimeter == CharPool.SPACE) {
+					return StringUtil.replace(
+						line, attribute + "= ", attribute + "=");
+				}
 
 				if (delimeter != CharPool.AMPERSAND) {
 					processErrorMessage(
@@ -1908,6 +1924,11 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return _mainReleaseVersion;
 	}
 
+	protected int getMaxLineLength() {
+		return GetterUtil.getInteger(
+			System.getProperty("source.formatter.max.line.length"), 80);
+	}
+
 	protected List<String> getModuleLangDirNames(
 		String moduleLocation, String buildGradleContent) {
 
@@ -2095,6 +2116,45 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			x + 1, replaceCall.length() - 1);
 
 		return splitParameters(parameters);
+	}
+
+	protected List<String> getPluginsInsideModulesDirectoryNames()
+		throws Exception {
+
+		if (_pluginsInsideModulesDirectoryNames != null) {
+			return _pluginsInsideModulesDirectoryNames;
+		}
+
+		_pluginsInsideModulesDirectoryNames = new ArrayList<>();
+
+		List<String> pluginBuildFileNames = getFileNames(
+			new String[0],
+			new String[] {
+				"**/modules/apps/**/build.xml",
+				"**/modules/private/apps/**/build.xml"
+			});
+
+		for (String pluginBuildFileName : pluginBuildFileNames) {
+			pluginBuildFileName = StringUtil.replace(
+				pluginBuildFileName, StringPool.BACK_SLASH, StringPool.SLASH);
+
+			File file = new File(pluginBuildFileName);
+
+			String absolutePath = getAbsolutePath(file);
+
+			int x = absolutePath.indexOf("/modules/apps/");
+
+			if (x == -1) {
+				x = absolutePath.indexOf("/modules/private/apps/");
+			}
+
+			int y = absolutePath.lastIndexOf(StringPool.SLASH);
+
+			_pluginsInsideModulesDirectoryNames.add(
+				absolutePath.substring(x, y + 1));
+		}
+
+		return _pluginsInsideModulesDirectoryNames;
 	}
 
 	protected String getProperty(String key) {
@@ -2294,6 +2354,28 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected boolean isModulesFile(String absolutePath) {
+		return isModulesFile(absolutePath, false);
+	}
+
+	protected boolean isModulesFile(
+		String absolutePath, boolean includePlugins) {
+
+		if (includePlugins) {
+			return absolutePath.contains("/modules/");
+		}
+
+		try {
+			for (String directoryName :
+					getPluginsInsideModulesDirectoryNames()) {
+
+				if (absolutePath.contains(directoryName)) {
+					return false;
+				}
+			}
+		}
+		catch (Exception e) {
+		}
+
 		return absolutePath.contains("/modules/");
 	}
 
@@ -2735,6 +2817,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	private final Map<String, Properties> _moduleLanguageProperties =
 		new HashMap<>();
 	private String _oldCopyright;
+	private List<String> _pluginsInsideModulesDirectoryNames;
 	private Properties _portalLanguageProperties;
 	private Properties _properties;
 	private List<String> _runOutsidePortalExcludes;

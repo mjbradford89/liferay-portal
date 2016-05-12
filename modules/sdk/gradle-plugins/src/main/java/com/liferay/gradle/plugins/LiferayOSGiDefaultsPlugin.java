@@ -27,13 +27,13 @@ import com.liferay.gradle.plugins.service.builder.ServiceBuilderPlugin;
 import com.liferay.gradle.plugins.tasks.BaselineTask;
 import com.liferay.gradle.plugins.tasks.InstallCacheTask;
 import com.liferay.gradle.plugins.tasks.ReplaceRegexTask;
-import com.liferay.gradle.plugins.tasks.UpdateVersionTask;
 import com.liferay.gradle.plugins.test.integration.TestIntegrationBasePlugin;
 import com.liferay.gradle.plugins.tlddoc.builder.TLDDocBuilderPlugin;
 import com.liferay.gradle.plugins.tlddoc.builder.tasks.TLDDocTask;
 import com.liferay.gradle.plugins.upgrade.table.builder.UpgradeTableBuilderPlugin;
 import com.liferay.gradle.plugins.util.FileUtil;
 import com.liferay.gradle.plugins.util.GradleUtil;
+import com.liferay.gradle.plugins.util.IncrementVersionClosure;
 import com.liferay.gradle.plugins.whip.WhipPlugin;
 import com.liferay.gradle.plugins.wsdd.builder.WSDDBuilderPlugin;
 import com.liferay.gradle.plugins.wsdl.builder.WSDLBuilderPlugin;
@@ -168,9 +168,6 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 	public static final String PORTAL_TEST_CONFIGURATION_NAME = "portalTest";
 
-	public static final String UPDATE_BUNDLE_VERSION_TASK_NAME =
-		"updateBundleVersion";
-
 	public static final String UPDATE_FILE_VERSIONS_TASK_NAME =
 		"updateFileVersions";
 
@@ -238,13 +235,13 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		final Jar jarSourcesTask = addTaskJarSources(project, testProject);
 		final Jar jarTLDDocTask = addTaskJarTLDDoc(project);
 
-		addTaskUpdateBundleVersion(project);
-
 		final ReplaceRegexTask updateFileVersionsTask =
 			addTaskUpdateFileVersions(project);
+		final ReplaceRegexTask updateVersionTask = addTaskUpdateVersion(
+			project);
 
 		configureBasePlugin(project, portalRootDir);
-		configureBundleDefaultInstructions(project, publishing);
+		configureBundleDefaultInstructions(project, portalRootDir, publishing);
 		configureConfigurations(project);
 		configureDeployDir(project);
 		configureJavaPlugin(project);
@@ -269,8 +266,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 					configureLocalPortalTool(
 						project, portalRootDir,
 						ServiceBuilderPlugin.CONFIGURATION_NAME,
-						ServiceBuilderDefaultsPlugin.PORTAL_TOOL_NAME,
-						"portal-tools-service-builder");
+						ServiceBuilderDefaultsPlugin.PORTAL_TOOL_NAME);
 				}
 
 			});
@@ -295,7 +291,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 					// to know if we are publishing a snapshot or not.
 
 					configureTaskUploadArchives(
-						project, updateFileVersionsTask);
+						project, updateFileVersionsTask, updateVersionTask);
 
 					configureProjectBndProperties(project);
 				}
@@ -792,97 +788,11 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		return jar;
 	}
 
-	protected UpdateVersionTask addTaskUpdateBundleVersion(Project project) {
-		final UpdateVersionTask updateVersionTask = GradleUtil.addTask(
-			project, UPDATE_BUNDLE_VERSION_TASK_NAME, UpdateVersionTask.class);
-
-		updateVersionTask.onlyIf(
-			new Spec<Task>() {
-
-				@Override
-				public boolean isSatisfiedBy(Task task) {
-					UpdateVersionTask updateVersionTask =
-						(UpdateVersionTask)task;
-
-					String version = updateVersionTask.getVersion();
-
-					if (version.contains("LIFERAY-PATCHED-")) {
-						return false;
-					}
-
-					return true;
-				}
-
-			});
-
-		updateVersionTask.pattern(
-			"bnd.bnd",
-			Constants.BUNDLE_VERSION + ": " +
-				UpdateVersionTask.VERSION_PLACEHOLDER);
-
-		updateVersionTask.setDescription(
-			"Updates the project version in the " + Constants.BUNDLE_VERSION +
-				" header.");
-
-		updateVersionTask.setVersion(
-			new Callable<Object>() {
-
-				@Override
-				public Object call() throws Exception {
-					Project project = updateVersionTask.getProject();
-
-					return project.getVersion();
-				}
-
-			});
-
-		project.afterEvaluate(
-			new Action<Project>() {
-
-				@Override
-				public void execute(Project project) {
-					File moduleConfigFile = getModuleConfigFile(project);
-
-					if (moduleConfigFile == null) {
-						return;
-					}
-
-					updateVersionTask.pattern(
-						moduleConfigFile,
-						"\"version\": \"" +
-							UpdateVersionTask.VERSION_PLACEHOLDER + "\"");
-				}
-
-			});
-
-		return updateVersionTask;
-	}
-
 	protected ReplaceRegexTask addTaskUpdateFileVersions(
 		final Project project) {
 
 		ReplaceRegexTask replaceRegexTask = GradleUtil.addTask(
 			project, UPDATE_FILE_VERSIONS_TASK_NAME, ReplaceRegexTask.class);
-
-		replaceRegexTask.doLast(
-			new Action<Task>() {
-
-				@Override
-				public void execute(Task task) {
-					ReplaceRegexTask replaceRegexTask = (ReplaceRegexTask)task;
-
-					if (!_logger.isLifecycleEnabled()) {
-						return;
-					}
-
-					for (Object file : replaceRegexTask.getMatchedFiles()) {
-						_logger.lifecycle(
-							"Updated project version in " +
-								project.relativePath(file));
-					}
-				}
-
-			});
 
 		replaceRegexTask.pre(
 			new Closure<String>(null) {
@@ -947,6 +857,60 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 				@Override
 				public Object call() throws Exception {
 					return project.getVersion();
+				}
+
+			});
+
+		return replaceRegexTask;
+	}
+
+	protected ReplaceRegexTask addTaskUpdateVersion(Project project) {
+		final ReplaceRegexTask replaceRegexTask = GradleUtil.addTask(
+			project, LiferayRelengPlugin.UPDATE_VERSION_TASK_NAME,
+			ReplaceRegexTask.class);
+
+		replaceRegexTask.match("Bundle-Version: (.+)(?:\\s|$)", "bnd.bnd");
+
+		replaceRegexTask.onlyIf(
+			new Spec<Task>() {
+
+				@Override
+				public boolean isSatisfiedBy(Task task) {
+					Project project = task.getProject();
+
+					String version = String.valueOf(project.getVersion());
+
+					if (version.contains("LIFERAY-PATCHED-")) {
+						return false;
+					}
+
+					return true;
+				}
+
+			});
+
+		replaceRegexTask.setDescription(
+			"Updates the project version in the " + Constants.BUNDLE_VERSION +
+				" header.");
+
+		replaceRegexTask.setReplacement(
+			IncrementVersionClosure.MICRO_INCREMENT);
+
+		project.afterEvaluate(
+			new Action<Project>() {
+
+				@Override
+				public void execute(Project project) {
+					File moduleConfigFile = getModuleConfigFile(project);
+
+					if ((moduleConfigFile == null) ||
+						!moduleConfigFile.exists()) {
+
+						return;
+					}
+
+					replaceRegexTask.match(
+						"\\n\\t\"version\": \"(.+)\"", moduleConfigFile);
 				}
 
 			});
@@ -1097,7 +1061,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	}
 
 	protected void configureBundleDefaultInstructions(
-		Project project, boolean publishing) {
+		Project project, File portalRootDir, boolean publishing) {
 
 		LiferayOSGiExtension liferayOSGiExtension = GradleUtil.getExtension(
 			project, LiferayOSGiExtension.class);
@@ -1118,13 +1082,20 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 				"Git-SHA", "${system-allow-fail;git rev-list -1 HEAD}");
 		}
 
-		File appDir = GradleUtil.getRootDir(project, _APP_BND_FILE_NAME);
+		File appBndFile = getAppBndFile(project, portalRootDir);
 
-		if (appDir != null) {
-			File appFile = new File(appDir, _APP_BND_FILE_NAME);
-
+		if (appBndFile != null) {
 			bundleDefaultInstructions.put(
-				Constants.INCLUDE, FileUtil.getRelativePath(project, appFile));
+				Constants.INCLUDE,
+				FileUtil.getRelativePath(project, appBndFile));
+		}
+
+		File packageJsonFile = project.file("package.json");
+
+		if (packageJsonFile.exists()) {
+			bundleDefaultInstructions.put(
+				Constants.INCLUDERESOURCE + ".packagejson",
+				FileUtil.getRelativePath(project, packageJsonFile));
 		}
 
 		liferayOSGiExtension.bundleDefaultInstructions(
@@ -1278,7 +1249,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 		if (projectPath.startsWith(":apps:") ||
 			projectPath.startsWith(":core:") ||
-			projectPath.startsWith(":private:") ||
+			projectPath.startsWith(":private:apps:") ||
+			projectPath.startsWith(":private:core:") ||
 			FileUtil.exists(project.getRootProject(), ".gitrepo")) {
 
 			configureConfigurationTransitive(
@@ -1379,7 +1351,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 	protected void configureLocalPortalTool(
 		Project project, File portalRootDir, String configurationName,
-		String portalToolName, String portalToolDirName) {
+		String portalToolName) {
 
 		if (portalRootDir == null) {
 			return;
@@ -1396,7 +1368,7 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 		configuration.exclude(args);
 
 		File dir = new File(
-			portalRootDir, "tools/sdk/tmp/portal-tools/" + portalToolDirName);
+			portalRootDir, "tools/sdk/dependencies/" + portalToolName + "/lib");
 
 		FileTree fileTree = FileUtil.getJarsFileTree(project, dir);
 
@@ -1538,12 +1510,19 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	protected void configureTaskBaseline(BaselineTask baselineTask) {
 		Project project = baselineTask.getProject();
 
-		boolean reportDiff = false;
-
 		String reportLevel = GradleUtil.getProperty(
 			project, "baseline.jar.report.level", "standard");
 
-		if (reportLevel.equals("diff") || reportLevel.equals("persist")) {
+		boolean reportLevelIsDiff = reportLevel.equals("diff");
+		boolean reportLevelIsPersist = reportLevel.equals("persist");
+
+		if (reportLevelIsPersist && FileUtil.exists(project, "bnd.bnd")) {
+			baselineTask.setBndFile("bnd.bnd");
+		}
+
+		boolean reportDiff = false;
+
+		if (reportLevelIsDiff || reportLevelIsPersist) {
 			reportDiff = true;
 		}
 
@@ -1893,7 +1872,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 	}
 
 	protected void configureTaskUploadArchives(
-		Project project, ReplaceRegexTask updateFileVersionsTask) {
+		Project project, ReplaceRegexTask updateFileVersionsTask,
+		ReplaceRegexTask updateVersionTask) {
 
 		if (GradleUtil.isSnapshot(project)) {
 			return;
@@ -1909,14 +1889,8 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 		uploadArchivesTask.dependsOn(publishNodeModuleTasks);
 
-		Task updateBundleVersionTask = taskContainer.findByName(
-			UPDATE_BUNDLE_VERSION_TASK_NAME);
-
-		if (updateBundleVersionTask != null) {
-			uploadArchivesTask.finalizedBy(updateBundleVersionTask);
-		}
-
-		uploadArchivesTask.finalizedBy(updateFileVersionsTask);
+		uploadArchivesTask.finalizedBy(
+			updateFileVersionsTask, updateVersionTask);
 	}
 
 	protected void forceProjectDependenciesEvaluation(Project project) {
@@ -1951,6 +1925,45 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 					}
 
 				});
+		}
+	}
+
+	protected File getAppBndFile(Project project, File portalRootDir) {
+		File dir = GradleUtil.getRootDir(project, _APP_BND_FILE_NAME);
+
+		if (dir != null) {
+			return new File(dir, _APP_BND_FILE_NAME);
+		}
+
+		File modulesDir = new File(portalRootDir, "modules");
+
+		File modulesPrivateDir = new File(modulesDir, "private");
+
+		if (!FileUtil.isChild(project.getProjectDir(), modulesPrivateDir)) {
+			return null;
+		}
+
+		String path = FileUtil.relativize(
+			project.getProjectDir(), modulesPrivateDir);
+
+		if (File.pathSeparatorChar != '/') {
+			path = path.replace(File.pathSeparatorChar, '/');
+		}
+
+		while (true) {
+			File file = new File(modulesDir, path + "/" + _APP_BND_FILE_NAME);
+
+			if (file.exists()) {
+				return file;
+			}
+
+			int index = path.lastIndexOf('/');
+
+			if (index == -1) {
+				return null;
+			}
+
+			path = path.substring(0, index);
 		}
 	}
 
