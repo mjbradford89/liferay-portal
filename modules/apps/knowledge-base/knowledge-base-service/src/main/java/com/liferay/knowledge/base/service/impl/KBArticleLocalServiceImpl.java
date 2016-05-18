@@ -586,7 +586,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
 	 *             #getKBArticleAndAllDescendantKBArticles(long, int,
-	 *             com.liferay.portal.kernel.util.OrderByComparator)}
+	 *             OrderByComparator)}
 	 */
 	@Deprecated
 	@Override
@@ -849,7 +849,7 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link #getKBArticles(long, long,
 	 *             int, int, int,
-	 *             com.liferay.portal.kernel.util.OrderByComparator)}
+	 *             OrderByComparator)}
 	 */
 	@Deprecated
 	@Override
@@ -1812,15 +1812,15 @@ public class KBArticleLocalServiceImpl extends KBArticleLocalServiceBaseImpl {
 
 		Map<String, String> kbArticleDiffs = getEmailKBArticleDiffs(kbArticle);
 
-		for (String key : kbArticleDiffs.keySet()) {
+		for (Map.Entry<String, String> entry : kbArticleDiffs.entrySet()) {
 			String value = StringUtil.replace(
-				kbArticleDiffs.get(key), new String[] {"href=\"/", "src=\"/"},
+				entry.getValue(), new String[] {"href=\"/", "src=\"/"},
 				new String[] {
 					"href=\"" + serviceContext.getPortalURL() + "/",
 					"src=\"" + serviceContext.getPortalURL() + "/"
 				});
 
-			kbArticleDiffs.put(key, value);
+			kbArticleDiffs.put(entry.getKey(), value);
 		}
 
 		String subject = null;

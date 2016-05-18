@@ -225,9 +225,10 @@ AUI.add(
 			_getTemplateResourceURL: function() {
 				var instance = this;
 
-				var portletURL = Liferay.PortletURL.createResourceURL();
+				var portletURL = Liferay.PortletURL.createURL(themeDisplay.getURLControlPanel());
 
 				portletURL.setDoAsGroupId(instance.get('doAsGroupId'));
+				portletURL.setLifecycle(Liferay.PortletURL.RESOURCE_PHASE);
 				portletURL.setParameter('fieldName', instance.get('name'));
 				portletURL.setParameter('mode', instance.get('mode'));
 				portletURL.setParameter('namespace', instance.get('fieldsNamespace'));
@@ -332,12 +333,6 @@ AUI.add(
 						);
 					},
 
-					destructor: function() {
-						var instance = this;
-
-						instance.get('container').remove();
-					},
-
 					renderUI: function() {
 						var instance = this;
 
@@ -357,6 +352,12 @@ AUI.add(
 								field: instance
 							}
 						);
+					},
+
+					destructor: function() {
+						var instance = this;
+
+						instance.get('container').remove();
 					},
 
 					createField: function(fieldTemplate) {
@@ -521,19 +522,21 @@ AUI.add(
 
 						var labelNode = instance.getLabelNode();
 
-						var tipNode = labelNode.one('.taglib-icon-help');
+						if (labelNode) {
+							var tipNode = labelNode.one('.taglib-icon-help');
 
-						if (Lang.isValue(label) && Lang.isNode(labelNode)) {
-							labelNode.html(A.Escape.html(label));
+							if (Lang.isValue(label) && Lang.isNode(labelNode)) {
+								labelNode.html(A.Escape.html(label));
+							}
+
+							var fieldDefinition = instance.getFieldDefinition();
+
+							if (fieldDefinition.required) {
+								labelNode.append(TPL_REQUIRED_MARK);
+							}
+
+							instance._addTip(labelNode, tipNode);
 						}
-
-						var fieldDefinition = instance.getFieldDefinition();
-
-						if (fieldDefinition.required) {
-							labelNode.append(TPL_REQUIRED_MARK);
-						}
-
-						instance._addTip(labelNode, tipNode);
 					},
 
 					setValue: function(value) {
@@ -2141,14 +2144,14 @@ AUI.add(
 
 						instance.eventHandlers = null;
 
-						 A.each(
-						 	instance.repeatableInstances,
-						 	function(item) {
-						 		item.destroy();
-						 	}
-						 );
+						A.each(
+							instance.repeatableInstances,
+							function(item) {
+								item.destroy();
+							}
+						);
 
-						 instance.repeatableInstances = null;
+						instance.repeatableInstances = null;
 					},
 
 					moveField: function(parentField, oldIndex, newIndex) {

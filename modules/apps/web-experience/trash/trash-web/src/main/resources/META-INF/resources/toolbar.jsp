@@ -22,11 +22,8 @@
 >
 	<liferay-frontend:management-bar-buttons>
 		<liferay-frontend:management-bar-sidenav-toggler-button
-			disabled="<%= false %>"
-			href="javascript:;"
 			icon="info-circle"
 			label="info"
-			sidenavId='<%= liferayPortletResponse.getNamespace() + "infoPanelId" %>'
 		/>
 
 		<liferay-portlet:actionURL name="changeDisplayStyle" varImpl="changeDisplayStyleURL">
@@ -56,11 +53,8 @@
 
 	<liferay-frontend:management-bar-action-buttons>
 		<liferay-frontend:management-bar-sidenav-toggler-button
-			disabled="<%= false %>"
-			href="javascript:;"
 			icon="info-circle"
 			label="info"
-			sidenavId='<%= liferayPortletResponse.getNamespace() + "infoPanelId" %>'
 		/>
 
 		<liferay-frontend:management-bar-button href="javascript:;" icon="trash" id="deleteSelectedEntries" label="delete" />

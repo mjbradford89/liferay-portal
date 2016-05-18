@@ -35,8 +35,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * @author Brian Wing Shun Chan
+ * @author     Brian Wing Shun Chan
+ * @deprecated As of 7.0.0, replaced by {@link
+ *             com.liferay.portal.kernel.upgrade.BaseUpgradePortletId}
  */
+@Deprecated
 public class UpgradePortletId extends UpgradeProcess {
 
 	@Override
@@ -116,17 +119,21 @@ public class UpgradePortletId extends UpgradeProcess {
 	}
 
 	protected String getTypeSettingsCriteria(String portletId) {
-		StringBundler sb = new StringBundler(17);
+		StringBundler sb = new StringBundler(21);
 
 		sb.append("typeSettings like '%=");
 		sb.append(portletId);
 		sb.append(",%' OR typeSettings like '%=");
 		sb.append(portletId);
-		sb.append("\n%' OR typeSettings like '%,");
+		sb.append("\n%' OR typeSettings like '%=");
+		sb.append(portletId);
+		sb.append("%' OR typeSettings like '%,");
 		sb.append(portletId);
 		sb.append(",%' OR typeSettings like '%,");
 		sb.append(portletId);
-		sb.append("\n%' OR typeSettings like '%=");
+		sb.append("\n%' OR typeSettings like '%,");
+		sb.append(portletId);
+		sb.append("%' OR typeSettings like '%=");
 		sb.append(portletId);
 		sb.append("_INSTANCE_%' OR typeSettings like '%,");
 		sb.append(portletId);

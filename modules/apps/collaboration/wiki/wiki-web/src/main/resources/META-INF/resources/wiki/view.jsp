@@ -141,10 +141,8 @@ if (portletTitleBasedNavigation) {
 
 		<liferay-frontend:info-bar-buttons>
 			<liferay-frontend:info-bar-sidenav-toggler-button
-				href="javascript:;"
 				icon="info-circle"
 				label="info"
-				sidenavId='<%= liferayPortletResponse.getNamespace() + "infoPanelId" %>'
 			/>
 		</liferay-frontend:info-bar-buttons>
 	</liferay-frontend:info-bar>
@@ -378,7 +376,7 @@ if (portletTitleBasedNavigation) {
 														url="<%= rowURL %>"
 													>
 														<liferay-frontend:horizontal-card-col>
-															<span class="icon-monospaced <%= (dlMimeTypeDisplayContext != null) ? dlMimeTypeDisplayContext.getCssClassFileMimeType(fileEntry.getMimeType()) : "file-icon-color-0" %>"><%= StringUtil.shorten(StringUtil.upperCase(fileEntry.getExtension()), 3, StringPool.BLANK) %></span>
+															<span class="icon-monospaced sticker-lg <%= (dlMimeTypeDisplayContext != null) ? dlMimeTypeDisplayContext.getCssClassFileMimeType(fileEntry.getMimeType()) : "file-icon-color-0" %>"><%= StringUtil.shorten(StringUtil.upperCase(fileEntry.getExtension()), 3, StringPool.BLANK) %></span>
 														</liferay-frontend:horizontal-card-col>
 													</liferay-frontend:horizontal-card>
 												</div>

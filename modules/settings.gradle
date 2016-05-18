@@ -6,12 +6,18 @@ if (Boolean.getBoolean("portal.build")) {
 else {
 	modulesFileTree = fileTree(rootDir) {
 		exclude "**/bin/"
+		exclude "**/tmp/"
 		exclude "sdk/*/samples/"
 		exclude "sdk/gradle-templates/classes/"
 		exclude "sdk/gradle-templates/src/"
+		exclude "util/*/samples/"
 
 		include "*/**/build.gradle"
-		include "apps/foundation/frontend-theme/*/gulpfile.js"
+
+		if (!Boolean.getBoolean("modules.only.build")) {
+			include "**/apps/foundation/frontend-theme/*/gulpfile.js"
+			include "*/**/build.xml"
+		}
 	}
 }
 

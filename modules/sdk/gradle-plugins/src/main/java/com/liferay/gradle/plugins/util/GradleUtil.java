@@ -34,6 +34,7 @@ import org.gradle.StartParameter;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.artifacts.ArtifactRepositoryContainer;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
@@ -55,6 +56,17 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 
 	public static final String SNAPSHOT_PROPERTY_NAME = "snapshot";
 
+	public static <T extends Task> T addTask(
+		Project project, String name, Class<T> clazz, boolean overwrite) {
+
+		Map<String, Object> args = new HashMap<>();
+
+		args.put(Task.TASK_OVERWRITE, overwrite);
+		args.put(Task.TASK_TYPE, clazz);
+
+		return (T)project.task(args, name);
+	}
+
 	public static String getArchivesBaseName(Project project) {
 		BasePluginConvention basePluginConvention = GradleUtil.getConvention(
 			project, BasePluginConvention.class);
@@ -70,6 +82,16 @@ public class GradleUtil extends com.liferay.gradle.util.GradleUtil {
 
 		return GradleUtil.getProperty(
 			project, portalToolName + ".version", portalToolVersion);
+	}
+
+	public static Project getProject(Project rootProject, String name) {
+		for (Project project : rootProject.getAllprojects()) {
+			if (name.equals(project.getName())) {
+				return project;
+			}
+		}
+
+		return null;
 	}
 
 	public static File getRootDir(Project project, String markerFileName) {

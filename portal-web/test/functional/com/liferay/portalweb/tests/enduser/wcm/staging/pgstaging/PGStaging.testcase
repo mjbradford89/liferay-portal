@@ -1,4 +1,5 @@
 <definition component-name="portal-staging">
+	<property name="portal.release" value="true" />
 	<property name="testray.main.component.name" value="Staging" />
 
 	<set-up>
@@ -151,6 +152,8 @@
 		</execute>
 
 		<execute macro="Navigator#gotoStagedView" />
+
+		<execute function="Pause" locator1="30000" />
 
 		<execute macro="ProductMenu#gotoSitesPublishing">
 			<var name="portlet" value="Staging" />
@@ -999,18 +1002,7 @@
 			<var name="permissionNavigationKey" value="SITE_ADMIN_CONTENT_BLOGS" />
 			<var name="permissionNavigationValue" value="Blogs" />
 			<var name="roleName" value="Organization User" />
-		</execute>
-
-		<execute macro="ProductMenu#gotoControlPanelUsers">
-			<var name="portlet" value="Roles" />
-		</execute>
-
-		<execute macro="Role#removePermissionCP">
-			<var name="permissionDefinitionKey" value="SITE_ADMIN_PAGES_SITE_PAGES_RESOURCE_PERMISSIONS_SITE_MANAGE_PAGES_CHECKBOX" />
-			<var name="permissionDefinitionValue" value="Manage Pages" />
-			<var name="permissionNavigationKey" value="SITE_ADMIN_PAGES_SITE_PAGES" />
-			<var name="permissionNavigationValue" value="Site Pages" />
-			<var name="roleName" value="Organization User" />
+			<var name="roleType" value="Organization" />
 		</execute>
 	</command>
 
@@ -1032,6 +1024,8 @@
 		</execute>
 
 		<execute macro="Navigator#gotoStagedView" />
+
+		<execute function="Pause" locator1="30000" />
 
 		<execute macro="ProductMenu#gotoSitesPublishing">
 			<var name="portlet" value="Staging" />
@@ -1182,6 +1176,8 @@
 
 		<execute macro="Navigator#gotoStagedView" />
 
+		<execute function="Pause" locator1="3000" />
+
 		<execute macro="ProductMenu#gotoSitesPublishing">
 			<var name="portlet" value="Staging" />
 		</execute>
@@ -1219,6 +1215,7 @@
 		<execute macro="Page#add">
 			<var name="pageName" value="Private Staging Page" />
 			<var name="sitePagePrivacy" value="Private" />
+			<var name="siteScopeSelected" value="true" />
 		</execute>
 
 		<execute macro="Staging#gotoPublishToLive" />
@@ -1296,6 +1293,8 @@
 			<var name="dmDocumentURL" value="${dmDocumentURL}" />
 		</execute>
 
+		<execute macro="PortletEntry#publish" />
+
 		<execute macro="ProductMenu#gotoSite">
 			<var name="site" value="Site Name" />
 		</execute>
@@ -1337,12 +1336,8 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="Portlet#viewPG">
-			<var name="portletName" value="Web Content Display" />
-		</execute>
-
 		<execute macro="WebContent#viewPGViaWCD">
-			<var name="image" value="true" />
+			<var name="imageOnLive" value="true" />
 			<var name="webContentContent" value="Web Content Content" />
 		</execute>
 	</command>
@@ -1363,6 +1358,8 @@
 		<execute macro="Portlet#addPG">
 			<var name="portletName" value="Web Content Display" />
 		</execute>
+
+		<execute function="Pause" locator1="3000" />
 
 		<execute macro="WebContent#addPGViaWCD">
 			<var name="webContentContent" value="Web Content Content" />

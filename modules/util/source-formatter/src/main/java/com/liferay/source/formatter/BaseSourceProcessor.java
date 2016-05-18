@@ -54,6 +54,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -79,14 +85,40 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	public final void format() throws Exception {
 		preFormat();
 
-		for (String fileName : getFileNames()) {
-			try {
-				format(fileName);
-			}
-			catch (Exception e) {
-				throw new RuntimeException("Unable to format " + fileName, e);
-			}
+		List<String> fileNames = getFileNames();
+
+		ExecutorService executorService = Executors.newFixedThreadPool(
+			sourceFormatterArgs.getProcessorThreadCount());
+
+		List<Future<Void>> futures = new ArrayList<>(fileNames.size());
+
+		for (final String fileName : fileNames) {
+			Future<Void> future = executorService.submit(
+				new Callable<Void>() {
+
+					@Override
+					public Void call() throws Exception {
+						try {
+							format(fileName);
+
+							return null;
+						}
+						catch (Exception e) {
+							throw new RuntimeException(
+								"Unable to format " + fileName, e);
+						}
+					}
+
+				});
+
+			futures.add(future);
 		}
+
+		for (Future<Void> future : futures) {
+			future.get();
+		}
+
+		executorService.shutdown();
 
 		postFormat();
 
@@ -378,7 +410,7 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		}
 
 		if (_portalLanguageProperties == null) {
-			_portalLanguageProperties = new Properties();
+			Properties portalLanguageProperties = new Properties();
 
 			File portalLanguagePropertiesFile = new File(
 				getFile("portal-impl", PORTAL_MAX_DIR_LEVEL),
@@ -387,7 +419,9 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 			InputStream inputStream = new FileInputStream(
 				portalLanguagePropertiesFile);
 
-			_portalLanguageProperties.load(inputStream);
+			portalLanguageProperties.load(inputStream);
+
+			_portalLanguageProperties = portalLanguageProperties;
 		}
 
 		Matcher matcher = pattern.matcher(content);
@@ -500,6 +534,10 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected void checkPropertyUtils(String fileName, String content) {
+		if (fileName.endsWith("TypeConvertorUtil.java")) {
+			return;
+		}
+
 		if (content.contains("org.apache.commons.beanutils.PropertyUtils")) {
 			processErrorMessage(
 				fileName,
@@ -921,8 +959,15 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 			String attribute = s.substring(0, x);
 
-			if (!isAttributName(attribute)) {
+			String trimmedAttribute = StringUtil.trim(attribute);
+
+			if (!isAttributName(trimmedAttribute)) {
 				return line;
+			}
+
+			if (!attribute.equals(trimmedAttribute)) {
+				return StringUtil.replace(
+					line, attribute + "=", trimmedAttribute + "=");
 			}
 
 			if (Validator.isNotNull(previousAttribute) &&
@@ -937,6 +982,11 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 
 			if ((delimeter != CharPool.APOSTROPHE) &&
 				(delimeter != CharPool.QUOTE)) {
+
+				if (delimeter == CharPool.SPACE) {
+					return StringUtil.replace(
+						line, attribute + "= ", attribute + "=");
+				}
 
 				if (delimeter != CharPool.AMPERSAND) {
 					processErrorMessage(
@@ -2097,6 +2147,48 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		return splitParameters(parameters);
 	}
 
+	protected List<String> getPluginsInsideModulesDirectoryNames()
+		throws Exception {
+
+		if (_pluginsInsideModulesDirectoryNames != null) {
+			return _pluginsInsideModulesDirectoryNames;
+		}
+
+		List<String> pluginsInsideModulesDirectoryNames = new ArrayList<>();
+
+		List<String> pluginBuildFileNames = getFileNames(
+			new String[0],
+			new String[] {
+				"**/modules/apps/**/build.xml",
+				"**/modules/private/apps/**/build.xml"
+			});
+
+		for (String pluginBuildFileName : pluginBuildFileNames) {
+			pluginBuildFileName = StringUtil.replace(
+				pluginBuildFileName, StringPool.BACK_SLASH, StringPool.SLASH);
+
+			File file = new File(pluginBuildFileName);
+
+			String absolutePath = getAbsolutePath(file);
+
+			int x = absolutePath.indexOf("/modules/apps/");
+
+			if (x == -1) {
+				x = absolutePath.indexOf("/modules/private/apps/");
+			}
+
+			int y = absolutePath.lastIndexOf(StringPool.SLASH);
+
+			pluginsInsideModulesDirectoryNames.add(
+				absolutePath.substring(x, y + 1));
+		}
+
+		_pluginsInsideModulesDirectoryNames =
+			pluginsInsideModulesDirectoryNames;
+
+		return _pluginsInsideModulesDirectoryNames;
+	}
+
 	protected String getProperty(String key) {
 		return _properties.getProperty(key);
 	}
@@ -2294,6 +2386,28 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 	}
 
 	protected boolean isModulesFile(String absolutePath) {
+		return isModulesFile(absolutePath, false);
+	}
+
+	protected boolean isModulesFile(
+		String absolutePath, boolean includePlugins) {
+
+		if (includePlugins) {
+			return absolutePath.contains("/modules/");
+		}
+
+		try {
+			for (String directoryName :
+					getPluginsInsideModulesDirectoryNames()) {
+
+				if (absolutePath.contains(directoryName)) {
+					return false;
+				}
+			}
+		}
+		catch (Exception e) {
+		}
+
 		return absolutePath.contains("/modules/");
 	}
 
@@ -2724,17 +2838,20 @@ public abstract class BaseSourceProcessor implements SourceProcessor {
 		new HashMap<>();
 	private Map<String, String> _compatClassNamesMap;
 	private String _copyright;
-	private Map<String, List<String>> _errorMessagesMap = new HashMap<>();
+	private Map<String, List<String>> _errorMessagesMap =
+		new ConcurrentHashMap<>();
 	private String[] _excludes;
 	private SourceMismatchException _firstSourceMismatchException;
 	private Set<String> _immutableFieldTypes;
 	private String _mainReleaseVersion;
-	private final List<String> _modifiedFileNames = new ArrayList<>();
+	private final List<String> _modifiedFileNames =
+		new CopyOnWriteArrayList<>();
 	private final Map<String, Properties> _moduleLangLanguageProperties =
 		new HashMap<>();
 	private final Map<String, Properties> _moduleLanguageProperties =
 		new HashMap<>();
 	private String _oldCopyright;
+	private List<String> _pluginsInsideModulesDirectoryNames;
 	private Properties _portalLanguageProperties;
 	private Properties _properties;
 	private List<String> _runOutsidePortalExcludes;
