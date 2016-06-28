@@ -94,6 +94,10 @@ class LiferayApp extends App {
 		}
 
 		super.onDocSubmitDelegate_(event);
+
+		if (event.capturedFormElement) {
+			dom.addClasses(event.capturedFormElement, 'spa-submitted');
+		}
 	}
 
 	onEndNavigate(event) {
@@ -109,7 +113,22 @@ class LiferayApp extends App {
 		if (event.error) {
 			if (event.error.invalidStatus || event.error.requestError || event.error.timeout) {
 				if (event.form) {
-					event.form.submit();
+					if (event.error.timeout && dom.hasClass(event.form, 'spa-submitted')) {
+						AUI().use(
+							'liferay-portlet-url',
+							() => {
+								var url = Liferay.PortletURL.createURL(window.location.pathname);
+
+								if (event.form && event.form.id) {
+									url.setPortletId(Liferay.Util.getPortletId(event.form.id));
+								}
+								window.location.href = url.toString();
+							}
+						);
+					}
+					else {
+						event.form.submit();
+					}
 				}
 				else {
 					window.location.href = event.path;
