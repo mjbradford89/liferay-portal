@@ -141,6 +141,10 @@ define("frontend-js-spa-web@1.0.8/liferay/app/App.es", ['exports', 'senna/src/ap
 			}
 
 			_App.prototype.onDocSubmitDelegate_.call(this, event);
+
+			if (event.capturedFormElement) {
+				_dom2.default.addClasses(event.capturedFormElement, 'spa-submitted');
+			}
 		};
 
 		LiferayApp.prototype.onEndNavigate = function onEndNavigate(event) {
@@ -153,7 +157,18 @@ define("frontend-js-spa-web@1.0.8/liferay/app/App.es", ['exports', 'senna/src/ap
 			if (event.error) {
 				if (event.error.invalidStatus || event.error.requestError || event.error.timeout) {
 					if (event.form) {
-						event.form.submit();
+						if (event.error.timeout && _dom2.default.hasClass(event.form, 'spa-submitted')) {
+							AUI().use('liferay-portlet-url', function () {
+								var url = Liferay.PortletURL.createURL(window.location.pathname);
+
+								if (event.form && event.form.id) {
+									url.setPortletId(Liferay.Util.getPortletId(event.form.id));
+								}
+								window.location.href = url.toString();
+							});
+						} else {
+							event.form.submit();
+						}
 					} else {
 						window.location.href = event.path;
 					}
