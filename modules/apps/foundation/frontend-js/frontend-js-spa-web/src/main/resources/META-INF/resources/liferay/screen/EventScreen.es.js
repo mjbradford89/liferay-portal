@@ -10,7 +10,7 @@ class EventScreen extends HtmlScreen {
 		super();
 
 		this.cacheable = false;
-		this.timeout = Liferay.SPA.requestTimeout;
+		this.timeout = Math.pow(2, 31) - 1;
 	}
 
 	dispose() {
@@ -121,10 +121,72 @@ class EventScreen extends HtmlScreen {
 		return super.isValidResponseStatusCode(statusCode) || (validStatusCodes.indexOf(statusCode) > -1);
 	}
 
+	createTimeoutNotification_() {
+		var instance = this;
+
+		AUI().use(
+			'liferay-notification',
+			() => {
+				instance.timeoutAlert = new Liferay.Notification(
+					{
+						closeable: true,
+						delay: {
+							hide: 0,
+							show: 0
+						},
+						duration: 500,
+						message: Liferay.Language.get('looks-like-this-is-taking-longer-than-expected'),
+						title: Liferay.Language.get('oops'),
+						type: 'warning'
+					}
+				).render('body');
+			}
+		);
+	}
+
+	startRequestTimer_(path) {
+		if (Liferay.SPA.requestTimeout > 0) {
+			this.clearRequestTimer_();
+
+			this.requestTimer = setTimeout(
+				() => {
+					Liferay.fire(
+						'spaRequestTimeout',
+						{
+							path: path
+						}
+					);
+
+					if (!this.timeoutAlert) {
+						this.createTimeoutNotification_();
+					}
+					else {
+						this.timeoutAlert.show();
+					}
+				},
+				Liferay.SPA.requestTimeout
+			);
+		}
+	}
+
+	clearRequestTimer_() {
+		if (this.requestTimer) {
+			clearTimeout(this.requestTimer);
+		}
+
+		if (this.timeoutAlert) {
+			this.timeoutAlert.hide();
+		}
+	}
+
 	load(path) {
+		this.startRequestTimer_(path);
+
 		return super.load(path)
 			.then(
 				(content) => {
+					this.clearRequestTimer_();
+
 					var redirectPath = this.beforeUpdateHistoryPath(path);
 
 					this.checkRedirectPath(redirectPath);
