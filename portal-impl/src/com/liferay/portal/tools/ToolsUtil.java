@@ -70,6 +70,10 @@ public class ToolsUtil {
 
 	public static final String AUTHOR = "Brian Wing Shun Chan";
 
+	public static final int PLUGINS_MAX_DIR_LEVEL = 3;
+
+	public static final int PORTAL_MAX_DIR_LEVEL = 7;
+
 	public static String getContent(String fileName) throws Exception {
 		Document document = _getContentDocument(fileName);
 
@@ -304,6 +308,10 @@ public class ToolsUtil {
 
 			String importPackageAndClassName = line.substring(
 				x + 7, line.lastIndexOf(StringPool.SEMICOLON));
+
+			if (importPackageAndClassName.contains(StringPool.STAR)) {
+				continue;
+			}
 
 			Pattern pattern3 = Pattern.compile(
 				"\n(.*)(" +

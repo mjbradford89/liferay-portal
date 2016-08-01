@@ -492,8 +492,8 @@ public class PoshiRunnerContext {
 		int classCommandNameIndex = 0;
 		Map<Set<String>, Collection<String>> map = multimap.asMap();
 
-		for (Set<String> key : map.keySet()) {
-			List<String> classCommandNameGroup = new ArrayList(map.get(key));
+		for (Collection<String> value : map.values()) {
+			List<String> classCommandNameGroup = new ArrayList(value);
 
 			Collections.sort(classCommandNameGroup);
 
@@ -577,7 +577,7 @@ public class PoshiRunnerContext {
 
 		StringBuilder sb = new StringBuilder();
 
-		int groupSize = _getAllocatedTestGroupSize(classCommandNames.size());
+		int groupSize = 15;
 
 		List<List<String>> partitions = Lists.partition(
 			classCommandNames, groupSize);
@@ -590,7 +590,9 @@ public class PoshiRunnerContext {
 			List<String> partition = partitions.get(i);
 
 			for (int j = 0; j < partition.size(); j++) {
-				sb.append(partition.get(j));
+				sb.append(i);
+				sb.append("_");
+				sb.append(j);
 
 				if (j < (partition.size() - 1)) {
 					sb.append(" ");
@@ -598,6 +600,16 @@ public class PoshiRunnerContext {
 			}
 
 			sb.append("\n");
+
+			for (int j = 0; j < partition.size(); j++) {
+				sb.append("RUN_TEST_CASE_METHOD_GROUP_");
+				sb.append(i);
+				sb.append("_");
+				sb.append(j);
+				sb.append("=");
+				sb.append(partition.get(j));
+				sb.append("\n");
+			}
 		}
 
 		sb.append("RUN_TEST_CASE_METHOD_GROUPS=");
@@ -709,7 +721,8 @@ public class PoshiRunnerContext {
 						extendsCommandElement.attributeValue("name");
 
 					if (_isIgnorableCommandNames(
-							rootElement, extendsCommandName)) {
+							rootElement, extendsCommandElement,
+							extendsCommandName)) {
 
 						continue;
 					}
@@ -730,7 +743,9 @@ public class PoshiRunnerContext {
 			for (Element commandElement : commandElements) {
 				String commandName = commandElement.attributeValue("name");
 
-				if (_isIgnorableCommandNames(rootElement, commandName)) {
+				if (_isIgnorableCommandNames(
+						rootElement, commandElement, commandName)) {
+
 					continue;
 				}
 
@@ -758,7 +773,15 @@ public class PoshiRunnerContext {
 	}
 
 	private static boolean _isIgnorableCommandNames(
-		Element rootElement, String commandName) {
+		Element rootElement, Element commandElement, String commandName) {
+
+		if (commandElement.attributeValue("disabled") != null) {
+			String disabled = commandElement.attributeValue("disabled");
+
+			if (disabled.equals("true")) {
+				return true;
+			}
+		}
 
 		List<String> ignorableCommandNames = new ArrayList<>();
 

@@ -25,7 +25,7 @@ taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
 taglib uri="http://liferay.com/tld/util" prefix="liferay-util" %>
 
-<%@ page import="com.liferay.frontend.taglib.web.servlet.taglib.AddMenuItem" %><%@
+<%@ page import="com.liferay.frontend.taglib.servlet.taglib.AddMenuItem" %><%@
 page import="com.liferay.portal.kernel.bean.BeanPropertiesUtil" %><%@
 page import="com.liferay.portal.kernel.dao.search.ResultRow" %><%@
 page import="com.liferay.portal.kernel.dao.search.SearchContainer" %><%@
@@ -51,10 +51,10 @@ page import="com.liferay.portal.kernel.workflow.WorkflowDefinition" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowDefinitionFileException" %><%@
 page import="com.liferay.portal.kernel.workflow.WorkflowException" %><%@
 page import="com.liferay.portal.util.PropsValues" %><%@
-page import="com.liferay.portal.workflow.definition.web.display.context.WorkflowDefinitionDisplayContext" %><%@
-page import="com.liferay.portal.workflow.definition.web.portlet.action.UploadWorkflowDefinitionFileMVCActionCommand" %><%@
-page import="com.liferay.portal.workflow.definition.web.search.WorkflowDefinitionDisplayTerms" %><%@
-page import="com.liferay.portal.workflow.definition.web.search.WorkflowDefinitionSearch" %>
+page import="com.liferay.portal.workflow.definition.web.internal.display.context.WorkflowDefinitionDisplayContext" %><%@
+page import="com.liferay.portal.workflow.definition.web.internal.portlet.action.UploadWorkflowDefinitionFileMVCActionCommand" %><%@
+page import="com.liferay.portal.workflow.definition.web.internal.search.WorkflowDefinitionDisplayTerms" %><%@
+page import="com.liferay.portal.workflow.definition.web.internal.search.WorkflowDefinitionSearch" %>
 
 <%@ page import="java.text.DecimalFormatSymbols" %>
 

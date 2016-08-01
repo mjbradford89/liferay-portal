@@ -269,7 +269,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 					<div class="lfr-discussion-details">
 						<liferay-ui:user-portrait
 							cssClass="user-icon-lg"
-							userId="<%= discussionComment.getUserId() %>"
+							userId="<%= user.getUserId() %>"
 						/>
 					</div>
 
@@ -299,7 +299,7 @@ Format dateFormatDateTime = FastDateFormatFactoryUtil.getDateTime(locale, timeZo
 		</div>
 
 		<%
-		for (DiscussionComment curDiscussionComment : discussionComment.getThreadComments()) {
+		for (DiscussionComment curDiscussionComment : discussionComment.getDescendantComments()) {
 			request.setAttribute("liferay-ui:discussion:depth", depth + 1);
 			request.setAttribute("liferay-ui:discussion:discussionComment", curDiscussionComment);
 		%>

@@ -15,6 +15,7 @@
 package com.liferay.portal.template.freemarker;
 
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
+import com.liferay.portal.kernel.cache.SingleVMPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.servlet.JSPSupportServlet;
@@ -24,7 +25,6 @@ import com.liferay.portal.kernel.template.TemplateException;
 import com.liferay.portal.kernel.template.TemplateManager;
 import com.liferay.portal.kernel.template.TemplateResource;
 import com.liferay.portal.kernel.template.TemplateResourceLoader;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.ReflectionUtil;
@@ -122,7 +122,7 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 				beansWrapper.getStaticModels();
 
 			TemplateModel templateModel = templateHashModel.get(
-				variableClass.getCanonicalName());
+				variableClass.getName());
 
 			contextObjects.put(variableName, templateModel);
 		}
@@ -191,7 +191,8 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 			}
 			catch (TemplateModelException tme) {
 				_log.error(
-					"Unable to add taglib " + entry.getKey() + " to context");
+					"Unable to add taglib " + entry.getKey() + " to context",
+					tme);
 			}
 		}
 	}
@@ -248,7 +249,7 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 
 			TemplateCache templateCache = new LiferayTemplateCache(
 				_configuration, _freemarkerEngineConfiguration,
-				templateResourceLoader);
+				templateResourceLoader, _singleVMPool);
 
 			field.set(_configuration, templateCache);
 		}
@@ -376,17 +377,23 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 		return false;
 	}
 
+	@Reference(unbind = "-")
+	protected void setSingleVMPool(SingleVMPool singleVMPool) {
+		_singleVMPool = singleVMPool;
+	}
+
 	private static final Class<?>[] _INTERFACES = {ServletContext.class};
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		FreeMarkerManager.class);
 
 	private Bundle _bundle;
-	private BundleTracker<Bundle> _bundleTracker;
+	private BundleTracker<Set<String>> _bundleTracker;
 	private Configuration _configuration;
 	private volatile FreeMarkerBundleClassloader _freeMarkerBundleClassloader;
 	private volatile FreeMarkerEngineConfiguration
 		_freemarkerEngineConfiguration;
+	private SingleVMPool _singleVMPool;
 	private final Map<String, String> _taglibMappings =
 		new ConcurrentHashMap<>();
 	private TemplateClassResolver _templateClassResolver;
@@ -513,11 +520,14 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 	}
 
 	private class TaglibBundleTrackerCustomizer
-		implements BundleTrackerCustomizer<Bundle> {
+		implements BundleTrackerCustomizer<Set<String>> {
 
 		@Override
-		public Bundle addingBundle(Bundle bundle, BundleEvent bundleEvent) {
+		public Set<String> addingBundle(
+			Bundle bundle, BundleEvent bundleEvent) {
+
 			boolean track = false;
+			Set<String> trackedKeys = new HashSet<>();
 
 			Enumeration<URL> enumeration = bundle.findEntries(
 				"/META-INF", "taglib-mappings.properties", true);
@@ -530,8 +540,12 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 						Properties properties = PropertiesUtil.load(
 							inputStream, StringPool.UTF8);
 
-						_taglibMappings.putAll(
-							PropertiesUtil.toMap(properties));
+						Map<String, String> map = PropertiesUtil.toMap(
+							properties);
+
+						_taglibMappings.putAll(map);
+
+						trackedKeys.addAll(map.keySet());
 
 						track = true;
 					}
@@ -553,11 +567,7 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 				Object value = attributes.get("osgi.extender");
 
 				if (value.equals("jsp.taglib")) {
-					Bundle[] bundles = ArrayUtil.append(
-						_freeMarkerBundleClassloader.getBundles(), bundle);
-
-					_freeMarkerBundleClassloader =
-						new FreeMarkerBundleClassloader(bundles);
+					_freeMarkerBundleClassloader.addBundle(bundle);
 
 					track = true;
 
@@ -566,7 +576,7 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 			}
 
 			if (track) {
-				return bundle;
+				return trackedKeys;
 			}
 
 			return null;
@@ -574,44 +584,20 @@ public class FreeMarkerManager extends BaseSingleTemplateManager {
 
 		@Override
 		public void modifiedBundle(
-			Bundle bundle, BundleEvent bundleEvent, Bundle bundleCapabilities) {
+			Bundle bundle, BundleEvent bundleEvent, Set<String> trackedKeys) {
 		}
 
 		@Override
 		public void removedBundle(
-			Bundle bundle, BundleEvent bundleEvent, Bundle trackedBundle) {
+			Bundle bundle, BundleEvent bundleEvent, Set<String> trackedKeys) {
 
-			Bundle[] bundles = _freeMarkerBundleClassloader.getBundles();
+			_freeMarkerBundleClassloader.removeBundle(bundle);
 
-			if (ArrayUtil.contains(bundles, trackedBundle)) {
-				bundles = ArrayUtil.remove(bundles, trackedBundle);
-
-				_freeMarkerBundleClassloader = new FreeMarkerBundleClassloader(
-					bundles);
+			for (String key : trackedKeys) {
+				_taglibMappings.remove(key);
 			}
 
-			Enumeration<URL> enumeration = trackedBundle.findEntries(
-				"/META-INF", "taglib-mappings.properties", true);
-
-			if (enumeration == null) {
-				return;
-			}
-
-			while (enumeration.hasMoreElements()) {
-				URL url = enumeration.nextElement();
-
-				try (InputStream inputStream = url.openStream()) {
-					Properties properties = PropertiesUtil.load(
-						inputStream, StringPool.UTF8);
-
-					for (Object keyObject : properties.keySet()) {
-						_taglibMappings.remove(keyObject);
-					}
-				}
-				catch (Exception e) {
-					_log.error(e, e);
-				}
-			}
+			_templateModels.clear();
 		}
 
 	}

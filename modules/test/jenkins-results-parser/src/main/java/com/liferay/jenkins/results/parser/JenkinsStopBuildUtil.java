@@ -24,6 +24,8 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 
+import org.json.JSONObject;
+
 /**
  * @author Kevin Yen
  */
@@ -42,9 +44,21 @@ public class JenkinsStopBuildUtil {
 			TopLevelBuild topLevelBuild, String username, String password)
 		throws Exception {
 
-		_stopDownstreamBuilds(topLevelBuild, username, password);
+		stopDownstreamBuilds(topLevelBuild, username, password);
 
 		_stopBuild(topLevelBuild, username, password);
+	}
+
+	public static void stopDownstreamBuilds(
+			TopLevelBuild topLevelBuild, String username, String password)
+		throws Exception {
+
+		List<DownstreamBuild> downstreamBuilds =
+			topLevelBuild.getDownstreamBuilds("running");
+
+		for (DownstreamBuild downstreamBuild : downstreamBuilds) {
+			_stopBuild(downstreamBuild, username, password);
+		}
 	}
 
 	protected static String encodeAuthorizationFields(
@@ -91,22 +105,28 @@ public class JenkinsStopBuildUtil {
 			String buildURL, String username, String password)
 		throws Exception {
 
-		URL urlObject = new URL(
-			JenkinsResultsParserUtil.fixURL(
-				JenkinsResultsParserUtil.getLocalURL(buildURL + "/stop")));
+		String normalizedBuildURL = JenkinsResultsParserUtil.fixURL(
+			JenkinsResultsParserUtil.getLocalURL(buildURL));
 
-		HttpURLConnection httpConnection =
-			(HttpURLConnection)urlObject.openConnection();
+		JSONObject jsonObject = JenkinsResultsParserUtil.toJSONObject(
+			normalizedBuildURL + "/api/json?tree=result", false);
 
-		httpConnection.setRequestMethod("POST");
-		httpConnection.setRequestProperty(
-			"Authorization",
-			"Basic " + encodeAuthorizationFields(username, password));
+		if (jsonObject.has("result") && jsonObject.isNull("result")) {
+			URL urlObject = new URL(normalizedBuildURL + "/stop");
 
-		System.out.println(
-			"Response from " + buildURL + "/stop: " +
-				httpConnection.getResponseCode() + " " +
-					httpConnection.getResponseMessage());
+			HttpURLConnection httpConnection =
+				(HttpURLConnection)urlObject.openConnection();
+
+			httpConnection.setRequestMethod("POST");
+			httpConnection.setRequestProperty(
+				"Authorization",
+				"Basic " + encodeAuthorizationFields(username, password));
+
+			System.out.println(
+				"Response from " + urlObject.toString() + ": " +
+					httpConnection.getResponseCode() + " " +
+						httpConnection.getResponseMessage());
+		}
 	}
 
 	private static void _stopDownstreamBuilds(
@@ -120,20 +140,8 @@ public class JenkinsStopBuildUtil {
 		}
 	}
 
-	private static void _stopDownstreamBuilds(
-			TopLevelBuild topLevelBuild, String username, String password)
-		throws Exception {
-
-		List<DownstreamBuild> downstreamBuilds =
-			topLevelBuild.getDownstreamBuilds("running");
-
-		for (DownstreamBuild downstreamBuild : downstreamBuilds) {
-			_stopBuild(downstreamBuild, username, password);
-		}
-	}
-
 	private static final Pattern _buildURLPattern = Pattern.compile(
-		".+://(?<hostName>[^.]+).liferay.com/job/(?<jobName>[^/]+).*/" +
+		".+://(?<hostName>[^.]+)(.liferay.com)?/job/(?<jobName>[^/]+).*/" +
 			"(?<buildNumber>\\d+)/");
 	private static final Pattern _progressiveTextPattern = Pattern.compile(
 		"Build \\'.*\\' started at (?<url>.+)\\.");

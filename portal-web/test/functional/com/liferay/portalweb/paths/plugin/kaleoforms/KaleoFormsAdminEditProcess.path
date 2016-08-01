@@ -35,43 +35,13 @@
 </tr>
 <!--FORM_NAVIGATOR-->
 <tr>
-	<td>FORM_NAVIGATOR_1</td>
-	<td>//ul[contains(@class,'nav-list')]//span[contains(.,'1')]</td>
+	<td>FORM_NAVIGATOR_PROGRESS_BAR_NAME</td>
+	<td>//ul[contains(@class,'nav-list')]/li[contains(@id,'${key_kfProgressName}Tab')]//div[@class='progress-bar-title']</td>
 	<td></td>
 </tr>
 <tr>
-	<td>FORM_NAVIGATOR_DETAILS</td>
-	<td>//ul[contains(@class,'nav-list')]//span[contains(.,'Details')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>FORM_NAVIGATOR_2</td>
-	<td>//ul[contains(@class,'nav-list')]//span[contains(.,'2')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>FORM_NAVIGATOR_FIELD_SET</td>
-	<td>//ul[contains(@class,'nav-list')]//span[contains(.,'Fields')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>FORM_NAVIGATOR_3</td>
-	<td>//ul[contains(@class,'nav-list')]//span[contains(.,'3')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>FORM_NAVIGATOR_WORKFLOW</td>
-	<td>//ul[contains(@class,'nav-list')]//span[contains(.,'Workflow')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>FORM_NAVIGATOR_4</td>
-	<td>//ul[contains(@class,'nav-list')]//span[contains(.,'4')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>FORM_NAVIGATOR_FORMS</td>
-	<td>//ul[contains(@class,'nav-list')]//span[contains(.,'Forms')]</td>
+	<td>FORM_NAVIGATOR_PROGRESS_BAR_STEP</td>
+	<td>//ul[contains(@class,'nav-list')]/li[contains(@id,'${key_kfProgressName}Tab')]//div[@class='progress-bar-step']</td>
 	<td></td>
 </tr>
 <tr>
@@ -300,17 +270,17 @@
 <!--FORMS_TABLE-->
 <tr>
 	<td>FORMS_TABLE_TASK</td>
-	<td>//div[contains(@id,'kaleoformsportlet_taskForm')]//tr[contains(.,'${key_workflowTask}')]/td[1]</td>
+	<td>//table[contains(@class,'table-list')]//tr[contains(.,'${key_workflowTask}')]/td</td>
 	<td></td>
 </tr>
 <tr>
 	<td>FORMS_TABLE_FORM</td>
-	<td>//div[contains(@id,'kaleoformsportlet_taskForm')]//tr[contains(.,'${key_workflowTask}')]/td[2]</td>
+	<td>//table[contains(@class,'table-list')]//tr[contains(.,'${key_workflowTask}')]//td[contains(@class,'form-column')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td>FORMS_TABLE_ASSIGN_FORM_BUTTON</td>
-	<td>//tr[contains(.,'${key_workflowTask}')]//span[contains(.,'Assign Form')]</td>
+	<td></td>
+	<td></td>
 	<td></td>
 </tr>
 </tbody>

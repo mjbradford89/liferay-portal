@@ -411,6 +411,13 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		entry.setViewCount(entry.getViewCount() + increment);
 
 		assetEntryPersistence.update(entry);
+
+		try {
+			reindex(entry);
+		}
+		catch (PortalException pe) {
+			throw new SystemException(pe);
+		}
 	}
 
 	@Override
@@ -438,10 +445,16 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		long classTypeId, String keywords, boolean showNonindexable,
 		int[] statuses, int start, int end) {
 
-		return search(
-			companyId, groupIds, userId, className, classTypeId, keywords,
-			keywords, keywords, null, null, showNonindexable, statuses, false,
-			start, end);
+		try {
+			SearchContext searchContext = buildSearchContext(
+				companyId, groupIds, userId, classTypeId, keywords, null, null,
+				showNonindexable, statuses, false, start, end);
+
+			return doSearch(companyId, className, searchContext);
+		}
+		catch (Exception e) {
+			throw new SystemException(e);
+		}
 	}
 
 	@Override
@@ -475,28 +488,12 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		int[] statuses, boolean andSearch, int start, int end) {
 
 		try {
-			Indexer<?> indexer = AssetSearcher.getInstance();
-
-			AssetSearcher assetSearcher = (AssetSearcher)indexer;
-
-			AssetEntryQuery assetEntryQuery = new AssetEntryQuery();
-
-			assetEntryQuery.setClassNameIds(
-				getClassNameIds(companyId, className));
-
 			SearchContext searchContext = buildSearchContext(
 				companyId, groupIds, userId, classTypeId, userName, title,
 				description, assetCategoryIds, assetTagNames, showNonindexable,
 				statuses, andSearch, start, end);
 
-			QueryConfig queryConfig = searchContext.getQueryConfig();
-
-			queryConfig.setHighlightEnabled(false);
-			queryConfig.setScoreEnabled(false);
-
-			assetSearcher.setAssetEntryQuery(assetEntryQuery);
-
-			return assetSearcher.search(searchContext);
+			return doSearch(companyId, className, searchContext);
 		}
 		catch (Exception e) {
 			throw new SystemException(e);
@@ -628,10 +625,10 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			long userId, long groupId, Date createDate, Date modifiedDate,
 			String className, long classPK, String classUuid, long classTypeId,
 			long[] categoryIds, String[] tagNames, boolean listable,
-			boolean visible, Date startDate, Date endDate, Date expirationDate,
-			String mimeType, String title, String description, String summary,
-			String url, String layoutUuid, int height, int width,
-			Double priority)
+			boolean visible, Date startDate, Date endDate, Date publishDate,
+			Date expirationDate, String mimeType, String title,
+			String description, String summary, String url, String layoutUuid,
+			int height, int width, Double priority)
 		throws PortalException {
 
 		// Entry
@@ -697,6 +694,11 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		entry.setVisible(visible);
 		entry.setStartDate(startDate);
 		entry.setEndDate(endDate);
+
+		if (publishDate != null) {
+			entry.setPublishDate(publishDate);
+		}
+
 		entry.setExpirationDate(expirationDate);
 		entry.setMimeType(mimeType);
 		entry.setTitle(title);
@@ -783,8 +785,33 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link #updateEntry(long, long,
 	 *             Date, Date, String, long, String, long, long[], String[],
-	 *             boolean, boolean, Date, Date, Date, String, String, String,
-	 *             String, String, String, int, int, Double)}
+	 *             boolean, boolean, Date, Date, Date, Date, String, String,
+	 *             String, String, String, String, int, int, Double)}
+	 */
+	@Deprecated
+	@Override
+	public AssetEntry updateEntry(
+			long userId, long groupId, Date createDate, Date modifiedDate,
+			String className, long classPK, String classUuid, long classTypeId,
+			long[] categoryIds, String[] tagNames, boolean listable,
+			boolean visible, Date startDate, Date endDate, Date expirationDate,
+			String mimeType, String title, String description, String summary,
+			String url, String layoutUuid, int height, int width,
+			Double priority)
+		throws PortalException {
+
+		return updateEntry(
+			userId, groupId, createDate, modifiedDate, className, classPK,
+			classUuid, classTypeId, categoryIds, tagNames, true, visible,
+			startDate, endDate, null, expirationDate, mimeType, title,
+			description, summary, url, layoutUuid, height, width, priority);
+	}
+
+	/**
+	 * @deprecated As of 7.0.0, replaced by {@link #updateEntry(long, long,
+	 *             Date, Date, String, long, String, long, long[], String[],
+	 *             boolean, boolean, Date, Date, Date, Date, String, String,
+	 *             String, String, String, String, int, int, Double)}
 	 */
 	@Deprecated
 	@Override
@@ -807,8 +834,9 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		return updateEntry(
 			userId, groupId, createDate, modifiedDate, className, classPK,
 			classUuid, classTypeId, categoryIds, tagNames, true, visible,
-			startDate, endDate, expirationDate, mimeType, title, description,
-			summary, url, layoutUuid, height, width, priorityDouble);
+			startDate, endDate, null, expirationDate, mimeType, title,
+			description, summary, url, layoutUuid, height, width,
+			priorityDouble);
 	}
 
 	@Override
@@ -828,16 +856,17 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 				className, classPK, entry.getClassUuid(),
 				entry.getClassTypeId(), categoryIds, tagNames,
 				entry.isListable(), entry.isVisible(), entry.getStartDate(),
-				entry.getEndDate(), entry.getExpirationDate(),
-				entry.getMimeType(), entry.getTitle(), entry.getDescription(),
-				entry.getSummary(), entry.getUrl(), entry.getLayoutUuid(),
-				entry.getHeight(), entry.getWidth(), entry.getPriority());
+				entry.getEndDate(), entry.getPublishDate(),
+				entry.getExpirationDate(), entry.getMimeType(),
+				entry.getTitle(), entry.getDescription(), entry.getSummary(),
+				entry.getUrl(), entry.getLayoutUuid(), entry.getHeight(),
+				entry.getWidth(), entry.getPriority());
 		}
 
 		return updateEntry(
 			userId, groupId, null, null, className, classPK, null, 0,
 			categoryIds, tagNames, true, true, null, null, null, null, null,
-			null, null, null, null, 0, 0, (Double)null);
+			null, null, null, null, null, 0, 0, (Double)null);
 	}
 
 	/**
@@ -921,6 +950,8 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 				entry.getClassNameId(), entry.getClassPK());
 		}
 
+		reindex(entry);
+
 		return entry;
 	}
 
@@ -974,7 +1005,6 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 
 	protected SearchContext buildSearchContext(
 		long companyId, long[] groupIds, long userId, long classTypeId,
-		String userName, String title, String description,
 		String assetCategoryIds, String assetTagNames, boolean showNonindexable,
 		int[] statuses, boolean andSearch, int start, int end) {
 
@@ -984,9 +1014,6 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		searchContext.setAssetCategoryIds(
 			StringUtil.split(assetCategoryIds, 0L));
 		searchContext.setAssetTagNames(StringUtil.split(assetTagNames));
-		searchContext.setAttribute(Field.DESCRIPTION, description);
-		searchContext.setAttribute(Field.TITLE, title);
-		searchContext.setAttribute(Field.USER_NAME, userName);
 		searchContext.setAttribute("paginationType", "regular");
 		searchContext.setAttribute("status", statuses);
 
@@ -1007,6 +1034,38 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		return searchContext;
 	}
 
+	protected SearchContext buildSearchContext(
+		long companyId, long[] groupIds, long userId, long classTypeId,
+		String keywords, String assetCategoryIds, String assetTagNames,
+		boolean showNonindexable, int[] statuses, boolean andSearch, int start,
+		int end) {
+
+		SearchContext searchContext = buildSearchContext(
+			companyId, groupIds, userId, classTypeId, assetCategoryIds,
+			assetTagNames, showNonindexable, statuses, andSearch, start, end);
+
+		searchContext.setKeywords(keywords);
+
+		return searchContext;
+	}
+
+	protected SearchContext buildSearchContext(
+		long companyId, long[] groupIds, long userId, long classTypeId,
+		String userName, String title, String description,
+		String assetCategoryIds, String assetTagNames, boolean showNonindexable,
+		int[] statuses, boolean andSearch, int start, int end) {
+
+		SearchContext searchContext = buildSearchContext(
+			companyId, groupIds, userId, classTypeId, assetCategoryIds,
+			assetTagNames, showNonindexable, statuses, andSearch, start, end);
+
+		searchContext.setAttribute(Field.DESCRIPTION, description);
+		searchContext.setAttribute(Field.TITLE, title);
+		searchContext.setAttribute(Field.USER_NAME, userName);
+
+		return searchContext;
+	}
+
 	protected long[] checkCategories(
 			String className, long classPK, long[] categoryIds)
 		throws PortalException {
@@ -1022,8 +1081,7 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 			assetCategoryLocalService.getCategories(className, classPK);
 
 		for (AssetCategory category : oldCategories) {
-			if (!ArrayUtil.contains(
-					categoryIds, category.getCategoryId()) &&
+			if (!ArrayUtil.contains(categoryIds, category.getCategoryId()) &&
 				!AssetCategoryPermission.contains(
 					permissionChecker, category, ActionKeys.VIEW)) {
 
@@ -1033,6 +1091,28 @@ public class AssetEntryLocalServiceImpl extends AssetEntryLocalServiceBaseImpl {
 		}
 
 		return categoryIds;
+	}
+
+	protected Hits doSearch(
+			long companyId, String className, SearchContext searchContext)
+		throws Exception {
+
+		Indexer<?> indexer = AssetSearcher.getInstance();
+
+		AssetSearcher assetSearcher = (AssetSearcher)indexer;
+
+		AssetEntryQuery assetEntryQuery = new AssetEntryQuery();
+
+		assetEntryQuery.setClassNameIds(getClassNameIds(companyId, className));
+
+		QueryConfig queryConfig = searchContext.getQueryConfig();
+
+		queryConfig.setHighlightEnabled(false);
+		queryConfig.setScoreEnabled(false);
+
+		assetSearcher.setAssetEntryQuery(assetEntryQuery);
+
+		return assetSearcher.search(searchContext);
 	}
 
 	protected AssetEntryQuery getAssetEntryQuery(

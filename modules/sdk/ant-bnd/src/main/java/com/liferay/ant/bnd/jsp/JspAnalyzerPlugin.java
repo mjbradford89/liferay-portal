@@ -29,9 +29,12 @@ import aQute.bnd.osgi.Jar;
 import aQute.bnd.osgi.Packages;
 import aQute.bnd.osgi.Resource;
 import aQute.bnd.service.AnalyzerPlugin;
+import aQute.lib.env.Header;
 
 import aQute.lib.io.IO;
 import aQute.lib.strings.Strings;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -316,7 +319,9 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 			Parameters parameters = OSGiHeader.parseHeader(value);
 
 			for (Entry<String, Attrs> entry : parameters.entrySet()) {
-				StringBuilder sb = new StringBuilder(entry.getKey());
+				String key = Header.removeDuplicateMarker(entry.getKey());
+
+				StringBuilder sb = new StringBuilder(key);
 
 				Attrs attrs = entry.getValue();
 
@@ -433,11 +438,19 @@ public class JspAnalyzerPlugin implements AnalyzerPlugin {
 				continue;
 			}
 
-			try {
-				Jar classPathJar = new Jar(entry, resource.openInputStream());
+			try (ByteArrayOutputStream byteArrayOutputStream =
+					new ByteArrayOutputStream()){
 
-				if (containsTLD(analyzer, classPathJar, root, uri)) {
-					return true;
+				resource.write(byteArrayOutputStream);
+
+				try (InputStream inputStream = new ByteArrayInputStream(
+						byteArrayOutputStream.toByteArray())) {
+
+					Jar classPathJar = new Jar(entry, inputStream);
+
+					if (containsTLD(analyzer, classPathJar, root, uri)) {
+						return true;
+					}
 				}
 			}
 			catch (Exception e) {

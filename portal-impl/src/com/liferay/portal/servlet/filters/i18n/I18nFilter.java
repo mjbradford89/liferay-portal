@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.servlet.HttpMethods;
 import com.liferay.portal.kernel.util.CookieKeys;
+import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringPool;
@@ -155,6 +156,11 @@ public class I18nFilter extends BasePortalFilter {
 
 		String queryString = request.getQueryString();
 
+		if (Validator.isNull(queryString)) {
+			queryString = (String)request.getAttribute(
+				JavaConstants.JAVAX_SERVLET_FORWARD_QUERY_STRING);
+		}
+
 		if (Validator.isNotNull(queryString)) {
 			redirect += StringPool.QUESTION + request.getQueryString();
 		}
@@ -217,12 +223,8 @@ public class I18nFilter extends BasePortalFilter {
 		}
 
 		if (prependFriendlyUrlStyle == 1) {
-			if (!defaultLanguageId.equals(guestLanguageId)) {
-				return guestLanguageId;
-			}
-			else {
-				return null;
-			}
+			return prependIfRequestedLocaleDiffersFromDefaultLocale(
+				defaultLanguageId, guestLanguageId);
 		}
 		else if (prependFriendlyUrlStyle == 2) {
 			return LocaleUtil.toLanguageId(PortalUtil.getLocale(request));
@@ -231,13 +233,32 @@ public class I18nFilter extends BasePortalFilter {
 			if (user != null) {
 				HttpSession session = request.getSession();
 
-				session.setAttribute(Globals.LOCALE_KEY, user.getLocale());
-			}
+				Locale locale = (Locale)session.getAttribute(
+					Globals.LOCALE_KEY);
 
-			return null;
+				if (userLanguageId.equals(LocaleUtil.toLanguageId(locale))) {
+					return null;
+				}
+
+				return LocaleUtil.toLanguageId(locale);
+			}
+			else {
+				return prependIfRequestedLocaleDiffersFromDefaultLocale(
+					defaultLanguageId, guestLanguageId);
+			}
 		}
 
 		return null;
+	}
+
+	protected String prependIfRequestedLocaleDiffersFromDefaultLocale(
+		String defaultLanguageId, String guestLanguageId) {
+
+		if (defaultLanguageId.equals(guestLanguageId)) {
+			return null;
+		}
+
+		return guestLanguageId;
 	}
 
 	@Override

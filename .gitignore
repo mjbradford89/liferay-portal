@@ -22,8 +22,6 @@
 /.bnd
 /.checkstyle
 /.idea
-/.ivy/cache/com.liferay-*.xml
-/.ivy/cache/resolved-*
 /.sonar
 /.xmlcatalog
 /ActiveMQ
@@ -159,7 +157,6 @@
 /test.*.properties
 /tmp
 /tools/cobertura-agent/classes
-/tools/liferay-doclet
 /tools/maven/*.asc
 /tools/node*
 /tools/sdk

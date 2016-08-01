@@ -81,7 +81,7 @@ AUI.add(
 					}
 				},
 
-				AUGMENTS: [Liferay.DDM.Renderer.NestedFieldsSupport],
+				AUGMENTS: [Liferay.DDL.FormBuilderLayoutBuilderSupport, Liferay.DDM.Renderer.NestedFieldsSupport],
 
 				CSS_PREFIX: 'form-builder',
 
@@ -179,7 +179,7 @@ AUI.add(
 						instance.showFieldSettingsPanel(
 							field,
 							Lang.sub(
-								Liferay.Language.get('edit-x-field'),
+								Liferay.Language.get('edit-x'),
 								[fieldType.get('label')]
 							)
 						);
@@ -313,7 +313,7 @@ AUI.add(
 						instance.showFieldSettingsPanel(
 							field,
 							Lang.sub(
-								Liferay.Language.get('add-x-field'),
+								Liferay.Language.get('add-x'),
 								[fieldType.get('label')]
 							)
 						);
@@ -581,6 +581,13 @@ AUI.add(
 					_valueFieldTypesModal: function() {
 						var instance = this;
 
+						var strings = A.merge(
+							instance.get('strings'),
+							{
+								addField: Liferay.Language.get('choose-a-field-type')
+							}
+						);
+
 						var fieldTypesModal = new Liferay.DDL.FormBuilderFieldTypesModal(
 							{
 								draggable: false,
@@ -588,9 +595,7 @@ AUI.add(
 								modal: true,
 								portletNamespace: instance.get('portletNamespace'),
 								resizable: false,
-								strings: {
-									addField: Liferay.Language.get('choose-a-field-type')
-								},
+								strings: strings,
 								visible: false
 							}
 						);
@@ -627,6 +632,6 @@ AUI.add(
 	},
 	'',
 	{
-		requires: ['aui-form-builder', 'aui-form-builder-pages', 'liferay-ddl-form-builder-field-settings-modal', 'liferay-ddl-form-builder-field-support', 'liferay-ddl-form-builder-field-type', 'liferay-ddl-form-builder-field-types-modal', 'liferay-ddl-form-builder-layout-deserializer', 'liferay-ddl-form-builder-layout-visitor', 'liferay-ddl-form-builder-pages-manager', 'liferay-ddl-form-builder-util', 'liferay-ddm-form-field-types', 'liferay-ddm-form-renderer']
+		requires: ['aui-form-builder', 'aui-form-builder-pages', 'aui-popover', 'liferay-ddl-form-builder-field-settings-modal', 'liferay-ddl-form-builder-field-support', 'liferay-ddl-form-builder-field-type', 'liferay-ddl-form-builder-field-types-modal', 'liferay-ddl-form-builder-layout-deserializer', 'liferay-ddl-form-builder-layout-visitor', 'liferay-ddl-form-builder-pages-manager', 'liferay-ddl-form-builder-util', 'liferay-ddm-form-field-types', 'liferay-ddm-form-renderer']
 	}
 );

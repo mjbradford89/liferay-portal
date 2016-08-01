@@ -1,4 +1,5 @@
 <definition component-name="portal-wcm">
+	<property name="portal.release" value="true" />
 	<property name="testray.main.component.name" value="Recycle Bin" />
 
 	<set-up>
@@ -512,7 +513,7 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="DMNavigator#gotoFolderPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="DM Folder Name" />
 		</execute>
 
@@ -529,7 +530,7 @@
 			<var name="siteName" value="Site Name" />
 		</execute>
 
-		<execute macro="DMNavigator#gotoFolderPG">
+		<execute macro="DMNavigator#gotoFolder">
 			<var name="dmFolderName" value="DM Folder Name" />
 		</execute>
 
@@ -600,6 +601,10 @@
 		<execute macro="WebContent#addPGViaWCD">
 			<var name="webContentContent" value="WC Content" />
 			<var name="webContentTitle" value="WC Title" />
+		</execute>
+
+		<execute macro="WebContent#viewPGViaWCD">
+			<var name="webContentContent" value="WC Content" />
 		</execute>
 
 		<execute macro="Navigator#openSiteURL">

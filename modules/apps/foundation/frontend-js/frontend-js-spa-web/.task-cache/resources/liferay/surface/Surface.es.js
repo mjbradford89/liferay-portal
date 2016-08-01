@@ -1,4 +1,4 @@
-define("frontend-js-spa-web@1.0.6/liferay/surface/Surface.es", ['exports', 'metal/src/core', 'metal-dom/src/dom', 'senna/src/surface/Surface'], function (exports, _core, _dom, _Surface2) {
+define("frontend-js-spa-web@1.0.9/liferay/surface/Surface.es", ['exports', 'metal/src/core', 'metal-dom/src/dom', 'senna/src/surface/Surface'], function (exports, _core, _dom, _Surface2) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -56,14 +56,14 @@ define("frontend-js-spa-web@1.0.6/liferay/surface/Surface.es", ['exports', 'meta
 			return _possibleConstructorReturn(this, _Surface.apply(this, arguments));
 		}
 
-		LiferaySurface.prototype.addContent = function addContent(scrrenId, content) {
+		LiferaySurface.prototype.addContent = function addContent(screenId, content) {
 			if (_core2.default.isString(content)) {
 				content = _dom2.default.buildFragment(content);
 			}
 
 			Liferay.DOMTaskRunner.runTasks(content);
 
-			return _Surface.prototype.addContent.call(this, scrrenId, content);
+			return _Surface.prototype.addContent.call(this, screenId, content);
 		};
 
 		return LiferaySurface;

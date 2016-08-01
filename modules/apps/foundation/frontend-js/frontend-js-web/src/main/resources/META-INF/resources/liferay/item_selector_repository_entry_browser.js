@@ -33,6 +33,10 @@ AUI.add(
 						validator: Lang.isString,
 						value: ''
 					},
+					editItemURL: {
+						validator: Lang.isString,
+						value: ''
+					},
 					maxFileSize: {
 						setter: Lang.toInt,
 						value: Liferay.PropsValues.UPLOAD_SERVLET_REQUEST_IMPL_MAX_SIZE
@@ -41,7 +45,7 @@ AUI.add(
 						validator: Lang.isString,
 						value: ''
 					},
-					uploadItemUrl: {
+					uploadItemURL: {
 						validator: Lang.isString,
 						value: ''
 					}
@@ -60,7 +64,9 @@ AUI.add(
 						instance._itemViewer = new A.LiferayItemViewer(
 							{
 								btnCloseCaption: instance.get('closeCaption'),
-								links: instance.all('.item-preview')
+								editItemURL: instance.get('editItemURL'),
+								links: instance.all('.item-preview'),
+								uploadItemURL: instance.get('uploadItemURL')
 							}
 						);
 
@@ -68,7 +74,7 @@ AUI.add(
 							{
 								btnCloseCaption: instance.get('closeCaption'),
 								links: '',
-								renderControls: false
+								uploadItemURL: instance.get('uploadItemURL')
 							}
 						);
 
@@ -333,7 +339,7 @@ AUI.add(
 						instance._uploadItemViewer.set(STR_LINKS, new A.NodeList(linkNode));
 						instance._uploadItemViewer.show();
 
-						instance._itemSelectorUploader.startUpload(file, instance.get('uploadItemUrl'));
+						instance._itemSelectorUploader.startUpload(file, instance.get('uploadItemURL'));
 					}
 				}
 			}

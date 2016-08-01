@@ -149,6 +149,7 @@ themes = ListUtil.sort(themes, new ThemeNameComparator(orderByType.equals("asc")
 						<liferay-frontend:vertical-card
 							cssClass='<%= themeId.equals(theme.getThemeId()) ? StringPool.BLANK : "selector-button" %>'
 							data="<%= data %>"
+							imageCSSClass="aspect-ratio-4-to-3"
 							imageUrl='<%= theme.getStaticResourcePath() + theme.getImagesPath() + "/thumbnail.png" %>'
 							subtitle="<%= author %>"
 							title="<%= theme.getName() %>"
@@ -157,7 +158,6 @@ themes = ListUtil.sort(themes, new ThemeNameComparator(orderByType.equals("asc")
 				</c:when>
 				<c:when test='<%= displayStyle.equals("list") %>'>
 					<liferay-ui:search-container-column-text
-						cssClass="content-column name-column title-column"
 						name="name"
 						truncate="<%= true %>"
 					>
@@ -182,7 +182,6 @@ themes = ListUtil.sort(themes, new ThemeNameComparator(orderByType.equals("asc")
 					%>
 
 					<liferay-ui:search-container-column-text
-						cssClass="author-column text-column"
 						name="author"
 						value="<%= author %>"
 					/>

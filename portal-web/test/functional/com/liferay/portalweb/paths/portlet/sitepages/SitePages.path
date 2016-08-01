@@ -45,6 +45,16 @@
 	<td></td>
 </tr>
 <tr>
+	<td>NAVIGATION_SPECIFIC_PAGE</td>
+	<td>//ul[contains(.,'Navigation')]//li[contains(.,'${key_page}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>NAVIGATION_SPECIFIC_PAGE_X_DELETE</td>
+	<td>//ul[contains(.,'Navigation')]//li[contains(.,'${key_page}')]//span[@class='delete-tab']</td>
+	<td></td>
+</tr>
+<tr>
 	<td></td>
 	<td></td>
 	<td></td>
@@ -139,6 +149,11 @@
 <tr>
 	<td>PAGE_TREE_PAGE_ARROW_4</td>
 	<td>xpath=(//span[contains(@class,'tree-hitarea') and contains(@class,'icon-plus')])[4]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PAGE_TREE_PAGE_EDIT_COG</td>
+	<td>xpath=(//a[contains(@id,'layoutsTree_layout_')])[1]</td>
 	<td></td>
 </tr>
 <tr>

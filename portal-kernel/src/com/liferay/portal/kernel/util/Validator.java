@@ -857,8 +857,9 @@ public class Validator {
 			return false;
 		}
 
-		if (StringUtil.startsWith(ipAddress, CharPool.OPEN_BRACKET) &&
-			StringUtil.endsWith(ipAddress, CharPool.CLOSE_BRACKET)) {
+		if ((ipAddress.charAt(0) == CharPool.OPEN_BRACKET) &&
+			(ipAddress.charAt(ipAddress.length() - 1) ==
+				CharPool.CLOSE_BRACKET)) {
 
 			ipAddress = ipAddress.substring(1, ipAddress.length() - 1);
 		}
@@ -1189,7 +1190,24 @@ public class Validator {
 	 *         <code>false</code> otherwise
 	 */
 	public static boolean isUrl(String url) {
+		return isUrl(url, false);
+	}
+
+	/**
+	 * Returns <code>true</code> if the string is a valid URL based on the rules
+	 * in {@link URL}. This method can also validate root relative URLs.
+	 *
+	 * @param  url the string to check
+	 * @param  acceptRootRelative whether a root relative URL should be accepted
+	 * @return <code>true</code> if the string is a valid URL;
+	 *         <code>false</code> otherwise
+	 */
+	public static boolean isUrl(String url, boolean acceptRootRelative) {
 		if (isNotNull(url)) {
+			if (acceptRootRelative && (url.charAt(0) == '/')) {
+				return true;
+			}
+
 			if (url.indexOf(CharPool.COLON) == -1) {
 				return false;
 			}

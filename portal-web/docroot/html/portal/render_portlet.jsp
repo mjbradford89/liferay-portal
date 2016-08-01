@@ -190,7 +190,7 @@ if ((portletParallelRender != null) && (portletParallelRender.booleanValue() == 
 
 Layout curLayout = PortletConfigurationLayoutUtil.getLayout(themeDisplay);
 
-if ((!group.hasStagingGroup() || group.isStagingGroup()) &&
+if ((!group.hasStagingGroup() || group.isStagingGroup() || !PropsValues.STAGING_LIVE_GROUP_LOCKING_ENABLED) &&
 	(PortletPermissionUtil.contains(permissionChecker, themeDisplay.getScopeGroupId(), curLayout, portlet, ActionKeys.CONFIGURATION))) {
 
 	showConfigurationIcon = true;
@@ -262,7 +262,7 @@ if (responseContentType.equals(ContentTypes.XHTML_MP) && portlet.hasMultipleMime
 // staging is activated, only staging layouts can be updated.
 
 if ((!themeDisplay.isSignedIn()) ||
-	(group.hasStagingGroup() && !group.isStagingGroup()) ||
+	(group.hasStagingGroup() && !group.isStagingGroup() && PropsValues.STAGING_LIVE_GROUP_LOCKING_ENABLED) ||
 	(!LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.UPDATE))) {
 
 	if (!(!columnDisabled && customizable && LayoutPermissionUtil.contains(permissionChecker, layout, ActionKeys.CUSTOMIZE))) {
@@ -474,7 +474,8 @@ if (urlConfiguration != null) {
 		if (Validator.isNotNull(settingsScope)) {
 			urlConfiguration.setParameter("settingsScope", settingsScope);
 		}
-	} else {
+	}
+	else {
 		urlConfiguration.setParameter("mvcPath", "/edit_sharing.jsp");
 	}
 
@@ -510,9 +511,10 @@ if (urlConfiguration != null) {
 
 	portletDisplay.setURLConfigurationJS(urlConfigurationJSSB.toString());
 }
+
 // URL edit
 
-PortletURLImpl urlEdit = new PortletURLImpl(request, portletDisplay.getId(), plid, PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlEdit = PortletURLFactoryUtil.create(request, portletDisplay.getId(), PortletRequest.RENDER_PHASE);
 
 if (portletDisplay.isModeEdit()) {
 	urlEdit.setWindowState(WindowState.NORMAL);
@@ -535,7 +537,7 @@ portletDisplay.setURLEdit(urlEdit.toString());
 
 // URL edit defaults
 
-PortletURLImpl urlEditDefaults = new PortletURLImpl(request, portletDisplay.getId(), plid, PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlEditDefaults = PortletURLFactoryUtil.create(request, portletDisplay.getId(), PortletRequest.RENDER_PHASE);
 
 if (portletDisplay.isModeEditDefaults()) {
 	urlEditDefaults.setWindowState(WindowState.NORMAL);
@@ -558,7 +560,7 @@ portletDisplay.setURLEditDefaults(urlEditDefaults.toString());
 
 // URL edit guest
 
-PortletURLImpl urlEditGuest = new PortletURLImpl(request, portletDisplay.getId(), plid, PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlEditGuest = PortletURLFactoryUtil.create(request, portletDisplay.getId(), PortletRequest.RENDER_PHASE);
 
 if (portletDisplay.isModeEditGuest()) {
 	urlEditGuest.setWindowState(WindowState.NORMAL);
@@ -581,7 +583,7 @@ portletDisplay.setURLEditGuest(urlEditGuest.toString());
 
 // URL export / import
 
-PortletURLImpl urlExportImport = new PortletURLImpl(request, PortletKeys.EXPORT_IMPORT, plid, PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlExportImport = PortletURLFactoryUtil.create(request, PortletKeys.EXPORT_IMPORT, PortletRequest.RENDER_PHASE);
 
 urlExportImport.setWindowState(LiferayWindowState.POP_UP);
 
@@ -596,7 +598,7 @@ portletDisplay.setURLExportImport(urlExportImport.toString() + "&" + PortalUtil.
 
 // URL help
 
-PortletURLImpl urlHelp = new PortletURLImpl(request, portletDisplay.getId(), plid, PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlHelp = PortletURLFactoryUtil.create(request, portletDisplay.getId(), PortletRequest.RENDER_PHASE);
 
 if (portletDisplay.isModeHelp()) {
 	urlHelp.setWindowState(WindowState.NORMAL);
@@ -625,7 +627,7 @@ if (!portletDisplay.isRestoreCurrentView()) {
 	lifecycle = PortletRequest.ACTION_PHASE;
 }
 
-PortletURLImpl urlMax = new PortletURLImpl(request, portletDisplay.getId(), plid, lifecycle);
+PortletURLImpl urlMax = (PortletURLImpl)PortletURLFactoryUtil.create(request, portletDisplay.getId(), lifecycle);
 
 if (portletDisplay.isStateMax()) {
 	urlMax.setWindowState(WindowState.NORMAL);
@@ -707,7 +709,7 @@ portletDisplay.setURLPortletCss(urlPortletCss.toString());
 
 // URL print
 
-PortletURLImpl urlPrint = new PortletURLImpl(request, portletDisplay.getId(), plid, PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlPrint = PortletURLFactoryUtil.create(request, portletDisplay.getId(), PortletRequest.RENDER_PHASE);
 
 if (portletDisplay.isModePrint()) {
 	urlPrint.setWindowState(WindowState.NORMAL);
@@ -736,7 +738,7 @@ portletDisplay.setURLRefresh(urlRefresh);
 
 // URL staging
 
-PortletURLImpl urlStaging = new PortletURLImpl(request, PortletKeys.EXPORT_IMPORT, plid, PortletRequest.RENDER_PHASE);
+LiferayPortletURL urlStaging = PortletURLFactoryUtil.create(request, PortletKeys.EXPORT_IMPORT, PortletRequest.RENDER_PHASE);
 
 urlStaging.setWindowState(LiferayWindowState.POP_UP);
 

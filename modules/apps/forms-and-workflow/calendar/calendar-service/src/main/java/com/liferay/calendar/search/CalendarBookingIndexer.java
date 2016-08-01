@@ -32,7 +32,11 @@ import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
 import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.search.SearchContext;
+import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
+import com.liferay.portal.kernel.search.SearchPermissionChecker;
 import com.liferay.portal.kernel.search.Summary;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -69,6 +73,29 @@ public class CalendarBookingIndexer extends BaseIndexer<CalendarBooking> {
 	@Override
 	public String getClassName() {
 		return CLASS_NAME;
+	}
+
+	@Override
+	public BooleanFilter getFacetBooleanFilter(
+			String className, SearchContext searchContext)
+		throws Exception {
+
+		BooleanFilter booleanFilter = new BooleanFilter();
+
+		booleanFilter.addTerm(
+			Field.ENTRY_CLASS_NAME, CalendarBooking.class.getName());
+
+		if (searchContext.getUserId() > 0) {
+			SearchPermissionChecker searchPermissionChecker =
+				SearchEngineHelperUtil.getSearchPermissionChecker();
+
+			booleanFilter = searchPermissionChecker.getPermissionBooleanFilter(
+				searchContext.getCompanyId(), searchContext.getGroupIds(),
+				searchContext.getUserId(), Calendar.class.getName(),
+				booleanFilter, searchContext);
+		}
+
+		return booleanFilter;
 	}
 
 	@Deprecated

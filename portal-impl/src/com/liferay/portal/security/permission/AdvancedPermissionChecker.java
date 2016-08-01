@@ -34,6 +34,7 @@ import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.RoleConstants;
 import com.liferay.portal.kernel.model.Team;
+import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
@@ -371,7 +372,6 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 		stopWatch.start();
 
-		boolean checkOwnerPermission = false;
 		Group group = null;
 
 		try {
@@ -399,8 +399,6 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 				// Site" group.
 
 				if (group.isUser() && (group.getClassPK() == getUserId())) {
-					checkOwnerPermission = true;
-
 					group = GroupLocalServiceUtil.getGroup(
 						getCompanyId(), GroupConstants.USER_PERSONAL_SITE);
 
@@ -422,15 +420,8 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 		}
 
 		try {
-			if (checkOwnerPermission) {
-				value = hasOwnerPermission(
-					getCompanyId(), name, primKey, getUserId(), actionId);
-			}
-
-			if ((value == null) || !value) {
-				value = hasPermissionImpl(
-					groupId, name, primKey, roleIds, actionId);
-			}
+			value = hasPermissionImpl(
+				groupId, name, primKey, roleIds, actionId);
 
 			if (_log.isDebugEnabled()) {
 				_log.debug(
@@ -652,18 +643,20 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 			Set<Long> roleIdsSet = SetUtil.fromArray(userBag.getRoleIds());
 
-			List<Role> userGroupRoles = RoleLocalServiceUtil.getUserGroupRoles(
-				userId, groupId);
+			List<UserGroupRole> userGroupRoles =
+				UserGroupRoleLocalServiceUtil.getUserGroupRoles(
+					userId, groupId);
 
-			for (Role userGroupRole : userGroupRoles) {
+			for (UserGroupRole userGroupRole : userGroupRoles) {
 				roleIdsSet.add(userGroupRole.getRoleId());
 			}
 
 			if (parentGroupId > 0) {
-				userGroupRoles = RoleLocalServiceUtil.getUserGroupRoles(
-					userId, parentGroupId);
+				userGroupRoles =
+					UserGroupRoleLocalServiceUtil.getUserGroupRoles(
+						userId, parentGroupId);
 
-				for (Role userGroupRole : userGroupRoles) {
+				for (UserGroupRole userGroupRole : userGroupRoles) {
 					roleIdsSet.add(userGroupRole.getRoleId());
 				}
 			}
@@ -750,21 +743,40 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 
 		if (primKey.contains(PortletConstants.LAYOUT_SEPARATOR)) {
 
-			// There are no custom permissions defined for portlet, use defaults
+			// Using defaults because custom permissions defined for portlet
+			// resource are not defined
 
 			newIndividualResourcePrimKey = name;
+
+			if (_log.isDebugEnabled()) {
+				String message =
+					"Using defaults because custom permissions for " +
+						"portlet resource " + name + " are not defined";
+
+				_log.debug(message, new IllegalArgumentException(message));
+			}
 		}
 
 		else if ((groupId > 0) &&
 				 ResourceActionsUtil.isRootModelResource(name)) {
 
-			// There are no custom permissions defined for root model resource,
-			// use defaults
+			// Using defaults because custom permissions defined for root model
+			// resource are not defined
 
 			newIndividualResourcePrimKey = name;
+
+			if (_log.isDebugEnabled()) {
+				String message =
+					"Using defaults because custom permissions for " +
+						"root model resource " + name + " are not defined";
+
+				_log.debug(message, new IllegalArgumentException(message));
+			}
 		}
 
-		else if (((primKey.length() == 1) && (primKey.charAt(0) == 48)) ||
+		else if (primKey.equals("0") ||
+				 primKey.equals(String.valueOf(ResourceConstants.PRIMKEY_DNE))
+					 ||
 				 (primKey.equals(String.valueOf(companyId)) &&
 				  !name.equals(Company.class.getName()))) {
 
@@ -956,11 +968,6 @@ public class AdvancedPermissionChecker extends BasePermissionChecker {
 		try {
 			if (!signedIn) {
 				return hasGuestPermission(groupId, name, primKey, actionId);
-			}
-
-			if (ResourceBlockLocalServiceUtil.isSupported(name)) {
-				return hasUserPermissionImpl(
-					groupId, name, primKey, roleIds, actionId);
 			}
 
 			return hasUserPermissionImpl(

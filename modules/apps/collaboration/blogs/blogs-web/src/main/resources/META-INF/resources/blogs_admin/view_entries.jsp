@@ -130,7 +130,6 @@ String keywords = ParamUtil.getString(request, "keywords");
 				escapedModel="<%= true %>"
 				keyProperty="entryId"
 				modelVar="entry"
-				rowIdProperty="urlTitle"
 			>
 				<liferay-portlet:renderURL varImpl="rowURL">
 					<portlet:param name="mvcRenderCommandName" value="/blogs/edit_entry" />
@@ -145,6 +144,17 @@ String keywords = ParamUtil.getString(request, "keywords");
 		</liferay-ui:search-container>
 	</aui:form>
 </div>
+
+<c:if test="<%= BlogsPermission.contains(permissionChecker, scopeGroupId, ActionKeys.ADD_ENTRY) %>">
+	<portlet:renderURL var="addEntryURL">
+		<portlet:param name="mvcRenderCommandName" value="/blogs/edit_entry" />
+		<portlet:param name="redirect" value="<%= currentURL %>" />
+	</portlet:renderURL>
+
+	<liferay-frontend:add-menu>
+		<liferay-frontend:add-menu-item title='<%= LanguageUtil.get(request, "add-blog-entry") %>' url="<%= addEntryURL %>" />
+	</liferay-frontend:add-menu>
+</c:if>
 
 <aui:script>
 	function <portlet:namespace />deleteEntries() {

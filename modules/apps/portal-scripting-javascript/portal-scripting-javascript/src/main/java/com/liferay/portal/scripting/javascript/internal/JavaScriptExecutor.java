@@ -15,8 +15,6 @@
 package com.liferay.portal.scripting.javascript.internal;
 
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
-import com.liferay.portal.kernel.cache.PortalCache;
-import com.liferay.portal.kernel.cache.SingleVMPool;
 import com.liferay.portal.kernel.scripting.ScriptingException;
 import com.liferay.portal.kernel.scripting.ScriptingExecutor;
 import com.liferay.portal.scripting.BaseScriptingExecutor;
@@ -37,7 +35,6 @@ import org.mozilla.javascript.Wrapper;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Modified;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Alberto Montero
@@ -52,11 +49,6 @@ public class JavaScriptExecutor extends BaseScriptingExecutor {
 	public static final String LANGUAGE = "javascript";
 
 	@Override
-	public void clearCache() {
-		_portalCache.removeAll();
-	}
-
-	@Override
 	public Map<String, Object> eval(
 			Set<String> allowedClasses, Map<String, Object> inputObjects,
 			Set<String> outputNames, String script)
@@ -69,9 +61,7 @@ public class JavaScriptExecutor extends BaseScriptingExecutor {
 
 			Scriptable scriptable = context.initStandardObjects();
 
-			Class<?> clazz = getClass();
-
-			context.setApplicationClassLoader(clazz.getClassLoader());
+			context.setApplicationClassLoader(getClassLoader());
 
 			for (Map.Entry<String, Object> entry : inputObjects.entrySet()) {
 				String key = entry.getKey();
@@ -143,14 +133,6 @@ public class JavaScriptExecutor extends BaseScriptingExecutor {
 	protected Script getCompiledScript(String script)
 		throws ScriptingException {
 
-		String key = String.valueOf(script.hashCode());
-
-		Script compiledScript = _portalCache.get(key);
-
-		if (compiledScript != null) {
-			return compiledScript;
-		}
-
 		try {
 			Context context = Context.enter();
 
@@ -158,7 +140,7 @@ public class JavaScriptExecutor extends BaseScriptingExecutor {
 
 			context.setApplicationClassLoader(clazz.getClassLoader());
 
-			compiledScript = context.compileString(script, "script", 0, null);
+			return context.compileString(script, "script", 0, null);
 		}
 		catch (Exception e) {
 			throw new ScriptingException(e.getMessage() + "\n\n", e);
@@ -166,22 +148,8 @@ public class JavaScriptExecutor extends BaseScriptingExecutor {
 		finally {
 			Context.exit();
 		}
-
-		_portalCache.put(key, compiledScript);
-
-		return compiledScript;
 	}
-
-	@Reference(unbind = "-")
-	protected void setSingleVMPool(SingleVMPool singleVMPool) {
-		_portalCache = (PortalCache<String, Script>)singleVMPool.getPortalCache(
-			_CACHE_NAME);
-	}
-
-	private static final String _CACHE_NAME =
-		JavaScriptExecutor.class.getName();
 
 	private volatile Set<String> _forbiddenClassNames;
-	private PortalCache<String, Script> _portalCache;
 
 }

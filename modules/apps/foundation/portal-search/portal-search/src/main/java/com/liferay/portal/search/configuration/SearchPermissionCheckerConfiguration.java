@@ -31,10 +31,20 @@ import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClass
 @ProviderType
 public interface SearchPermissionCheckerConfiguration {
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Meta.AD(
 		deflt = "true", description = "include-inherited-permissions-help",
 		required = false
 	)
 	public boolean includeInheritedPermissions();
+
+	@Meta.AD(
+		deflt = "250", description = "permission-terms-limit-help",
+		required = false
+	)
+	public int permissionTermsLimit();
 
 }

@@ -17,10 +17,13 @@ package com.liferay.ant.bnd;
 import aQute.bnd.differ.Baseline.BundleInfo;
 import aQute.bnd.differ.Baseline.Info;
 import aQute.bnd.differ.DiffPluginImpl;
+import aQute.bnd.osgi.Constants;
 import aQute.bnd.osgi.Jar;
 import aQute.bnd.service.diff.Delta;
 import aQute.bnd.service.diff.Diff;
 import aQute.bnd.version.Version;
+
+import aQute.lib.io.IO;
 
 import aQute.service.reporter.Reporter;
 
@@ -97,6 +100,9 @@ public abstract class Baseline {
 
 			if (bundleInfo.mismatch) {
 				match = false;
+
+				updateBundleVersion(
+					bundleInfo.newerVersion, bundleInfo.suggestedVersion);
 			}
 
 			Info[] infosArray = infos.toArray(new Info[infos.size()]);
@@ -126,6 +132,8 @@ public abstract class Baseline {
 
 				if (suggestedVersion != null) {
 					if (newerVersion.compareTo(suggestedVersion) > 0) {
+						match = false;
+
 						warnings = "EXCESSIVE VERSION INCREASE";
 					}
 					else if (newerVersion.compareTo(suggestedVersion) < 0) {
@@ -159,11 +167,21 @@ public abstract class Baseline {
 					}
 				}
 
-				generatePackageInfo(info, delta, warnings);
+				boolean correctPackageInfo = generatePackageInfo(info, delta);
+
+				if (!correctPackageInfo) {
+					if (delta == Delta.ADDED) {
+						warnings = "PACKAGE ADDED, MISSING PACKAGEINFO";
+					}
+					else if (delta == Delta.REMOVED) {
+						warnings = "PACKAGE REMOVED, UNNECESSARY PACKAGEINFO";
+					}
+				}
 
 				if (((!_reportDiff || _reportOnlyDirtyPackages) &&
 					 warnings.equals("-")) ||
-					(_reportOnlyDirtyPackages && (delta == Delta.REMOVED))) {
+					(_reportOnlyDirtyPackages && correctPackageInfo &&
+					 (delta == Delta.REMOVED))) {
 
 					continue;
 				}
@@ -195,6 +213,10 @@ public abstract class Baseline {
 
 	public Properties getProperties() {
 		return _properties;
+	}
+
+	public void setBndFile(File bndFile) {
+		_bndFile = bndFile;
 	}
 
 	public void setForcePackageInfo(boolean forcePackageInfo) {
@@ -326,36 +348,45 @@ public abstract class Baseline {
 			"==========", "==========");
 	}
 
-	protected void generatePackageInfo(Info info, Delta delta, String warnings)
+	protected boolean generatePackageInfo(Info info, Delta delta)
 		throws Exception {
+
+		boolean correct = true;
 
 		File packageDir = new File(
 			_sourceDir, info.packageName.replace('.', File.separatorChar));
 
 		if (!_forcePackageInfo && !packageDir.exists()) {
-			return;
+			return correct;
 		}
-
-		packageDir.mkdirs();
 
 		File packageInfoFile = new File(packageDir, "packageinfo");
 
 		if (delta == Delta.REMOVED) {
 			if (packageInfoFile.exists()) {
+				correct = false;
+
 				packageInfoFile.delete();
 			}
+		}
+		else {
+			if (!packageInfoFile.exists()) {
+				correct = false;
+			}
 
-			return;
+			packageDir.mkdirs();
+
+			FileOutputStream fileOutputStream = new FileOutputStream(
+				packageInfoFile);
+
+			String content = "version " + info.suggestedVersion;
+
+			fileOutputStream.write(content.getBytes());
+
+			fileOutputStream.close();
 		}
 
-		FileOutputStream fileOutputStream = new FileOutputStream(
-			packageInfoFile);
-
-		String content = "version " + info.suggestedVersion;
-
-		fileOutputStream.write(content.getBytes());
-
-		fileOutputStream.close();
+		return correct;
 	}
 
 	protected String getShortDelta(Delta delta) {
@@ -415,6 +446,23 @@ public abstract class Baseline {
 		persistLog(output);
 	}
 
+	protected void updateBundleVersion(Version oldVersion, Version newVersion)
+		throws IOException {
+
+		if (_bndFile == null) {
+			return;
+		}
+
+		String content = IO.collect(_bndFile);
+
+		content = content.replace(
+			Constants.BUNDLE_VERSION + ": " + oldVersion,
+			Constants.BUNDLE_VERSION + ": " + newVersion);
+
+		IO.store(content, _bndFile);
+	}
+
+	private File _bndFile;
 	private boolean _forcePackageInfo;
 	private boolean _headerPrinted;
 	private File _logFile;

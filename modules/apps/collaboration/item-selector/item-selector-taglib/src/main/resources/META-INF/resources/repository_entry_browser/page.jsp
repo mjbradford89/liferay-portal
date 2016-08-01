@@ -177,7 +177,14 @@ if (Validator.isNotNull(keywords)) {
 		</liferay-util:buffer>
 
 		<div class="drop-enabled drop-zone no-border">
-			<strong><liferay-ui:message arguments="<%= selectFileHTML %>" key="drag-and-drop-to-upload-or-x" /></strong>
+			<c:choose>
+				<c:when test="<%= BrowserSnifferUtil.isMobile(request) %>">
+					<%= selectFileHTML %>
+				</c:when>
+				<c:otherwise>
+					<strong><liferay-ui:message arguments="<%= selectFileHTML %>" key="drag-and-drop-to-upload-or-x" /></strong>
+				</c:otherwise>
+			</c:choose>
 		</div>
 	</c:if>
 
@@ -250,6 +257,7 @@ if (Validator.isNotNull(keywords)) {
 
 						<%
 						}
+
 						if (folder != null) {
 							PortletURL viewFolderURL = PortletURLUtil.clone(portletURL, liferayPortletResponse);
 
@@ -467,6 +475,22 @@ if (Validator.isNotNull(keywords)) {
 	new Liferay.ItemSelectorRepositoryEntryBrowser(
 		{
 			closeCaption: '<%= UnicodeLanguageUtil.get(request, tabName) %>',
+
+			<c:if test="<%= uploadURL != null %>">
+
+				<%
+				String imageEditorPortletId = PortletProviderUtil.getPortletId(Image.class.getName(), PortletProvider.Action.EDIT);
+				%>
+
+				<c:if test="<%= Validator.isNotNull(imageEditorPortletId) %>">
+					<liferay-portlet:renderURL portletName="<%= imageEditorPortletId %>" var="viewImageEditorURL" windowState="<%= LiferayWindowState.POP_UP.toString() %>">
+						<liferay-portlet:param name="mvcRenderCommandName" value="/image_editor/view" />
+					</liferay-portlet:renderURL>
+
+					editItemURL: '<%= viewImageEditorURL.toString() %>',
+				</c:if>
+			</c:if>
+
 			maxFileSize: '<%= maxFileSize %>',
 			on: {
 				selectedItem: function(event) {
@@ -477,7 +501,7 @@ if (Validator.isNotNull(keywords)) {
 
 			<c:if test="<%= uploadURL != null %>">
 				, uploadItemReturnType: '<%= ClassUtil.getClassName(existingFileEntryReturnType) %>',
-				uploadItemUrl: '<%= uploadURL.toString() %>'
+				uploadItemURL: '<%= uploadURL.toString() %>'
 			</c:if>
 		}
 	);

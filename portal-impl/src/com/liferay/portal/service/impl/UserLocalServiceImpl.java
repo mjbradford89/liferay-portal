@@ -325,7 +325,7 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		long[] groupIds = ArrayUtil.toArray(
 			groupIdsSet.toArray(new Long[groupIdsSet.size()]));
 
-		userPersistence.addUserGroups(userId, groupIds);
+		userPersistence.addGroups(userId, groupIds);
 
 		for (long groupId : groupIds) {
 			addDefaultRolesAndTeams(groupId, new long[] {userId});
@@ -4068,8 +4068,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			userId, companyGroup.getGroupId(), user.getCreateDate(),
 			user.getModifiedDate(), User.class.getName(), user.getUserId(),
 			user.getUuid(), 0, assetCategoryIds, assetTagNames, true, false,
-			null, null, null, null, user.getFullName(), null, null, null, null,
-			0, 0, null);
+			null, null, null, null, null, user.getFullName(), null, null, null,
+			null, 0, 0, null);
 	}
 
 	/**
@@ -4625,6 +4625,8 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 		throws PortalException {
 
 		User user = userPersistence.findByPrimaryKey(userId);
+
+		user.setModifiedDate(modifiedDate);
 
 		userPersistence.update(user);
 
@@ -5885,20 +5887,34 @@ public class UserLocalServiceImpl extends UserLocalServiceBaseImpl {
 			return false;
 		}
 
-		for (String key : params.keySet()) {
-			if (!key.equals("inherit") && !key.equals("usersGroups") &&
-				!key.equals("usersOrgs") && !key.equals("usersOrgsCount") &&
-				!key.equals("usersRoles") && !key.equals("usersTeams") &&
-				!key.equals("usersUserGroups")) {
+		for (Map.Entry<String, Object> entry : params.entrySet()) {
+			String key = entry.getKey();
+
+			if (key.equals("inherit")) {
+				if (Boolean.TRUE.equals(entry.getValue())) {
+					return true;
+				}
+			}
+			else if (key.equals("noOrganizations")) {
+				if (!Boolean.TRUE.equals(entry.getValue())) {
+					return true;
+				}
+
+				Object usersOrgsCount = params.get("usersOrgsCount");
+
+				if ((usersOrgsCount == null) ||
+					(GetterUtil.getLong(usersOrgsCount) != 0)) {
+
+					return true;
+				}
+			}
+			else if (!key.equals("usersGroups") && !key.equals("usersOrgs") &&
+					 !key.equals("usersOrgsCount") &&
+					 !key.equals("usersRoles") && !key.equals("usersTeams") &&
+					 !key.equals("usersUserGroups")) {
 
 				return true;
 			}
-		}
-
-		Boolean inherit = (Boolean)params.get("inherit");
-
-		if ((inherit != null) && inherit) {
-			return true;
 		}
 
 		return false;

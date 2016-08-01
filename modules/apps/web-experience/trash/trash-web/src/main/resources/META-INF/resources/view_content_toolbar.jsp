@@ -19,11 +19,8 @@
 <liferay-frontend:management-bar>
 	<liferay-frontend:management-bar-buttons>
 		<liferay-frontend:management-bar-sidenav-toggler-button
-			disabled="<%= false %>"
-			href="javascript:;"
 			icon="info-circle"
 			label="info"
-			sidenavId='<%= liferayPortletResponse.getNamespace() + "infoPanelId" %>'
 		/>
 
 		<liferay-portlet:actionURL name="changeDisplayStyle" varImpl="changeDisplayStyleURL">

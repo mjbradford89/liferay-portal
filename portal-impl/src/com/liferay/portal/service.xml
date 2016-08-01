@@ -201,6 +201,7 @@
 		<reference entity="ResourcePermission" package-path="com.liferay.portal" />
 		<reference entity="Role" package-path="com.liferay.portal" />
 		<reference entity="User" package-path="com.liferay.portal" />
+		<reference entity="UserGroup" package-path="com.liferay.portal" />
 		<reference entity="VirtualHost" package-path="com.liferay.portal" />
 	</entity>
 	<entity local-service="true" name="Contact" remote-service="true">
@@ -656,6 +657,12 @@
 			<finder-column name="groupId" />
 			<finder-column name="privateLayout" />
 			<finder-column name="sourcePrototypeLayoutUuid" />
+		</finder>
+		<finder name="G_P_P_LtP" return-type="Collection">
+			<finder-column name="groupId" />
+			<finder-column name="privateLayout" />
+			<finder-column name="parentLayoutId" />
+			<finder-column comparator="&lt;=" name="priority" />
 		</finder>
 
 		<!-- References -->

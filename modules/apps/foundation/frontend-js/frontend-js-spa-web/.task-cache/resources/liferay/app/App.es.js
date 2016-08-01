@@ -1,4 +1,4 @@
-define("frontend-js-spa-web@1.0.6/liferay/app/App.es", ['exports', 'senna/src/app/App', 'metal/src/core', 'metal-dom/src/dom', '../util/Utils.es', '../surface/Surface.es'], function (exports, _App2, _core, _dom, _Utils, _Surface) {
+define("frontend-js-spa-web@1.0.9/liferay/app/App.es", ['exports', 'senna/src/app/App', 'metal/src/core', 'metal-dom/src/dom', '../util/Utils.es', '../surface/Surface.es'], function (exports, _App2, _core, _dom, _Utils, _Surface) {
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
@@ -59,7 +59,7 @@ define("frontend-js-spa-web@1.0.6/liferay/app/App.es", ['exports', 'senna/src/ap
 
 			var _this = _possibleConstructorReturn(this, _App.call(this));
 
-			_this.blacklist = {};
+			_this.portletsBlacklist = {};
 			_this.validStatusCodes = [];
 
 			var exceptionsSelector = ':not([target="_blank"]):not([data-senna-off]):not([data-resource-href])';
@@ -86,8 +86,38 @@ define("frontend-js-spa-web@1.0.6/liferay/app/App.es", ['exports', 'senna/src/ap
 			return _this;
 		}
 
+		LiferayApp.prototype.getCacheExpirationTime = function getCacheExpirationTime() {
+			return Liferay.SPA.cacheExpirationTime;
+		};
+
 		LiferayApp.prototype.getValidStatusCodes = function getValidStatusCodes() {
 			return this.validStatusCodes;
+		};
+
+		LiferayApp.prototype.isCacheEnabled = function isCacheEnabled() {
+			return this.getCacheExpirationTime() > -1;
+		};
+
+		LiferayApp.prototype.isInPortletBlacklist = function isInPortletBlacklist(element) {
+			return Object.keys(this.portletsBlacklist).some(function (portletId) {
+				var boundaryId = _Utils2.default.getPortletBoundaryId(portletId);
+
+				var portlets = document.querySelectorAll('[id^="' + boundaryId + '"]');
+
+				return Array.prototype.slice.call(portlets).some(function (portlet) {
+					return _dom2.default.contains(portlet, element);
+				});
+			});
+		};
+
+		LiferayApp.prototype.isScreenCacheExpired = function isScreenCacheExpired(screen) {
+			if (this.getCacheExpirationTime() === 0) {
+				return false;
+			}
+
+			var lastModifiedInterval = new Date().getTime() - screen.getCacheLastModified();
+
+			return lastModifiedInterval > this.getCacheExpirationTime();
 		};
 
 		LiferayApp.prototype.onBeforeNavigate = function onBeforeNavigate(event) {
@@ -102,22 +132,19 @@ define("frontend-js-spa-web@1.0.6/liferay/app/App.es", ['exports', 'senna/src/ap
 		};
 
 		LiferayApp.prototype.onDocClickDelegate_ = function onDocClickDelegate_(event) {
-			var inBlacklist = false;
-
-			Object.keys(this.blacklist).forEach(function (portletId) {
-				var boundaryId = _Utils2.default.getPortletBoundaryId(portletId);
-				var portlets = document.querySelectorAll('[id^="' + boundaryId + '"]');
-
-				inBlacklist = Array.prototype.slice.call(portlets).some(function (portlet) {
-					return _dom2.default.contains(portlet, event.delegateTarget);
-				});
-			});
-
-			if (inBlacklist) {
+			if (this.isInPortletBlacklist(event.delegateTarget)) {
 				return;
 			}
 
 			_App.prototype.onDocClickDelegate_.call(this, event);
+		};
+
+		LiferayApp.prototype.onDocSubmitDelegate_ = function onDocSubmitDelegate_(event) {
+			if (this.isInPortletBlacklist(event.delegateTarget)) {
+				return;
+			}
+
+			_App.prototype.onDocSubmitDelegate_.call(this, event);
 		};
 
 		LiferayApp.prototype.onEndNavigate = function onEndNavigate(event) {
@@ -155,8 +182,8 @@ define("frontend-js-spa-web@1.0.6/liferay/app/App.es", ['exports', 'senna/src/ap
 			});
 		};
 
-		LiferayApp.prototype.setBlacklist = function setBlacklist(blacklist) {
-			this.blacklist = blacklist;
+		LiferayApp.prototype.setPortletsBlacklist = function setPortletsBlacklist(portletsBlacklist) {
+			this.portletsBlacklist = portletsBlacklist;
 		};
 
 		LiferayApp.prototype.setValidStatusCodes = function setValidStatusCodes(validStatusCodes) {

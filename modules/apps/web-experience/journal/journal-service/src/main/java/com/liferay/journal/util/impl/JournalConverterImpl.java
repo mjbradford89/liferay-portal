@@ -201,6 +201,7 @@ public class JournalConverterImpl implements JournalConverter {
 		}
 	}
 
+	@Override
 	public DDMFormValues getDDMFormValues(
 			DDMStructure ddmStructure, Fields fields)
 		throws PortalException {
@@ -575,6 +576,9 @@ public class JournalConverterImpl implements JournalConverter {
 			jsonObject.put("data", dynamicContentElement.getText());
 			jsonObject.put(
 				"name", dynamicContentElement.attributeValue("name"));
+			jsonObject.put(
+				"resourcePrimKey",
+				dynamicContentElement.attributeValue("resourcePrimKey"));
 			jsonObject.put(
 				"title", dynamicContentElement.attributeValue("title"));
 			jsonObject.put(

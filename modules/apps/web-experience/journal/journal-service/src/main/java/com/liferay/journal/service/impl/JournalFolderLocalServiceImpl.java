@@ -614,6 +614,7 @@ public class JournalFolderLocalServiceImpl
 			folderId, parentFolderId, serviceContext);
 	}
 
+	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public JournalFolder moveFolderToTrash(long userId, long folderId)
 		throws PortalException {
@@ -790,7 +791,7 @@ public class JournalFolderLocalServiceImpl
 			userId, folder.getGroupId(), folder.getCreateDate(),
 			folder.getModifiedDate(), JournalFolder.class.getName(),
 			folder.getFolderId(), folder.getUuid(), 0, assetCategoryIds,
-			assetTagNames, true, true, null, null, null,
+			assetTagNames, true, true, null, null, folder.getCreateDate(), null,
 			ContentTypes.TEXT_PLAIN, folder.getName(), folder.getDescription(),
 			null, null, null, 0, 0, priority);
 
@@ -963,7 +964,7 @@ public class JournalFolderLocalServiceImpl
 				JournalFolder.class.getName(), folder.getFolderId(), false);
 		}
 
-		// Index
+		// Indexer
 
 		Indexer<JournalFolder> indexer = IndexerRegistryUtil.nullSafeGetIndexer(
 			JournalFolder.class);
@@ -1273,7 +1274,7 @@ public class JournalFolderLocalServiceImpl
 				assetEntryLocalService.updateVisible(
 					JournalFolder.class.getName(), folder.getFolderId(), false);
 
-				// Index
+				// Indexer
 
 				Indexer<JournalFolder> indexer =
 					IndexerRegistryUtil.nullSafeGetIndexer(JournalFolder.class);
@@ -1397,7 +1398,7 @@ public class JournalFolderLocalServiceImpl
 				assetEntryLocalService.updateVisible(
 					JournalFolder.class.getName(), folder.getFolderId(), true);
 
-				// Index
+				// Indexer
 
 				Indexer<JournalFolder> indexer =
 					IndexerRegistryUtil.nullSafeGetIndexer(JournalFolder.class);

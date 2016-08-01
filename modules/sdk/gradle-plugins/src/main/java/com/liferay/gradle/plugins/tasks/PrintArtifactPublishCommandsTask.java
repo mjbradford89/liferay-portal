@@ -105,6 +105,11 @@ public class PrintArtifactPublishCommandsTask extends DefaultTask {
 	}
 
 	@Input
+	public boolean isForcedCache() {
+		return _forcedCache;
+	}
+
+	@Input
 	public boolean isGradleDaemon() {
 		return _gradleDaemon;
 	}
@@ -141,11 +146,8 @@ public class PrintArtifactPublishCommandsTask extends DefaultTask {
 
 		// Change log
 
-		TaskContainer taskContainer = project.getTasks();
-
-		BuildChangeLogTask buildChangeLogTask =
-			(BuildChangeLogTask)taskContainer.findByName(
-				ChangeLogBuilderPlugin.BUILD_CHANGE_LOG_TASK_NAME);
+		BuildChangeLogTask buildChangeLogTask = (BuildChangeLogTask)getTask(
+			ChangeLogBuilderPlugin.BUILD_CHANGE_LOG_TASK_NAME);
 
 		if (buildChangeLogTask != null) {
 			commands.add(getGradleCommand(buildChangeLogTask));
@@ -159,7 +161,7 @@ public class PrintArtifactPublishCommandsTask extends DefaultTask {
 
 		// Baseline
 
-		BaselineTask baselineTask = (BaselineTask)taskContainer.findByName(
+		Task baselineTask = getTask(
 			LiferayOSGiDefaultsPlugin.BASELINE_TASK_NAME);
 
 		if (baselineTask != null) {
@@ -205,6 +207,10 @@ public class PrintArtifactPublishCommandsTask extends DefaultTask {
 		_firstPublishExcludedTaskName = firstPublishExcludedTaskName;
 	}
 
+	public void setForcedCache(boolean forcedCache) {
+		_forcedCache = forcedCache;
+	}
+
 	public void setGradleDaemon(boolean gradleDaemon) {
 		_gradleDaemon = gradleDaemon;
 	}
@@ -242,10 +248,10 @@ public class PrintArtifactPublishCommandsTask extends DefaultTask {
 		String[] arguments = new String[0];
 
 		if (firstPublish) {
-			String taskName = getFirstPublishExcludedTaskName();
+			Task task = getTask(getFirstPublishExcludedTaskName());
 
-			if (Validator.isNotNull(taskName)) {
-				arguments = new String[] {"-x", taskName};
+			if (task != null) {
+				arguments = new String[] {"-x", task.getPath()};
 			}
 		}
 
@@ -342,6 +348,13 @@ public class PrintArtifactPublishCommandsTask extends DefaultTask {
 			sb.append(" --daemon");
 		}
 
+		if (isForcedCache() &&
+			!LiferayOSGiDefaultsPlugin.BASELINE_TASK_NAME.equals(
+				task.getName())) {
+
+			sb.append(" -Dforced.cache.enabled=true");
+		}
+
 		for (String argument : arguments) {
 			sb.append(' ');
 			sb.append(argument);
@@ -368,6 +381,18 @@ public class PrintArtifactPublishCommandsTask extends DefaultTask {
 		return rootProject.relativePath(file);
 	}
 
+	protected Task getTask(String name) {
+		if (Validator.isNull(name)) {
+			return null;
+		}
+
+		Project project = getProject();
+
+		TaskContainer taskContainer = project.getTasks();
+
+		return taskContainer.findByName(name);
+	}
+
 	protected boolean isPublished() {
 		Project project = getProject();
 
@@ -387,6 +412,7 @@ public class PrintArtifactPublishCommandsTask extends DefaultTask {
 	private Object _artifactPropertiesFile;
 	private boolean _firstOnly;
 	private Object _firstPublishExcludedTaskName;
+	private boolean _forcedCache = true;
 	private boolean _gradleDaemon;
 	private Object _gradleDir;
 	private Object _lowestPublishedVersion = "1.0.0";

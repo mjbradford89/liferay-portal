@@ -141,6 +141,10 @@ public class JournalArticleAssetRenderer
 		}
 	}
 
+	/**
+	 * @deprecated As of 7.0.0, with no direct replacement
+	 */
+	@Deprecated
 	@Override
 	public Date getDisplayDate() {
 		return _article.getDisplayDate();
@@ -531,9 +535,12 @@ public class JournalArticleAssetRenderer
 
 		PortletRequest portletRequest = (PortletRequest)request.getAttribute(
 			JavaConstants.JAVAX_PORTLET_REQUEST);
-
 		PortletResponse portletResponse = (PortletResponse)request.getAttribute(
 			JavaConstants.JAVAX_PORTLET_RESPONSE);
+
+		if ((portletRequest == null) || (portletResponse == null)) {
+			return null;
+		}
 
 		return new PortletRequestModel(portletRequest, portletResponse);
 	}

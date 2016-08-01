@@ -87,7 +87,7 @@ recordSearchContainer.setOrderByType(ddlViewRecordsDisplayContext.getOrderByType
 <aui:nav-bar cssClass="collapse-basic-search" markupView="lexicon">
 	<c:if test="<%= ddlDisplayContext.isAdminPortlet() %>">
 		<aui:nav cssClass="navbar-nav">
-			<aui:nav-item label="<%= recordSet.getName(locale) %>" selected="<%= true %>" />
+			<aui:nav-item label="<%= HtmlUtil.escape(recordSet.getName(locale)) %>" selected="<%= true %>" />
 		</aui:nav>
 	</c:if>
 
@@ -151,9 +151,7 @@ recordSearchContainer.setOrderByType(ddlViewRecordsDisplayContext.getOrderByType
 					recordVersion = record.getLatestRecordVersion();
 				}
 
-				DDMFormValues ddmFormValues = ddlDisplayContext.getDDMFormValues(recordVersion.getDDMStorageId());
-
-				Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap = ddmFormValues.getDDMFormFieldValuesMap();
+				Map<String, List<DDMFormFieldValue>> ddmFormFieldValuesMap = ddlViewRecordsDisplayContext.getDDMFormFieldValuesMap(recordVersion);
 
 				ResultRow row = new ResultRow(record, record.getRecordId(), i);
 

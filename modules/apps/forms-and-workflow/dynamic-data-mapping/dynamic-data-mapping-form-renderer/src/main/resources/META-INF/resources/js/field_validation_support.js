@@ -39,15 +39,8 @@ AUI.add(
 
 				instance._eventHandlers.push(
 					evaluator.after('evaluationEnded', A.bind('_afterValidationEvaluationEnded', instance)),
-					instance.after('blur', instance._afterBlur),
 					instance.after('parentChange', instance._afterParentChange)
 				);
-			},
-
-			hasErrors: function() {
-				var instance = this;
-
-				return !!instance.get('errorMessage');
 			},
 
 			hasValidation: function() {
@@ -97,10 +90,11 @@ AUI.add(
 						}
 
 						if (errorMessage) {
-							instance.set('errorMessage', errorMessage);
+							instance.showErrorMessage(errorMessage);
 						}
-
-						instance.showValidationStatus();
+						else {
+							instance.clearErrorMessage();
+						}
 					}
 				}
 			},
@@ -130,12 +124,6 @@ AUI.add(
 				else if (callback) {
 					callback.call(instance, true);
 				}
-			},
-
-			_afterBlur: function() {
-				var instance = this;
-
-				instance.validate();
 			},
 
 			_afterParentChange: function(event) {

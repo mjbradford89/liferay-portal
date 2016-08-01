@@ -44,7 +44,7 @@ import com.liferay.portal.kernel.util.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import com.liferay.util.RSSUtil;
+import com.liferay.rss.util.RSSUtil;
 
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndContentImpl;
@@ -177,6 +177,16 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	}
 
 	@Override
+	public List<KBArticle> getAllDescendantKBArticles(
+			long resourcePrimKey, int status,
+			OrderByComparator<KBArticle> orderByComparator)
+		throws PortalException {
+
+		return getAllDescendantKBArticles(
+			resourcePrimKey, status, orderByComparator, false);
+	}
+
+	@Override
 	public List<KBArticle> getGroupKBArticles(
 		long groupId, int status, int start, int end,
 		OrderByComparator<KBArticle> orderByComparator) {
@@ -243,52 +253,18 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 
 	@Override
 	public List<KBArticle> getKBArticleAndAllDescendantKBArticles(
-		long groupId, long resourcePrimKey, int status,
-		OrderByComparator<KBArticle> orderByComparator) {
+			long resourcePrimKey, int status,
+			OrderByComparator<KBArticle> orderByComparator)
+		throws PortalException {
 
-		List<KBArticle> kbArticles = getKBArticles(
-			groupId, new long[] {resourcePrimKey}, status, null);
-
-		kbArticles = ListUtil.copy(kbArticles);
-
-		Long[][] params = new Long[][] {new Long[] {resourcePrimKey}};
-
-		while ((params = KnowledgeBaseUtil.getParams(params[0])) != null) {
-			List<KBArticle> curKBArticles = null;
-
-			if (status == WorkflowConstants.STATUS_ANY) {
-				curKBArticles = kbArticlePersistence.filterFindByG_P_L(
-					groupId, ArrayUtil.toArray(params[1]), true);
-			}
-			else if (status == WorkflowConstants.STATUS_APPROVED) {
-				curKBArticles = kbArticlePersistence.filterFindByG_P_M(
-					groupId, ArrayUtil.toArray(params[1]), true);
-			}
-			else {
-				curKBArticles = kbArticlePersistence.filterFindByG_P_S(
-					groupId, ArrayUtil.toArray(params[1]), status);
-			}
-
-			kbArticles.addAll(curKBArticles);
-
-			long[] resourcePrimKeys = StringUtil.split(
-				ListUtil.toString(curKBArticles, "resourcePrimKey"), 0L);
-
-			params[0] = ArrayUtil.append(
-				params[0], ArrayUtil.toArray(resourcePrimKeys));
-		}
-
-		if (orderByComparator != null) {
-			kbArticles = ListUtil.sort(kbArticles, orderByComparator);
-		}
-
-		return Collections.unmodifiableList(kbArticles);
+		return getAllDescendantKBArticles(
+			resourcePrimKey, status, orderByComparator, true);
 	}
 
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link
-	 *             #getKBArticleAndAllDescendantKBArticles(long, long, int,
-	 *             com.liferay.portal.kernel.util.OrderByComparator)}
+	 *             #getKBArticleAndAllDescendantKBArticles(long, int,
+	 *             OrderByComparator)}
 	 */
 	@Deprecated
 	@Override
@@ -296,8 +272,13 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 		long groupId, long resourcePrimKey, int status,
 		OrderByComparator<KBArticle> orderByComparator) {
 
-		return getKBArticleAndAllDescendantKBArticles(
-			groupId, resourcePrimKey, status, orderByComparator);
+		try {
+			return getKBArticleAndAllDescendantKBArticles(
+				resourcePrimKey, status, orderByComparator);
+		}
+		catch (PortalException pe) {
+			return Collections.emptyList();
+		}
 	}
 
 	@Override
@@ -316,9 +297,8 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 			themeDisplay.getPlid(), resourcePrimKey, status,
 			themeDisplay.getPortalURL(), false);
 
-		List<KBArticle> kbArticles = getKBArticleAndAllDescendantKBArticles(
-			kbArticle.getGroupId(), resourcePrimKey, status,
-			new KBArticleModifiedDateComparator());
+		List<KBArticle> kbArticles = getAllDescendantKBArticles(
+			resourcePrimKey, status, new KBArticleModifiedDateComparator());
 
 		return exportToRSS(
 			rssDisplayStyle, rssFormat, name, description, feedURL,
@@ -598,7 +578,7 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 	/**
 	 * @deprecated As of 7.0.0, replaced by {@link #getKBArticles(long, long,
 	 *             int, int, int,
-	 *             com.liferay.portal.kernel.util.OrderByComparator)}
+	 *             OrderByComparator)}
 	 */
 	@Deprecated
 	@Override
@@ -835,6 +815,35 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 		}
 	}
 
+	protected List<KBArticle> getAllDescendantKBArticles(
+			long resourcePrimKey, int status,
+			OrderByComparator<KBArticle> orderByComparator,
+			boolean includeParentArticle)
+		throws PortalException {
+
+		KBArticle kbArticle = getLatestKBArticle(
+			resourcePrimKey, WorkflowConstants.STATUS_ANY);
+
+		long groupId = kbArticle.getGroupId();
+
+		List<KBArticle> kbArticles = null;
+
+		if (includeParentArticle) {
+			kbArticles = getKBArticles(
+				groupId, new long[] {resourcePrimKey}, status, null);
+
+			kbArticles = ListUtil.copy(kbArticles);
+		}
+		else {
+			kbArticles = new ArrayList<>();
+		}
+
+		_getAllDescendantKBArticles(
+			kbArticles, groupId, resourcePrimKey, status, orderByComparator);
+
+		return Collections.unmodifiableList(kbArticles);
+	}
+
 	private void _checkAttachmentPermissions(
 			long groupId, String portletId, long resourcePrimKey)
 		throws PortalException {
@@ -854,6 +863,37 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 		else {
 			KBArticlePermission.check(
 				getPermissionChecker(), resourcePrimKey, KBActionKeys.UPDATE);
+		}
+	}
+
+	private void _getAllDescendantKBArticles(
+		List<KBArticle> kbArticles, long groupId, long resourcePrimKey,
+		int status, OrderByComparator<KBArticle> orderByComparator) {
+
+		List<KBArticle> curKBArticles = null;
+
+		if (status == WorkflowConstants.STATUS_ANY) {
+			curKBArticles = kbArticlePersistence.filterFindByG_P_L(
+				groupId, resourcePrimKey, true, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, orderByComparator);
+		}
+		else if (status == WorkflowConstants.STATUS_APPROVED) {
+			curKBArticles = kbArticlePersistence.findByG_P_M(
+				groupId, resourcePrimKey, true, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, orderByComparator);
+		}
+		else {
+			curKBArticles = kbArticlePersistence.findByG_P_S(
+				groupId, resourcePrimKey, status, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS, orderByComparator);
+		}
+
+		for (KBArticle curKBArticle : curKBArticles) {
+			kbArticles.add(curKBArticle);
+
+			_getAllDescendantKBArticles(
+				kbArticles, groupId, curKBArticle.getResourcePrimKey(), status,
+				orderByComparator);
 		}
 	}
 

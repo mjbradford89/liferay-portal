@@ -245,13 +245,13 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 
 					<liferay-staging:content cmd="<%= cmd %>" disableInputs="<%= configuredPublish %>" exportImportConfigurationId="<%= exportImportConfigurationId %>" type="<%= localPublishing ? Constants.PUBLISH_TO_LIVE : Constants.PUBLISH_TO_REMOTE %>" />
 
-					<liferay-staging:deletions cmd="<%= Constants.PUBLISH %>" exportImportConfigurationId="<%= exportImportConfigurationId %>" />
+					<liferay-staging:deletions cmd="<%= Constants.PUBLISH %>" disableInputs="<%= configuredPublish %>" exportImportConfigurationId="<%= exportImportConfigurationId %>" />
 
 					<liferay-staging:permissions action="<%= Constants.PUBLISH %>" descriptionCSSClass="permissions-description" disableInputs="<%= configuredPublish %>" exportImportConfigurationId="<%= exportImportConfigurationId %>" global="<%= group.isCompany() %>" labelCSSClass="permissions-label" />
 
 					<c:if test="<%= !localPublishing %>">
 						<aui:fieldset collapsed="<%= true %>" collapsible="<%= true %>" cssClass="options-group" label="remote-live-connection-settings">
-							<liferay-staging:remote-options exportImportConfigurationId="<%= exportImportConfigurationId %>" privateLayout="<%= privateLayout %>" />
+							<liferay-staging:remote-options disableInputs="<%= configuredPublish %>" exportImportConfigurationId="<%= exportImportConfigurationId %>" privateLayout="<%= privateLayout %>" />
 						</aui:fieldset>
 					</c:if>
 				</aui:fieldset-group>
@@ -272,15 +272,24 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 
 <aui:script>
 	function <portlet:namespace />publishPages() {
-		var form = AUI.$(document.<portlet:namespace />publishPagesFm);
+		var exportImport = Liferay.component('<portlet:namespace />ExportImportComponent');
 
-		var allContentSelected = AUI.$('#<portlet:namespace /><%= PortletDataHandlerKeys.PORTLET_DATA_ALL %>').val();
+		var dateChecker = exportImport.getDateRangeChecker();
 
-		if (allContentSelected === 'true') {
-			form.fm('<%= PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT %>').val(true);
+		if (dateChecker.validRange) {
+			var form = AUI.$(document.<portlet:namespace />publishPagesFm);
+
+			var allContentSelected = AUI.$('#<portlet:namespace /><%= PortletDataHandlerKeys.PORTLET_DATA_ALL %>').val();
+
+			if (allContentSelected === 'true') {
+				form.fm('<%= PortletDataHandlerKeys.PORTLET_DATA_CONTROL_DEFAULT %>').val(true);
+			}
+
+			submitForm(form);
 		}
-
-		submitForm(form);
+		else {
+			exportImport.showNotification(dateChecker);
+		}
 	}
 
 	Liferay.Util.toggleRadio('<portlet:namespace />allApplications', '<portlet:namespace />showChangeGlobalConfiguration', ['<portlet:namespace />selectApplications']);
@@ -294,7 +303,7 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 </aui:script>
 
 <aui:script use="liferay-export-import">
-	new Liferay.ExportImport(
+	var exportImport = new Liferay.ExportImport(
 		{
 			commentsNode: '#<%= PortletDataHandlerKeys.COMMENTS %>',
 			deletionsNode: '#<%= PortletDataHandlerKeys.DELETIONS %>',
@@ -314,4 +323,6 @@ response.setHeader("Ajax-ID", request.getHeader("Ajax-ID"));
 			userPreferencesNode: '#<%= PortletDataHandlerKeys.PORTLET_USER_PREFERENCES_ALL %>'
 		}
 	);
+
+	Liferay.component('<portlet:namespace />ExportImportComponent', exportImport);
 </aui:script>

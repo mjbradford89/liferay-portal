@@ -45,27 +45,22 @@
 		%>
 
 		<liferay-ui:search-container-column-text
-			cssClass="text-column type-column"
 			name="type"
 			value="<%= inputAssetLinksDisplayContext.getAssetType(assetLinkEntry) %>"
 		/>
 
 		<liferay-ui:search-container-column-text
-			cssClass="content-column title-column"
 			name="title"
 			truncate="<%= true %>"
 			value="<%= HtmlUtil.escape(assetLinkEntry.getTitle(locale)) %>"
 		/>
 
 		<liferay-ui:search-container-column-text
-			cssClass="scope-column text-column"
 			name="scope"
 			value="<%= HtmlUtil.escape(inputAssetLinksDisplayContext.getGroupDescriptiveName(assetLinkEntry)) %>"
 		/>
 
-		<liferay-ui:search-container-column-text
-			cssClass="entry-action-column"
-		>
+		<liferay-ui:search-container-column-text>
 			<a class="modify-link" data-rowId="<%= assetLinkEntry.getEntryId() %>" href="javascript:;"><%= removeLinkIcon %></a>
 		</liferay-ui:search-container-column-text>
 	</liferay-ui:search-container-row>
@@ -90,7 +85,7 @@
 			cssClass="asset-selector"
 			data='<%= (Map<String, Object>)selectorEntry.get("data") %>'
 			id='<%= (String)selectorEntry.get("id") %>'
-			message='<%= (String)selectorEntry.get("message") %>'
+			message='<%= HtmlUtil.escape((String)selectorEntry.get("message")) %>'
 			url="javascript:;"
 		/>
 

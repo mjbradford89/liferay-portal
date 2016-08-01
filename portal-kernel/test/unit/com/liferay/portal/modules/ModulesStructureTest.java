@@ -70,6 +70,10 @@ public class ModulesStructureTest {
 						Path dirPath, BasicFileAttributes basicFileAttributes)
 					throws IOException {
 
+					if (dirPath.equals(modulesDirPath)) {
+						return FileVisitResult.CONTINUE;
+					}
+
 					Path dirNamePath = dirPath.getFileName();
 
 					String dirName = dirNamePath.toString();
@@ -78,19 +82,8 @@ public class ModulesStructureTest {
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 
-					if (!dirPath.equals(modulesDirPath)) {
-						Path buildXmlPath = dirPath.resolve("build.xml");
-
-						if (Files.exists(buildXmlPath)) {
-							Assert.fail("Forbidden " + buildXmlPath);
-						}
-					}
-
-					Path ivyXmlPath = dirPath.resolve("ivy.xml");
-
-					if (Files.exists(ivyXmlPath)) {
-						Assert.fail("Forbidden " + ivyXmlPath);
-					}
+					Path buildGradlePath = dirPath.resolve("build.gradle");
+					Path buildXMLPath = dirPath.resolve("build.xml");
 
 					if (Files.exists(dirPath.resolve(".gitrepo"))) {
 						_testGitRepoBuildScripts(
@@ -98,15 +91,32 @@ public class ModulesStructureTest {
 							gitRepoSettingsGradleTemplate);
 					}
 					else if (Files.exists(dirPath.resolve("bnd.bnd"))) {
-						Path buildGradlePath = dirPath.resolve("build.gradle");
-
 						if (Files.notExists(buildGradlePath)) {
 							Assert.fail("Missing " + buildGradlePath);
+						}
+
+						if (Files.exists(buildXMLPath)) {
+							Assert.fail("Forbidden " + buildXMLPath);
+						}
+
+						Path ivyXmlPath = dirPath.resolve("ivy.xml");
+
+						if (Files.exists(ivyXmlPath)) {
+							Assert.fail("Forbidden " + ivyXmlPath);
+						}
+
+						return FileVisitResult.SKIP_SUBTREE;
+					}
+					else if (Files.exists(buildXMLPath)) {
+						if (Files.exists(buildGradlePath)) {
+							Assert.fail("Forbidden " + buildGradlePath);
 						}
 
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 					else if (Files.exists(dirPath.resolve("package.json"))) {
+						_testThemeBuildScripts(dirPath);
+
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 
@@ -185,6 +195,23 @@ public class ModulesStructureTest {
 		}
 	}
 
+	private boolean _contains(Path path, String s) throws IOException {
+		try (FileReader fileReader = new FileReader(path.toFile());
+			UnsyncBufferedReader unsyncBufferedReader =
+				new UnsyncBufferedReader(fileReader)) {
+
+			String line = null;
+
+			while ((line = unsyncBufferedReader.readLine()) != null) {
+				if (line.contains(s)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	private String _getGitRepoBuildGradle(
 			Path dirPath, String buildGradleTemplate)
 		throws IOException {
@@ -211,7 +238,7 @@ public class ModulesStructureTest {
 							pluginNames, "com.liferay.gradle.plugins.",
 							buildGradlePath, "com.liferay.",
 							new String[] {
-								"cache", "lang.merger", "maven.plugin.builder"
+								"lang.merger", "maven.plugin.builder"
 							});
 
 						return FileVisitResult.SKIP_SUBTREE;
@@ -280,6 +307,20 @@ public class ModulesStructureTest {
 		Assert.assertEquals(
 			"Incorrect " + settingsGradlePath, settingsGradleTemplate,
 			settingsGradle);
+	}
+
+	private void _testThemeBuildScripts(Path dirPath) throws IOException {
+		if (!_contains(
+				dirPath.resolve("package.json"), "\"liferay-theme-tasks\":")) {
+
+			return;
+		}
+
+		Path gulpfileJsPath = dirPath.resolve("gulpfile.js");
+
+		if (Files.notExists(gulpfileJsPath)) {
+			Assert.fail("Missing " + gulpfileJsPath);
+		}
 	}
 
 }

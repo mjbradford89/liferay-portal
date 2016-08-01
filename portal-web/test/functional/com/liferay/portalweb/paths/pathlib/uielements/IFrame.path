@@ -49,8 +49,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>EMBEDDED_IFRAME</td>
+	<td>//iframe[@id='embeddedIframe']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>IFRAME_TITLE</td>
 	<td>//div[contains(@class,'modal-header')]/h3[@class='modal-title' and contains(.,'${key_iframeTitle}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>INVITE_MEMBERS</td>
+	<td>//iframe[contains(@src,'InviteMembersPortlet')]</td>
 	<td></td>
 </tr>
 <tr>

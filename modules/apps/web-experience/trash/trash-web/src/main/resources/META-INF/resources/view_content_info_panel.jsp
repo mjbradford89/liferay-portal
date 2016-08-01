@@ -26,13 +26,13 @@ TrashHandler trashHandler = trashDisplayContext.getTrashHandler();
 
 <c:if test="<%= trashRenderer != null %>">
 	<div class="sidebar-header">
-		<ul class="list-inline list-unstyled sidebar-header-actions">
+		<ul class="sidebar-header-actions">
 			<li>
 				<liferay-util:include page="/container_action.jsp" servletContext="<%= application %>" />
 			</li>
 		</ul>
 
-		<h4><%= trashRenderer.getTitle(locale) %></h4>
+		<h4><%= HtmlUtil.escape(trashRenderer.getTitle(locale)) %></h4>
 	</div>
 
 	<aui:nav-bar>

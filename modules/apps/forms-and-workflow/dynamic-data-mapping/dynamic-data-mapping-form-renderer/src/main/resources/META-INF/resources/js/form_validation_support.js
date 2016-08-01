@@ -94,17 +94,15 @@ AUI.add(
 						if (pageNode.contains(field.get('container'))) {
 							field.processValidation(result);
 
-							if (field.hasErrors()) {
+							if (field.hasErrors() && !fieldToFocus) {
 								fieldToFocus = field;
 							}
-
-							return !!fieldToFocus;
 						}
 					}
 				);
 
 				if (fieldToFocus) {
-					fieldToFocus.focus();
+					fieldToFocus.scrollIntoView();
 				}
 			},
 
@@ -117,16 +115,14 @@ AUI.add(
 					function(field) {
 						field.processValidation(result);
 
-						if (field.hasErrors()) {
+						if (field.hasErrors() && !fieldToFocus) {
 							fieldToFocus = field;
 						}
-
-						return !!fieldToFocus;
 					}
 				);
 
 				if (fieldToFocus) {
-					fieldToFocus.focus();
+					fieldToFocus.scrollIntoView();
 				}
 			},
 
