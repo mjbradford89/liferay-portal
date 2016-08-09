@@ -1,0 +1,3 @@
+Bundle-SymbolicName: portlet
+Bundle-Version: 1.0.0
+Web-ContextPath: /angular-portlet
