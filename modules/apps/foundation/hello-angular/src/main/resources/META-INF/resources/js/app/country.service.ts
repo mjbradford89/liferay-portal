@@ -3,10 +3,13 @@ import { Country } from './country';
 
 @Injectable()
 export class CountryService {
+	countryCache:Country[];
+
 	constructor(@Inject('Liferay') private Liferay: any) {
 	}
 
 	getCountries() {
+		var instance = this;
 		return new Promise<Country[]>((resolve) => {
 			this.Liferay.Service(
 				'/country/get-countries',
@@ -14,9 +17,19 @@ export class CountryService {
 					active: true
 				},
 				function(response:any) {
-					resolve(response);
+					instance.countryCache = response;
+					resolve(instance.countryCache);
 				}
 			);
 		});
+	}
+
+	getCountryById(countryId:number):Country {
+		for (var i =0; i < this.countryCache.length; i++) {
+			var c = this.countryCache[i];
+			if (c.countryId == countryId) {
+				return c;
+			}
+		}
 	}
 }

@@ -34,7 +34,7 @@ import org.osgi.service.component.annotations.Component;
 @Component(
 	immediate = true,
 	property = {
-		"com.liferay.portlet.css-class-wrapper=portlet-hello-angular",
+		"com.liferay.portlet.css-class-wrapper=portlet-angular",
 		"com.liferay.portlet.display-category=category.sample",
 		"com.liferay.portlet.layout-cacheable=true",
 		"com.liferay.portlet.preferences-owned-by-group=true",
@@ -45,7 +45,7 @@ import org.osgi.service.component.annotations.Component;
 		"javax.portlet.init-param.template-path=/",
 		"com.liferay.portlet.render-weight=50",
 		"com.liferay.portlet.use-default-template=true",
-		"javax.portlet.display-name=Hello Angular",
+		"javax.portlet.display-name=Angular Portlet",
 		"javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.always-display-default-configuration-icons=true",
 		"javax.portlet.name=com_liferay_hello_angular_web_portlet_HelloAngularPortlet",

@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '../node_modules/@angular/core';
-//import { ROUTER_DIRECTIVES } from '../node_modules/@angular/router';
+import { Router, ROUTER_DIRECTIVES } from '../node_modules/@angular/router';
 import { Country } from './country';
 import { CountryDetailComponent } from './country-detail.component';
 import { CountryService } from './country.service';
@@ -20,29 +20,33 @@ import { CountryService } from './country.service';
 	<h1>{{title}}</h1>
 
 	<div class="form-group">
+		<label>{{label}}</label>
 		<select class="countries form-control" (change)="onChange($event.target.value)">
-		  <option [value]="country.countryId" *ngFor="let country of countries">
+		  <option [value]="country.countryId" *ngFor="let country of countries"  [selected]="country.countryId == 19">
 			{{country.name}}
 		  </option>
 		</select>
 	</div>
 
-	<country-content [country]="selectedCountry"></country-content>
+	<router-outlet></router-outlet>
 	`,
-	directives: [CountryDetailComponent],
+	directives: [ROUTER_DIRECTIVES, CountryDetailComponent],
 	providers: [CountryService]
 })
 
 export class AppComponent {
 	componentName: 'AppComponent';
-	title = 'Hello Angular!';
+	title = 'This is an Angular Portlet inside Liferay Portal 7!';
+	label = 'Select a country to get more information about it.'
 	countries: Country[];
-	selectedCountry: Country;
 
-	constructor(@Inject(CountryService) private countryService: CountryService) { }
+	constructor(@Inject(Router)private router: Router, @Inject(CountryService) private countryService: CountryService) { }
 
 	getCountries() {
-		this.countryService.getCountries().then(countries => this.countries = countries);
+		this.countryService.getCountries().then((countries) => {
+			this.countries = countries;
+			this.router.navigate(['/country', 19]); //start on united states
+		});
 	}
 
 	ngOnInit() {
@@ -50,16 +54,6 @@ export class AppComponent {
 	}
 
 	onChange(countryId:number) {
-		this.selectedCountry = this.getCountryById(countryId);
+		this.router.navigate(['/country', countryId]);
 	}
-
-	getCountryById(countryId:number):Country {
-		for (var i =0; i < this.countries.length; i++) {
-			var c = this.countries[i];
-			if (c.countryId == countryId) {
-				return c;
-			}
-		}
-	}
-
 }

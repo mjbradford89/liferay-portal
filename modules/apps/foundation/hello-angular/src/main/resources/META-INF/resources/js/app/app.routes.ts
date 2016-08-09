@@ -1,16 +1,16 @@
-// import { provideRouter, RouterConfig } from '../node_modules/@angular/router';
-// import { FirstComponent } from './first/app.first.component';
-// import { SecondComponent } from './second/app.second.component';
-// import { AppComponent } from './app.component';
+import { provideRouter, RouterConfig } from '../node_modules/@angular/router';
+import { CountryDetailComponent } from './country-detail.component';
+import { AppComponent } from './app.component';
 
-// // Route Configuration
-// export const routes: RouterConfig = [
-//   { path: '', component: AppComponent },
-//   { path: 'first', component: FirstComponent },
-//   { path: 'second', component: SecondComponent }
-// ];
+// Route Configuration
+export const routes: RouterConfig = [
+  { path: '', component: AppComponent },
+  { path: 'country', component: CountryDetailComponent },
+  { path: 'country/:id', component: CountryDetailComponent },
+  { path: '**', redirectTo: '' }
+];
 
-// // Export routes
-// export const APP_ROUTER_PROVIDERS = [
-//   provideRouter(routes)
-// ];
+// Export routes
+export const APP_ROUTER_PROVIDERS = [
+  provideRouter(routes, {enableTracing: true})
+];
