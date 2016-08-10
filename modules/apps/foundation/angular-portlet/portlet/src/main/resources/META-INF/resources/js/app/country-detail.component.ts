@@ -1,36 +1,36 @@
-import { ActivatedRoute } from '@angular/router';
-import { Component, Inject, Input, OnInit } from '../node_modules/@angular/core';
+import { Component, Inject, Input, OnInit, SimpleChange } from '../node_modules/@angular/core';
 import { Country } from './country';
 import { LocationService } from './location.service';
+import { RegionDetailComponent } from './region-detail.component';
+import { ActivatedRoute, Router, ROUTER_DIRECTIVES } from '../node_modules/@angular/router';
 
 @Component({
-	selector: 'country-content',
-	template: `
-		<div *ngIf="country">
-		  <h2>{{country.name}} details!</h2>
-		  <div><label>id: </label>{{country.countryId}}</div>
-		  <div>
-			<label>name: </label>
-			<input [(ngModel)]="country.name" placeholder="name"/>
-		  </div>
-		</div>
-	`
+	selector: 'location-content',
+	templateUrl: '/o/angular-portlet/templates/country-detail.component.html',
+	directives: [ROUTER_DIRECTIVES, RegionDetailComponent]
 })
 
 export class CountryDetailComponent implements OnInit {
-	@Input()
 	country: Country;
 	sub: any;
 
-	constructor(@Inject(ActivatedRoute)private route: ActivatedRoute, @Inject(LocationService) private locationService: LocationService) { }
+	constructor(
+		@Inject(Router)private router: Router,
+		@Inject(ActivatedRoute)private route: ActivatedRoute,
+		@Inject(LocationService) private locationService: LocationService) { }
 
 	ngOnInit() {
-	  this.sub = this.route.params.subscribe(params => {
-	    let id = +params['id'];
-	    if (id) {
-	    	this.country = this.locationService.getCountryById(id);
-	    }
-	  });
+		this.locationService.getCountries().then(() => {
+		  this.sub = this.route.params.subscribe(params => {
+		    let countryId = +params['countryId'];
+		    if (countryId) {
+		    	this.country = this.locationService.getCountry(countryId);
+		    }
+		  });
+		});
 	}
 
+	onChange(regionId:number) {
+		this.router.navigate(['-/angular/country', this.country.countryId, regionId]);
+	}
 }

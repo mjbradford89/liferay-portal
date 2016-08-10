@@ -1,5 +1,5 @@
 export class Region {
 	regionId: number
-	regionCode: number;
+	regionCode: string;
 	name: string;
 }

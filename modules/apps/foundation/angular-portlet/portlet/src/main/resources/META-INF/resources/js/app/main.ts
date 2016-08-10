@@ -8,7 +8,6 @@ export function main(Liferay:any, A:any, baseRenderUrl:String) {
 	bootstrap(AppComponent, [
 		provide('Liferay', {useValue: Liferay}),
 		provide('baseRenderUrl', {useValue: baseRenderUrl}),
-		provide('A', {useValue: A}),
 		APP_ROUTER_PROVIDERS
 	]);
 }

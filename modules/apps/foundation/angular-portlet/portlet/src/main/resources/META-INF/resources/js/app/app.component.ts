@@ -6,31 +6,8 @@ import { LocationService } from './location.service';
 
 @Component({
 	selector: 'my-app',
-
-	styles: [`
-		h1 {
-	color:#545454;
-	background:#02A8F4;
-	padding:15px;
-	box-shadow:2px 2px 2px 0 rgba(0, 0, 0, 0.3);
-	}
-	`],
-
-	template: `
-	<h1>{{title}}</h1>
-
-	<div class="form-group">
-		<label>{{label}}</label>
-		<select class="countries form-control" (change)="onChange($event.target.value)">
-		  <option selected> -- Select a Country -- </option>
-		  <option [value]="country.countryId" *ngFor="let country of countries" >
-			{{country.name}}
-		  </option>
-		</select>
-	</div>
-
-	<router-outlet></router-outlet>
-	`,
+	styleUrls: [`/o/angular-portlet/styles/app.component.css`],
+	templateUrl: '/o/angular-portlet/templates/app.component.html',
 	directives: [ROUTER_DIRECTIVES, CountryDetailComponent],
 	providers: [LocationService]
 })
@@ -44,8 +21,7 @@ export class AppComponent {
 	constructor(
 		@Inject(Router)private router: Router,
 		@Inject(LocationService) private locationService: LocationService,
-		@Inject('Liferay') private Liferay: any,
-		@Inject('A') private A: any) {
+		@Inject('Liferay') private Liferay: any) {
 		this.getCountries();
 	}
 
@@ -56,8 +32,8 @@ export class AppComponent {
 	}
 
 	onChange(countryId:number) {
-		var instance = this;
-
-		this.router.navigate(['-/angular/country', countryId]);
+		this.locationService.getRegions(countryId).then(() => {
+			this.router.navigate(['-/angular/country', countryId]);
+		});
 	}
 }

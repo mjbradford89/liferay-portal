@@ -1,0 +1,15 @@
+<h1>{{title}}</h1>
+
+<div class="form-group">
+	<label>{{label}}</label>
+	<select class="countries form-control" (change)="onChange($event.target.value)">
+		<option selected> -- Select a Country -- </option>
+		<option [value]="country.countryId" *ngFor="let country of countries" >
+			{{country.name}}
+		</option>
+	</select>
+</div>
+
+<location-content></location-content>
+
+<router-outlet></router-outlet>

@@ -1,0 +1,21 @@
+<div *ngIf="country">
+	<h2>{{country.name}} details!</h2>
+	<div>
+		<label>ID: </label>{{country.countryId}}
+	</div>
+	<div>
+		<label>Name: </label>
+		<input [(ngModel)]="country.name" placeholder="Name"/>
+	</div>
+	<div>
+		<label>Abbreviation: </label>
+		<input [(ngModel)]="country.a3" placeholder="Abbreviation"/>
+	</div>
+
+	<select class="regions form-control" (change)="onChange($event.target.value)">
+		<option selected> -- Select a Region -- </option>
+		<option [value]="region.regionId" *ngFor="let region of country.regions" >
+			{{region.name}}
+		</option>
+	</select>
+</div>

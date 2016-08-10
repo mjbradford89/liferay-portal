@@ -1,0 +1,14 @@
+<div *ngIf="region">
+	<h2>{{region.name}}, {{country.name}} details!</h2>
+	<div>
+		<label>ID: </label>{{region.regionId}}
+	</div>
+	<div>
+		<label>Name: </label>
+		<input [(ngModel)]="region.name" placeholder="Name"/>
+	</div>
+	<div>
+		<label>Abbreviation: </label>
+		<input [(ngModel)]="region.regionCode" placeholder="Abbreviation"/>
+	</div>
+</div>

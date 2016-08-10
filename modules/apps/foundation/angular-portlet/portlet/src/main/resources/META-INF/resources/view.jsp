@@ -8,7 +8,7 @@
 
 <aui:script>
 	System.import('app').then(function(module) {
-		module.main(Liferay, AUI());
+		module.main(Liferay);
 	}).catch(function(err){ console.error(err); });
 </aui:script>
 
